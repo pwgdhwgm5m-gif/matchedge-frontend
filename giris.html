@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MatchEdge - Login</title>
+<style>
+  :root {
+    --bg-base: #0a0e17;
+    --bg-card: #121826;
+    --bg-card-inner: #0d1220;
+    --border-subtle: #1e2636;
+    --teal: #2dd4bf;
+    --red: #f0556b;
+    --green: #4ade80;
+    --text-primary: #f2f4f8;
+    --text-secondary: #8b93a7;
+    --text-muted: #5a6478;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .wrap { max-width: 360px; width: 100%; }
+  .brand { text-align: center; margin-bottom: 28px; }
+  .brand-name { font-size: 24px; font-weight: 800; }
+  .brand-name .premium { color: var(--teal); margin-left: 6px; }
+  .brand-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 2px; margin-top: 4px; }
+
+  .lang-toggle {
+    position: fixed; top: 16px; right: 16px;
+    display: flex; align-items: center; gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .lang-toggle .lang-code { font-size: 9.5px; font-weight: 800; color: var(--text-secondary); margin-left: 2px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 11px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .tab.active { background: rgba(45,212,191,0.12); border-color: var(--teal); color: var(--teal); }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 22px 20px;
+  }
+  .field-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
+  .field-input {
+    width: 100%;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 12px 13px;
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .field-input:focus { outline: none; border-color: var(--teal); }
+  .field-group { display: none; }
+  .field-group.visible { display: block; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    background: var(--teal);
+    color: #05201c;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+  .error-msg {
+    background: rgba(240,85,107,0.1);
+    border: 1px solid rgba(240,85,107,0.35);
+    color: var(--red);
+    font-size: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+
+  .success-msg {
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.35);
+    color: var(--green);
+    font-size: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .success-msg.show { display: block; }
+
+  .forgot-link {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    cursor: pointer;
+  }
+  .forgot-link:hover { color: var(--teal); }
+
+  .back-link {
+    text-align: center;
+    font-size: 12px;
+    color: var(--teal);
+    margin-top: 14px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="lang-toggle" id="langToggle">
+  <span id="langFlag">🇬🇧</span><span class="lang-code" id="langCode">EN</span>
+</div>
+
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
+    <div class="brand-sub" data-i18n="brandSub">PRO MATCH INTELLIGENCE</div>
+  </div>
+
+  <div class="tabs" id="tabsRow">
+    <div class="tab active" data-mode="login" data-i18n="loginTab">Log In</div>
+    <div class="tab" data-mode="register" data-i18n="registerTab">Sign Up</div>
+  </div>
+
+  <div class="card">
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="success-msg" id="successMsg"></div>
+
+    <div id="mainFields">
+      <div class="field-label" data-i18n="usernameLabel">Username</div>
+      <input type="text" class="field-input" id="usernameInput" autocomplete="username">
+
+      <div class="field-group" id="emailGroup">
+        <div class="field-label" data-i18n="emailLabel">Email</div>
+        <input type="email" class="field-input" id="emailInput" autocomplete="email">
+      </div>
+
+      <div class="field-label" data-i18n="passwordLabel">Password</div>
+      <input type="password" class="field-input" id="passwordInput" autocomplete="current-password">
+    </div>
+
+    <div class="field-group" id="forgotFields">
+      <div class="field-label" data-i18n="emailLabel">Email</div>
+      <input type="email" class="field-input" id="forgotEmailInput" autocomplete="email">
+    </div>
+
+    <button class="submit-btn" id="submitBtn" data-i18n="loginBtn">Log In</button>
+
+    <div class="forgot-link" id="forgotLink" data-i18n="forgotLink">Forgot password?</div>
+    <div class="back-link" id="backLink" style="display:none;" data-i18n="backToLogin">Back to log in</div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
+
+const TRANSLATIONS = {
+  en: {
+    brandSub: 'PRO MATCH INTELLIGENCE', loginTab: 'Log In', registerTab: 'Sign Up',
+    usernameLabel: 'Username', emailLabel: 'Email', passwordLabel: 'Password',
+    loginBtn: 'Log In', registerBtn: 'Create Account', resetBtn: 'Send Reset Link',
+    fillFields: 'Please fill in all fields.',
+    connecting: 'Connecting...',
+    backendMissing: 'Backend not connected yet - set API_BASE in this file first.',
+    networkError: 'Could not reach the server. Check your connection.',
+    forgotLink: 'Forgot password?', backToLogin: '← Back to log in',
+    resetSent: 'If that email is registered, a reset link has been sent.',
+    registerSuccess: 'Account created! Check your email to verify it.',
+  },
+  tr: {
+    brandSub: 'PRO MAÇ ZEKASI', loginTab: 'Giriş Yap', registerTab: 'Kayıt Ol',
+    usernameLabel: 'Kullanıcı Adı', emailLabel: 'E-posta', passwordLabel: 'Şifre',
+    loginBtn: 'Giriş Yap', registerBtn: 'Hesap Oluştur', resetBtn: 'Sıfırlama Bağlantısı Gönder',
+    fillFields: 'Lütfen tüm alanları doldur.',
+    connecting: 'Bağlanıyor...',
+    backendMissing: 'Backend henüz bağlanmadı - önce bu dosyadaki API_BASE değerini ayarla.',
+    networkError: 'Sunucuya ulaşılamadı. Bağlantını kontrol et.',
+    forgotLink: 'Şifremi unuttum', backToLogin: '← Girişe dön',
+    resetSent: 'Eğer bu e-posta kayıtlıysa, bir sıfırlama bağlantısı gönderildi.',
+    registerSuccess: 'Hesap oluşturuldu! Doğrulamak için e-postanı kontrol et.',
+  },
+};
+
+let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
+let currentMode = 'login'; // login | register | forgot
+
+function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹🇷';
+  document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
+  updateSubmitLabel();
+}
+
+function updateSubmitLabel() {
+  const btn = document.getElementById('submitBtn');
+  if (currentMode === 'login') btn.textContent = t('loginBtn');
+  else if (currentMode === 'register') btn.textContent = t('registerBtn');
+  else btn.textContent = t('resetBtn');
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  currentLang = currentLang === 'tr' ? 'en' : 'tr';
+  localStorage.setItem('matchedge_lang', currentLang);
+  applyStaticTranslations();
+});
+
+function clearMessages() {
+  document.getElementById('errorMsg').classList.remove('show');
+  document.getElementById('successMsg').classList.remove('show');
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  clearMessages();
+
+  document.getElementById('tabsRow').style.display = mode === 'forgot' ? 'none' : 'flex';
+  document.getElementById('mainFields').style.display = mode === 'forgot' ? 'none' : 'block';
+  document.getElementById('forgotFields').classList.toggle('visible', mode === 'forgot');
+  document.getElementById('emailGroup').classList.toggle('visible', mode === 'register');
+  document.getElementById('forgotLink').style.display = mode === 'forgot' ? 'none' : 'block';
+  document.getElementById('backLink').style.display = mode === 'forgot' ? 'block' : 'none';
+
+  updateSubmitLabel();
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    tab.classList.add('active');
+    setMode(tab.dataset.mode);
+  });
+});
+
+document.getElementById('forgotLink').addEventListener('click', () => setMode('forgot'));
+document.getElementById('backLink').addEventListener('click', () => setMode('login'));
+
+function showError(msg) {
+  clearMessages();
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function showSuccess(msg) {
+  clearMessages();
+  const el = document.getElementById('successMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+document.getElementById('submitBtn').addEventListener('click', async () => {
+  if (!API_BASE) {
+    showError(t('backendMissing'));
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+
+  try {
+    if (currentMode === 'forgot') {
+      const email = document.getElementById('forgotEmailInput').value.trim();
+      if (!email) { showError(t('fillFields')); return; }
+
+      btn.textContent = t('connecting');
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      await res.json();
+      showSuccess(t('resetSent'));
+      return;
+    }
+
+    const username = document.getElementById('usernameInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
+    const email = document.getElementById('emailInput').value.trim();
+
+    if (!username || !password || (currentMode === 'register' && !email)) {
+      showError(t('fillFields'));
+      return;
+    }
+
+    btn.textContent = t('connecting');
+    const endpoint = currentMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+    const body = currentMode === 'login' ? { username, password } : { username, email, password };
+
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data.error || t('networkError'));
+      return;
+    }
+
+    localStorage.setItem('matchedge_token', data.token);
+    localStorage.setItem('matchedge_username', data.username);
+    window.location.href = 'ana-sayfa.html';
+  } catch (err) {
+    showError(t('networkError'));
+  } finally {
+    btn.disabled = false;
+    updateSubmitLabel();
+  }
+});
+
+applyStaticTranslations();
+</script>
+
+</body>
+</html>
