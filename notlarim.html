@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MatchEdge - Notlarım</title>
+<style>
+  :root {
+    --bg-base: #0a0e17;
+    --bg-card: #121826;
+    --bg-card-inner: #0d1220;
+    --border-subtle: #1e2636;
+    --teal: #2dd4bf;
+    --purple: #9d7cf0;
+    --amber: #f5b942;
+    --red: #f0556b;
+    --green: #4ade80;
+    --text-primary: #f2f4f8;
+    --text-secondary: #8b93a7;
+    --text-muted: #5a6478;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 90px;
+  }
+  .app { max-width: 480px; margin: 0 auto; padding: 16px; }
+
+  .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 18px; }
+  .brand-name { font-size: 19px; font-weight: 800; }
+  .brand-name .premium { color: var(--teal); margin-left: 4px; }
+  .brand-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; margin-top: 2px; }
+
+  .add-btn {
+    width: 38px; height: 38px;
+    background: var(--teal);
+    color: #05201c;
+    border: none;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+
+  .stats-strip { display: flex; gap: 10px; margin-bottom: 18px; }
+  .stat-chip {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+  .stat-chip .num { font-size: 18px; font-weight: 800; }
+  .stat-chip .lbl { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+  .stat-chip.win .num { color: var(--green); }
+  .stat-chip.loss .num { color: var(--red); }
+  .stat-chip.pending .num { color: var(--amber); }
+
+  .filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .filter-tab {
+    padding: 7px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .filter-tab.active { background: rgba(45,212,191,0.12); border-color: var(--teal); color: var(--teal); }
+
+  .note-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .note-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .note-match { font-size: 14.5px; font-weight: 700; }
+  .note-date { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .note-selection {
+    display: inline-block;
+    background: rgba(45,212,191,0.1);
+    border: 1px solid rgba(45,212,191,0.3);
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .note-comment { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px; }
+
+  .note-actions { display: flex; gap: 8px; align-items: center; }
+  .result-btn {
+    flex: 1;
+    text-align: center;
+    padding: 7px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card-inner);
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .result-btn.win.selected { background: rgba(74,222,128,0.15); border-color: var(--green); color: var(--green); }
+  .result-btn.loss.selected { background: rgba(240,85,107,0.15); border-color: var(--red); color: var(--red); }
+  .delete-btn {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); font-size: 13px; }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: flex-end;
+    z-index: 200;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--bg-card);
+    border-radius: 20px 20px 0 0;
+    padding: 22px 20px 28px;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 16px; }
+  .field-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
+  .field-input {
+    width: 100%;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 11px 12px;
+    color: var(--text-primary);
+    font-size: 13.5px;
+    margin-bottom: 16px;
+  }
+  .field-input:focus { outline: none; border-color: var(--teal); }
+  textarea.field-input { resize: none; min-height: 60px; font-family: inherit; }
+
+  .preset-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .preset-chip {
+    padding: 7px 12px;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .preset-chip.selected { background: rgba(45,212,191,0.12); border-color: var(--teal); color: var(--teal); }
+
+  .modal-buttons { display: flex; gap: 10px; margin-top: 4px; }
+  .modal-btn {
+    flex: 1;
+    text-align: center;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+  }
+  .modal-btn.cancel { background: var(--bg-card-inner); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+  .modal-btn.save { background: var(--teal); color: #05201c; }
+
+  .pick-item {
+    padding: 11px 12px;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .pick-item .pick-league { font-size: 9.5px; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 3px; }
+  .auto-tag {
+    display: inline-block;
+    font-size: 8.5px;
+    font-weight: 800;
+    color: var(--purple);
+    border: 1px solid var(--purple);
+    border-radius: 6px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-around;
+    padding: 10px 0 20px;
+  }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
+  .nav-item.active { color: var(--teal); }
+  .nav-icon { font-size: 18px; }
+
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+  .lang-toggle {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .lang-toggle .lang-code { font-size: 9.5px; font-weight: 800; color: var(--text-secondary); margin-left: 2px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="top-bar">
+    <div>
+      <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
+      <div class="brand-sub" data-i18n="brandSub">MY NOTES</div>
+    </div>
+    <div class="top-actions">
+      <div class="lang-toggle" id="langToggle">
+        <span id="langFlag">🇬🇧</span><span class="lang-code" id="langCode">EN</span>
+      </div>
+      <div class="add-btn" id="openModalBtn">+</div>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-chip win"><div class="num" id="statWin">0</div><div class="lbl" data-i18n="statWinLbl">WON</div></div>
+    <div class="stat-chip loss"><div class="num" id="statLoss">0</div><div class="lbl" data-i18n="statLossLbl">LOST</div></div>
+    <div class="stat-chip pending"><div class="num" id="statPending">0</div><div class="lbl" data-i18n="statPendingLbl">PENDING</div></div>
+  </div>
+
+  <div class="filter-tabs">
+    <div class="filter-tab active" data-filter="all" data-i18n="filterAll">All</div>
+    <div class="filter-tab" data-filter="pending" data-i18n="filterPending">Pending</div>
+    <div class="filter-tab" data-filter="win" data-i18n="filterWin">Won</div>
+    <div class="filter-tab" data-filter="loss" data-i18n="filterLoss">Lost</div>
+  </div>
+
+  <div id="notesContainer"></div>
+</div>
+
+<div class="bottom-nav">
+  <div class="nav-item"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></div>
+  <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
+  <div class="nav-item"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></div>
+  <div class="nav-item active"><span class="nav-icon">📝</span><span data-i18n="navNotes">My Notes</span></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-sheet">
+    <div class="modal-title" data-i18n="addNoteTitle">Add New Note</div>
+
+    <div class="field-label" data-i18n="matchLabel">Match</div>
+    <div class="field-input" id="matchPickerBtn" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; color:var(--text-muted);">
+      <span id="matchPickerLabel" data-i18n="tapToPick">Tap to pick a match</span>
+      <span>▾</span>
+    </div>
+    <input type="hidden" id="matchInput">
+    <input type="hidden" id="fixtureIdInput">
+    <input type="hidden" id="matchDateInput">
+
+    <div class="field-label" data-i18n="selectionLabel">Selection (tap a preset or write your own below)</div>
+    <div class="preset-grid" id="presetGrid">
+      <div class="preset-chip" data-value="2.5 Üst">2.5 Üst</div>
+      <div class="preset-chip" data-value="2.5 Alt">2.5 Alt</div>
+      <div class="preset-chip" data-value="KG Var">KG Var</div>
+      <div class="preset-chip" data-value="KG Yok">KG Yok</div>
+      <div class="preset-chip" data-value="Ev Sahibi Kazanır">Ev Sahibi Kazanır</div>
+      <div class="preset-chip" data-value="Deplasman Kazanır">Deplasman Kazanır</div>
+      <div class="preset-chip" data-value="İlk Yarı Gol Var">İlk Yarı Gol Var</div>
+    </div>
+    <input type="text" class="field-input" id="selectionInput" data-i18n-placeholder="selectionPlaceholder" placeholder="or write your own pick...">
+
+    <div class="field-label" data-i18n="noteLabel">Note (optional)</div>
+    <textarea class="field-input" id="commentInput" data-i18n-placeholder="notePlaceholder" placeholder="A note to remind you why you picked this..."></textarea>
+
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="cancelBtn" data-i18n="cancel">Cancel</button>
+      <button class="modal-btn save" id="saveBtn" data-i18n="save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mac secim alt-modali -->
+<div class="modal-overlay" id="pickerOverlay">
+  <div class="modal-sheet">
+    <div class="modal-title" data-i18n="pickMatchTitle">Pick a Match</div>
+
+    <div class="field-label" data-i18n="dateLabel">Date</div>
+    <input type="date" class="field-input" id="pickerDate">
+
+    <div id="pickerList" style="max-height: 320px; overflow-y: auto; margin-bottom: 16px;">
+      <div class="empty-state" style="padding:24px;" data-i18n="pickDateHint">Matches load once you pick a date</div>
+    </div>
+
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" id="pickerCancelBtn" data-i18n="close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Giris kontrolu - token yoksa giris ekranina yonlendir
+(function() {
+  if (!localStorage.getItem('matchedge_token')) {
+    window.location.href = 'giris.html';
+  }
+})();
+
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com'; // örn: 'https://matchedge-backend.onrender.com'
+let currentFilter = 'all';
+
+const TRANSLATIONS = {
+  en: {
+    brandSub: 'MY NOTES',
+    statWinLbl: 'WON', statLossLbl: 'LOST', statPendingLbl: 'PENDING',
+    filterAll: 'All', filterPending: 'Pending', filterWin: 'Won', filterLoss: 'Lost',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'My Notes',
+    addNoteTitle: 'Add New Note', matchLabel: 'Match', tapToPick: 'Tap to pick a match',
+    selectionLabel: 'Selection (tap a preset or write your own below)',
+    selectionPlaceholder: 'or write your own pick...',
+    noteLabel: 'Note (optional)', notePlaceholder: 'A note to remind you why you picked this...',
+    cancel: 'Cancel', save: 'Save',
+    pickMatchTitle: 'Pick a Match', dateLabel: 'Date', pickDateHint: 'Matches load once you pick a date', close: 'Close',
+    emptyNotes: "No notes yet — tap + in the top right to add one",
+    autoTag: 'AUTO', waitingAuto: '⏱ Will be checked automatically once the match ends',
+    won: 'Won', lost: 'Lost',
+    requiredFields: 'Match and selection fields are required.',
+    loading: 'Loading...',
+    win: 'win', loss: 'loss',
+  },
+  tr: {
+    brandSub: 'NOTLARIM',
+    statWinLbl: 'KAZANDI', statLossLbl: 'KAYBETTİ', statPendingLbl: 'BEKLİYOR',
+    filterAll: 'Tümü', filterPending: 'Bekleyen', filterWin: 'Kazandı', filterLoss: 'Kaybetti',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım',
+    addNoteTitle: 'Yeni Not Ekle', matchLabel: 'Maç', tapToPick: 'Maç seçmek için dokun',
+    selectionLabel: 'Seçim (hazır seçeneklerden tıkla veya aşağıya kendin yaz)',
+    selectionPlaceholder: 'veya kendi seçimini yaz...',
+    noteLabel: 'Not (opsiyonel)', notePlaceholder: 'Neden bu seçimi yaptığını hatırlatacak bir not...',
+    cancel: 'Vazgeç', save: 'Kaydet',
+    pickMatchTitle: 'Maç Seç', dateLabel: 'Tarih', pickDateHint: 'Tarih seçince maçlar yüklenir', close: 'Kapat',
+    emptyNotes: 'Henüz not yok — sağ üstteki + ile ekleyebilirsin',
+    autoTag: 'OTOMATİK', waitingAuto: '⏱ Maç bitince otomatik kontrol edilecek',
+    won: 'Kazandı', lost: 'Kaybetti',
+    requiredFields: 'Maç ve seçim alanları zorunlu.',
+    loading: 'Yükleniyor...',
+    win: 'kazandı', loss: 'kaybetti',
+  },
+};
+
+// Hazir secim degerleri her zaman Turkce (kanonik) kalir - localStorage'da
+// bu sekilde saklanir ve PRESET_RULES ile eslesir. Sadece EKRANDA GORUNEN
+// etiket dile gore degisir, alttaki deger/kural degismez.
+const PRESET_LABELS = {
+  tr: {
+    '2.5 Üst': '2.5 Üst', '2.5 Alt': '2.5 Alt', 'KG Var': 'KG Var', 'KG Yok': 'KG Yok',
+    'Ev Sahibi Kazanır': 'Ev Sahibi Kazanır', 'Deplasman Kazanır': 'Deplasman Kazanır',
+    'İlk Yarı Gol Var': 'İlk Yarı Gol Var',
+  },
+  en: {
+    '2.5 Üst': 'Over 2.5', '2.5 Alt': 'Under 2.5', 'KG Var': 'BTTS Yes', 'KG Yok': 'BTTS No',
+    'Ev Sahibi Kazanır': 'Home Win', 'Deplasman Kazanır': 'Away Win',
+    'İlk Yarı Gol Var': '1st Half Goal',
+  },
+};
+
+let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
+function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+function displaySelection(sel) { return PRESET_LABELS[currentLang][sel] ?? sel; }
+
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.querySelectorAll('.preset-chip').forEach(chip => {
+    chip.textContent = PRESET_LABELS[currentLang][chip.dataset.value] || chip.dataset.value;
+  });
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹🇷';
+  document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  currentLang = currentLang === 'tr' ? 'en' : 'tr';
+  localStorage.setItem('matchedge_lang', currentLang);
+  applyStaticTranslations();
+  renderNotes();
+});
+
+// Sadece bu listedeki net seçimler otomatik kontrol edilebilir.
+// Serbest yazilmis cumleler (orn. "GS ilk yari gol atar") burada yok,
+// onlar icin sonuc her zaman elle isaretlenir.
+const PRESET_RULES = {
+  '2.5 Üst': (h, a) => (h + a) > 2.5,
+  '2.5 Alt': (h, a) => (h + a) < 2.5,
+  'KG Var': (h, a) => h > 0 && a > 0,
+  'KG Yok': (h, a) => !(h > 0 && a > 0),
+  'Ev Sahibi Kazanır': (h, a) => h > a,
+  'Deplasman Kazanır': (h, a) => a > h,
+  'İlk Yarı Gol Var': (h, a, ht, hta) => (ht + hta) > 0,
+};
+
+function isAutoCheckable(selection) {
+  return Object.prototype.hasOwnProperty.call(PRESET_RULES, selection);
+}
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('matchedge_token')}`,
+  };
+}
+
+// Notlar artik localStorage yerine backend'de (kullaniciya bagli) tutuluyor.
+// notesCache, sunucudan cekilen son listeyi hafizada tutar - her render
+// bunun uzerinden calisir, boylece her tiklamada sunucuya gitmek gerekmez.
+let notesCache = [];
+
+async function fetchNotesFromServer() {
+  try {
+    const res = await fetch(`${API_BASE}/api/notes`, { headers: authHeaders() });
+    if (res.status === 401) {
+      // Token gecersiz/suresi dolmus - tekrar giris yapmasi gerekiyor
+      localStorage.removeItem('matchedge_token');
+      window.location.href = 'giris.html';
+      return;
+    }
+    const data = await res.json();
+    notesCache = data.notes || [];
+  } catch (err) {
+    console.warn('Notlar sunucudan alinamadi:', err.message);
+  }
+}
+
+function renderStats(notes) {
+  document.getElementById('statWin').textContent = notes.filter(n => n.result === 'win').length;
+  document.getElementById('statLoss').textContent = notes.filter(n => n.result === 'loss').length;
+  document.getElementById('statPending').textContent = notes.filter(n => !n.result).length;
+}
+
+function renderNotes() {
+  const notes = [...notesCache].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  renderStats(notes);
+
+  const filtered = notes.filter(n => {
+    if (currentFilter === 'all') return true;
+    if (currentFilter === 'pending') return !n.result;
+    return n.result === currentFilter;
+  });
+
+  const container = document.getElementById('notesContainer');
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state">${t('emptyNotes')}</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(n => {
+    const autoCheckable = n.fixtureId && isAutoCheckable(n.selection);
+    const pendingAuto = autoCheckable && !n.result;
+
+    return `
+    <div class="note-card" data-id="${n._id}">
+      <div class="note-top">
+        <div>
+          <div class="note-match">${escapeHtml(n.match)}</div>
+          <div class="note-date">${formatDate(n.createdAt)}</div>
+        </div>
+        <div class="delete-btn" data-action="delete" data-id="${n._id}">🗑</div>
+      </div>
+      <div class="note-selection">${escapeHtml(displaySelection(n.selection))}${n.autoChecked ? `<span class="auto-tag">${t('autoTag')}</span>` : ''}</div>
+      ${n.comment ? `<div class="note-comment">${escapeHtml(n.comment)}</div>` : ''}
+      ${pendingAuto
+        ? `<div class="note-comment" style="color:var(--purple);">${t('waitingAuto')}</div>`
+        : `<div class="note-actions">
+            <div class="result-btn win ${n.result === 'win' ? 'selected' : ''}" data-action="win" data-id="${n._id}">${t('won')}</div>
+            <div class="result-btn loss ${n.result === 'loss' ? 'selected' : ''}" data-action="loss" data-id="${n._id}">${t('lost')}</div>
+          </div>`
+      }
+    </div>
+  `;
+  }).join('');
+
+  container.querySelectorAll('[data-action="delete"]').forEach(btn => {
+    btn.addEventListener('click', () => deleteNote(btn.dataset.id));
+  });
+  container.querySelectorAll('[data-action="win"], [data-action="loss"]').forEach(btn => {
+    btn.addEventListener('click', () => setResult(btn.dataset.id, btn.dataset.action));
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+function formatDate(timestamp) {
+  const d = new Date(timestamp);
+  const locale = currentLang === 'tr' ? 'tr-TR' : 'en-GB';
+  return d.toLocaleDateString(locale, { day: '2-digit', month: 'short' }) +
+    ' • ' + d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+}
+
+async function addNote(match, selection, comment, fixtureId, matchDate) {
+  try {
+    const res = await fetch(`${API_BASE}/api/notes`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ match, selection, comment, fixtureId: fixtureId || null, matchDate: matchDate || null }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.error || 'Not eklenemedi.');
+      return;
+    }
+    const data = await res.json();
+    notesCache.push(data.note);
+    renderNotes();
+    checkAutoResults();
+  } catch (err) {
+    alert('Sunucuya ulaşılamadı.');
+  }
+}
+
+async function deleteNote(id) {
+  try {
+    await fetch(`${API_BASE}/api/notes/${id}`, { method: 'DELETE', headers: authHeaders() });
+    notesCache = notesCache.filter(n => n._id !== id);
+    renderNotes();
+  } catch (err) {
+    console.warn('Not silinemedi:', err.message);
+  }
+}
+
+async function setResult(id, result) {
+  const note = notesCache.find(n => n._id === id);
+  if (!note) return;
+
+  const newResult = note.result === result ? null : result;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/notes/${id}`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ result: newResult, autoChecked: false }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const idx = notesCache.findIndex(n => n._id === id);
+    if (idx !== -1) notesCache[idx] = data.note;
+    renderNotes();
+  } catch (err) {
+    console.warn('Sonuc guncellenemedi:', err.message);
+  }
+}
+
+/**
+ * Fixture'a baglanmis ve preset bir secime sahip, henuz sonucu
+ * belirlenmemis notlari tarar. Ilgili macin durumu "FT" (bitti) ise
+ * secimi gercek skora gore degerlendirip otomatik isaretler ve
+ * sunucuya PATCH ile kaydeder.
+ */
+async function checkAutoResults() {
+  const pending = notesCache.filter(n => !n.result && n.fixtureId && isAutoCheckable(n.selection));
+  if (pending.length === 0) return;
+
+  const dateGroups = {};
+  pending.forEach(n => {
+    const d = n.matchDate || new Date().toISOString().split('T')[0];
+    if (!dateGroups[d]) dateGroups[d] = [];
+    dateGroups[d].push(n);
+  });
+
+  for (const [date, notesForDate] of Object.entries(dateGroups)) {
+    const results = await fetchResultsForDate(date);
+    if (!results) continue;
+
+    for (const note of notesForDate) {
+      const match = results.find(r => String(r.fixtureId) === String(note.fixtureId));
+      if (!match || match.statusShort !== 'FT') continue;
+
+      const rule = PRESET_RULES[note.selection];
+      const isWin = rule(match.homeScore || 0, match.awayScore || 0, match.halftimeHome || 0, match.halftimeAway || 0);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/notes/${note._id}`, {
+          method: 'PATCH',
+          headers: authHeaders(),
+          body: JSON.stringify({ result: isWin ? 'win' : 'loss', autoChecked: true }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const idx = notesCache.findIndex(n => n._id === note._id);
+          if (idx !== -1) notesCache[idx] = data.note;
+        }
+      } catch (err) {
+        console.warn('Otomatik sonuc kaydedilemedi:', err.message);
+      }
+    }
+  }
+
+  renderNotes();
+}
+
+async function fetchResultsForDate(date) {
+  if (API_BASE) {
+    try {
+      const res = await fetch(`${API_BASE}/api/results?date=${date}`);
+      if (res.ok) {
+        const json = await res.json();
+        return json.matches || [];
+      }
+    } catch (err) {
+      console.warn('Otomatik kontrol için sonuç alınamadı:', err.message);
+      return null;
+    }
+  }
+  // Backend'e bağlı değilken önizleme: az önce eklenen demo maçı bitmiş varsayalım
+  return null;
+}
+
+const overlay = document.getElementById('modalOverlay');
+const pickerOverlay = document.getElementById('pickerOverlay');
+
+document.getElementById('openModalBtn').addEventListener('click', () => {
+  document.getElementById('matchInput').value = '';
+  document.getElementById('fixtureIdInput').value = '';
+  document.getElementById('matchDateInput').value = '';
+  document.getElementById('matchPickerLabel').textContent = t('tapToPick');
+  document.getElementById('matchPickerLabel').style.color = 'var(--text-muted)';
+  document.getElementById('selectionInput').value = '';
+  document.getElementById('commentInput').value = '';
+  document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('selected'));
+  overlay.classList.add('open');
+});
+
+document.getElementById('cancelBtn').addEventListener('click', () => {
+  overlay.classList.remove('open');
+});
+
+overlay.addEventListener('click', (e) => {
+  if (e.target === overlay) overlay.classList.remove('open');
+});
+
+// --- Mac secim alt-modali ---
+document.getElementById('matchPickerBtn').addEventListener('click', () => {
+  const today = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById('pickerDate');
+  if (!dateInput.value) dateInput.value = today;
+  pickerOverlay.classList.add('open');
+  loadPickerMatches(dateInput.value);
+});
+
+document.getElementById('pickerCancelBtn').addEventListener('click', () => {
+  pickerOverlay.classList.remove('open');
+});
+
+pickerOverlay.addEventListener('click', (e) => {
+  if (e.target === pickerOverlay) pickerOverlay.classList.remove('open');
+});
+
+document.getElementById('pickerDate').addEventListener('change', (e) => {
+  loadPickerMatches(e.target.value);
+});
+
+async function loadPickerMatches(date) {
+  const listEl = document.getElementById('pickerList');
+  listEl.innerHTML = `<div class="empty-state" style="padding:24px;">${t('loading')}</div>`;
+
+  let matches = [];
+  if (API_BASE) {
+    try {
+      const res = await fetch(`${API_BASE}/api/results?date=${date}`);
+      if (res.ok) {
+        const json = await res.json();
+        matches = json.matches || [];
+      }
+    } catch (err) {
+      console.warn('Could not load match list:', err.message);
+    }
+  }
+
+  if (matches.length === 0) {
+    // Backend'e bağlı değilken önizleme için örnek maçlar
+    matches = [
+      { fixtureId: 'demoA', league: 'Süper Lig', homeTeam: 'Galatasaray', awayTeam: 'Fenerbahçe' },
+      { fixtureId: 'demoB', league: 'Premier League', homeTeam: 'Arsenal', awayTeam: 'Chelsea' },
+    ];
+  }
+
+  listEl.innerHTML = matches.map(m => `
+    <div class="pick-item" data-fixture-id="${m.fixtureId}" data-home="${escapeHtml(m.homeTeam)}" data-away="${escapeHtml(m.awayTeam)}">
+      <div>
+        <span class="pick-league">${escapeHtml(m.league || '')}</span>
+        ${escapeHtml(m.homeTeam)} - ${escapeHtml(m.awayTeam)}
+      </div>
+    </div>
+  `).join('');
+
+  listEl.querySelectorAll('.pick-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const label = `${item.dataset.home} - ${item.dataset.away}`;
+      document.getElementById('matchInput').value = label;
+      document.getElementById('fixtureIdInput').value = item.dataset.fixtureId;
+      document.getElementById('matchDateInput').value = date;
+      document.getElementById('matchPickerLabel').textContent = label;
+      document.getElementById('matchPickerLabel').style.color = 'var(--text-primary)';
+      pickerOverlay.classList.remove('open');
+    });
+  });
+}
+
+document.querySelectorAll('.preset-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    document.getElementById('selectionInput').value = chip.dataset.value;
+  });
+});
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  const match = document.getElementById('matchInput').value.trim();
+  const selection = document.getElementById('selectionInput').value.trim();
+  const comment = document.getElementById('commentInput').value.trim();
+  const fixtureId = document.getElementById('fixtureIdInput').value.trim();
+  const matchDate = document.getElementById('matchDateInput').value.trim();
+
+  if (!match || !selection) {
+    alert(t('requiredFields'));
+    return;
+  }
+
+  overlay.classList.remove('open');
+  await addNote(match, selection, comment, fixtureId, matchDate);
+});
+
+document.querySelectorAll('.filter-tab').forEach(tabEl => {
+  tabEl.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(el => el.classList.remove('active'));
+    tabEl.classList.add('active');
+    currentFilter = tabEl.dataset.filter;
+    renderNotes();
+  });
+});
+
+applyStaticTranslations();
+(async () => {
+  await fetchNotesFromServer();
+  renderNotes();
+  checkAutoResults();
+})();
+setInterval(async () => {
+  await fetchNotesFromServer();
+  await checkAutoResults();
+}, 60000);
+</script>
+
+</body>
+</html>
