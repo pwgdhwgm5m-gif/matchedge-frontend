@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MatchEdge - Verify Email</title>
+<style>
+  :root {
+    --bg-base: #0a0e17; --bg-card: #121826; --border-subtle: #1e2636;
+    --teal: #2dd4bf; --red: #f0556b;
+    --text-primary: #f2f4f8; --text-muted: #5a6478;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-base); color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 20px; text-align: center;
+  }
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 32px 24px; max-width: 340px;
+  }
+  .icon { font-size: 40px; margin-bottom: 16px; }
+  h2 { font-size: 17px; margin-bottom: 10px; }
+  p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+  a.btn {
+    display: inline-block; background: var(--teal); color: #05201c;
+    padding: 12px 24px; border-radius: 10px; text-decoration: none;
+    font-size: 13px; font-weight: 800;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="icon" id="icon">⏳</div>
+  <h2 id="title">Doğrulanıyor...</h2>
+  <p id="message">Lütfen bekle.</p>
+  <a class="btn" href="giris.html" id="loginBtn" style="display:none;">Girişe Git</a>
+</div>
+
+<script>
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com'; // örn: 'https://matchedge-backend.onrender.com'
+const lang = localStorage.getItem('matchedge_lang') || 'tr';
+
+const T = {
+  tr: {
+    checking: ['⏳', 'Doğrulanıyor...', 'Lütfen bekle.'],
+    success: ['✅', 'E-posta Doğrulandı', 'Hesabın aktif. Şimdi giriş yapabilirsin.'],
+    fail: ['❌', 'Doğrulama Başarısız', 'Bağlantı geçersiz veya süresi dolmuş. Girişten yeni bir doğrulama e-postası isteyebilirsin.'],
+    noToken: ['❌', 'Geçersiz Bağlantı', 'Bu sayfa bir doğrulama bağlantısı olmadan açılamaz.'],
+    backendMissing: ['⚠️', 'Backend Bağlı Değil', 'Bu dosyadaki API_BASE değerini ayarlaman gerekiyor.'],
+    loginBtnText: 'Girişe Git',
+  },
+  en: {
+    checking: ['⏳', 'Verifying...', 'Please wait.'],
+    success: ['✅', 'Email Verified', 'Your account is active. You can log in now.'],
+    fail: ['❌', 'Verification Failed', 'The link is invalid or expired. You can request a new one from the login screen.'],
+    noToken: ['❌', 'Invalid Link', 'This page cannot be opened without a verification link.'],
+    backendMissing: ['⚠️', 'Backend Not Connected', 'Set the API_BASE value in this file first.'],
+    loginBtnText: 'Go to Login',
+  },
+};
+
+function setState(key) {
+  const [icon, title, message] = T[lang][key];
+  document.getElementById('icon').textContent = icon;
+  document.getElementById('title').textContent = title;
+  document.getElementById('message').textContent = message;
+  document.getElementById('loginBtn').textContent = T[lang].loginBtnText;
+}
+
+async function verify() {
+  const token = new URLSearchParams(window.location.search).get('token');
+
+  if (!token) {
+    setState('noToken');
+    return;
+  }
+  if (!API_BASE) {
+    setState('backendMissing');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/verify-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+
+    if (res.ok) {
+      setState('success');
+    } else {
+      setState('fail');
+    }
+  } catch (err) {
+    setState('fail');
+  } finally {
+    document.getElementById('loginBtn').style.display = 'inline-block';
+  }
+}
+
+setState('checking');
+verify();
+</script>
+
+</body>
+</html>
