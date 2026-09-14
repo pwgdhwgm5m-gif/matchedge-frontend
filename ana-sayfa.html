@@ -130,6 +130,8 @@
 
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .quick-card {
+    display: block;
+    text-decoration: none;
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: 14px;
@@ -157,7 +159,7 @@
     display: flex; justify-content: space-around;
     padding: 10px 0 20px;
   }
-  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
+  .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
   .nav-item.active { color: var(--teal); }
   .nav-icon { font-size: 18px; }
 </style>
@@ -191,26 +193,26 @@
 
   <div class="section-label" style="margin-top:24px;" data-i18n="quickAccess">QUICK ACCESS</div>
   <div class="quick-grid">
-    <div class="quick-card">
+    <a class="quick-card" href="canli-simulator.html">
       <div class="quick-icon">📊</div>
       <div class="quick-title" data-i18n="qaLiveTitle">Live Simulator</div>
       <div class="quick-sub" data-i18n="qaLiveSub">Real-time match tracking</div>
-    </div>
-    <div class="quick-card">
+    </a>
+    <a class="quick-card" href="mac-sonuclari.html">
       <div class="quick-icon">📅</div>
       <div class="quick-title" data-i18n="qaResultsTitle">Match Results</div>
       <div class="quick-sub" data-i18n="qaResultsSub">Weekly results</div>
-    </div>
-    <div class="quick-card">
+    </a>
+    <a class="quick-card" href="notlarim.html">
       <div class="quick-icon">📝</div>
       <div class="quick-title" data-i18n="qaNotesTitle">My Notes</div>
       <div class="quick-sub" data-i18n="qaNotesSub">Your betting picks</div>
-    </div>
-    <div class="quick-card">
+    </a>
+    <a class="quick-card" href="mac-sonuclari.html">
       <div class="quick-icon">⭐</div>
       <div class="quick-title" data-i18n="qaFavTitle">Favorites</div>
       <div class="quick-sub" data-i18n="qaFavSub">Matches you follow</div>
-    </div>
+    </a>
   </div>
 
   <div class="legal-footer" data-i18n="legalText">
@@ -222,10 +224,16 @@
 </div>
 
 <div class="bottom-nav">
-  <div class="nav-item active"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></div>
+  <a class="nav-item active" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
+  <a class="nav-item" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></a>
+</div>
   <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
   <div class="nav-item"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></div>
   <div class="nav-item"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></div>
+</div>
+
 <script>
 // Giris kontrolu - token yoksa giris ekranina yonlendir
 (function() {
@@ -290,7 +298,7 @@ function applyStaticTranslations() {
     const key = el.getAttribute('data-i18n');
     el.innerHTML = t(key);
   });
-  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬' : '🇹🇷';
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹🇷';
   document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
 }
 
@@ -376,9 +384,13 @@ function renderFeatured(matches) {
       ? new Date(featured.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
       : t('todayFallback'));
 
+  const featuredLink = isLive
+    ? `canli-simulator.html?fixtureId=${encodeURIComponent(featured.fixtureId)}`
+    : `analiz-ekrani.html?fixtureId=${encodeURIComponent(featured.fixtureId)}`;
+
   container.innerHTML = `
     <div class="section-label">${isLive ? '<span class="live-pip"></span>' + t('liveNow') : t('featuredMatch')}</div>
-    <div class="featured-card">
+    <a class="featured-card" href="${featuredLink}" style="display:block; text-decoration:none; color:inherit;">
       <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? t('live') : t('today')}</div>
       <div class="featured-teams">${featured.homeTeam} - ${featured.awayTeam}</div>
       <div class="featured-meta">${featured.league || ''} • ${timeLabel}</div>
@@ -389,7 +401,7 @@ function renderFeatured(matches) {
           <div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('seeSignalsTab')}</div>
         </div>
       </div>
-    </div>
+    </a>
   `;
 }
 
@@ -408,8 +420,12 @@ function renderTodayList(matches) {
         ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
         : '--:--');
 
+    const rowLink = m.isLive
+      ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
+      : `analiz-ekrani.html?fixtureId=${encodeURIComponent(m.fixtureId)}`;
+
     return `
-      <div class="match-row-card">
+      <a class="match-row-card" href="${rowLink}" style="display:flex; text-decoration:none; color:inherit;">
         <div class="match-row-left">
           <div class="match-row-league">${m.league || ''}</div>
           <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
@@ -418,7 +434,7 @@ function renderTodayList(matches) {
           <div class="match-row-time">${timeLabel}</div>
           <div class="match-row-status ${m.isLive ? 'live' : 'upcoming'}">${m.isLive ? t('live') : t('upcoming')}</div>
         </div>
-      </div>
+      </a>
     `;
   }).join('');
 }
@@ -430,5 +446,3 @@ loadHome();
 
 </body>
 </html>
-
-</div>
