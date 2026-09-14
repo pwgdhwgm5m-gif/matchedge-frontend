@@ -215,7 +215,7 @@
     display: flex; justify-content: space-around;
     padding: 10px 0 20px;
   }
-  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
+  .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
   .nav-item.active { color: var(--teal); }
   .nav-icon { font-size: 18px; }
 
@@ -266,7 +266,11 @@
 </div>
 
 <div class="bottom-nav">
-  <div class="nav-item"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></div>
+  <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
+  <a class="nav-item active" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">My Notes</span></a>
+</div>
   <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
   <div class="nav-item"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></div>
   <div class="nav-item active"><span class="nav-icon">📝</span><span data-i18n="navNotes">My Notes</span></div>
