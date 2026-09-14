@@ -327,7 +327,7 @@
     justify-content: space-around;
     padding: 10px 0 20px;
   }
-  .nav-item {
+  .nav-item { text-decoration: none;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -661,7 +661,11 @@
 </div>
 
 <div class="bottom-nav">
-  <div class="nav-item active"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></div>
+  <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item active" href="analiz-ekrani.html"><span class="nav-icon">📊</span><span data-i18n="navAnalysis">Analysis</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
+</div>
   <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
   <div class="nav-item"><span class="nav-icon">📊</span><span data-i18n="navAnalysis">Analysis</span></div>
   <div class="nav-item"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></div>
