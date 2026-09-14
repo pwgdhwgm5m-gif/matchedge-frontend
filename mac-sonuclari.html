@@ -188,7 +188,7 @@
     display: flex; justify-content: space-around;
     padding: 10px 0 20px;
   }
-  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
+  .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
   .nav-item.active { color: var(--teal); }
   .nav-icon { font-size: 18px; }
 
@@ -241,7 +241,11 @@
 </div>
 
 <div class="bottom-nav">
-  <div class="nav-item"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></div>
+  <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item active" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
+</div>
   <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
   <div class="nav-item active"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></div>
   <div class="nav-item"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></div>
@@ -481,7 +485,22 @@ function renderResults(matches) {
 
   // Favori butonlarina tiklama olayi bagla
   container.querySelectorAll('.fav-btn').forEach(btn => {
-    btn.addEventListener('click', () => toggleFavorite(btn.dataset.fixtureId, btn.dataset.home, btn.dataset.away, btn));
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // karta tiklanmis gibi sayfa degistirmesin
+      toggleFavorite(btn.dataset.fixtureId, btn.dataset.home, btn.dataset.away, btn);
+    });
+  });
+
+  // Karta tiklaninca (favori butonu haric) ilgili analiz/canli ekranina git
+  container.querySelectorAll('.match-card').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+      const fixtureId = card.dataset.fixtureId;
+      const isLive = card.classList.contains('is-live');
+      window.location.href = isLive
+        ? `canli-simulator.html?fixtureId=${encodeURIComponent(fixtureId)}`
+        : `analiz-ekrani.html?fixtureId=${encodeURIComponent(fixtureId)}`;
+    });
   });
 }
 
