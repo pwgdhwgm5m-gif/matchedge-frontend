@@ -778,11 +778,31 @@ document.querySelectorAll('.filter-tab').forEach(tabEl => {
   });
 });
 
+// Bir mac kartindaki "not ekle" butonundan gelindiyse (URL'de match parametresi
+// varsa), formu otomatik doldurup modali direkt ac - kullanicinin mac adini
+// elle yazmasina gerek kalmaz.
+function openPrefilledNoteModal() {
+  const params = new URLSearchParams(window.location.search);
+  const match = params.get('match');
+  if (!match) return;
+
+  document.getElementById('matchInput').value = match;
+  document.getElementById('fixtureIdInput').value = params.get('fixtureId') || '';
+  document.getElementById('matchDateInput').value = params.get('matchDate') || '';
+  document.getElementById('matchPickerLabel').textContent = match;
+  document.getElementById('matchPickerLabel').style.color = 'var(--text-primary)';
+  document.getElementById('selectionInput').value = '';
+  document.getElementById('commentInput').value = '';
+  document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('selected'));
+  overlay.classList.add('open');
+}
+
 applyStaticTranslations();
 (async () => {
   await fetchNotesFromServer();
   renderNotes();
   checkAutoResults();
+  openPrefilledNoteModal();
 })();
 setInterval(async () => {
   await fetchNotesFromServer();
