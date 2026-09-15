@@ -492,6 +492,10 @@ function renderResults(matches) {
   });
 
   // Karta tiklaninca (favori butonu haric) ilgili analiz/canli ekranina git
+  container.querySelectorAll('.note-add-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => e.stopPropagation()); // karta tiklanmis gibi sayfa degistirmesin
+  });
+
   container.querySelectorAll('.match-card').forEach(card => {
     card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
@@ -532,11 +536,16 @@ function renderMatchCard(m) {
           </div>
           ${hasHalftime ? `<div class="halftime-note">${t('htPrefix')}: ${m.halftimeHome}-${m.halftimeAway}</div>` : ''}
         </div>
-        ${m.isLive ? `
-          <div class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}">
-            ${isFav ? '★' : '☆'}
-          </div>
-        ` : ''}
+        <div class="card-actions" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+          ${m.isLive ? `
+            <div class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}">
+              ${isFav ? '★' : '☆'}
+            </div>
+          ` : ''}
+          <a class="note-add-btn" href="notlarim.html?match=${encodeURIComponent(m.homeTeam + ' - ' + m.awayTeam)}&fixtureId=${encodeURIComponent(m.fixtureId)}&matchDate=${encodeURIComponent((m.kickoff || '').split('T')[0])}" style="text-decoration:none; width:28px; height:28px; display:flex; align-items:center; justify-content:center; background:var(--bg-card-inner); border:1px solid var(--border-subtle); border-radius:8px; font-size:14px;" title="Not ekle">
+            📝
+          </a>
+        </div>
       </div>
     </div>
   `;
