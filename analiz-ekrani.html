@@ -408,7 +408,7 @@
   </div>
 
   <!-- Maç Sonucu Olasılıkları -->
-  <div class="card">
+  <div class="card" id="section-probabilities">
     <div class="card-title">
       <span data-i18n="matchProbTitle">MATCH RESULT PROBABILITIES</span>
       <span class="info-dot">i</span>
@@ -436,7 +436,7 @@
   </div>
 
   <!-- Maç Okuması -->
-  <div class="card">
+  <div class="card" id="section-reading">
     <div class="card-title">
       <span data-i18n="matchReadingTitle">MATCH READING</span>
       <span class="info-dot">i</span>
@@ -470,7 +470,7 @@
   </div>
 
   <!-- xG / Kalite / Sinyal -->
-  <div class="card">
+  <div class="card" id="section-xg">
     <div class="stats-trio">
       <div class="stat-box">
         <div class="stat-label" data-i18n="expectedGoals">EXPECTED GOALS (xG)</div>
@@ -520,7 +520,7 @@
   </div>
 
   <!-- Ev/Deplasman Spesifik Form + Motivasyon -->
-  <div class="card">
+  <div class="card" id="section-form">
     <div class="card-title" data-i18n="homeAwayFormTitle">HOME / AWAY FORM</div>
     <div class="reading-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
       <div class="reading-card">
@@ -555,7 +555,7 @@
   </div>
 
   <!-- Oran Hareketi -->
-  <div class="card">
+  <div class="card" id="section-odds">
     <div class="card-title" data-i18n="oddsMovementTitle">ODDS MOVEMENT (LAST 24H)</div>
     <div class="xg-legend" style="display:flex; justify-content:center; gap:16px; margin-bottom:10px; font-size:10.5px; color:var(--text-secondary);">
       <span><span class="legend-dot" style="background:var(--teal); width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px;"></span><span id="odds-legend-home">Ev</span></span>
@@ -613,42 +613,42 @@
       <span class="chevron">▲</span>
     </div>
     <div class="analysis-list">
-      <div class="analysis-item">
+      <div class="analysis-item" data-target="section-form" style="cursor:pointer;">
         <div class="analysis-icon">📊</div>
         <div>
           <div class="analysis-title" data-i18n="teamStatsTitle">Team Statistics</div>
           <div class="analysis-sub" data-i18n="teamStatsSub">Overall performance, form</div>
         </div>
       </div>
-      <div class="analysis-item">
+      <div class="analysis-item" data-target="section-form" style="cursor:pointer;">
         <div class="analysis-icon">📈</div>
         <div>
           <div class="analysis-title" data-i18n="last5Title">Last 5 Matches</div>
           <div class="analysis-sub" data-i18n="last5Sub">Form chart</div>
         </div>
       </div>
-      <div class="analysis-item">
+      <div class="analysis-item" data-target="section-reading" style="cursor:pointer;">
         <div class="analysis-icon">⚖️</div>
         <div>
           <div class="analysis-title" data-i18n="comparativeTitle">Comparative Analysis</div>
           <div class="analysis-sub" data-i18n="comparativeSub">Team averages</div>
         </div>
       </div>
-      <div class="analysis-item">
+      <div class="analysis-item" data-target="section-probabilities" style="cursor:pointer;">
         <div class="analysis-icon">🤝</div>
         <div>
           <div class="analysis-title" data-i18n="h2hTitle">H2H</div>
           <div class="analysis-sub" data-i18n="h2hSub">Previous meetings</div>
         </div>
       </div>
-      <div class="analysis-item">
+      <div class="analysis-item" data-target="section-xg" style="cursor:pointer;">
         <div class="analysis-icon">xG</div>
         <div>
           <div class="analysis-title" data-i18n="expectedValuesTitle">Expected Values</div>
           <div class="analysis-sub" data-i18n="expectedValuesSub">Shots, corners, cards</div>
         </div>
       </div>
-      <div class="analysis-item">
+      <div class="analysis-item" data-target="section-odds" style="cursor:pointer;">
         <div class="analysis-icon">💹</div>
         <div>
           <div class="analysis-title" data-i18n="marketOddsTitle">Market &amp; Odds</div>
@@ -974,6 +974,14 @@ function setReading(prefix, value) {
   document.getElementById(`${prefix}-value`).textContent = v + '%';
   document.getElementById(`${prefix}-bar`).style.width = v + '%';
 }
+
+// "Diger Mac Analizi" kartlarina tiklaninca ilgili bolume yumusak kaydir
+document.querySelectorAll('.analysis-item[data-target]').forEach(item => {
+  item.addEventListener('click', () => {
+    const target = document.getElementById(item.dataset.target);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
 
 applyStaticTranslations();
 loadAnalysis();
