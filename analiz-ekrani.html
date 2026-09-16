@@ -559,6 +559,28 @@
     </div>
   </div>
 
+  <div class="card" id="section-standings">
+    <div class="card-title">
+      <span data-i18n="standingsTitle">LEAGUE STANDINGS</span>
+      <span class="info-dot">i</span>
+    </div>
+    <div id="standings-table-wrap" style="max-height:280px; overflow-y:auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:11px;">
+        <thead>
+          <tr style="color:var(--text-muted); text-align:left;">
+            <th style="padding:6px 4px;">#</th>
+            <th style="padding:6px 4px;" data-i18n="standingsTeam">Team</th>
+            <th style="padding:6px 4px; text-align:center;" data-i18n="standingsPlayed">P</th>
+            <th style="padding:6px 4px; text-align:center;" data-i18n="standingsGoalDiff">GD</th>
+            <th style="padding:6px 4px; text-align:center;" data-i18n="standingsPoints">Pts</th>
+          </tr>
+        </thead>
+        <tbody id="standings-tbody"></tbody>
+      </table>
+    </div>
+    <div class="signal-tag" style="text-align:center; margin-top:10px;" id="standings-note" data-i18n="noInfo">No information</div>
+  </div>
+
   <div class="card" id="section-odds">
     <div class="card-title" data-i18n="oddsMovementTitle">ODDS MOVEMENT (LAST 24H)</div>
     <div class="xg-legend" style="display:flex; justify-content:center; gap:16px; margin-bottom:10px; font-size:10.5px; color:var(--text-secondary);">
@@ -656,6 +678,13 @@
           <div class="analysis-sub" data-i18n="marketOddsSub">Odds movement</div>
         </div>
       </div>
+      <div class="analysis-item" data-target="section-standings" style="cursor:pointer;">
+        <div class="analysis-icon">🏆</div>
+        <div>
+          <div class="analysis-title" data-i18n="standingsTitle">League Standings</div>
+          <div class="analysis-sub" data-i18n="standingsSub">Full table</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -721,6 +750,9 @@ const TRANSLATIONS = {
     h2hTitle: 'H2H', h2hSub: 'Previous meetings',
     expectedValuesTitle: 'Expected Values', expectedValuesSub: 'Shots, corners, cards',
     marketOddsTitle: 'Market & Odds', marketOddsSub: 'Odds movement',
+    standingsTitle: 'LEAGUE STANDINGS', standingsSub: 'Full table',
+    standingsTeam: 'Team', standingsPlayed: 'P', standingsGoalDiff: 'GD', standingsPoints: 'Pts',
+    standingsUnavailable: 'League standings not available for this match',
     navHome: 'Home', navMatches: 'Matches', navAnalysis: 'Analysis', navFav: 'Favorites',
     winStreak: 'Win Streak', lossStreak: 'Loss Streak', noStreak: 'No clear streak',
     matchesSuffix: ' Match', restedDays: ' days rested', noRestInfo: 'No rest info',
@@ -757,6 +789,9 @@ const TRANSLATIONS = {
     h2hTitle: 'H2H', h2hSub: 'Son karşılaşmalar',
     expectedValuesTitle: 'Beklenen Değerler', expectedValuesSub: 'Şut, korner, kart',
     marketOddsTitle: 'Piyasa & Oran', marketOddsSub: 'Oran hareketleri',
+    standingsTitle: 'PUAN DURUMU', standingsSub: 'Tam tablo',
+    standingsTeam: 'Takım', standingsPlayed: 'O', standingsGoalDiff: 'Av', standingsPoints: 'P',
+    standingsUnavailable: 'Bu maç için puan durumu mevcut değil',
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navAnalysis: 'Analiz', navFav: 'Favoriler',
     winStreak: 'Galibiyet Serisi', lossStreak: 'Mağlubiyet Serisi', noStreak: 'Belirgin seri yok',
     matchesSuffix: ' Maçlık', restedDays: ' gün dinlenmiş', noRestInfo: 'Dinlenme bilgisi yok',
@@ -930,6 +965,44 @@ function renderAnalysis(data) {
   document.getElementById('corner-min-value').textContent = cm.minExpected ?? '–';
   document.getElementById('corner-over85-value').textContent = (cm.over85Percent ?? '–') + '%';
   document.getElementById('corner-over85-bar').style.width = (cm.over85Percent || 0) + '%';
+
+  renderStandings(data.standings);
+}
+
+function renderStandings(standings) {
+  const tbody = document.getElementById('standings-tbody');
+  const note = document.getElementById('standings-note');
+  const table = standings?.table || [];
+
+  if (!table.length) {
+    tbody.innerHTML = '';
+    note.style.display = 'block';
+    note.textContent = t('standingsUnavailable');
+    return;
+  }
+
+  note.style.display = 'none';
+  const homeId = String(standings.homeTeamId || '');
+  const awayId = String(standings.awayTeamId || '');
+
+  tbody.innerHTML = table.map(row => {
+    const isHome = String(row.teamId) === homeId;
+    const isAway = String(row.teamId) === awayId;
+    const rowStyle = isHome
+      ? 'background:rgba(45,212,191,0.1); color:var(--teal); font-weight:700;'
+      : isAway
+        ? 'background:rgba(157,124,240,0.1); color:var(--purple); font-weight:700;'
+        : '';
+    return `
+      <tr style="${rowStyle}">
+        <td style="padding:6px 4px;">${row.rank ?? '–'}</td>
+        <td style="padding:6px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${row.teamName || '–'}</td>
+        <td style="padding:6px 4px; text-align:center;">${row.played ?? '–'}</td>
+        <td style="padding:6px 4px; text-align:center;">${row.goalDiff ?? '–'}</td>
+        <td style="padding:6px 4px; text-align:center; font-weight:800;">${row.points ?? '–'}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function renderFormBox(recordId, goalsId, formData) {
