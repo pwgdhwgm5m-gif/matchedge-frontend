@@ -163,6 +163,15 @@
     border-radius: 10px; padding: 6px 10px; font-size: 15px; cursor: pointer; user-select: none;
   }
   .lang-toggle .lang-code { font-size: 9.5px; font-weight: 800; color: var(--text-secondary); margin-left: 2px; }
+
+  .legal-footer {
+    font-size: 8.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 22px 8px 6px;
+    opacity: 0.75;
+  }
 </style>
 </head>
 <body>
@@ -185,6 +194,12 @@
 
   <div id="matchesContainer">
     <div class="empty-state" data-i18n="loading">Loading...</div>
+  </div>
+
+  <div class="legal-footer" data-i18n="legalText">
+    Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.
+    <br><br>
+    MatchEdge © 2026 — Built by Eddas.
   </div>
 
 </div>
@@ -269,6 +284,7 @@ const TRANSLATIONS = {
     live: 'LIVE',
     matchCount: (n) => n === 1 ? '1 match' : `${n} matches`,
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
   },
   tr: {
     brandSub: 'YAKLAŞAN MAÇLAR', loading: 'Yükleniyor...',
@@ -278,6 +294,7 @@ const TRANSLATIONS = {
     live: 'CANLI',
     matchCount: (n) => n === 1 ? '1 maç' : `${n} maç`,
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
+    legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan MatchEdge sorumlu tutulamaz.<br><br>MatchEdge © 2026 — Eddas tarafından geliştirildi.',
   },
 };
 
