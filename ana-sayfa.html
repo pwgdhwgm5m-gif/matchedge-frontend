@@ -96,6 +96,34 @@
     color: var(--text-secondary);
   }
 
+  .toggle-bar {
+    display: flex;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 10px;
+    gap: 3px;
+  }
+  .toggle-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 8px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+  }
+  .toggle-btn.active {
+    background: var(--bg-card);
+    color: var(--teal);
+  }
+  .toggle-btn:active { transform: scale(0.97); }
+
   .featured-card {
     background: linear-gradient(135deg, #16233a, #121826);
     border: 1px solid rgba(45,212,191,0.35);
@@ -277,6 +305,12 @@
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const MAX_LIST_ITEMS = 14;
 
+// Ana sayfadaki "Ozne Cikan / Canli" toggle'i icin durum - fetch edilen
+// tum maclar burada tutulur, toggle degistiginde yeniden fetch yapmadan
+// sadece bu listeden filtrelenerek render edilir.
+let allMatches = [];
+let featuredViewMode = 'featured'; // 'featured' | 'live'
+
 const TRANSLATIONS = {
   en: {
     brandSub: 'PRO MATCH INTELLIGENCE',
@@ -300,6 +334,8 @@ const TRANSLATIONS = {
     seeSignalsTab: 'See the probabilities & signals tab',
     todayFallback: 'Today',
     welcomeBack: 'Welcome back, ',
+    featuredTab: 'Featured', liveTab: 'Live',
+    noLiveNow: 'No matches are live right now',
   },
   tr: {
     brandSub: 'PRO MAÇ ZEKASI',
@@ -323,6 +359,8 @@ const TRANSLATIONS = {
     seeSignalsTab: 'Olasılıklar ve sinyaller sekmesinde',
     todayFallback: 'Bugün',
     welcomeBack: 'Tekrar hoş geldin, ',
+    featuredTab: 'Öne Çıkan', liveTab: 'Canlı',
+    noLiveNow: 'Şu anda canlı maç yok',
   },
 };
 
@@ -409,40 +447,32 @@ async function loadHome() {
     return new Date(a.kickoff || 0) - new Date(b.kickoff || 0);
   });
 
+  allMatches = matches;
+
   renderDateHeader();
-  renderFeatured(matches);
+  renderFeaturedSection();
   renderTodayList(matches.slice(0, MAX_LIST_ITEMS), loadFailed);
 }
 
-function renderFeatured(matches) {
-  const container = document.getElementById('featuredSection');
-  const live = matches.find(m => m.isLive);
-  const featured = live || matches[0];
-
-  if (!featured) {
-    container.innerHTML = '';
-    return;
-  }
-
-  const isLive = !!live;
+// Tek bir mac icin "featured-card" markup'i - hem tekil "Ozne Cikan" gorunumunde
+// hem de "Canli" sekmesindeki listede (birden fazla mac ust uste) kullanilir.
+function featuredCardHtml(m) {
+  const isLive = !!m.isLive;
   const timeLabel = isLive
-    ? (featured.minute != null ? `${t('live')} ${featured.minute}'` : t('live'))
-    : (featured.kickoff
-      ? new Date(featured.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+    ? (m.minute != null ? `${t('live')} ${m.minute}'` : t('live'))
+    : (m.kickoff
+      ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
       : t('todayFallback'));
 
-  const featuredLink = isLive
-    ? `canli-simulator.html?fixtureId=${encodeURIComponent(featured.fixtureId)}`
-    : analysisLink(featured);
+  const link = isLive
+    ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
+    : analysisLink(m);
 
-  container.innerHTML = `
-    <div class="section-label">
-      <div class="section-label-left">${isLive ? '<span class="live-pip"></span>' + t('liveNow') : t('featuredMatch')}</div>
-    </div>
-    <a class="featured-card" href="${featuredLink}" style="display:block; text-decoration:none; color:inherit;">
+  return `
+    <a class="featured-card" href="${link}" style="display:block; text-decoration:none; color:inherit;">
       <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? t('live') : t('today')}</div>
-      <div class="featured-teams">${featured.homeTeam} - ${featured.awayTeam}${isLive ? ` &nbsp; <span style="color:var(--teal)">${featured.homeScore ?? 0} - ${featured.awayScore ?? 0}</span>` : ''}</div>
-      <div class="featured-meta">${featured.league || ''} • ${timeLabel}</div>
+      <div class="featured-teams">${m.homeTeam} - ${m.awayTeam}${isLive ? ` &nbsp; <span style="color:var(--teal)">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</span>` : ''}</div>
+      <div class="featured-meta">${m.league || ''} • ${timeLabel}</div>
       <div class="featured-signal">
         <div class="featured-signal-icon">${isLive ? '⚡' : '📈'}</div>
         <div>
@@ -452,6 +482,58 @@ function renderFeatured(matches) {
       </div>
     </a>
   `;
+}
+
+// Ustteki bolumun tamami: baslik + toggle bar (Ozne Cikan / Canli) + icerik.
+// Toggle degistiginde sadece bu bolum yeniden ciziliyor, altindaki gunun
+// maclari listesi (renderTodayList) hic etkilenmiyor.
+function renderFeaturedSection() {
+  const container = document.getElementById('featuredSection');
+  const hasLive = allMatches.some(m => m.isLive);
+  const featured = allMatches.find(m => m.isLive) || allMatches[0];
+
+  if (!featured) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="section-label">
+      <div class="section-label-left">${hasLive ? '<span class="live-pip"></span>' + t('liveNow') : t('featuredMatch')}</div>
+    </div>
+    <div class="toggle-bar">
+      <button type="button" class="toggle-btn ${featuredViewMode === 'featured' ? 'active' : ''}" data-mode="featured">${t('featuredTab')}</button>
+      <button type="button" class="toggle-btn ${featuredViewMode === 'live' ? 'active' : ''}" data-mode="live">${t('liveTab')}</button>
+    </div>
+    <div id="featuredContent"></div>
+  `;
+
+  container.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      featuredViewMode = btn.dataset.mode;
+      renderFeaturedSection();
+    });
+  });
+
+  renderFeaturedContent();
+}
+
+function renderFeaturedContent() {
+  const el = document.getElementById('featuredContent');
+  if (!el) return;
+
+  if (featuredViewMode === 'live') {
+    const liveMatches = allMatches.filter(m => m.isLive);
+    if (liveMatches.length === 0) {
+      el.innerHTML = `<div class="empty-state">${t('noLiveNow')}</div>`;
+      return;
+    }
+    el.innerHTML = liveMatches.map(featuredCardHtml).join('');
+    return;
+  }
+
+  const featured = allMatches.find(m => m.isLive) || allMatches[0];
+  el.innerHTML = featured ? featuredCardHtml(featured) : '';
 }
 
 function renderTodayList(matches, loadFailed) {
