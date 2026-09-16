@@ -15,8 +15,8 @@
     --amber: #f5b942;
     --red: #f0556b;
     --text-primary: #f2f4f8;
-    --text-secondary: #8b93a7;
-    --text-muted: #5a6478;
+    --text-secondary: #a8b0c2;
+    --text-muted: #6b7386;
     --radius: 16px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,8 +63,8 @@
   }
 
   .section-label {
-    font-size: 11.5px; font-weight: 700; letter-spacing: 1px;
-    color: var(--text-secondary);
+    font-size: 11.5px; font-weight: 800; letter-spacing: 1px;
+    color: var(--text-primary);
     margin: 20px 0 10px;
     display: flex; align-items: center; justify-content: space-between;
     gap: 6px;
@@ -129,6 +129,7 @@
     padding: 12px 14px;
     margin-bottom: 8px;
     transition: transform 0.12s ease, border-color 0.12s ease;
+    cursor: pointer;
   }
   .match-row-card:active { transform: scale(0.98); border-color: rgba(157,124,240,0.5); }
   .match-row-left { flex: 1; min-width: 0; }
@@ -158,7 +159,7 @@
   .quick-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
   .quick-sub { font-size: 10px; color: var(--text-muted); }
 
-  .empty-state { text-align: center; padding: 24px; color: var(--text-muted); font-size: 12.5px; }
+  .empty-state { text-align: center; padding: 24px; color: var(--text-secondary); font-size: 12.5px; }
   .empty-state.error { color: var(--red); }
 
   .legal-footer {
@@ -322,7 +323,7 @@ function applyStaticTranslations() {
     const key = el.getAttribute('data-i18n');
     el.innerHTML = t(key);
   });
-  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬' : '🇹🇷';
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬' : '🇹';
   document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
 }
 
@@ -349,6 +350,20 @@ function todayKey() {
   return new Date().toISOString().split('T')[0];
 }
 
+function analysisLink(m) {
+  const params = new URLSearchParams({
+    fixtureId: m.fixtureId,
+    homeTeamName: m.homeTeam || '',
+    awayTeamName: m.awayTeam || '',
+    leagueName: m.league || '',
+    kickoff: m.kickoff || '',
+    tsdbLeagueId: m.leagueId || '',
+    homeBadge: m.homeBadge || '',
+    awayBadge: m.awayBadge || '',
+  });
+  return `analiz-ekrani.html?${params.toString()}`;
+}
+
 async function loadHome() {
   let matches = [];
   let loadFailed = false;
@@ -366,7 +381,6 @@ async function loadHome() {
     loadFailed = true;
   }
 
-  // Canlilar en once, sonra baslama saatine gore sirali
   matches.sort((a, b) => {
     if (a.isLive && !b.isLive) return -1;
     if (!a.isLive && b.isLive) return 1;
@@ -396,7 +410,7 @@ function renderFeatured(matches) {
 
   const featuredLink = isLive
     ? `canli-simulator.html?fixtureId=${encodeURIComponent(featured.fixtureId)}`
-    : `analiz-ekrani.html?fixtureId=${encodeURIComponent(featured.fixtureId)}`;
+    : analysisLink(featured);
 
   container.innerHTML = `
     <div class="section-label">
@@ -439,7 +453,7 @@ function renderTodayList(matches, loadFailed) {
 
     const rowLink = m.isLive
       ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
-      : `analiz-ekrani.html?fixtureId=${encodeURIComponent(m.fixtureId)}`;
+      : analysisLink(m);
 
     return `
       <a class="match-row-card" href="${rowLink}" style="display:flex; text-decoration:none; color:inherit;">
