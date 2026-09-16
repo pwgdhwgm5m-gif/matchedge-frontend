@@ -15,8 +15,8 @@
     --amber: #f5b942;
     --red: #f0556b;
     --text-primary: #f2f4f8;
-    --text-secondary: #8b93a7;
-    --text-muted: #5a6478;
+    --text-secondary: #a8b0c2;
+    --text-muted: #6b7386;
     --radius: 16px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -71,7 +71,6 @@
     margin-top: 1px;
   }
 
-  /* ---------- Lig filtre cubugu ---------- */
   .league-filters {
     display: flex;
     gap: 6px;
@@ -100,8 +99,8 @@
   }
 
   .section-label {
-    font-size: 11.5px; font-weight: 700; letter-spacing: 1px;
-    color: var(--text-secondary);
+    font-size: 11.5px; font-weight: 800; letter-spacing: 1px;
+    color: var(--text-primary);
     margin: 4px 0 10px;
     display: flex; align-items: center; gap: 6px;
   }
@@ -175,7 +174,7 @@
   .empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-size: 13px;
   }
   .empty-state.error { color: var(--red); }
@@ -318,7 +317,7 @@ function applyStaticTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     el.textContent = t(el.getAttribute('data-i18n'));
   });
-  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹🇷';
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬' : '🇹🇷';
   document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
 }
 
@@ -375,7 +374,7 @@ function isToday(d) {
 }
 
 let selectedDate = formatDateKey(new Date());
-let selectedLeague = null; // null = tumu
+let selectedLeague = null;
 let allMatchesForDay = [];
 
 function renderDayTabs() {
@@ -509,11 +508,22 @@ function renderResults(matches) {
   container.querySelectorAll('.match-card').forEach(card => {
     card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
-      const fixtureId = card.dataset.fixtureId;
       const isLive = card.classList.contains('is-live');
-      window.location.href = isLive
-        ? `canli-simulator.html?fixtureId=${encodeURIComponent(fixtureId)}`
-        : `analiz-ekrani.html?fixtureId=${encodeURIComponent(fixtureId)}`;
+      if (isLive) {
+        window.location.href = `canli-simulator.html?fixtureId=${encodeURIComponent(card.dataset.fixtureId)}`;
+        return;
+      }
+      const params = new URLSearchParams({
+        fixtureId: card.dataset.fixtureId,
+        homeTeamName: card.dataset.home,
+        awayTeamName: card.dataset.away,
+        leagueName: card.dataset.league,
+        kickoff: card.dataset.kickoff || '',
+        tsdbLeagueId: card.dataset.tsdbLeague || '',
+        homeBadge: card.dataset.homeBadge || '',
+        awayBadge: card.dataset.awayBadge || '',
+      });
+      window.location.href = `analiz-ekrani.html?${params.toString()}`;
     });
   });
 }
@@ -529,7 +539,15 @@ function renderMatchCard(m) {
   const isFav = favorites.has(String(m.fixtureId));
 
   return `
-    <div class="match-card ${m.isLive ? 'is-live' : ''}" data-fixture-id="${m.fixtureId}">
+    <div class="match-card ${m.isLive ? 'is-live' : ''}"
+      data-fixture-id="${m.fixtureId}"
+      data-home="${escapeAttr(m.homeTeam)}"
+      data-away="${escapeAttr(m.awayTeam)}"
+      data-league="${escapeAttr(m.league)}"
+      data-kickoff="${m.kickoff || ''}"
+      data-tsdb-league="${m.leagueId || ''}"
+      data-home-badge="${m.homeBadge || ''}"
+      data-away-badge="${m.awayBadge || ''}">
       <div class="match-league">
         <span>${m.league || ''}</span>
         <span class="match-status-pill ${statusClass(m)}">${statusLabel(m)}</span>
@@ -590,13 +608,6 @@ async function toggleFavorite(fixtureId, homeTeam, awayTeam, btnEl) {
   }
 }
 
-/**
- * Canli maclari periyodik olarak kontrol edip skor degisikligi (gol)
- * tespit eder. NOT: /api/live artik duz (flat) bir yapi donuyor -
- * {fixtureId, homeTeam, awayTeam, homeScore, awayScore, minute, ...} -
- * eski API-Football'in ic ice (nested) yapisiyla (f.teams.home.name gibi)
- * KARISTIRILMAMALI.
- */
 async function pollLiveForGoals() {
   let liveMatches = [];
 
