@@ -38,13 +38,12 @@
   .brand-name .premium { color: var(--teal); margin-left: 4px; }
   .brand-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; margin-top: 2px; }
 
-  /* ---------- Gunluk sekme cubugu ---------- */
   .day-tabs {
     display: flex;
     gap: 8px;
     overflow-x: auto;
     padding-bottom: 4px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     scrollbar-width: none;
   }
   .day-tabs::-webkit-scrollbar { display: none; }
@@ -72,7 +71,34 @@
     margin-top: 1px;
   }
 
-  /* ---------- Canli mac banner ---------- */
+  /* ---------- Lig filtre cubugu ---------- */
+  .league-filters {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+  }
+  .league-filters::-webkit-scrollbar { display: none; }
+  .league-chip {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 13px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .league-chip.active {
+    background: rgba(45,212,191,0.12);
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+
   .section-label {
     font-size: 11.5px; font-weight: 700; letter-spacing: 1px;
     color: var(--text-secondary);
@@ -90,7 +116,6 @@
     100% { box-shadow: 0 0 0 0 rgba(240,85,107,0); }
   }
 
-  /* ---------- Mac karti ---------- */
   .match-card {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -153,8 +178,8 @@
     color: var(--text-muted);
     font-size: 13px;
   }
+  .empty-state.error { color: var(--red); }
 
-  /* ---------- Canli gol bildirimi (toast) ---------- */
   .goal-toast-wrap {
     position: fixed;
     top: 14px; left: 0; right: 0;
@@ -233,6 +258,7 @@
   </div>
 
   <div class="day-tabs" id="dayTabs"></div>
+  <div class="league-filters" id="leagueFilters"></div>
 
   <div id="resultsContainer">
     <div class="empty-state" data-i18n="loading">Loading...</div>
@@ -242,30 +268,19 @@
 
 <div class="bottom-nav">
   <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
   <a class="nav-item active" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
-</div>
-  <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
-  <div class="nav-item active"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></div>
-  <div class="nav-item"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></div>
+  <a class="nav-item" href="notlarim.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <script>
-// Giris kontrolu - token yoksa giris ekranina yonlendir
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
     window.location.href = 'giris.html';
   }
 })();
 
-/**
- * BAĞLANTI NOKTASI:
- *   GET /api/results?date=YYYY-MM-DD  -> o gunun tum mac sonuclari (IY dahil)
- *   GET /api/live                     -> su an oynanan tum maclar (gol tespiti icin)
- * Her ikisi de matchedge-backend projesinde hazir.
- */
-const API_BASE = 'https://matchedge-backend-kujb.onrender.com'; // örn: 'https://matchedge-backend.onrender.com'
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const LIVE_POLL_INTERVAL_MS = 20000;
 
 const TRANSLATIONS = {
@@ -273,20 +288,24 @@ const TRANSLATIONS = {
     brandSub: 'MATCH RESULTS', loading: 'Loading...',
     navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navFav: 'Favorites',
     today: 'Today', noMatchesDate: 'No matches found for this date',
+    loadError: "Couldn't load results - pull to refresh",
     liveMatches: 'LIVE MATCHES', otherMatches: 'OTHER MATCHES',
     live: 'LIVE', ft: 'FT', notStarted: 'Not Started',
     htPrefix: 'HT',
     goal: 'GOAL!', minuteSuffix: '\'',
+    allLeagues: 'All',
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   },
   tr: {
     brandSub: 'MAÇ SONUÇLARI', loading: 'Yükleniyor...',
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navFav: 'Favoriler',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
+    loadError: 'Sonuçlar yüklenemedi - yenilemek için tekrar dene',
     liveMatches: 'CANLI MAÇLAR', otherMatches: 'DİĞER MAÇLAR',
     live: 'CANLI', ft: 'MS', notStarted: 'Başlamadı',
     htPrefix: 'İY',
     goal: 'GOL!', minuteSuffix: '. dakika',
+    allLeagues: 'Tümü',
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
   },
 };
@@ -318,9 +337,6 @@ function authHeaders() {
   };
 }
 
-// Favoriler artik hesaba bagli (backend'de saklaniyor), cihazlar arasi
-// senkronize olur. Sayfa acilisinda sunucudan cekilip bu Set'e yukleniyor,
-// tiklamalar aninda sunucuya yaziliyor.
 const favorites = new Set();
 
 async function loadFavoritesFromServer() {
@@ -338,8 +354,7 @@ async function loadFavoritesFromServer() {
   }
 }
 
-// Gol tespiti icin bir onceki bilinen skorlari tutuyoruz
-const lastKnownScores = new Map(); // fixtureId -> "home-away"
+const lastKnownScores = new Map();
 
 function getLastNDays(n) {
   const days = [];
@@ -360,6 +375,8 @@ function isToday(d) {
 }
 
 let selectedDate = formatDateKey(new Date());
+let selectedLeague = null; // null = tumu
+let allMatchesForDay = [];
 
 function renderDayTabs() {
   const tabsEl = document.getElementById('dayTabs');
@@ -382,69 +399,64 @@ function renderDayTabs() {
   tabsEl.querySelectorAll('.day-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       selectedDate = tab.dataset.date;
+      selectedLeague = null;
       renderDayTabs();
       loadResults();
     });
   });
 }
 
-// Backend'e bağlı değilken önizleme için örnek veri
-function generateFallbackResults(dateKey) {
-  const today = isToday(new Date(dateKey));
-  if (today) {
-    return [
-      {
-        fixtureId: 'demo1', league: 'Premier League', statusShort: '2H', minute: 63,
-        isLive: true, homeTeam: 'Brentford', awayTeam: 'Sunderland',
-        homeScore: 1, awayScore: 0, halftimeHome: 0, halftimeAway: 0,
-      },
-      {
-        fixtureId: 'demo2', league: 'La Liga', statusShort: 'NS', minute: null,
-        isLive: false, homeTeam: 'Real Sociedad', awayTeam: 'Villarreal',
-        homeScore: null, awayScore: null, halftimeHome: null, halftimeAway: null,
-      },
-    ];
+function renderLeagueFilters() {
+  const filtersEl = document.getElementById('leagueFilters');
+  const leagues = [...new Set(allMatchesForDay.map(m => m.league).filter(Boolean))].sort();
+
+  if (leagues.length <= 1) {
+    filtersEl.innerHTML = '';
+    return;
   }
-  return [
-    {
-      fixtureId: 'demo3', league: 'Süper Lig', statusShort: 'FT', minute: 90,
-      isLive: false, homeTeam: 'Galatasaray', awayTeam: 'Trabzonspor',
-      homeScore: 2, awayScore: 1, halftimeHome: 1, halftimeAway: 0,
-    },
-    {
-      fixtureId: 'demo4', league: 'Bundesliga', statusShort: 'FT', minute: 90,
-      isLive: false, homeTeam: 'Bayern Münih', awayTeam: 'Dortmund',
-      homeScore: 3, awayScore: 2, halftimeHome: 2, halftimeAway: 1,
-    },
-  ];
+
+  const chips = [`<div class="league-chip ${!selectedLeague ? 'active' : ''}" data-league="">${t('allLeagues')}</div>`]
+    .concat(leagues.map(l => `<div class="league-chip ${selectedLeague === l ? 'active' : ''}" data-league="${l.replace(/"/g, '&quot;')}">${l}</div>`));
+
+  filtersEl.innerHTML = chips.join('');
+
+  filtersEl.querySelectorAll('.league-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      selectedLeague = chip.dataset.league || null;
+      renderLeagueFilters();
+      renderResults(filterByLeague(allMatchesForDay));
+    });
+  });
+}
+
+function filterByLeague(matches) {
+  if (!selectedLeague) return matches;
+  return matches.filter(m => m.league === selectedLeague);
 }
 
 async function loadResults() {
   const container = document.getElementById('resultsContainer');
   container.innerHTML = `<div class="empty-state">${t('loading')}</div>`;
 
-  let matches = [];
-  if (API_BASE) {
-    try {
-      const res = await fetch(`${API_BASE}/api/results?date=${selectedDate}`);
-      if (res.ok) {
-        const json = await res.json();
-        matches = json.matches || [];
-      }
-    } catch (err) {
-      console.warn('Sonuçlar alınamadı, örnek veri gösteriliyor:', err.message);
-    }
+  try {
+    const res = await fetch(`${API_BASE}/api/results?date=${selectedDate}`);
+    if (!res.ok) throw new Error('http_' + res.status);
+    const json = await res.json();
+    allMatchesForDay = json.matches || [];
+  } catch (err) {
+    console.warn('Sonuçlar alınamadı:', err.message);
+    allMatchesForDay = [];
+    document.getElementById('leagueFilters').innerHTML = '';
+    container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
+    return;
   }
 
-  if (matches.length === 0) {
-    matches = generateFallbackResults(selectedDate);
-  }
-
-  renderResults(matches);
+  renderLeagueFilters();
+  renderResults(filterByLeague(allMatchesForDay));
 }
 
 function statusLabel(m) {
-  if (m.isLive) return `${t('live')} ${m.minute ?? ''}'`;
+  if (m.isLive) return m.minute != null ? `${t('live')} ${m.minute}'` : t('live');
   if (m.statusShort === 'FT') return t('ft');
   if (m.statusShort === 'NS') return t('notStarted');
   return m.statusShort || '';
@@ -483,17 +495,15 @@ function renderResults(matches) {
 
   container.innerHTML = html;
 
-  // Favori butonlarina tiklama olayi bagla
   container.querySelectorAll('.fav-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      e.stopPropagation(); // karta tiklanmis gibi sayfa degistirmesin
+      e.stopPropagation();
       toggleFavorite(btn.dataset.fixtureId, btn.dataset.home, btn.dataset.away, btn);
     });
   });
 
-  // Karta tiklaninca (favori butonu haric) ilgili analiz/canli ekranina git
   container.querySelectorAll('.note-add-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => e.stopPropagation()); // karta tiklanmis gibi sayfa degistirmesin
+    btn.addEventListener('click', (e) => e.stopPropagation());
   });
 
   container.querySelectorAll('.match-card').forEach(card => {
@@ -555,7 +565,6 @@ async function toggleFavorite(fixtureId, homeTeam, awayTeam, btnEl) {
   const key = String(fixtureId);
   const wasFavorite = favorites.has(key);
 
-  // Once arayuzu aninda guncelle (optimistic), sunucu cevabini beklemeden
   if (wasFavorite) {
     favorites.delete(key);
     btnEl.classList.remove('active');
@@ -582,33 +591,24 @@ async function toggleFavorite(fixtureId, homeTeam, awayTeam, btnEl) {
 }
 
 /**
- * Canli maclari periyodik olarak kontrol edip skor degisikligi
- * (gol) tespit eder ve ekranda bir toast bildirimi gosterir.
+ * Canli maclari periyodik olarak kontrol edip skor degisikligi (gol)
+ * tespit eder. NOT: /api/live artik duz (flat) bir yapi donuyor -
+ * {fixtureId, homeTeam, awayTeam, homeScore, awayScore, minute, ...} -
+ * eski API-Football'in ic ice (nested) yapisiyla (f.teams.home.name gibi)
+ * KARISTIRILMAMALI.
  */
 async function pollLiveForGoals() {
   let liveMatches = [];
 
-  if (API_BASE) {
-    try {
-      const res = await fetch(`${API_BASE}/api/live`);
-      if (res.ok) {
-        const json = await res.json();
-        liveMatches = (json.matches || []).map(f => ({
-          fixtureId: f.fixture.id,
-          homeTeam: f.teams.home.name,
-          awayTeam: f.teams.away.name,
-          homeScore: f.goals.home,
-          awayScore: f.goals.away,
-          minute: f.fixture.status.elapsed,
-        }));
-      }
-    } catch (err) {
-      console.warn('Canlı gol kontrolü başarısız:', err.message);
-      return;
+  try {
+    const res = await fetch(`${API_BASE}/api/live`);
+    if (res.ok) {
+      const json = await res.json();
+      liveMatches = json.matches || [];
     }
-  } else {
-    // Backend yokken demo amacli: gosterilen canli mac icin arada bir sahte gol uret
-    liveMatches = simulateFallbackGoal();
+  } catch (err) {
+    console.warn('Canlı gol kontrolü başarısız:', err.message);
+    return;
   }
 
   liveMatches.forEach(m => {
@@ -618,7 +618,6 @@ async function pollLiveForGoals() {
 
     if (previousScore && previousScore !== currentScore) {
       showGoalToast(m);
-      // Eger bu mac favorilerdeyse ekrandaki karti da guncelle
       if (favorites.has(key)) {
         loadResults();
       }
@@ -627,28 +626,11 @@ async function pollLiveForGoals() {
   });
 }
 
-let fallbackGoalScore = { home: 1, away: 0 };
-function simulateFallbackGoal() {
-  // Yaklasik her 3 pollde bir demo gol uretir (sadece onizleme icin)
-  if (Math.random() < 0.34) {
-    if (Math.random() < 0.6) fallbackGoalScore.home++;
-    else fallbackGoalScore.away++;
-  }
-  return [{
-    fixtureId: 'demo1',
-    homeTeam: 'Brentford',
-    awayTeam: 'Sunderland',
-    homeScore: fallbackGoalScore.home,
-    awayScore: fallbackGoalScore.away,
-    minute: Math.min(90, (lastKnownScores.get('demo1') ? 63 : 60) + Math.floor(Math.random() * 5)),
-  }];
-}
-
 function showGoalToast(m) {
   const toast = document.getElementById('goalToast');
   document.getElementById('goalToastText').textContent =
     `${t('goal')} ${m.homeTeam} ${m.homeScore} - ${m.awayScore} ${m.awayTeam}`;
-  document.getElementById('goalToastSub').textContent = `${m.minute ?? ''}${t('minuteSuffix')}`;
+  document.getElementById('goalToastSub').textContent = m.minute != null ? `${m.minute}${t('minuteSuffix')}` : '';
 
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 4500);
