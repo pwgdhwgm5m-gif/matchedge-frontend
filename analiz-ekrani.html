@@ -903,9 +903,13 @@ function renderAnalysis(data) {
   document.getElementById('bar-home').style.width = (mp.homeWinProbability || 0) + '%';
   document.getElementById('bar-draw').style.width = (mp.drawProbability || 0) + '%';
   document.getElementById('bar-away').style.width = (mp.awayWinProbability || 0) + '%';
-  document.getElementById('prob-source-note').textContent = mp.blended
-    ? t('blendedNote').replace('{m}', Math.round((mp.modelWeight || 0.5) * 100)).replace('{k}', Math.round((mp.marketWeight || 0.5) * 100))
-    : t('modelOnlyNote');
+  const probSourceNoteEl = document.getElementById('prob-source-note');
+  if (mp.blended) {
+    probSourceNoteEl.style.display = '';
+    probSourceNoteEl.textContent = t('blendedNote').replace('{m}', Math.round((mp.modelWeight || 0.5) * 100)).replace('{k}', Math.round((mp.marketWeight || 0.5) * 100));
+  } else {
+    probSourceNoteEl.style.display = 'none';
+  }
 
   const mkt = data.marketProbabilities || {};
   setReading('over25', mkt.over25GoalsPercent);
