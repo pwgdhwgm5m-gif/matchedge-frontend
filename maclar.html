@@ -206,9 +206,56 @@
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const DAYS_AHEAD = 7;
 
+// Sadece buyuk liglerin/kupalarin gosterilmesi icin TheSportsDB idLeague
+// beyaz listesi. Backend (/api/matches) zaten bu listeyle filtreliyor -
+// burasi ikinci bir guvenlik agi: backend'de ileride bir sorun cikarsa
+// kucuk lig/alt lig gurultusu yine de arayuze sizmasin diye.
+const WHITELISTED_LEAGUE_IDS = new Set([
+  // --- Avrupa 1. Ligleri ---
+  '4328', // Ingiltere Premier League
+  '4335', // Ispanya La Liga
+  '4332', // Italya Serie A
+  '4331', // Almanya Bundesliga
+  '4334', // Fransa Ligue 1
+  '4337', // Hollanda Eredivisie
+  '4344', // Portekiz Primeira Liga
+  '4330', // Iskocya Premiership
+  '4336', // Yunanistan Super League
+  '4355', // Rusya Premier League
+  '4422', // Polonya Ekstraklasa
+  '4338', // Belcika First Division A
+  '4340', // Danimarka Superligaen
+  '4358', // Norvec Eliteserien
+  '4347', // Isvec Allsvenskan
+  '4636', // Finlandiya Veikkausliiga
+  '4339', // Turkiye Super Lig
+  '4621', // Avusturya Bundesliga
+  '4675', // Isvicre Super League
+  // --- Amerika 1. Ligleri ---
+  '4346', // ABD MLS
+  '4350', // Meksika Liga MX
+  '4351', // Brezilya Serie A
+  '4406', // Arjantin Primera Division
+  // --- Asya 1. Ligleri ---
+  '4633', // Japonya J1 League
+  '4689', // Guney Kore K League 1
+  // --- Buyuk Kupalar / Turnuvalar ---
+  '4480', // UEFA Sampiyonlar Ligi
+  '4481', // UEFA Avrupa Ligi
+  '4482', // Ingiltere FA Cup
+  '4483', // Ispanya Copa del Rey
+  '4484', // Fransa Coupe de France
+  '4485', // Almanya DFB-Pokal
+  '4506', // Italya Coppa Italia
+  '4501', // Copa Libertadores
+  '4490', // UEFA Uluslar Ligi
+]);
+
+// Bu alt kume, ayni beyaz liste icinde en cok takip edilen ligleri/kupalari
+// listenin basinda gostermek icin kullaniliyor (kucuk ligleri gizlemiyor -
+// onlar zaten yukaridaki beyaz listede yoklar).
 const PRIORITY_LEAGUE_IDS = new Set([
-  '4339', '4328', '4335', '4332', '4331', '4334', '4337', '4336',
-  '4358', '4347', '4422', '4355', '4344', '4636', '4338', '4340', '4330',
+  '4339', '4328', '4335', '4332', '4331', '4334', '4480', '4481',
 ]);
 
 const TRANSLATIONS = {
@@ -217,9 +264,7 @@ const TRANSLATIONS = {
     navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navFav: 'Favorites',
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load matches - pull to refresh",
-    topLeagues: 'TOP LEAGUES',
-    otherCountries: 'Other Countries',
-    otherCountriesSub: (n) => `${n} more matches from smaller leagues`,
+    live: 'LIVE',
     matchCount: (n) => n === 1 ? '1 match' : `${n} matches`,
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   },
@@ -228,9 +273,7 @@ const TRANSLATIONS = {
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navFav: 'Favoriler',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Maçlar yüklenemedi - yenilemek için tekrar dene',
-    topLeagues: 'ÖNE ÇIKAN LİGLER',
-    otherCountries: 'Diğer Ülkeler',
-    otherCountriesSub: (n) => `${n} maç daha, küçük liglerden`,
+    live: 'CANLI',
     matchCount: (n) => n === 1 ? '1 maç' : `${n} maç`,
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
   },
@@ -248,8 +291,171 @@ function applyStaticTranslations() {
   document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
 }
 
+let selectedDate = todayKey();
+let lastMatches = [];
+let lastLoadFailed = false;
+
+function todayKey() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function dateKeyOffset(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().split('T')[0];
+}
+
+function renderDayTabs() {
+  const container = document.getElementById('dayTabs');
+  const dowNames = TRANSLATIONS[currentLang].dowNames;
+  let html = '';
+  for (let i = 0; i < DAYS_AHEAD; i++) {
+    const dateStr = dateKeyOffset(i);
+    const d = new Date(dateStr + 'T00:00:00');
+    const active = dateStr === selectedDate;
+    html += `
+      <div class="day-tab ${active ? 'active' : ''}" data-date="${dateStr}">
+        <div class="dow">${i === 0 ? t('today') : dowNames[d.getDay()]}</div>
+        <div class="dnum">${d.getDate()}</div>
+      </div>`;
+  }
+  container.innerHTML = html;
+  container.querySelectorAll('.day-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      selectedDate = tab.getAttribute('data-date');
+      renderDayTabs();
+      loadMatches();
+    });
+  });
+}
+
+function analysisLink(m) {
+  const params = new URLSearchParams({
+    fixtureId: m.fixtureId,
+    homeTeamName: m.homeTeam || '',
+    awayTeamName: m.awayTeam || '',
+    leagueName: m.league || '',
+    kickoff: m.kickoff || '',
+    tsdbLeagueId: m.leagueId || '',
+    homeBadge: m.homeBadge || '',
+    awayBadge: m.awayBadge || '',
+  });
+  return `analiz-ekrani.html?${params.toString()}`;
+}
+
+function matchLink(m) {
+  return m.isLive
+    ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
+    : analysisLink(m);
+}
+
+function groupByLeague(matches) {
+  const groups = new Map();
+  matches.forEach(m => {
+    const key = String(m.leagueId || m.league || 'unknown');
+    if (!groups.has(key)) {
+      groups.set(key, { leagueId: key, league: m.league || '', matches: [] });
+    }
+    groups.get(key).matches.push(m);
+  });
+  return Array.from(groups.values()).sort((a, b) => {
+    const aPriority = PRIORITY_LEAGUE_IDS.has(a.leagueId);
+    const bPriority = PRIORITY_LEAGUE_IDS.has(b.leagueId);
+    if (aPriority && !bPriority) return -1;
+    if (!aPriority && bPriority) return 1;
+    return a.league.localeCompare(b.league);
+  });
+}
+
+function renderMatches() {
+  const container = document.getElementById('matchesContainer');
+
+  if (lastLoadFailed) {
+    container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
+    return;
+  }
+
+  if (lastMatches.length === 0) {
+    container.innerHTML = `<div class="empty-state">${t('noMatchesDate')}</div>`;
+    return;
+  }
+
+  const groups = groupByLeague(lastMatches);
+
+  container.innerHTML = groups.map((g) => {
+    const isPriority = PRIORITY_LEAGUE_IDS.has(g.leagueId);
+    const rows = g.matches.map(m => {
+      const timeLabel = m.isLive
+        ? (m.minute != null ? `${m.minute}'` : t('live'))
+        : (m.kickoff
+          ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+          : '--:--');
+      return `
+        <a class="match-row" href="${matchLink(m)}" style="text-decoration:none; color:inherit;">
+          <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
+          <div class="match-row-time">${timeLabel}</div>
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="league-group ${isPriority ? 'priority expanded' : ''}">
+        <div class="league-header">
+          <div class="league-header-left">
+            <div class="league-name">${g.league}</div>
+            <div class="league-meta">${t('matchCount')(g.matches.length)}</div>
+          </div>
+          <div class="league-chevron">›</div>
+        </div>
+        <div class="league-matches">${rows}</div>
+      </div>`;
+  }).join('');
+
+  container.querySelectorAll('.league-group').forEach(el => {
+    el.querySelector('.league-header').addEventListener('click', () => {
+      el.classList.toggle('expanded');
+    });
+  });
+}
+
+async function loadMatches() {
+  const container = document.getElementById('matchesContainer');
+  container.innerHTML = `<div class="empty-state">${t('loading')}</div>`;
+
+  let matches = [];
+  let loadFailed = false;
+  try {
+    const res = await fetch(`${API_BASE}/api/matches?date=${selectedDate}`);
+    if (res.ok) {
+      const json = await res.json();
+      matches = json.matches || [];
+    } else {
+      loadFailed = true;
+    }
+  } catch (err) {
+    console.warn('Maclar yuklenemedi:', err.message);
+    loadFailed = true;
+  }
+
+  matches = matches.filter(m => WHITELISTED_LEAGUE_IDS.has(String(m.leagueId)));
+  matches.sort((a, b) => new Date(a.kickoff || 0) - new Date(b.kickoff || 0));
+
+  lastMatches = matches;
+  lastLoadFailed = loadFailed;
+  renderMatches();
+}
+
 document.getElementById('langToggle').addEventListener('click', () => {
   currentLang = currentLang === 'tr' ? 'en' : 'tr';
   localStorage.setItem('matchedge_lang', currentLang);
   applyStaticTranslations();
   renderDayTabs();
+  renderMatches();
+});
+
+applyStaticTranslations();
+renderDayTabs();
+loadMatches();
+</script>
+
+</body>
+</html>
