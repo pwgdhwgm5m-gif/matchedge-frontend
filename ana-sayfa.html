@@ -304,6 +304,13 @@
 
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const MAX_LIST_ITEMS = 14;
+// Ana sayfa eskiden sadece sayfa acilirken bir kere veri cekiyordu - canli
+// bir macta gol olsa bile kullanici sayfayi yeniden acmadan skor hic
+// guncellenmiyordu (mac icine girince guncel gorunuyordu cunku o ekran
+// kendi verisini taze cekiyor). Diger canli ekranlarla (Sonuclar: 20sn,
+// Canli Simulator: 15sn) tutarli olacak sekilde burada da periyodik
+// yenileme ekleniyor.
+const POLL_INTERVAL_MS = 20000;
 
 // Ana sayfadaki "Ozne Cikan / Canli" toggle'i icin durum - fetch edilen
 // tum maclar burada tutulur, toggle degistiginde yeniden fetch yapmadan
@@ -579,6 +586,7 @@ function renderTodayList(matches, loadFailed) {
 applyStaticTranslations();
 renderWelcome();
 loadHome();
+setInterval(loadHome, POLL_INTERVAL_MS);
 </script>
 
 </body>
