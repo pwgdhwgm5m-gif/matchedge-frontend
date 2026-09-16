@@ -15,8 +15,8 @@
     --amber: #f5b942;
     --red: #f0556b;
     --text-primary: #f2f4f8;
-    --text-secondary: #8b93a7;
-    --text-muted: #5a6478;
+    --text-secondary: #a8b0c2;
+    --text-muted: #6b7386;
     --radius: 16px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +40,7 @@
 
   .day-tabs {
     display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
-    margin-bottom: 16px; scrollbar-width: none;
+    margin-bottom: 18px; scrollbar-width: none;
   }
   .day-tabs::-webkit-scrollbar { display: none; }
   .day-tab {
@@ -54,7 +54,18 @@
   .day-tab.active .dow { color: var(--teal); }
   .day-tab .dnum { font-size: 15px; font-weight: 800; }
 
-  /* ---------- Lig akordiyon ---------- */
+  .section-title {
+    font-size: 12px; font-weight: 800; letter-spacing: 1px;
+    color: var(--text-primary);
+    margin: 4px 0 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .section-title .badge {
+    font-size: 9.5px; font-weight: 700; color: var(--teal);
+    background: rgba(45,212,191,0.12);
+    padding: 2px 8px; border-radius: 8px;
+  }
+
   .league-group {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -62,6 +73,7 @@
     margin-bottom: 8px;
     overflow: hidden;
   }
+  .league-group.priority { border-color: rgba(45,212,191,0.3); }
   .league-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px;
@@ -69,9 +81,9 @@
   }
   .league-header-left { display: flex; flex-direction: column; gap: 2px; }
   .league-name { font-size: 13.5px; font-weight: 700; }
-  .league-meta { font-size: 10px; color: var(--text-muted); }
+  .league-meta { font-size: 10.5px; color: var(--text-secondary); font-weight: 500; }
   .league-chevron {
-    font-size: 12px; color: var(--text-muted);
+    font-size: 12px; color: var(--text-secondary);
     transition: transform 0.2s ease;
     flex-shrink: 0; margin-left: 10px;
   }
@@ -83,7 +95,7 @@
     transition: max-height 0.25s ease;
   }
   .league-group.expanded .league-matches {
-    max-height: 2000px;
+    max-height: 3000px;
   }
 
   .match-row {
@@ -102,7 +114,38 @@
     flex-shrink: 0; margin-left: 10px;
   }
 
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; }
+  .sub-league-label {
+    font-size: 10px; font-weight: 700; color: var(--text-secondary);
+    padding: 10px 16px 2px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  /* "Diger Ulkeler" ana kapak butonu */
+  .other-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .other-toggle-left { display: flex; align-items: center; gap: 10px; }
+  .other-toggle-icon { font-size: 16px; }
+  .other-toggle-text { font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
+  .other-toggle-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+  .other-chevron { font-size: 12px; color: var(--text-secondary); transition: transform 0.2s ease; }
+  .other-toggle.expanded .other-chevron { transform: rotate(90deg); color: var(--teal); }
+
+  .other-countries-wrap {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-top: 8px;
+  }
+  .other-countries-wrap.expanded { max-height: 6000px; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); font-size: 13px; }
   .empty-state.error { color: var(--red); }
 
   .bottom-nav {
@@ -164,12 +207,37 @@
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const DAYS_AHEAD = 7;
 
+// TheSportsDB idLeague - MatchEdge'in gercek form/analiz destegi olan
+// ligler. Bunlar her zaman "Öne Çıkan Ligler" altinda, en üstte gösterilir.
+const PRIORITY_LEAGUE_IDS = new Set([
+  '4339', // Türkiye Süper Lig
+  '4328', // Premier League
+  '4335', // La Liga
+  '4332', // Serie A
+  '4331', // Bundesliga
+  '4334', // Ligue 1
+  '4337', // Eredivisie
+  '4336', // Yunanistan Super League
+  '4358', // Norveç Eliteserien
+  '4347', // İsveç Allsvenskan
+  '4422', // Polonya Ekstraklasa
+  '4355', // Rusya Premier Lig
+  '4344', // Portekiz Liga Portugal
+  '4636', // Finlandiya Veikkausliiga
+  '4338', // Belçika First Division A
+  '4340', // Danimarka Superligaen
+  '4330', // İskoçya Premiership
+]);
+
 const TRANSLATIONS = {
   en: {
     brandSub: 'UPCOMING MATCHES', loading: 'Loading...',
     navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navFav: 'Favorites',
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load matches - pull to refresh",
+    topLeagues: 'TOP LEAGUES',
+    otherCountries: 'Other Countries',
+    otherCountriesSub: (n) => `${n} more matches from smaller leagues`,
     matchCount: (n) => n === 1 ? '1 match' : `${n} matches`,
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   },
@@ -178,6 +246,9 @@ const TRANSLATIONS = {
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navFav: 'Favoriler',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Maçlar yüklenemedi - yenilemek için tekrar dene',
+    topLeagues: 'ÖNE ÇIKAN LİGLER',
+    otherCountries: 'Diğer Ülkeler',
+    otherCountriesSub: (n) => `${n} maç daha, küçük liglerden`,
     matchCount: (n) => n === 1 ? '1 maç' : `${n} maç`,
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
   },
@@ -213,16 +284,12 @@ function getNextNDays(n) {
   return days;
 }
 
-function formatDateKey(d) {
-  return d.toISOString().split('T')[0];
-}
-
-function isToday(d) {
-  return formatDateKey(d) === formatDateKey(new Date());
-}
+function formatDateKey(d) { return d.toISOString().split('T')[0]; }
+function isToday(d) { return formatDateKey(d) === formatDateKey(new Date()); }
 
 let selectedDate = formatDateKey(new Date());
-let expandedLeagues = new Set();
+let expandedKeys = new Set();
+let otherExpanded = false;
 
 function renderDayTabs() {
   const tabsEl = document.getElementById('dayTabs');
@@ -244,11 +311,20 @@ function renderDayTabs() {
   tabsEl.querySelectorAll('.day-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       selectedDate = tab.dataset.date;
-      expandedLeagues = new Set();
+      expandedKeys = new Set();
+      otherExpanded = false;
       renderDayTabs();
       loadMatches();
     });
   });
+}
+
+// TheSportsDB lig isimleri genelde "Ulke/Milliyet Lig Adi" seklinde
+// geliyor (orn. "Indonesian Super League") - ayri bir ulke alani
+// vermiyor. Ilk kelimeyi kaba bir "ulke" etiketi olarak kullaniyoruz.
+function guessCountry(leagueName) {
+  const firstWord = (leagueName || '').trim().split(' ')[0];
+  return firstWord || (currentLang === 'tr' ? 'Diğer' : 'Other');
 }
 
 async function loadMatches() {
@@ -269,10 +345,53 @@ async function loadMatches() {
     return;
   }
 
-  renderGroupedMatches(matches);
+  renderAll(matches);
 }
 
-function renderGroupedMatches(matches) {
+function groupByLeague(matches) {
+  const groups = new Map();
+  matches.forEach(m => {
+    const league = m.league || '—';
+    if (!groups.has(league)) groups.set(league, []);
+    groups.get(league).push(m);
+  });
+  return groups;
+}
+
+function leagueGroupHtml(league, leagueMatches, isPriority, keyPrefix) {
+  const key = keyPrefix + league;
+  const isExpanded = expandedKeys.has(key);
+  const firstTime = leagueMatches[0].kickoff
+    ? new Date(leagueMatches[0].kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+    : '--:--';
+
+  return `
+    <div class="league-group ${isPriority ? 'priority' : ''} ${isExpanded ? 'expanded' : ''}" data-key="${key.replace(/"/g, '&quot;')}">
+      <div class="league-header">
+        <div class="league-header-left">
+          <div class="league-name">${league}</div>
+          <div class="league-meta">${t('matchCount')(leagueMatches.length)} • ${firstTime}+</div>
+        </div>
+        <div class="league-chevron">▶</div>
+      </div>
+      <div class="league-matches">
+        ${leagueMatches.map(m => {
+          const timeLabel = m.kickoff
+            ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+            : '--:--';
+          return `
+            <div class="match-row" data-fixture-id="${m.fixtureId}">
+              <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
+              <div class="match-row-time">${timeLabel}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderAll(matches) {
   const container = document.getElementById('matchesContainer');
 
   if (matches.length === 0) {
@@ -280,63 +399,102 @@ function renderGroupedMatches(matches) {
     return;
   }
 
-  // Lig adina gore grupla, her grup icinde saat sirasi zaten korunuyor
-  const groups = new Map();
-  matches.forEach(m => {
-    const league = m.league || '—';
-    if (!groups.has(league)) groups.set(league, []);
-    groups.get(league).push(m);
-  });
+  const priorityMatches = matches.filter(m => PRIORITY_LEAGUE_IDS.has(String(m.leagueId)));
+  const otherMatches = matches.filter(m => !PRIORITY_LEAGUE_IDS.has(String(m.leagueId)));
 
-  // Gruplari, kendi icindeki ilk mac saatine gore sirala
-  const sortedLeagues = [...groups.keys()].sort((a, b) => {
-    const aTime = new Date(groups.get(a)[0].kickoff || 0);
-    const bTime = new Date(groups.get(b)[0].kickoff || 0);
-    return aTime - bTime;
-  });
+  let html = '';
 
-  container.innerHTML = sortedLeagues.map(league => {
-    const leagueMatches = groups.get(league);
-    const isExpanded = expandedLeagues.has(league);
-    const firstTime = leagueMatches[0].kickoff
-      ? new Date(leagueMatches[0].kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
-      : '--:--';
+  // --- Öne cikan ligler ---
+  if (priorityMatches.length > 0) {
+    const priorityGroups = groupByLeague(priorityMatches);
+    const sortedPriorityLeagues = [...priorityGroups.keys()].sort((a, b) => {
+      return new Date(priorityGroups.get(a)[0].kickoff || 0) - new Date(priorityGroups.get(b)[0].kickoff || 0);
+    });
+    html += `<div class="section-title">${t('topLeagues')} <span class="badge">${priorityMatches.length}</span></div>`;
+    html += sortedPriorityLeagues.map(l => leagueGroupHtml(l, priorityGroups.get(l), true, 'p:')).join('');
+  }
 
-    return `
-      <div class="league-group ${isExpanded ? 'expanded' : ''}" data-league="${league.replace(/"/g, '&quot;')}">
-        <div class="league-header">
-          <div class="league-header-left">
-            <div class="league-name">${league}</div>
-            <div class="league-meta">${t('matchCount')(leagueMatches.length)} • ${firstTime}+</div>
+  // --- Diger ulkeler (kapali, ulke ulke) ---
+  if (otherMatches.length > 0) {
+    const countryGroups = new Map();
+    otherMatches.forEach(m => {
+      const country = guessCountry(m.league);
+      if (!countryGroups.has(country)) countryGroups.set(country, []);
+      countryGroups.get(country).push(m);
+    });
+    const sortedCountries = [...countryGroups.keys()].sort();
+
+    html += `
+      <div class="other-toggle ${otherExpanded ? 'expanded' : ''}" id="otherToggle">
+        <div class="other-toggle-left">
+          <div class="other-toggle-icon">🌍</div>
+          <div>
+            <div class="other-toggle-text">${t('otherCountries')}</div>
+            <div class="other-toggle-sub">${t('otherCountriesSub')(otherMatches.length)}</div>
           </div>
-          <div class="league-chevron">▶</div>
         </div>
-        <div class="league-matches">
-          ${leagueMatches.map(m => {
-            const timeLabel = m.kickoff
-              ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
-              : '--:--';
-            return `
-              <div class="match-row" data-fixture-id="${m.fixtureId}">
-                <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
-                <div class="match-row-time">${timeLabel}</div>
+        <div class="other-chevron">▶</div>
+      </div>
+      <div class="other-countries-wrap ${otherExpanded ? 'expanded' : ''}" id="otherWrap">
+        ${sortedCountries.map(country => {
+          const countryMatches = countryGroups.get(country);
+          const countryKey = 'c:' + country;
+          const countryExpanded = expandedKeys.has(countryKey);
+          const leaguesInCountry = groupByLeague(countryMatches);
+          const multiLeague = leaguesInCountry.size > 1;
+
+          return `
+            <div class="league-group ${countryExpanded ? 'expanded' : ''}" data-key="${countryKey.replace(/"/g, '&quot;')}">
+              <div class="league-header">
+                <div class="league-header-left">
+                  <div class="league-name">${country}</div>
+                  <div class="league-meta">${t('matchCount')(countryMatches.length)}</div>
+                </div>
+                <div class="league-chevron">▶</div>
               </div>
-            `;
-          }).join('')}
-        </div>
+              <div class="league-matches">
+                ${[...leaguesInCountry.entries()].map(([leagueName, lm]) => `
+                  ${multiLeague ? `<div class="sub-league-label">${leagueName}</div>` : ''}
+                  ${lm.map(m => {
+                    const timeLabel = m.kickoff
+                      ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+                      : '--:--';
+                    return `
+                      <div class="match-row" data-fixture-id="${m.fixtureId}" style="${multiLeague ? '' : 'border-top:1px solid var(--border-subtle);'}">
+                        <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
+                        <div class="match-row-time">${timeLabel}</div>
+                      </div>
+                    `;
+                  }).join('')}
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
       </div>
     `;
-  }).join('');
+  }
+
+  container.innerHTML = html;
+  attachHandlers(container);
+}
+
+function attachHandlers(container) {
+  const otherToggle = document.getElementById('otherToggle');
+  if (otherToggle) {
+    otherToggle.addEventListener('click', () => {
+      otherExpanded = !otherExpanded;
+      otherToggle.classList.toggle('expanded');
+      document.getElementById('otherWrap').classList.toggle('expanded');
+    });
+  }
 
   container.querySelectorAll('.league-header').forEach(header => {
     header.addEventListener('click', () => {
       const group = header.closest('.league-group');
-      const league = group.dataset.league;
-      if (expandedLeagues.has(league)) {
-        expandedLeagues.delete(league);
-      } else {
-        expandedLeagues.add(league);
-      }
+      const key = group.dataset.key;
+      if (expandedKeys.has(key)) expandedKeys.delete(key);
+      else expandedKeys.add(key);
       group.classList.toggle('expanded');
     });
   });
