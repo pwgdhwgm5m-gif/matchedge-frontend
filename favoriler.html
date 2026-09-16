@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MatchEdge - Favoriler</title>
+<style>
+  :root {
+    --bg-base: #0a0e17;
+    --bg-card: #121826;
+    --bg-card-inner: #0d1220;
+    --border-subtle: #1e2636;
+    --teal: #2dd4bf;
+    --purple: #9d7cf0;
+    --amber: #f5b942;
+    --red: #f0556b;
+    --text-primary: #f2f4f8;
+    --text-secondary: #a8b0c2;
+    --text-muted: #6b7386;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 90px;
+    overflow-x: hidden;
+  }
+  .app { max-width: 480px; margin: 0 auto; padding: 16px; }
+
+  .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 4px 18px;
+  }
+  .brand-name { font-size: 19px; font-weight: 800; }
+  .brand-name .premium { color: var(--teal); margin-left: 4px; }
+  .brand-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; margin-top: 2px; }
+
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+  .lang-toggle {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .lang-toggle .lang-code { font-size: 9.5px; font-weight: 800; color: var(--text-secondary); margin-left: 2px; }
+
+  .section-label {
+    font-size: 11.5px; font-weight: 800; letter-spacing: 1px;
+    color: var(--text-primary);
+    margin: 4px 0 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .live-pip {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--red);
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(240,85,107,0.6); }
+    70% { box-shadow: 0 0 0 6px rgba(240,85,107,0); }
+    100% { box-shadow: 0 0 0 0 rgba(240,85,107,0); }
+  }
+
+  .match-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .match-card.is-live { border-color: rgba(240,85,107,0.4); }
+  .match-card.clickable { cursor: pointer; }
+  .match-league {
+    font-size: 10px; color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .match-status-pill {
+    font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: 8px;
+  }
+  .match-status-pill.live { background: rgba(240,85,107,0.15); color: var(--red); }
+  .match-status-pill.ft { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+  .match-status-pill.ns { background: rgba(245,185,66,0.12); color: var(--amber); }
+  .match-status-pill.unknown { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+
+  .match-row {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .match-teams { flex: 1; }
+  .team-line {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 3px 0;
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+  .team-line .tname { flex: 1; }
+  .team-line .tscore { font-weight: 800; font-size: 15px; width: 24px; text-align: center; }
+  .team-line.single { font-size: 13.5px; }
+
+  .halftime-note {
+    font-size: 10px; color: var(--text-muted); margin-top: 8px; text-align: right;
+  }
+  .unavailable-note {
+    font-size: 10px; color: var(--text-muted); margin-top: 8px;
+  }
+
+  .fav-btn {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    font-size: 14px;
+    margin-left: 10px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: var(--amber);
+    background: rgba(245,185,66,0.15);
+    border-color: var(--amber);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+  .empty-state.error { color: var(--red); }
+  .empty-state .empty-icon { font-size: 30px; margin-bottom: 10px; }
+
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-around;
+    padding: 10px 0 20px;
+  }
+  .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
+  .nav-item.active { color: var(--teal); }
+  .nav-icon { font-size: 18px; }
+
+  .legal-footer {
+    font-size: 8.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 22px 8px 6px;
+    opacity: 0.75;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="top-bar">
+    <div>
+      <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
+      <div class="brand-sub" data-i18n="brandSub">MY FAVORITES</div>
+    </div>
+    <div class="top-actions">
+      <div class="lang-toggle" id="langToggle">
+        <span id="langFlag">🇬🇧</span><span class="lang-code" id="langCode">EN</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" data-i18n="favoritesLabel">FAVORITE MATCHES</div>
+
+  <div id="favoritesContainer">
+    <div class="empty-state" data-i18n="loading">Loading...</div>
+  </div>
+
+  <div class="legal-footer" data-i18n="legalText">
+    Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.
+    <br><br>
+    MatchEdge © 2026 — Built by Eddas.
+  </div>
+
+</div>
+
+<div class="bottom-nav">
+  <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
+  <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
+  <a class="nav-item" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></a>
+  <a class="nav-item active" href="favoriler.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
+</div>
+
+<script>
+(function() {
+  if (!localStorage.getItem('matchedge_token')) {
+    window.location.href = 'giris.html';
+  }
+})();
+
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
+const POLL_INTERVAL_MS = 20000;
+
+const TRANSLATIONS = {
+  en: {
+    brandSub: 'MY FAVORITES', loading: 'Loading...',
+    favoritesLabel: 'FAVORITE MATCHES',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Notes', navFav: 'Favorites',
+    live: 'LIVE', ft: 'FT', notStarted: 'Not Started', htPrefix: 'HT',
+    emptyTitle: 'No favorites yet',
+    emptySub: 'Tap the star (☆) on any match to track it here',
+    loadError: "Couldn't load favorites - pull to refresh",
+    unavailableNote: "This match isn't in today's schedule, so live details aren't available here",
+    legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
+  },
+  tr: {
+    brandSub: 'FAVORİLERİM', loading: 'Yükleniyor...',
+    favoritesLabel: 'FAVORİ MAÇLAR',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım', navFav: 'Favoriler',
+    live: 'CANLI', ft: 'MS', notStarted: 'Başlamadı', htPrefix: 'İY',
+    emptyTitle: 'Henüz favori yok',
+    emptySub: 'Bir maçı buradan takip etmek için yıldıza (☆) dokun',
+    loadError: 'Favoriler yüklenemedi - yenilemek için tekrar dene',
+    unavailableNote: 'Bu maç bugünün fikstüründe yok, bu yüzden burada canlı detay gösterilemiyor',
+    legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan MatchEdge sorumlu tutulamaz.<br><br>MatchEdge © 2026 — Eddas tarafından geliştirildi.',
+  },
+};
+
+let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
+function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹🇷';
+  document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  currentLang = currentLang === 'tr' ? 'en' : 'tr';
+  localStorage.setItem('matchedge_lang', currentLang);
+  applyStaticTranslations();
+  renderFavorites();
+});
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('matchedge_token')}`,
+  };
+}
+
+function todayKey() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function analysisLink(m) {
+  const params = new URLSearchParams({
+    fixtureId: m.fixtureId,
+    homeTeamName: m.homeTeam || '',
+    awayTeamName: m.awayTeam || '',
+    leagueName: m.league || '',
+    kickoff: m.kickoff || '',
+    tsdbLeagueId: m.leagueId || '',
+    homeBadge: m.homeBadge || '',
+    awayBadge: m.awayBadge || '',
+  });
+  return `analiz-ekrani.html?${params.toString()}`;
+}
+
+// favoriler backend'de sadece {fixtureId, homeTeam, awayTeam, addedAt}
+// olarak tutuluyor (bkz. backend Favorite modeli) - lig/skor/durum gibi
+// zengin bilgi yok. Bu yuzden her favori, GUNUN mac listesiyle (ki bu liste
+// zaten canli skor/dakika/ilk yari ile zenginlestirilmis geliyor - bkz.
+// results.js) fixtureId uzerinden eslestiriliyor. Eslesirse zengin kart
+// gosteriliyor; eslesmezse (favori baska bir gune ait bir mac oldugu icin
+// bugunun listesinde yoksa) sadece takim adlariyla sade bir "detay yok"
+// karti gosteriliyor - yildizdan cikarma yine calisir.
+let rawFavorites = [];
+let todayMatchesById = new Map();
+
+async function loadFavorites() {
+  try {
+    const res = await fetch(`${API_BASE}/api/favorites`, { headers: authHeaders() });
+    if (res.status === 401) {
+      localStorage.removeItem('matchedge_token');
+      window.location.href = 'giris.html';
+      return false;
+    }
+    const data = await res.json();
+    rawFavorites = data.favorites || [];
+    return true;
+  } catch (err) {
+    console.warn('Favoriler alinamadi:', err.message);
+    return false;
+  }
+}
+
+async function loadTodayMatches() {
+  try {
+    const res = await fetch(`${API_BASE}/api/results?date=${todayKey()}`);
+    if (!res.ok) return;
+    const json = await res.json();
+    todayMatchesById = new Map((json.matches || []).map(m => [String(m.fixtureId), m]));
+  } catch (err) {
+    console.warn('Bugunun mac listesi alinamadi (favoriler zenginlestirilemeyecek):', err.message);
+  }
+}
+
+function statusLabel(m) {
+  if (m.isLive) return m.minute != null ? `${t('live')} ${m.minute}'` : t('live');
+  if (m.statusShort === 'FT') return t('ft');
+  if (m.statusShort === 'NS') return t('notStarted');
+  return m.statusShort || '';
+}
+
+function statusClass(m) {
+  if (m.isLive) return 'live';
+  if (m.statusShort === 'NS') return 'ns';
+  return 'ft';
+}
+
+function renderKnownCard(m) {
+  const hasHalftime = m.halftimeHome !== null && m.halftimeHome !== undefined;
+  const isClickable = m.isLive || m.statusShort === 'NS';
+  const link = m.isLive
+    ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
+    : (m.statusShort === 'NS' ? analysisLink(m) : null);
+  const homeScore = m.statusShort === 'NS' ? null : (m.homeScore ?? 0);
+  const awayScore = m.statusShort === 'NS' ? null : (m.awayScore ?? 0);
+  const timeLabel = m.statusShort === 'NS' && m.kickoff
+    ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+    : null;
+
+  return `
+    <div class="match-card ${m.isLive ? 'is-live' : ''} ${isClickable ? 'clickable' : ''}"
+      data-fixture-id="${m.fixtureId}"
+      ${link ? `data-link="${link}"` : ''}>
+      <div class="match-league">
+        <span>${m.league || ''}</span>
+        <span class="match-status-pill ${statusClass(m)}">${timeLabel || statusLabel(m)}</span>
+      </div>
+      <div class="match-row">
+        <div class="match-teams">
+          <div class="team-line">
+            <span class="tname">${m.homeTeam}</span>
+            ${homeScore !== null ? `<span class="tscore">${homeScore}</span>` : ''}
+          </div>
+          <div class="team-line">
+            <span class="tname">${m.awayTeam}</span>
+            ${awayScore !== null ? `<span class="tscore">${awayScore}</span>` : ''}
+          </div>
+          ${hasHalftime ? `<div class="halftime-note">${t('htPrefix')}: ${m.halftimeHome}-${m.halftimeAway}</div>` : ''}
+        </div>
+        <div class="fav-btn" data-fixture-id="${m.fixtureId}" title="Favoriden çıkar">★</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFallbackCard(f) {
+  return `
+    <div class="match-card" data-fixture-id="${f.fixtureId}">
+      <div class="match-league">
+        <span class="match-status-pill unknown">${t('notStarted')}</span>
+      </div>
+      <div class="match-row">
+        <div class="match-teams">
+          <div class="team-line single">
+            <span class="tname">${f.homeTeam || '?'} - ${f.awayTeam || '?'}</span>
+          </div>
+          <div class="unavailable-note">${t('unavailableNote')}</div>
+        </div>
+        <div class="fav-btn" data-fixture-id="${f.fixtureId}" title="Favoriden çıkar">★</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFavorites() {
+  const container = document.getElementById('favoritesContainer');
+
+  if (rawFavorites.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">☆</div>
+        <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">${t('emptyTitle')}</div>
+        <div>${t('emptySub')}</div>
+      </div>`;
+    return;
+  }
+
+  // Siralama: canli olanlar en ustte, sonra bugun oynanacak/oynanmis
+  // olanlar, en sonda bugunun listesinde bulunamayanlar (fallback).
+  const enriched = rawFavorites.map(f => {
+    const known = todayMatchesById.get(String(f.fixtureId));
+    return { fav: f, known: known || null };
+  });
+
+  enriched.sort((a, b) => {
+    const score = (x) => {
+      if (!x.known) return 2;
+      if (x.known.isLive) return 0;
+      return 1;
+    };
+    return score(a) - score(b);
+  });
+
+  container.innerHTML = enriched.map(({ fav, known }) =>
+    known ? renderKnownCard(known) : renderFallbackCard(fav)
+  ).join('');
+
+  container.querySelectorAll('.match-card.clickable').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.fav-btn')) return;
+      const link = card.dataset.link;
+      if (link) window.location.href = link;
+    });
+  });
+
+  container.querySelectorAll('.fav-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const fixtureId = btn.dataset.fixtureId;
+      rawFavorites = rawFavorites.filter(f => String(f.fixtureId) !== String(fixtureId));
+      renderFavorites();
+      try {
+        await fetch(`${API_BASE}/api/favorites/${fixtureId}`, { method: 'DELETE', headers: authHeaders() });
+      } catch (err) {
+        console.warn('Favoriden cikarilamadi:', err.message);
+      }
+    });
+  });
+}
+
+async function refreshAll() {
+  const ok = await loadFavorites();
+  if (!ok) {
+    document.getElementById('favoritesContainer').innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
+    return;
+  }
+  if (rawFavorites.length > 0) {
+    await loadTodayMatches();
+  }
+  renderFavorites();
+}
+
+applyStaticTranslations();
+refreshAll();
+setInterval(refreshAll, POLL_INTERVAL_MS);
+</script>
+
+</body>
+</html>
