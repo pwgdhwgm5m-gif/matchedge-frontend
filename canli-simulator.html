@@ -275,4 +275,308 @@
       </div>
       <div class="momentum-bar">
         <div class="momentum-fill home" id="momentum-home" style="width:50%"></div>
-        
+        <div class="momentum-fill away" id="momentum-away" style="width:50%"></div>
+      </div>
+      <div class="momentum-caption" data-i18n="pressureCaption">Who's applying pressure, based on recent data</div>
+    </div>
+
+    <div class="momentum-wrap">
+      <div class="momentum-labels">
+        <span id="proximity-home-label">Ev %–</span>
+        <span data-i18n="proximityLabel">Goal Proximity</span>
+        <span id="proximity-away-label">Dep %–</span>
+      </div>
+      <div class="momentum-bar">
+        <div class="momentum-fill home" id="proximity-home" style="width:50%; background: var(--amber);"></div>
+        <div class="momentum-fill away" id="proximity-away" style="width:50%; background: var(--border-subtle);"></div>
+      </div>
+      <div class="momentum-caption" data-i18n="proximityCaption">Weighted by shots on target, dangerous attacks and xG</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" data-i18n="liveXgTitle">LIVE EXPECTED GOALS (xG)</div>
+    <div class="xg-legend">
+      <span><span class="legend-dot" style="background:var(--teal)"></span><span id="xg-legend-home">Ev</span></span>
+      <span><span class="legend-dot" style="background:var(--purple)"></span><span id="xg-legend-away">Dep</span></span>
+    </div>
+    <div class="xg-chart-wrap">
+      <canvas id="xgCanvas"></canvas>
+    </div>
+    <div class="xg-current-row">
+      <div class="xg-current">
+        <div class="xg-current-value" style="color:var(--teal)" id="xg-current-home">0.00</div>
+        <div class="xg-current-label" data-i18n="homeXgLabel">HOME xG</div>
+      </div>
+      <div class="xg-current">
+        <div class="xg-current-value" style="color:var(--purple)" id="xg-current-away">0.00</div>
+        <div class="xg-current-label" data-i18n="awayXgLabel">AWAY xG</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span data-i18n="valueAlertTitle">LIVE VALUE ALERT</span><span class="premium-tag" style="margin-left:0;">PREMIUM</span></div>
+    <div class="alert-card" id="alert-card">
+      <div class="alert-icon">⚡</div>
+      <div>
+        <div class="alert-text" id="alert-text" data-i18n="noValueAlert">No meaningful odds deviation right now</div>
+        <div class="alert-sub" data-i18n="valueAlertSub">Market odds are tracking close to the model's prediction</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" data-i18n="liveStatsTitle">LIVE STATISTICS</div>
+    <div class="live-stats-grid">
+      <div class="live-stat-row">
+        <div class="live-stat-value home" id="stat-shots-home">0</div>
+        <div class="live-stat-label" data-i18n="shotsOnTarget">Shots on Target</div>
+        <div class="live-stat-value away" id="stat-shots-away">0</div>
+      </div>
+      <div class="live-stat-row">
+        <div class="live-stat-value home" id="stat-corners-home">0</div>
+        <div class="live-stat-label" data-i18n="corners">Corners</div>
+        <div class="live-stat-value away" id="stat-corners-away">0</div>
+      </div>
+      <div class="live-stat-row">
+        <div class="live-stat-value home" id="stat-attacks-home">0</div>
+        <div class="live-stat-label" data-i18n="dangerousAttacks">Dangerous Attacks</div>
+        <div class="live-stat-value away" id="stat-attacks-away">0</div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+</div>
+
+<div class="bottom-nav">
+  <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item active" href="canli-simulator.html"><span class="nav-icon">📊</span><span data-i18n="navLive">Live</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
+</div>
+
+<script>
+(function() {
+  if (!localStorage.getItem('matchedge_token')) {
+    window.location.href = 'giris.html';
+  }
+})();
+
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
+const FIXTURE_ID = new URLSearchParams(window.location.search).get('fixtureId');
+const POLLING_INTERVAL_MS = 15000;
+
+const TRANSLATIONS = {
+  en: {
+    brandSub: 'LIVE MATCH SIMULATOR', liveTag: 'LIVE',
+    possessionLabel: 'Possession', possessionCaption: 'Real possession share from live data',
+    pressureLabel: 'Pressure', pressureCaption: "Who's applying pressure, based on recent data",
+    proximityLabel: 'Goal Proximity', proximityCaption: 'Weighted by shots on target, dangerous attacks and xG',
+    liveXgTitle: 'LIVE EXPECTED GOALS (xG)', homeXgLabel: 'HOME xG', awayXgLabel: 'AWAY xG',
+    valueAlertTitle: 'LIVE VALUE ALERT', noValueAlert: 'No meaningful odds deviation right now',
+    valueAlertSub: "Market odds are tracking close to the model's prediction",
+    liveStatsTitle: 'LIVE STATISTICS', shotsOnTarget: 'Shots on Target', corners: 'Corners', dangerousAttacks: 'Dangerous Attacks',
+    navHome: 'Home', navMatches: 'Matches', navLive: 'Live', navFav: 'Favorites',
+    homePrefix: 'Home', awayPrefix: 'Away',
+    valueAlertMessage: "Model's estimate is notably higher than the market odds",
+    noFixture: 'No live match selected',
+    noFixtureSub: 'Go back and tap a live match to see it here',
+    loadError: "Couldn't load live data for this match",
+    loadErrorSub: 'It may have ended, or data is temporarily unavailable',
+  },
+  tr: {
+    brandSub: 'CANLI MAÇ SİMÜLATÖRÜ', liveTag: 'CANLI',
+    possessionLabel: 'Topa Sahip Olma', possessionCaption: 'Canlı veriden gerçek topa sahip olma oranı',
+    pressureLabel: 'Baskı', pressureCaption: 'Son verilere göre kim baskı kuruyor',
+    proximityLabel: 'Gole Yakınlık', proximityCaption: 'İsabetli şut, tehlikeli atak ve xG ağırlıklı',
+    liveXgTitle: 'CANLI GOL BEKLENTİSİ (xG)', homeXgLabel: 'EV xG', awayXgLabel: 'DEP xG',
+    valueAlertTitle: 'CANLI VALUE ALERT', noValueAlert: 'Şu an anlamlı bir oran sapması yok',
+    valueAlertSub: 'Piyasa oranı model tahminine yakın seyrediyor',
+    liveStatsTitle: 'CANLI İSTATİSTİKLER', shotsOnTarget: 'İsabetli Şut', corners: 'Korner', dangerousAttacks: 'Tehlikeli Atak',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navLive: 'Canlı', navFav: 'Favoriler',
+    homePrefix: 'Ev', awayPrefix: 'Dep',
+    valueAlertMessage: 'Model tahmini piyasa oranından belirgin şekilde yüksek',
+    noFixture: 'Canlı maç seçilmedi',
+    noFixtureSub: 'Geri dönüp canlı bir maça dokun',
+    loadError: 'Bu maç için canlı veri yüklenemedi',
+    loadErrorSub: 'Maç bitmiş olabilir, ya da veri geçici olarak ulaşılamıyor',
+  },
+};
+
+let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
+function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹';
+  document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  currentLang = currentLang === 'tr' ? 'en' : 'tr';
+  localStorage.setItem('matchedge_lang', currentLang);
+  applyStaticTranslations();
+  tick();
+});
+
+let xgHistory = [];
+let simTimer = null;
+
+function showError(titleKey, subKey) {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="error-state">
+      <div class="icon">⚠️</div>
+      <div>${t(titleKey)}</div>
+      <div style="font-size:11px; margin-top:6px; opacity:0.7;">${t(subKey)}</div>
+    </div>
+  `;
+  if (simTimer) clearInterval(simTimer);
+}
+
+async function fetchLiveTick() {
+  const res = await fetch(`${API_BASE}/api/live/${FIXTURE_ID}`);
+  if (!res.ok) throw new Error('http_' + res.status);
+  return await res.json();
+}
+
+function drawXgChart() {
+  const canvas = document.getElementById('xgCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, rect.width, rect.height);
+
+  if (xgHistory.length < 2) return;
+
+  const maxXg = Math.max(...xgHistory.map(p => Math.max(p.home, p.away)), 0.5) * 1.2;
+  const w = rect.width;
+  const h = rect.height;
+  const stepX = w / 90;
+
+  function drawLine(key, color) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    xgHistory.forEach((point, i) => {
+      const x = point.minute * stepX;
+      const y = h - (point[key] / maxXg) * (h - 10) - 5;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = (h / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+
+  drawLine('home', '#2dd4bf');
+  drawLine('away', '#9d7cf0');
+}
+
+function crestHtml(badgeUrl, teamName) {
+  if (badgeUrl) {
+    return `<img src="${badgeUrl}" alt="${teamName}" onerror="this.parentElement.textContent='⚽'">`;
+  }
+  return '⚽';
+}
+
+function renderTick(data) {
+  document.getElementById('home-name').textContent = data.homeTeam || '–';
+  document.getElementById('away-name').textContent = data.awayTeam || '–';
+  document.getElementById('home-crest').innerHTML = crestHtml(data.homeBadge, data.homeTeam);
+  document.getElementById('away-crest').innerHTML = crestHtml(data.awayBadge, data.awayTeam);
+
+  document.getElementById('minute-text').textContent = data.minute != null ? data.minute + "'" : t('liveTag');
+  document.getElementById('home-score').textContent = data.homeScore ?? 0;
+  document.getElementById('away-score').textContent = data.awayScore ?? 0;
+
+  const m = data.momentum || { home: 50, away: 50 };
+  document.getElementById('momentum-home').style.width = m.home + '%';
+  document.getElementById('momentum-away').style.width = m.away + '%';
+  document.getElementById('momentum-home-label').textContent = `${t('homePrefix')} %${m.home}`;
+  document.getElementById('momentum-away-label').textContent = `${t('awayPrefix')} %${m.away}`;
+
+  const poss = data.possession || { home: 50, away: 50 };
+  document.getElementById('possession-home').style.width = poss.home + '%';
+  document.getElementById('possession-away').style.width = poss.away + '%';
+  document.getElementById('possession-home-label').textContent = `${t('homePrefix')} %${poss.home}`;
+  document.getElementById('possession-away-label').textContent = `${t('awayPrefix')} %${poss.away}`;
+
+  const gp = data.goalProximity || { home: 50, away: 50 };
+  document.getElementById('proximity-home').style.width = gp.home + '%';
+  document.getElementById('proximity-away').style.width = gp.away + '%';
+  document.getElementById('proximity-home-label').textContent = `${t('homePrefix')} %${gp.home}`;
+  document.getElementById('proximity-away-label').textContent = `${t('awayPrefix')} %${gp.away}`;
+
+  document.getElementById('xg-current-home').textContent = (data.homeLiveXg ?? 0).toFixed(2);
+  document.getElementById('xg-current-away').textContent = (data.awayLiveXg ?? 0).toFixed(2);
+
+  if (data.minute != null) {
+    xgHistory.push({ minute: data.minute, home: data.homeLiveXg ?? 0, away: data.awayLiveXg ?? 0 });
+    if (xgHistory.length > 90) xgHistory.shift();
+  }
+
+  const s = data.stats || {};
+  document.getElementById('stat-shots-home').textContent = s.shotsOnTargetHome ?? 0;
+  document.getElementById('stat-shots-away').textContent = s.shotsOnTargetAway ?? 0;
+  document.getElementById('stat-corners-home').textContent = s.cornersHome ?? 0;
+  document.getElementById('stat-corners-away').textContent = s.cornersAway ?? 0;
+  document.getElementById('stat-attacks-home').textContent = s.dangerousAttacksHome ?? 0;
+  document.getElementById('stat-attacks-away').textContent = s.dangerousAttacksAway ?? 0;
+
+  const alertBox = document.getElementById('alert-card');
+  const alertText = document.getElementById('alert-text');
+  if (data.valueAlert && data.valueAlert.triggered) {
+    alertText.textContent = data.valueAlert.message;
+    alertBox.style.borderColor = 'rgba(245,185,66,0.6)';
+  } else {
+    alertText.textContent = t('noValueAlert');
+    alertBox.style.borderColor = 'rgba(245,185,66,0.35)';
+  }
+
+  drawXgChart();
+}
+
+async function tick() {
+  try {
+    const data = await fetchLiveTick();
+    renderTick(data);
+  } catch (err) {
+    console.warn('Canli veri alinamadi:', err.message);
+    showError('loadError', 'loadErrorSub');
+  }
+}
+
+function startLiveSimulation() {
+  if (!FIXTURE_ID) {
+    showError('noFixture', 'noFixtureSub');
+    return;
+  }
+  tick();
+  simTimer = setInterval(tick, POLLING_INTERVAL_MS);
+}
+
+window.addEventListener('resize', drawXgChart);
+applyStaticTranslations();
+startLiveSimulation();
+</script>
+
+</body>
+</html>
