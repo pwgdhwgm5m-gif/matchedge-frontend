@@ -35,17 +35,30 @@
   .brand-name .premium { color: var(--teal); margin-left: 4px; }
   .brand-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; margin-top: 2px; }
 
+  /* NOT: eskiden bu buton ust bardaki dil secici ile ayni satirda, sag ustte
+     kucuk (38px) bir kare olarak duruyordu - kullanici bulamiyordu/gormuyordu.
+     Artik ekranin altinda (alt nav'in hemen ustunde), ortalanmis, daha buyuk
+     ve yuvarlak bir "floating action button" (FAB) - en gorunur, standart
+     "yeni ekle" yerlesimi. */
   .add-btn {
-    width: 38px; height: 38px;
+    position: fixed;
+    left: 50%;
+    bottom: 86px;
+    transform: translateX(-50%);
+    width: 58px; height: 58px;
     background: var(--teal);
     color: #05201c;
     border: none;
-    border-radius: 12px;
-    font-size: 20px;
+    border-radius: 50%;
+    font-size: 28px;
     font-weight: 800;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
+    box-shadow: 0 6px 20px rgba(45,212,191,0.45);
+    z-index: 50;
+    transition: transform 0.12s ease;
   }
+  .add-btn:active { transform: translateX(-50%) scale(0.92); }
 
   .stats-strip { display: flex; gap: 10px; margin-bottom: 18px; }
   .stat-chip {
@@ -254,7 +267,6 @@
       <div class="lang-toggle" id="langToggle">
         <span id="langFlag">🇬🇧</span><span class="lang-code" id="langCode">EN</span>
       </div>
-      <div class="add-btn" id="openModalBtn">+</div>
     </div>
   </div>
 
@@ -280,15 +292,14 @@
   </div>
 </div>
 
+<div class="add-btn" id="openModalBtn">+</div>
+
 <div class="bottom-nav">
   <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
   <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
   <a class="nav-item active" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">My Notes</span></a>
-</div>
-  <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
-  <div class="nav-item"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></div>
-  <div class="nav-item active"><span class="nav-icon">📝</span><span data-i18n="navNotes">My Notes</span></div>
+  <a class="nav-item" href="favoriler.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
@@ -360,7 +371,7 @@ const TRANSLATIONS = {
     brandSub: 'MY NOTES',
     statWinLbl: 'WON', statLossLbl: 'LOST', statPendingLbl: 'PENDING',
     filterAll: 'All', filterPending: 'Pending', filterWin: 'Won', filterLoss: 'Lost',
-    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'My Notes',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'My Notes', navFav: 'Favorites',
     addNoteTitle: 'Add New Note', matchLabel: 'Match', tapToPick: 'Tap to pick a match',
     selectionLabel: 'Selection (tap a preset or write your own below)',
     selectionPlaceholder: 'or write your own pick...',
@@ -379,7 +390,7 @@ const TRANSLATIONS = {
     brandSub: 'NOTLARIM',
     statWinLbl: 'KAZANDI', statLossLbl: 'KAYBETTİ', statPendingLbl: 'BEKLİYOR',
     filterAll: 'Tümü', filterPending: 'Bekleyen', filterWin: 'Kazandı', filterLoss: 'Kaybetti',
-    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım', navFav: 'Favoriler',
     addNoteTitle: 'Yeni Not Ekle', matchLabel: 'Maç', tapToPick: 'Maç seçmek için dokun',
     selectionLabel: 'Seçim (hazır seçeneklerden tıkla veya aşağıya kendin yaz)',
     selectionPlaceholder: 'veya kendi seçimini yaz...',
