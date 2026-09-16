@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>MatchEdge - Notlarım</title>
+<title>MatchEdge - Maçlar</title>
 <style>
   :root {
     --bg-base: #0a0e17;
@@ -14,10 +14,9 @@
     --purple: #9d7cf0;
     --amber: #f5b942;
     --red: #f0556b;
-    --green: #4ade80;
     --text-primary: #f2f4f8;
-    --text-secondary: #8b93a7;
-    --text-muted: #5a6478;
+    --text-secondary: #a8b0c2;
+    --text-muted: #6b7386;
     --radius: 16px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,193 +26,131 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     padding-bottom: 90px;
+    overflow-x: hidden;
   }
   .app { max-width: 480px; margin: 0 auto; padding: 16px; }
 
-  .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 18px; }
+  .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 4px 18px;
+  }
   .brand-name { font-size: 19px; font-weight: 800; }
   .brand-name .premium { color: var(--teal); margin-left: 4px; }
   .brand-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; margin-top: 2px; }
 
-  .add-btn {
-    width: 38px; height: 38px;
-    background: var(--teal);
-    color: #05201c;
-    border: none;
-    border-radius: 12px;
-    font-size: 20px;
-    font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
+  .day-tabs {
+    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
+    margin-bottom: 18px; scrollbar-width: none;
+  }
+  .day-tabs::-webkit-scrollbar { display: none; }
+  .day-tab {
+    flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 10px 14px;
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 12px; min-width: 56px; cursor: pointer;
+  }
+  .day-tab.active { background: rgba(45,212,191,0.12); border-color: var(--teal); }
+  .day-tab .dow { font-size: 10.5px; color: var(--text-muted); font-weight: 600; }
+  .day-tab.active .dow { color: var(--teal); }
+  .day-tab .dnum { font-size: 15px; font-weight: 800; }
+
+  .section-title {
+    font-size: 12px; font-weight: 800; letter-spacing: 1px;
+    color: var(--text-primary);
+    margin: 4px 0 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .section-title .badge {
+    font-size: 9.5px; font-weight: 700; color: var(--teal);
+    background: rgba(45,212,191,0.12);
+    padding: 2px 8px; border-radius: 8px;
   }
 
-  .stats-strip { display: flex; gap: 10px; margin-bottom: 18px; }
-  .stat-chip {
-    flex: 1;
+  .league-group {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-    padding: 10px;
-    text-align: center;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    overflow: hidden;
   }
-  .stat-chip .num { font-size: 18px; font-weight: 800; }
-  .stat-chip .lbl { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
-  .stat-chip.win .num { color: var(--green); }
-  .stat-chip.loss .num { color: var(--red); }
-  .stat-chip.pending .num { color: var(--amber); }
-
-  .filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-  .filter-tab {
-    padding: 7px 14px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-subtle);
-    border-radius: 20px;
-    font-size: 11.5px;
-    font-weight: 600;
-    color: var(--text-secondary);
+  .league-group.priority { border-color: rgba(45,212,191,0.3); }
+  .league-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
     cursor: pointer;
   }
-  .filter-tab.active { background: rgba(45,212,191,0.12); border-color: var(--teal); color: var(--teal); }
+  .league-header-left { display: flex; flex-direction: column; gap: 2px; }
+  .league-name { font-size: 13.5px; font-weight: 700; }
+  .league-meta { font-size: 10.5px; color: var(--text-secondary); font-weight: 500; }
+  .league-chevron {
+    font-size: 12px; color: var(--text-secondary);
+    transition: transform 0.2s ease;
+    flex-shrink: 0; margin-left: 10px;
+  }
+  .league-group.expanded .league-chevron { transform: rotate(90deg); color: var(--teal); }
 
-  .note-card {
+  .league-matches {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+  }
+  .league-group.expanded .league-matches {
+    max-height: 3000px;
+  }
+
+  .match-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 16px;
+    border-top: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .match-row:active { background: var(--bg-card-inner); }
+  .match-row-teams { font-size: 13px; font-weight: 600; flex: 1; }
+  .match-row-time {
+    font-size: 11px; font-weight: 700; color: var(--amber);
+    background: rgba(245,185,66,0.1);
+    padding: 3px 9px; border-radius: 8px;
+    flex-shrink: 0; margin-left: 10px;
+  }
+
+  .sub-league-label {
+    font-size: 10px; font-weight: 700; color: var(--text-secondary);
+    padding: 10px 16px 2px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .other-toggle {
+    display: flex; align-items: center; justify-content: space-between;
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: 14px;
     padding: 14px 16px;
-    margin-bottom: 10px;
-  }
-  .note-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .note-match { font-size: 14.5px; font-weight: 700; }
-  .note-date { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-  .note-selection {
-    display: inline-block;
-    background: rgba(45,212,191,0.1);
-    border: 1px solid rgba(45,212,191,0.3);
-    color: var(--teal);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 8px;
-    margin-bottom: 8px;
-  }
-  .note-comment { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px; }
-
-  .note-actions { display: flex; gap: 8px; align-items: center; }
-  .result-btn {
-    flex: 1;
-    text-align: center;
-    padding: 7px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-card-inner);
-    color: var(--text-secondary);
     cursor: pointer;
+    margin-top: 6px;
   }
-  .result-btn.win.selected { background: rgba(74,222,128,0.15); border-color: var(--green); color: var(--green); }
-  .result-btn.loss.selected { background: rgba(240,85,107,0.15); border-color: var(--red); color: var(--red); }
-  .delete-btn {
-    width: 32px; height: 32px;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--bg-card-inner);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    color: var(--text-muted);
-    font-size: 14px;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+  .other-toggle-left { display: flex; align-items: center; gap: 10px; }
+  .other-toggle-icon { font-size: 16px; }
+  .other-toggle-text { font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
+  .other-toggle-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+  .other-chevron { font-size: 12px; color: var(--text-secondary); transition: transform 0.2s ease; }
+  .other-toggle.expanded .other-chevron { transform: rotate(90deg); color: var(--teal); }
 
-  .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); font-size: 13px; }
+  .other-countries-wrap {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-top: 8px;
+  }
+  .other-countries-wrap.expanded { max-height: 6000px; }
 
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    align-items: flex-end;
-    z-index: 200;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-sheet {
-    background: var(--bg-card);
-    border-radius: 20px 20px 0 0;
-    padding: 22px 20px 28px;
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-  .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 16px; }
-  .field-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
-  .field-input {
-    width: 100%;
-    background: var(--bg-card-inner);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    padding: 11px 12px;
-    color: var(--text-primary);
-    font-size: 13.5px;
-    margin-bottom: 16px;
-  }
-  .field-input:focus { outline: none; border-color: var(--teal); }
-  textarea.field-input { resize: none; min-height: 60px; font-family: inherit; }
-
-  .preset-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .preset-chip {
-    padding: 7px 12px;
-    background: var(--bg-card-inner);
-    border: 1px solid var(--border-subtle);
-    border-radius: 20px;
-    font-size: 11.5px;
-    color: var(--text-secondary);
-    cursor: pointer;
-  }
-  .preset-chip.selected { background: rgba(45,212,191,0.12); border-color: var(--teal); color: var(--teal); }
-
-  .modal-buttons { display: flex; gap: 10px; margin-top: 4px; }
-  .modal-btn {
-    flex: 1;
-    text-align: center;
-    padding: 13px;
-    border-radius: 12px;
-    font-size: 13.5px;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-  }
-  .modal-btn.cancel { background: var(--bg-card-inner); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
-  .modal-btn.save { background: var(--teal); color: #05201c; }
-
-  .pick-item {
-    padding: 11px 12px;
-    background: var(--bg-card-inner);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    margin-bottom: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .pick-item .pick-league { font-size: 9.5px; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 3px; }
-  .auto-tag {
-    display: inline-block;
-    font-size: 8.5px;
-    font-weight: 800;
-    color: var(--purple);
-    border: 1px solid var(--purple);
-    border-radius: 6px;
-    padding: 1px 6px;
-    margin-left: 6px;
-    vertical-align: middle;
-  }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); font-size: 13px; }
+  .empty-state.error { color: var(--red); }
 
   .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--bg-card);
-    border-top: 1px solid var(--border-subtle);
-    display: flex; justify-content: space-around;
-    padding: 10px 0 20px;
+    background: var(--bg-card); border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-around; padding: 10px 0 20px;
   }
   .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); }
   .nav-item.active { color: var(--teal); }
@@ -222,13 +159,8 @@
   .top-actions { display: flex; align-items: center; gap: 8px; }
   .lang-toggle {
     display: flex; align-items: center; gap: 4px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    padding: 6px 10px;
-    font-size: 15px;
-    cursor: pointer;
-    user-select: none;
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 10px; padding: 6px 10px; font-size: 15px; cursor: pointer; user-select: none;
   }
   .lang-toggle .lang-code { font-size: 9.5px; font-weight: 800; color: var(--text-secondary); margin-left: 2px; }
 
@@ -245,586 +177,311 @@
 <body>
 
 <div class="app">
+
   <div class="top-bar">
     <div>
       <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
-      <div class="brand-sub" data-i18n="brandSub">MY NOTES</div>
+      <div class="brand-sub" data-i18n="brandSub">UPCOMING MATCHES</div>
     </div>
     <div class="top-actions">
       <div class="lang-toggle" id="langToggle">
         <span id="langFlag">🇬🇧</span><span class="lang-code" id="langCode">EN</span>
       </div>
-      <div class="add-btn" id="openModalBtn">+</div>
     </div>
   </div>
 
-  <div class="stats-strip">
-    <div class="stat-chip win"><div class="num" id="statWin">0</div><div class="lbl" data-i18n="statWinLbl">WON</div></div>
-    <div class="stat-chip loss"><div class="num" id="statLoss">0</div><div class="lbl" data-i18n="statLossLbl">LOST</div></div>
-    <div class="stat-chip pending"><div class="num" id="statPending">0</div><div class="lbl" data-i18n="statPendingLbl">PENDING</div></div>
-  </div>
+  <div class="day-tabs" id="dayTabs"></div>
 
-  <div class="filter-tabs">
-    <div class="filter-tab active" data-filter="all" data-i18n="filterAll">All</div>
-    <div class="filter-tab" data-filter="pending" data-i18n="filterPending">Pending</div>
-    <div class="filter-tab" data-filter="win" data-i18n="filterWin">Won</div>
-    <div class="filter-tab" data-filter="loss" data-i18n="filterLoss">Lost</div>
+  <div id="matchesContainer">
+    <div class="empty-state" data-i18n="loading">Loading...</div>
   </div>
-
-  <div id="notesContainer"></div>
 
   <div class="legal-footer" data-i18n="legalText">
     Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.
     <br><br>
     MatchEdge © 2026 — Built by Eddas.
   </div>
+
 </div>
 
 <div class="bottom-nav">
   <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item active" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
   <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
-  <a class="nav-item active" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">My Notes</span></a>
-</div>
-  <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
-  <div class="nav-item"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></div>
-  <div class="nav-item active"><span class="nav-icon">📝</span><span data-i18n="navNotes">My Notes</span></div>
-</div>
-
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-sheet">
-    <div class="modal-title" data-i18n="addNoteTitle">Add New Note</div>
-
-    <div class="field-label" data-i18n="matchLabel">Match</div>
-    <div class="field-input" id="matchPickerBtn" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; color:var(--text-muted);">
-      <span id="matchPickerLabel" data-i18n="tapToPick">Tap to pick a match</span>
-      <span>▾</span>
-    </div>
-    <input type="hidden" id="matchInput">
-    <input type="hidden" id="fixtureIdInput">
-    <input type="hidden" id="matchDateInput">
-
-    <div class="field-label" data-i18n="selectionLabel">Selection (tap a preset or write your own below)</div>
-    <div class="preset-grid" id="presetGrid">
-      <div class="preset-chip" data-value="2.5 Üst">2.5 Üst</div>
-      <div class="preset-chip" data-value="2.5 Alt">2.5 Alt</div>
-      <div class="preset-chip" data-value="KG Var">KG Var</div>
-      <div class="preset-chip" data-value="KG Yok">KG Yok</div>
-      <div class="preset-chip" data-value="Ev Sahibi Kazanır">Ev Sahibi Kazanır</div>
-      <div class="preset-chip" data-value="Deplasman Kazanır">Deplasman Kazanır</div>
-      <div class="preset-chip" data-value="İlk Yarı Gol Var">İlk Yarı Gol Var</div>
-    </div>
-    <input type="text" class="field-input" id="selectionInput" data-i18n-placeholder="selectionPlaceholder" placeholder="or write your own pick...">
-
-    <div class="field-label" data-i18n="noteLabel">Note (optional)</div>
-    <textarea class="field-input" id="commentInput" data-i18n-placeholder="notePlaceholder" placeholder="A note to remind you why you picked this..."></textarea>
-
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="cancelBtn" data-i18n="cancel">Cancel</button>
-      <button class="modal-btn save" id="saveBtn" data-i18n="save">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Mac secim alt-modali -->
-<div class="modal-overlay" id="pickerOverlay">
-  <div class="modal-sheet">
-    <div class="modal-title" data-i18n="pickMatchTitle">Pick a Match</div>
-
-    <div class="field-label" data-i18n="dateLabel">Date</div>
-    <input type="date" class="field-input" id="pickerDate">
-
-    <div id="pickerList" style="max-height: 320px; overflow-y: auto; margin-bottom: 16px;">
-      <div class="empty-state" style="padding:24px;" data-i18n="pickDateHint">Matches load once you pick a date</div>
-    </div>
-
-    <div class="modal-buttons">
-      <button class="modal-btn cancel" id="pickerCancelBtn" data-i18n="close">Close</button>
-    </div>
-  </div>
+  <a class="nav-item" href="notlarim.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <script>
-// Giris kontrolu - token yoksa giris ekranina yonlendir
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
     window.location.href = 'giris.html';
   }
 })();
 
-const API_BASE = 'https://matchedge-backend-kujb.onrender.com'; // örn: 'https://matchedge-backend.onrender.com'
-let currentFilter = 'all';
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
+const DAYS_AHEAD = 7;
+
+// Sayfa acildiginda mac listesi bir kere cekiliyordu - saat 22:00'de baslayan
+// bir mac, kullanici sayfayi yeniden acmadikca hep "22:00" fikstur saatinde
+// takili kaliyordu (canli skor/dakika hic yansimiyordu). Ana sayfadaki ile
+// ayni periyotta (20sn) otomatik yenileme ekleniyor, boylece mac baslayinca
+// liste kendiliginden CANLI durumuna/skoruna gunceleniyor.
+const POLL_INTERVAL_MS = 20000;
+
+// Sadece buyuk liglerin/kupalarin gosterilmesi icin TheSportsDB idLeague
+// beyaz listesi. Backend (/api/matches) zaten bu listeyle filtreliyor -
+// burasi ikinci bir guvenlik agi: backend'de ileride bir sorun cikarsa
+// kucuk lig/alt lig gurultusu yine de arayuze sizmasin diye.
+const WHITELISTED_LEAGUE_IDS = new Set([
+  // --- Avrupa 1. Ligleri ---
+  '4328', // Ingiltere Premier League
+  '4335', // Ispanya La Liga
+  '4332', // Italya Serie A
+  '4331', // Almanya Bundesliga
+  '4334', // Fransa Ligue 1
+  '4337', // Hollanda Eredivisie
+  '4344', // Portekiz Primeira Liga
+  '4330', // Iskocya Premiership
+  '4336', // Yunanistan Super League
+  '4355', // Rusya Premier League
+  '4422', // Polonya Ekstraklasa
+  '4338', // Belcika First Division A
+  '4340', // Danimarka Superligaen
+  '4358', // Norvec Eliteserien
+  '4347', // Isvec Allsvenskan
+  '4636', // Finlandiya Veikkausliiga
+  '4339', // Turkiye Super Lig
+  '4621', // Avusturya Bundesliga
+  '4675', // Isvicre Super League
+  // --- Amerika 1. Ligleri ---
+  '4346', // ABD MLS
+  '4350', // Meksika Liga MX
+  '4351', // Brezilya Serie A
+  '4406', // Arjantin Primera Division
+  // --- Asya 1. Ligleri ---
+  '4633', // Japonya J1 League
+  '4689', // Guney Kore K League 1
+  // --- Buyuk Kupalar / Turnuvalar ---
+  '4480', // UEFA Sampiyonlar Ligi
+  '4481', // UEFA Avrupa Ligi
+  '4482', // Ingiltere FA Cup
+  '4483', // Ispanya Copa del Rey
+  '4484', // Fransa Coupe de France
+  '4485', // Almanya DFB-Pokal
+  '4506', // Italya Coppa Italia
+  '4501', // Copa Libertadores
+  '4490', // UEFA Uluslar Ligi
+  '5071', // UEFA Konferans Ligi
+  '4503', // FIFA Kulupler Dunya Kupasi
+]);
+
+// Bu alt kume, ayni beyaz liste icinde en cok takip edilen ligleri/kupalari
+// listenin basinda gostermek icin kullaniliyor (kucuk ligleri gizlemiyor -
+// onlar zaten yukaridaki beyaz listede yoklar).
+const PRIORITY_LEAGUE_IDS = new Set([
+  '4339', '4328', '4335', '4332', '4331', '4334', '4480', '4481',
+]);
 
 const TRANSLATIONS = {
   en: {
-    brandSub: 'MY NOTES',
-    statWinLbl: 'WON', statLossLbl: 'LOST', statPendingLbl: 'PENDING',
-    filterAll: 'All', filterPending: 'Pending', filterWin: 'Won', filterLoss: 'Lost',
-    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'My Notes',
-    addNoteTitle: 'Add New Note', matchLabel: 'Match', tapToPick: 'Tap to pick a match',
-    selectionLabel: 'Selection (tap a preset or write your own below)',
-    selectionPlaceholder: 'or write your own pick...',
-    noteLabel: 'Note (optional)', notePlaceholder: 'A note to remind you why you picked this...',
-    cancel: 'Cancel', save: 'Save',
-    pickMatchTitle: 'Pick a Match', dateLabel: 'Date', pickDateHint: 'Matches load once you pick a date', close: 'Close',
-    emptyNotes: "No notes yet — tap + in the top right to add one",
-    autoTag: 'AUTO', waitingAuto: '⏱ Will be checked automatically once the match ends',
-    won: 'Won', lost: 'Lost',
-    requiredFields: 'Match and selection fields are required.',
-    loading: 'Loading...',
-    win: 'win', loss: 'loss',
+    brandSub: 'UPCOMING MATCHES', loading: 'Loading...',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navFav: 'Favorites',
+    today: 'Today', noMatchesDate: 'No matches found for this date',
+    loadError: "Couldn't load matches - pull to refresh",
+    live: 'LIVE',
+    matchCount: (n) => n === 1 ? '1 match' : `${n} matches`,
+    dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
   },
   tr: {
-    brandSub: 'NOTLARIM',
-    statWinLbl: 'KAZANDI', statLossLbl: 'KAYBETTİ', statPendingLbl: 'BEKLİYOR',
-    filterAll: 'Tümü', filterPending: 'Bekleyen', filterWin: 'Kazandı', filterLoss: 'Kaybetti',
-    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım',
-    addNoteTitle: 'Yeni Not Ekle', matchLabel: 'Maç', tapToPick: 'Maç seçmek için dokun',
-    selectionLabel: 'Seçim (hazır seçeneklerden tıkla veya aşağıya kendin yaz)',
-    selectionPlaceholder: 'veya kendi seçimini yaz...',
-    noteLabel: 'Not (opsiyonel)', notePlaceholder: 'Neden bu seçimi yaptığını hatırlatacak bir not...',
-    cancel: 'Vazgeç', save: 'Kaydet',
-    pickMatchTitle: 'Maç Seç', dateLabel: 'Tarih', pickDateHint: 'Tarih seçince maçlar yüklenir', close: 'Kapat',
-    emptyNotes: 'Henüz not yok — sağ üstteki + ile ekleyebilirsin',
-    autoTag: 'OTOMATİK', waitingAuto: '⏱ Maç bitince otomatik kontrol edilecek',
-    won: 'Kazandı', lost: 'Kaybetti',
-    requiredFields: 'Maç ve seçim alanları zorunlu.',
-    loading: 'Yükleniyor...',
-    win: 'kazandı', loss: 'kaybetti',
+    brandSub: 'YAKLAŞAN MAÇLAR', loading: 'Yükleniyor...',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navFav: 'Favoriler',
+    today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
+    loadError: 'Maçlar yüklenemedi - yenilemek için tekrar dene',
+    live: 'CANLI',
+    matchCount: (n) => n === 1 ? '1 maç' : `${n} maç`,
+    dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
     legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan MatchEdge sorumlu tutulamaz.<br><br>MatchEdge © 2026 — Eddas tarafından geliştirildi.',
-  },
-};
-
-// Hazir secim degerleri her zaman Turkce (kanonik) kalir - localStorage'da
-// bu sekilde saklanir ve PRESET_RULES ile eslesir. Sadece EKRANDA GORUNEN
-// etiket dile gore degisir, alttaki deger/kural degismez.
-const PRESET_LABELS = {
-  tr: {
-    '2.5 Üst': '2.5 Üst', '2.5 Alt': '2.5 Alt', 'KG Var': 'KG Var', 'KG Yok': 'KG Yok',
-    'Ev Sahibi Kazanır': 'Ev Sahibi Kazanır', 'Deplasman Kazanır': 'Deplasman Kazanır',
-    'İlk Yarı Gol Var': 'İlk Yarı Gol Var',
-  },
-  en: {
-    '2.5 Üst': 'Over 2.5', '2.5 Alt': 'Under 2.5', 'KG Var': 'BTTS Yes', 'KG Yok': 'BTTS No',
-    'Ev Sahibi Kazanır': 'Home Win', 'Deplasman Kazanır': 'Away Win',
-    'İlk Yarı Gol Var': '1st Half Goal',
   },
 };
 
 let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
 function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
-function displaySelection(sel) { return PRESET_LABELS[currentLang][sel] ?? sel; }
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     el.textContent = t(el.getAttribute('data-i18n'));
   });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
-  });
-  document.querySelectorAll('.preset-chip').forEach(chip => {
-    chip.textContent = PRESET_LABELS[currentLang][chip.dataset.value] || chip.dataset.value;
-  });
-  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹🇷';
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹';
   document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
+}
+
+let selectedDate = todayKey();
+let lastMatches = [];
+let lastLoadFailed = false;
+
+function todayKey() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function dateKeyOffset(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().split('T')[0];
+}
+
+function renderDayTabs() {
+  const container = document.getElementById('dayTabs');
+  const dowNames = TRANSLATIONS[currentLang].dowNames;
+  let html = '';
+  for (let i = 0; i < DAYS_AHEAD; i++) {
+    const dateStr = dateKeyOffset(i);
+    const d = new Date(dateStr + 'T00:00:00');
+    const active = dateStr === selectedDate;
+    html += `
+      <div class="day-tab ${active ? 'active' : ''}" data-date="${dateStr}">
+        <div class="dow">${i === 0 ? t('today') : dowNames[d.getDay()]}</div>
+        <div class="dnum">${d.getDate()}</div>
+      </div>`;
+  }
+  container.innerHTML = html;
+  container.querySelectorAll('.day-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      selectedDate = tab.getAttribute('data-date');
+      renderDayTabs();
+      loadMatches();
+    });
+  });
+}
+
+function analysisLink(m) {
+  const params = new URLSearchParams({
+    fixtureId: m.fixtureId,
+    homeTeamName: m.homeTeam || '',
+    awayTeamName: m.awayTeam || '',
+    leagueName: m.league || '',
+    kickoff: m.kickoff || '',
+    tsdbLeagueId: m.leagueId || '',
+    homeBadge: m.homeBadge || '',
+    awayBadge: m.awayBadge || '',
+  });
+  return `analiz-ekrani.html?${params.toString()}`;
+}
+
+function matchLink(m) {
+  return m.isLive
+    ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
+    : analysisLink(m);
+}
+
+function groupByLeague(matches) {
+  const groups = new Map();
+  matches.forEach(m => {
+    const key = String(m.leagueId || m.league || 'unknown');
+    if (!groups.has(key)) {
+      groups.set(key, { leagueId: key, league: m.league || '', matches: [] });
+    }
+    groups.get(key).matches.push(m);
+  });
+  return Array.from(groups.values()).sort((a, b) => {
+    const aPriority = PRIORITY_LEAGUE_IDS.has(a.leagueId);
+    const bPriority = PRIORITY_LEAGUE_IDS.has(b.leagueId);
+    if (aPriority && !bPriority) return -1;
+    if (!aPriority && bPriority) return 1;
+    return a.league.localeCompare(b.league);
+  });
+}
+
+function renderMatches() {
+  const container = document.getElementById('matchesContainer');
+
+  if (lastLoadFailed) {
+    container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
+    return;
+  }
+
+  if (lastMatches.length === 0) {
+    container.innerHTML = `<div class="empty-state">${t('noMatchesDate')}</div>`;
+    return;
+  }
+
+  const groups = groupByLeague(lastMatches);
+
+  container.innerHTML = groups.map((g) => {
+    const isPriority = PRIORITY_LEAGUE_IDS.has(g.leagueId);
+    const rows = g.matches.map(m => {
+      const timeLabel = m.isLive
+        ? (m.minute != null ? `${m.minute}'` : t('live'))
+        : (m.kickoff
+          ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+          : '--:--');
+      return `
+        <a class="match-row" href="${matchLink(m)}" style="text-decoration:none; color:inherit;">
+          <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
+          <div class="match-row-time">${timeLabel}</div>
+        </a>`;
+    }).join('');
+
+    return `
+      <div class="league-group ${isPriority ? 'priority expanded' : ''}">
+        <div class="league-header">
+          <div class="league-header-left">
+            <div class="league-name">${g.league}</div>
+            <div class="league-meta">${t('matchCount')(g.matches.length)}</div>
+          </div>
+          <div class="league-chevron">›</div>
+        </div>
+        <div class="league-matches">${rows}</div>
+      </div>`;
+  }).join('');
+
+  container.querySelectorAll('.league-group').forEach(el => {
+    el.querySelector('.league-header').addEventListener('click', () => {
+      el.classList.toggle('expanded');
+    });
+  });
+}
+
+async function loadMatches() {
+  const container = document.getElementById('matchesContainer');
+  container.innerHTML = `<div class="empty-state">${t('loading')}</div>`;
+
+  let matches = [];
+  let loadFailed = false;
+  try {
+    const res = await fetch(`${API_BASE}/api/matches?date=${selectedDate}`);
+    if (res.ok) {
+      const json = await res.json();
+      matches = json.matches || [];
+    } else {
+      loadFailed = true;
+    }
+  } catch (err) {
+    console.warn('Maclar yuklenemedi:', err.message);
+    loadFailed = true;
+  }
+
+  matches = matches.filter(m => WHITELISTED_LEAGUE_IDS.has(String(m.leagueId)));
+  matches.sort((a, b) => new Date(a.kickoff || 0) - new Date(b.kickoff || 0));
+
+  lastMatches = matches;
+  lastLoadFailed = loadFailed;
+  renderMatches();
 }
 
 document.getElementById('langToggle').addEventListener('click', () => {
   currentLang = currentLang === 'tr' ? 'en' : 'tr';
   localStorage.setItem('matchedge_lang', currentLang);
   applyStaticTranslations();
-  renderNotes();
+  renderDayTabs();
+  renderMatches();
 });
-
-// Sadece bu listedeki net seçimler otomatik kontrol edilebilir.
-// Serbest yazilmis cumleler (orn. "GS ilk yari gol atar") burada yok,
-// onlar icin sonuc her zaman elle isaretlenir.
-const PRESET_RULES = {
-  '2.5 Üst': (h, a) => (h + a) > 2.5,
-  '2.5 Alt': (h, a) => (h + a) < 2.5,
-  'KG Var': (h, a) => h > 0 && a > 0,
-  'KG Yok': (h, a) => !(h > 0 && a > 0),
-  'Ev Sahibi Kazanır': (h, a) => h > a,
-  'Deplasman Kazanır': (h, a) => a > h,
-  'İlk Yarı Gol Var': (h, a, ht, hta) => (ht + hta) > 0,
-};
-
-function isAutoCheckable(selection) {
-  return Object.prototype.hasOwnProperty.call(PRESET_RULES, selection);
-}
-
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('matchedge_token')}`,
-  };
-}
-
-// Notlar artik localStorage yerine backend'de (kullaniciya bagli) tutuluyor.
-// notesCache, sunucudan cekilen son listeyi hafizada tutar - her render
-// bunun uzerinden calisir, boylece her tiklamada sunucuya gitmek gerekmez.
-let notesCache = [];
-
-async function fetchNotesFromServer() {
-  try {
-    const res = await fetch(`${API_BASE}/api/notes`, { headers: authHeaders() });
-    if (res.status === 401) {
-      // Token gecersiz/suresi dolmus - tekrar giris yapmasi gerekiyor
-      localStorage.removeItem('matchedge_token');
-      window.location.href = 'giris.html';
-      return;
-    }
-    const data = await res.json();
-    notesCache = data.notes || [];
-  } catch (err) {
-    console.warn('Notlar sunucudan alinamadi:', err.message);
-  }
-}
-
-function renderStats(notes) {
-  document.getElementById('statWin').textContent = notes.filter(n => n.result === 'win').length;
-  document.getElementById('statLoss').textContent = notes.filter(n => n.result === 'loss').length;
-  document.getElementById('statPending').textContent = notes.filter(n => !n.result).length;
-}
-
-function renderNotes() {
-  const notes = [...notesCache].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  renderStats(notes);
-
-  const filtered = notes.filter(n => {
-    if (currentFilter === 'all') return true;
-    if (currentFilter === 'pending') return !n.result;
-    return n.result === currentFilter;
-  });
-
-  const container = document.getElementById('notesContainer');
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state">${t('emptyNotes')}</div>`;
-    return;
-  }
-
-  container.innerHTML = filtered.map(n => {
-    const autoCheckable = n.fixtureId && isAutoCheckable(n.selection);
-    const pendingAuto = autoCheckable && !n.result;
-
-    return `
-    <div class="note-card" data-id="${n._id}">
-      <div class="note-top">
-        <div>
-          <div class="note-match">${escapeHtml(n.match)}</div>
-          <div class="note-date">${formatDate(n.createdAt)}</div>
-        </div>
-        <div class="delete-btn" data-action="delete" data-id="${n._id}">🗑</div>
-      </div>
-      <div class="note-selection">${escapeHtml(displaySelection(n.selection))}${n.autoChecked ? `<span class="auto-tag">${t('autoTag')}</span>` : ''}</div>
-      ${n.comment ? `<div class="note-comment">${escapeHtml(n.comment)}</div>` : ''}
-      ${pendingAuto
-        ? `<div class="note-comment" style="color:var(--purple);">${t('waitingAuto')}</div>`
-        : `<div class="note-actions">
-            <div class="result-btn win ${n.result === 'win' ? 'selected' : ''}" data-action="win" data-id="${n._id}">${t('won')}</div>
-            <div class="result-btn loss ${n.result === 'loss' ? 'selected' : ''}" data-action="loss" data-id="${n._id}">${t('lost')}</div>
-          </div>`
-      }
-    </div>
-  `;
-  }).join('');
-
-  container.querySelectorAll('[data-action="delete"]').forEach(btn => {
-    btn.addEventListener('click', () => deleteNote(btn.dataset.id));
-  });
-  container.querySelectorAll('[data-action="win"], [data-action="loss"]').forEach(btn => {
-    btn.addEventListener('click', () => setResult(btn.dataset.id, btn.dataset.action));
-  });
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str || '';
-  return div.innerHTML;
-}
-
-function formatDate(timestamp) {
-  const d = new Date(timestamp);
-  const locale = currentLang === 'tr' ? 'tr-TR' : 'en-GB';
-  return d.toLocaleDateString(locale, { day: '2-digit', month: 'short' }) +
-    ' • ' + d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
-}
-
-async function addNote(match, selection, comment, fixtureId, matchDate) {
-  try {
-    const res = await fetch(`${API_BASE}/api/notes`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ match, selection, comment, fixtureId: fixtureId || null, matchDate: matchDate || null }),
-    });
-    if (!res.ok) {
-      const data = await res.json();
-      alert(data.error || 'Not eklenemedi.');
-      return;
-    }
-    const data = await res.json();
-    notesCache.push(data.note);
-    renderNotes();
-    checkAutoResults();
-  } catch (err) {
-    alert('Sunucuya ulaşılamadı.');
-  }
-}
-
-async function deleteNote(id) {
-  try {
-    await fetch(`${API_BASE}/api/notes/${id}`, { method: 'DELETE', headers: authHeaders() });
-    notesCache = notesCache.filter(n => n._id !== id);
-    renderNotes();
-  } catch (err) {
-    console.warn('Not silinemedi:', err.message);
-  }
-}
-
-async function setResult(id, result) {
-  const note = notesCache.find(n => n._id === id);
-  if (!note) return;
-
-  const newResult = note.result === result ? null : result;
-
-  try {
-    const res = await fetch(`${API_BASE}/api/notes/${id}`, {
-      method: 'PATCH',
-      headers: authHeaders(),
-      body: JSON.stringify({ result: newResult, autoChecked: false }),
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    const idx = notesCache.findIndex(n => n._id === id);
-    if (idx !== -1) notesCache[idx] = data.note;
-    renderNotes();
-  } catch (err) {
-    console.warn('Sonuc guncellenemedi:', err.message);
-  }
-}
-
-/**
- * Fixture'a baglanmis ve preset bir secime sahip, henuz sonucu
- * belirlenmemis notlari tarar. Ilgili macin durumu "FT" (bitti) ise
- * secimi gercek skora gore degerlendirip otomatik isaretler ve
- * sunucuya PATCH ile kaydeder.
- */
-async function checkAutoResults() {
-  const pending = notesCache.filter(n => !n.result && n.fixtureId && isAutoCheckable(n.selection));
-  if (pending.length === 0) return;
-
-  const dateGroups = {};
-  pending.forEach(n => {
-    const d = n.matchDate || new Date().toISOString().split('T')[0];
-    if (!dateGroups[d]) dateGroups[d] = [];
-    dateGroups[d].push(n);
-  });
-
-  for (const [date, notesForDate] of Object.entries(dateGroups)) {
-    const results = await fetchResultsForDate(date);
-    if (!results) continue;
-
-    for (const note of notesForDate) {
-      const match = results.find(r => String(r.fixtureId) === String(note.fixtureId));
-      if (!match || match.statusShort !== 'FT') continue;
-
-      const rule = PRESET_RULES[note.selection];
-      const isWin = rule(match.homeScore || 0, match.awayScore || 0, match.halftimeHome || 0, match.halftimeAway || 0);
-
-      try {
-        const res = await fetch(`${API_BASE}/api/notes/${note._id}`, {
-          method: 'PATCH',
-          headers: authHeaders(),
-          body: JSON.stringify({ result: isWin ? 'win' : 'loss', autoChecked: true }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const idx = notesCache.findIndex(n => n._id === note._id);
-          if (idx !== -1) notesCache[idx] = data.note;
-        }
-      } catch (err) {
-        console.warn('Otomatik sonuc kaydedilemedi:', err.message);
-      }
-    }
-  }
-
-  renderNotes();
-}
-
-async function fetchResultsForDate(date) {
-  if (API_BASE) {
-    try {
-      const res = await fetch(`${API_BASE}/api/results?date=${date}`);
-      if (res.ok) {
-        const json = await res.json();
-        return json.matches || [];
-      }
-    } catch (err) {
-      console.warn('Otomatik kontrol için sonuç alınamadı:', err.message);
-      return null;
-    }
-  }
-  // Backend'e bağlı değilken önizleme: az önce eklenen demo maçı bitmiş varsayalım
-  return null;
-}
-
-const overlay = document.getElementById('modalOverlay');
-const pickerOverlay = document.getElementById('pickerOverlay');
-
-document.getElementById('openModalBtn').addEventListener('click', () => {
-  document.getElementById('matchInput').value = '';
-  document.getElementById('fixtureIdInput').value = '';
-  document.getElementById('matchDateInput').value = '';
-  document.getElementById('matchPickerLabel').textContent = t('tapToPick');
-  document.getElementById('matchPickerLabel').style.color = 'var(--text-muted)';
-  document.getElementById('selectionInput').value = '';
-  document.getElementById('commentInput').value = '';
-  document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('selected'));
-  overlay.classList.add('open');
-});
-
-document.getElementById('cancelBtn').addEventListener('click', () => {
-  overlay.classList.remove('open');
-});
-
-overlay.addEventListener('click', (e) => {
-  if (e.target === overlay) overlay.classList.remove('open');
-});
-
-// --- Mac secim alt-modali ---
-document.getElementById('matchPickerBtn').addEventListener('click', () => {
-  const today = new Date().toISOString().split('T')[0];
-  const dateInput = document.getElementById('pickerDate');
-  if (!dateInput.value) dateInput.value = today;
-  pickerOverlay.classList.add('open');
-  loadPickerMatches(dateInput.value);
-});
-
-document.getElementById('pickerCancelBtn').addEventListener('click', () => {
-  pickerOverlay.classList.remove('open');
-});
-
-pickerOverlay.addEventListener('click', (e) => {
-  if (e.target === pickerOverlay) pickerOverlay.classList.remove('open');
-});
-
-document.getElementById('pickerDate').addEventListener('change', (e) => {
-  loadPickerMatches(e.target.value);
-});
-
-async function loadPickerMatches(date) {
-  const listEl = document.getElementById('pickerList');
-  listEl.innerHTML = `<div class="empty-state" style="padding:24px;">${t('loading')}</div>`;
-
-  let matches = [];
-  if (API_BASE) {
-    try {
-      const res = await fetch(`${API_BASE}/api/results?date=${date}`);
-      if (res.ok) {
-        const json = await res.json();
-        matches = json.matches || [];
-      }
-    } catch (err) {
-      console.warn('Could not load match list:', err.message);
-    }
-  }
-
-  if (matches.length === 0) {
-    // Backend'e bağlı değilken önizleme için örnek maçlar
-    matches = [
-      { fixtureId: 'demoA', league: 'Süper Lig', homeTeam: 'Galatasaray', awayTeam: 'Fenerbahçe' },
-      { fixtureId: 'demoB', league: 'Premier League', homeTeam: 'Arsenal', awayTeam: 'Chelsea' },
-    ];
-  }
-
-  listEl.innerHTML = matches.map(m => `
-    <div class="pick-item" data-fixture-id="${m.fixtureId}" data-home="${escapeHtml(m.homeTeam)}" data-away="${escapeHtml(m.awayTeam)}">
-      <div>
-        <span class="pick-league">${escapeHtml(m.league || '')}</span>
-        ${escapeHtml(m.homeTeam)} - ${escapeHtml(m.awayTeam)}
-      </div>
-    </div>
-  `).join('');
-
-  listEl.querySelectorAll('.pick-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const label = `${item.dataset.home} - ${item.dataset.away}`;
-      document.getElementById('matchInput').value = label;
-      document.getElementById('fixtureIdInput').value = item.dataset.fixtureId;
-      document.getElementById('matchDateInput').value = date;
-      document.getElementById('matchPickerLabel').textContent = label;
-      document.getElementById('matchPickerLabel').style.color = 'var(--text-primary)';
-      pickerOverlay.classList.remove('open');
-    });
-  });
-}
-
-document.querySelectorAll('.preset-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('selected'));
-    chip.classList.add('selected');
-    document.getElementById('selectionInput').value = chip.dataset.value;
-  });
-});
-
-document.getElementById('saveBtn').addEventListener('click', async () => {
-  const match = document.getElementById('matchInput').value.trim();
-  const selection = document.getElementById('selectionInput').value.trim();
-  const comment = document.getElementById('commentInput').value.trim();
-  const fixtureId = document.getElementById('fixtureIdInput').value.trim();
-  const matchDate = document.getElementById('matchDateInput').value.trim();
-
-  if (!match || !selection) {
-    alert(t('requiredFields'));
-    return;
-  }
-
-  overlay.classList.remove('open');
-  await addNote(match, selection, comment, fixtureId, matchDate);
-});
-
-document.querySelectorAll('.filter-tab').forEach(tabEl => {
-  tabEl.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tab').forEach(el => el.classList.remove('active'));
-    tabEl.classList.add('active');
-    currentFilter = tabEl.dataset.filter;
-    renderNotes();
-  });
-});
-
-// Bir mac kartindaki "not ekle" butonundan gelindiyse (URL'de match parametresi
-// varsa), formu otomatik doldurup modali direkt ac - kullanicinin mac adini
-// elle yazmasina gerek kalmaz.
-function openPrefilledNoteModal() {
-  const params = new URLSearchParams(window.location.search);
-  const match = params.get('match');
-  if (!match) return;
-
-  document.getElementById('matchInput').value = match;
-  document.getElementById('fixtureIdInput').value = params.get('fixtureId') || '';
-  document.getElementById('matchDateInput').value = params.get('matchDate') || '';
-  document.getElementById('matchPickerLabel').textContent = match;
-  document.getElementById('matchPickerLabel').style.color = 'var(--text-primary)';
-  document.getElementById('selectionInput').value = '';
-  document.getElementById('commentInput').value = '';
-  document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('selected'));
-  overlay.classList.add('open');
-}
 
 applyStaticTranslations();
-(async () => {
-  await fetchNotesFromServer();
-  renderNotes();
-  checkAutoResults();
-  openPrefilledNoteModal();
-})();
-setInterval(async () => {
-  await fetchNotesFromServer();
-  await checkAutoResults();
-}, 60000);
+renderDayTabs();
+loadMatches();
+setInterval(loadMatches, POLL_INTERVAL_MS);
 </script>
 
 </body>
