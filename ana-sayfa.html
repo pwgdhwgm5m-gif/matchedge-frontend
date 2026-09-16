@@ -66,8 +66,10 @@
     font-size: 11.5px; font-weight: 700; letter-spacing: 1px;
     color: var(--text-secondary);
     margin: 20px 0 10px;
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 6px;
   }
+  .section-label-left { display: flex; align-items: center; gap: 6px; }
   .section-label:first-of-type { margin-top: 4px; }
   .live-pip {
     width: 6px; height: 6px; border-radius: 50%;
@@ -78,6 +80,10 @@
     0% { box-shadow: 0 0 0 0 rgba(240,85,107,0.6); }
     70% { box-shadow: 0 0 0 6px rgba(240,85,107,0); }
     100% { box-shadow: 0 0 0 0 rgba(240,85,107,0); }
+  }
+  .see-all-link {
+    font-size: 10.5px; font-weight: 700; color: var(--teal);
+    text-decoration: none; cursor: pointer;
   }
 
   .featured-card {
@@ -199,12 +205,17 @@
 
   <div id="featuredSection"></div>
 
-  <div class="section-label" data-i18n="todayMatches">TODAY'S MATCHES</div>
+  <div class="section-label">
+    <div class="section-label-left" data-i18n="todayMatches">TODAY'S MATCHES</div>
+    <a class="see-all-link" href="maclar.html" data-i18n="seeAll">See all</a>
+  </div>
   <div id="todayMatchesList">
     <div class="empty-state" data-i18n="loading">Loading...</div>
   </div>
 
-  <div class="section-label" style="margin-top:24px;" data-i18n="quickAccess">QUICK ACCESS</div>
+  <div class="section-label" style="margin-top:24px;">
+    <div class="section-label-left" data-i18n="quickAccess">QUICK ACCESS</div>
+  </div>
   <div class="quick-grid">
     <a class="quick-card" href="canli-simulator.html">
       <div class="quick-icon">📊</div>
@@ -221,10 +232,10 @@
       <div class="quick-title" data-i18n="qaNotesTitle">My Notes</div>
       <div class="quick-sub" data-i18n="qaNotesSub">Your betting picks</div>
     </a>
-    <a class="quick-card" href="mac-sonuclari.html">
+    <a class="quick-card" href="maclar.html">
       <div class="quick-icon">⭐</div>
-      <div class="quick-title" data-i18n="qaFavTitle">Favorites</div>
-      <div class="quick-sub" data-i18n="qaFavSub">Matches you follow</div>
+      <div class="quick-title" data-i18n="qaFavTitle">Upcoming Week</div>
+      <div class="quick-sub" data-i18n="qaFavSub">Next 7 days, all leagues</div>
     </a>
   </div>
 
@@ -238,7 +249,7 @@
 
 <div class="bottom-nav">
   <a class="nav-item active" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
   <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
   <a class="nav-item" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></a>
 </div>
@@ -251,6 +262,7 @@
 })();
 
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
+const MAX_LIST_ITEMS = 6;
 
 const TRANSLATIONS = {
   en: {
@@ -258,10 +270,11 @@ const TRANSLATIONS = {
     todayMatches: "TODAY'S MATCHES",
     quickAccess: 'QUICK ACCESS',
     loading: 'Loading...',
+    seeAll: 'See all',
     qaLiveTitle: 'Live Simulator', qaLiveSub: 'Real-time match tracking',
     qaResultsTitle: 'Match Results', qaResultsSub: 'Weekly results',
     qaNotesTitle: 'My Notes', qaNotesSub: 'Your betting picks',
-    qaFavTitle: 'Favorites', qaFavSub: 'Matches you follow',
+    qaFavTitle: 'Upcoming Week', qaFavSub: 'Next 7 days, all leagues',
     navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Notes',
     legalText: 'All statistics, probability calculations, and analyses provided in this application are for informational purposes only and carry no guarantee of outcome. MatchEdge is not a betting advisory service and none of its content should be interpreted as investment or betting advice. Every betting decision a user makes is entirely their own responsibility. MatchEdge and its developer are not liable for any direct or indirect gains or losses resulting from decisions made based on the data presented.<br><br>© 2026 Eddas. All rights reserved.',
     noMatchesToday: 'No matches found for today',
@@ -280,10 +293,11 @@ const TRANSLATIONS = {
     todayMatches: 'BUGÜNÜN MAÇLARI',
     quickAccess: 'HIZLI ERİŞİM',
     loading: 'Yükleniyor...',
+    seeAll: 'Tümünü gör',
     qaLiveTitle: 'Canlı Simülatör', qaLiveSub: 'Anlık maç takibi',
     qaResultsTitle: 'Maç Sonuçları', qaResultsSub: 'Haftalık sonuçlar',
     qaNotesTitle: 'Notlarım', qaNotesSub: 'Bahis seçimlerin',
-    qaFavTitle: 'Favoriler', qaFavSub: 'Takip ettiklerin',
+    qaFavTitle: 'Önümüzdeki Hafta', qaFavSub: '7 gün, tüm ligler',
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım',
     legalText: 'Bu uygulamada sunulan tüm istatistikler, olasılık hesaplamaları ve analizler yalnızca bilgilendirme amaçlıdır ve kesin sonuç garantisi taşımaz. MatchEdge bir bahis danışmanlığı hizmeti değildir ve hiçbir içeriği yatırım veya bahis tavsiyesi olarak yorumlanamaz. Kullanıcıların aldığı her türlü bahis kararı tamamen kendi sorumluluğundadır. MatchEdge ve geliştiricisi, sunulan veriler doğrultusunda alınan kararlar sonucunda oluşabilecek doğrudan veya dolaylı hiçbir kazanç veya kayıptan sorumlu tutulamaz.<br><br>© 2026 Eddas. Tüm hakları saklıdır.',
     noMatchesToday: 'Bugün için maç bulunamadı',
@@ -308,7 +322,7 @@ function applyStaticTranslations() {
     const key = el.getAttribute('data-i18n');
     el.innerHTML = t(key);
   });
-  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹🇷';
+  document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬' : '🇹🇷';
   document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
 }
 
@@ -352,8 +366,15 @@ async function loadHome() {
     loadFailed = true;
   }
 
+  // Canlilar en once, sonra baslama saatine gore sirali
+  matches.sort((a, b) => {
+    if (a.isLive && !b.isLive) return -1;
+    if (!a.isLive && b.isLive) return 1;
+    return new Date(a.kickoff || 0) - new Date(b.kickoff || 0);
+  });
+
   renderFeatured(matches);
-  renderTodayList(matches, loadFailed);
+  renderTodayList(matches.slice(0, MAX_LIST_ITEMS), loadFailed);
 }
 
 function renderFeatured(matches) {
@@ -368,7 +389,7 @@ function renderFeatured(matches) {
 
   const isLive = !!live;
   const timeLabel = isLive
-    ? `${t('live')} ${featured.minute ?? ''}'`
+    ? (featured.minute != null ? `${t('live')} ${featured.minute}'` : t('live'))
     : (featured.kickoff
       ? new Date(featured.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
       : t('todayFallback'));
@@ -378,7 +399,9 @@ function renderFeatured(matches) {
     : `analiz-ekrani.html?fixtureId=${encodeURIComponent(featured.fixtureId)}`;
 
   container.innerHTML = `
-    <div class="section-label">${isLive ? '<span class="live-pip"></span>' + t('liveNow') : t('featuredMatch')}</div>
+    <div class="section-label">
+      <div class="section-label-left">${isLive ? '<span class="live-pip"></span>' + t('liveNow') : t('featuredMatch')}</div>
+    </div>
     <a class="featured-card" href="${featuredLink}" style="display:block; text-decoration:none; color:inherit;">
       <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? t('live') : t('today')}</div>
       <div class="featured-teams">${featured.homeTeam} - ${featured.awayTeam}</div>
@@ -409,7 +432,7 @@ function renderTodayList(matches, loadFailed) {
 
   container.innerHTML = matches.map(m => {
     const timeLabel = m.isLive
-      ? `${t('live')} ${m.minute ?? ''}'`
+      ? (m.minute != null ? `${t('live')} ${m.minute}'` : t('live'))
       : (m.kickoff
         ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
         : '--:--');
