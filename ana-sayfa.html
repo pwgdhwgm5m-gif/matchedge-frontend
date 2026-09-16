@@ -184,19 +184,24 @@
   .match-row-score { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-top: 2px; }
 
   .fav-btn {
-    width: 26px; height: 26px;
+    width: 34px; height: 34px;
     display: flex; align-items: center; justify-content: center;
-    background: transparent;
-    border: none;
-    font-size: 15px;
-    color: var(--text-muted);
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border-subtle);
+    border-radius: 11px;
     flex-shrink: 0;
     cursor: pointer;
     margin-left: 8px;
-    transition: transform 0.12s ease, color 0.12s ease;
+    transition: all 0.15s ease;
   }
-  .fav-btn:active { transform: scale(0.85); }
-  .fav-btn.active { color: var(--amber); }
+  .fav-btn:active { transform: scale(0.88); }
+  .fav-btn svg { width: 18px; height: 18px; stroke: var(--text-muted); fill: none; stroke-width: 2; transition: all 0.15s ease; }
+  .fav-btn.active {
+    background: rgba(245,185,66,0.12);
+    border-color: rgba(245,185,66,0.45);
+    box-shadow: 0 0 0 4px rgba(245,185,66,0.10);
+  }
+  .fav-btn.active svg { stroke: var(--amber); fill: var(--amber); }
 
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .quick-card {
@@ -226,16 +231,21 @@
   }
 
   .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
+    position: fixed; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: 10px; right: 10px;
     background: var(--bg-card);
-    border-top: 1px solid var(--border-subtle);
+    border-radius: 22px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 0 1px var(--border-subtle);
     display: flex; justify-content: space-around;
-    padding: 10px 0 20px;
+    padding: 8px 4px;
+    z-index: 40;
   }
-  .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); transition: color 0.12s ease, transform 0.12s ease; }
-  .nav-item:active { transform: scale(0.9); }
-  .nav-item.active { color: var(--teal); }
-  .nav-icon { font-size: 18px; }
+  .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9.5px; color: var(--text-muted); transition: color 0.12s ease, transform 0.12s ease; flex: 1; }
+  .nav-item:active { transform: scale(0.92); }
+  .nav-item.active { color: var(--text-primary); }
+  .nav-icon-box { width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: background 0.15s ease; }
+  .nav-item.active .nav-icon-box { background: rgba(45,212,191,0.18); }
+  .nav-icon-box svg { width: 18px; height: 18px; stroke: var(--text-muted); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.15s ease; }
+  .nav-item.active .nav-icon-box svg { stroke: var(--teal); }
 </style>
 </head>
 <body>
@@ -278,11 +288,11 @@
 </div>
 
 <div class="bottom-nav">
-  <a class="nav-item active" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
-  <a class="nav-item" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></a>
-  <a class="nav-item" href="favoriler.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
+  <a class="nav-item active" href="ana-sayfa.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></div><span data-i18n="navHome">Home</span></a>
+  <a class="nav-item" href="maclar.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2"/></svg></div><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg></div><span data-i18n="navResults">Results</span></a>
+  <a class="nav-item" href="notlarim.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6"/></svg></div><span data-i18n="navNotes">Notes</span></a>
+  <a class="nav-item" href="favoriler.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></div><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <script>
@@ -328,11 +338,9 @@ async function toggleFavorite(fixtureId, homeTeam, awayTeam, btnEl) {
   if (wasFavorite) {
     favorites.delete(key);
     btnEl.classList.remove('active');
-    btnEl.textContent = '☆';
   } else {
     favorites.add(key);
     btnEl.classList.add('active');
-    btnEl.textContent = '★';
   }
 
   try {
@@ -619,7 +627,7 @@ function renderTodayList(matches, loadFailed) {
           <div class="match-row-league">${m.league || ''}</div>
           <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
         </div>
-        <button type="button" class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}">${isFav ? '★' : '☆'}</button>
+        <button type="button" class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>
         <div class="match-row-right">
           <div class="match-row-time">${timeLabel}</div>
           ${m.isLive ? `<div class="match-row-score">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</div>` : ''}
