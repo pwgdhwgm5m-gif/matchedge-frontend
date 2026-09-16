@@ -40,7 +40,7 @@
 
   .day-tabs {
     display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
-    margin-bottom: 12px; scrollbar-width: none;
+    margin-bottom: 16px; scrollbar-width: none;
   }
   .day-tabs::-webkit-scrollbar { display: none; }
   .day-tab {
@@ -54,33 +54,53 @@
   .day-tab.active .dow { color: var(--teal); }
   .day-tab .dnum { font-size: 15px; font-weight: 800; }
 
-  .league-filters {
-    display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
-    margin-bottom: 16px; scrollbar-width: none;
+  /* ---------- Lig akordiyon ---------- */
+  .league-group {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    overflow: hidden;
   }
-  .league-filters::-webkit-scrollbar { display: none; }
-  .league-chip {
-    flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 7px 13px;
-    background: var(--bg-card); border: 1px solid var(--border-subtle);
-    border-radius: 20px; color: var(--text-secondary); cursor: pointer; white-space: nowrap;
+  .league-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
   }
-  .league-chip.active { background: rgba(45,212,191,0.12); border-color: var(--teal); color: var(--teal); }
+  .league-header-left { display: flex; flex-direction: column; gap: 2px; }
+  .league-name { font-size: 13.5px; font-weight: 700; }
+  .league-meta { font-size: 10px; color: var(--text-muted); }
+  .league-chevron {
+    font-size: 12px; color: var(--text-muted);
+    transition: transform 0.2s ease;
+    flex-shrink: 0; margin-left: 10px;
+  }
+  .league-group.expanded .league-chevron { transform: rotate(90deg); color: var(--teal); }
 
-  .match-card {
-    background: var(--bg-card); border: 1px solid var(--border-subtle);
-    border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer;
-    transition: transform 0.12s ease, border-color 0.12s ease;
+  .league-matches {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
   }
-  .match-card:active { transform: scale(0.98); border-color: rgba(45,212,191,0.5); }
-  .match-league {
-    font-size: 10px; color: var(--text-muted); margin-bottom: 10px;
-    display: flex; justify-content: space-between; align-items: center;
+  .league-group.expanded .league-matches {
+    max-height: 2000px;
   }
-  .match-time-pill {
-    font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: 8px;
-    background: rgba(245,185,66,0.12); color: var(--amber);
+
+  .match-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 16px;
+    border-top: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.12s ease;
   }
-  .match-teams { font-size: 13.5px; font-weight: 700; }
+  .match-row:active { background: var(--bg-card-inner); }
+  .match-row-teams { font-size: 13px; font-weight: 600; flex: 1; }
+  .match-row-time {
+    font-size: 11px; font-weight: 700; color: var(--amber);
+    background: rgba(245,185,66,0.1);
+    padding: 3px 9px; border-radius: 8px;
+    flex-shrink: 0; margin-left: 10px;
+  }
 
   .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; }
   .empty-state.error { color: var(--red); }
@@ -120,7 +140,6 @@
   </div>
 
   <div class="day-tabs" id="dayTabs"></div>
-  <div class="league-filters" id="leagueFilters"></div>
 
   <div id="matchesContainer">
     <div class="empty-state" data-i18n="loading">Loading...</div>
@@ -151,7 +170,7 @@ const TRANSLATIONS = {
     navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navFav: 'Favorites',
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load matches - pull to refresh",
-    allLeagues: 'All',
+    matchCount: (n) => n === 1 ? '1 match' : `${n} matches`,
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   },
   tr: {
@@ -159,7 +178,7 @@ const TRANSLATIONS = {
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navFav: 'Favoriler',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Maçlar yüklenemedi - yenilemek için tekrar dene',
-    allLeagues: 'Tümü',
+    matchCount: (n) => n === 1 ? '1 maç' : `${n} maç`,
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
   },
 };
@@ -203,8 +222,7 @@ function isToday(d) {
 }
 
 let selectedDate = formatDateKey(new Date());
-let selectedLeague = null;
-let allMatchesForDay = [];
+let expandedLeagues = new Set();
 
 function renderDayTabs() {
   const tabsEl = document.getElementById('dayTabs');
@@ -226,65 +244,35 @@ function renderDayTabs() {
   tabsEl.querySelectorAll('.day-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       selectedDate = tab.dataset.date;
-      selectedLeague = null;
+      expandedLeagues = new Set();
       renderDayTabs();
       loadMatches();
     });
   });
 }
 
-function renderLeagueFilters() {
-  const filtersEl = document.getElementById('leagueFilters');
-  const leagues = [...new Set(allMatchesForDay.map(m => m.league).filter(Boolean))].sort();
-
-  if (leagues.length <= 1) {
-    filtersEl.innerHTML = '';
-    return;
-  }
-
-  const chips = [`<div class="league-chip ${!selectedLeague ? 'active' : ''}" data-league="">${t('allLeagues')}</div>`]
-    .concat(leagues.map(l => `<div class="league-chip ${selectedLeague === l ? 'active' : ''}" data-league="${l.replace(/"/g, '&quot;')}">${l}</div>`));
-
-  filtersEl.innerHTML = chips.join('');
-
-  filtersEl.querySelectorAll('.league-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      selectedLeague = chip.dataset.league || null;
-      renderLeagueFilters();
-      renderMatches(filterByLeague(allMatchesForDay));
-    });
-  });
-}
-
-function filterByLeague(matches) {
-  if (!selectedLeague) return matches;
-  return matches.filter(m => m.league === selectedLeague);
-}
-
 async function loadMatches() {
   const container = document.getElementById('matchesContainer');
   container.innerHTML = `<div class="empty-state">${t('loading')}</div>`;
 
+  let matches = [];
   try {
     const res = await fetch(`${API_BASE}/api/matches?date=${selectedDate}`);
     if (!res.ok) throw new Error('http_' + res.status);
     const json = await res.json();
-    allMatchesForDay = (json.matches || [])
+    matches = (json.matches || [])
       .filter(m => m.statusShort === 'NS')
       .sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
   } catch (err) {
     console.warn('Maçlar alınamadı:', err.message);
-    allMatchesForDay = [];
-    document.getElementById('leagueFilters').innerHTML = '';
     container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
     return;
   }
 
-  renderLeagueFilters();
-  renderMatches(filterByLeague(allMatchesForDay));
+  renderGroupedMatches(matches);
 }
 
-function renderMatches(matches) {
+function renderGroupedMatches(matches) {
   const container = document.getElementById('matchesContainer');
 
   if (matches.length === 0) {
@@ -292,25 +280,70 @@ function renderMatches(matches) {
     return;
   }
 
-  container.innerHTML = matches.map(m => {
-    const timeLabel = m.kickoff
-      ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+  // Lig adina gore grupla, her grup icinde saat sirasi zaten korunuyor
+  const groups = new Map();
+  matches.forEach(m => {
+    const league = m.league || '—';
+    if (!groups.has(league)) groups.set(league, []);
+    groups.get(league).push(m);
+  });
+
+  // Gruplari, kendi icindeki ilk mac saatine gore sirala
+  const sortedLeagues = [...groups.keys()].sort((a, b) => {
+    const aTime = new Date(groups.get(a)[0].kickoff || 0);
+    const bTime = new Date(groups.get(b)[0].kickoff || 0);
+    return aTime - bTime;
+  });
+
+  container.innerHTML = sortedLeagues.map(league => {
+    const leagueMatches = groups.get(league);
+    const isExpanded = expandedLeagues.has(league);
+    const firstTime = leagueMatches[0].kickoff
+      ? new Date(leagueMatches[0].kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
       : '--:--';
 
     return `
-      <div class="match-card" data-fixture-id="${m.fixtureId}">
-        <div class="match-league">
-          <span>${m.league || ''}</span>
-          <span class="match-time-pill">${timeLabel}</span>
+      <div class="league-group ${isExpanded ? 'expanded' : ''}" data-league="${league.replace(/"/g, '&quot;')}">
+        <div class="league-header">
+          <div class="league-header-left">
+            <div class="league-name">${league}</div>
+            <div class="league-meta">${t('matchCount')(leagueMatches.length)} • ${firstTime}+</div>
+          </div>
+          <div class="league-chevron">▶</div>
         </div>
-        <div class="match-teams">${m.homeTeam} - ${m.awayTeam}</div>
+        <div class="league-matches">
+          ${leagueMatches.map(m => {
+            const timeLabel = m.kickoff
+              ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+              : '--:--';
+            return `
+              <div class="match-row" data-fixture-id="${m.fixtureId}">
+                <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
+                <div class="match-row-time">${timeLabel}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
       </div>
     `;
   }).join('');
 
-  container.querySelectorAll('.match-card').forEach(card => {
-    card.addEventListener('click', () => {
-      window.location.href = `analiz-ekrani.html?fixtureId=${encodeURIComponent(card.dataset.fixtureId)}`;
+  container.querySelectorAll('.league-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const group = header.closest('.league-group');
+      const league = group.dataset.league;
+      if (expandedLeagues.has(league)) {
+        expandedLeagues.delete(league);
+      } else {
+        expandedLeagues.add(league);
+      }
+      group.classList.toggle('expanded');
+    });
+  });
+
+  container.querySelectorAll('.match-row').forEach(row => {
+    row.addEventListener('click', () => {
+      window.location.href = `analiz-ekrani.html?fixtureId=${encodeURIComponent(row.dataset.fixtureId)}`;
     });
   });
 }
