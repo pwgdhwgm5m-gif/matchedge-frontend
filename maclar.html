@@ -221,6 +221,13 @@
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const DAYS_AHEAD = 7;
 
+// Sayfa acildiginda mac listesi bir kere cekiliyordu - saat 22:00'de baslayan
+// bir mac, kullanici sayfayi yeniden acmadikca hep "22:00" fikstur saatinde
+// takili kaliyordu (canli skor/dakika hic yansimiyordu). Ana sayfadaki ile
+// ayni periyotta (20sn) otomatik yenileme ekleniyor, boylece mac baslayinca
+// liste kendiliginden CANLI durumuna/skoruna gunceleniyor.
+const POLL_INTERVAL_MS = 20000;
+
 // Sadece buyuk liglerin/kupalarin gosterilmesi icin TheSportsDB idLeague
 // beyaz listesi. Backend (/api/matches) zaten bu listeyle filtreliyor -
 // burasi ikinci bir guvenlik agi: backend'de ileride bir sorun cikarsa
@@ -474,6 +481,7 @@ document.getElementById('langToggle').addEventListener('click', () => {
 applyStaticTranslations();
 renderDayTabs();
 loadMatches();
+setInterval(loadMatches, POLL_INTERVAL_MS);
 </script>
 
 </body>
