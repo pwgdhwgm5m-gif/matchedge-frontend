@@ -637,49 +637,42 @@
     </div>
     <div class="analysis-list">
       <div class="analysis-item" data-target="section-form" style="cursor:pointer;">
-        <div class="analysis-icon">📊</div>
         <div>
           <div class="analysis-title" data-i18n="teamStatsTitle">Team Statistics</div>
           <div class="analysis-sub" data-i18n="teamStatsSub">Overall performance, form</div>
         </div>
       </div>
       <div class="analysis-item" data-target="section-form" style="cursor:pointer;">
-        <div class="analysis-icon">📈</div>
         <div>
           <div class="analysis-title" data-i18n="last5Title">Last 5 Matches</div>
           <div class="analysis-sub" data-i18n="last5Sub">Form chart</div>
         </div>
       </div>
       <div class="analysis-item" data-target="section-reading" style="cursor:pointer;">
-        <div class="analysis-icon">⚖️</div>
         <div>
           <div class="analysis-title" data-i18n="comparativeTitle">Comparative Analysis</div>
           <div class="analysis-sub" data-i18n="comparativeSub">Team averages</div>
         </div>
       </div>
       <div class="analysis-item" data-target="section-probabilities" style="cursor:pointer;">
-        <div class="analysis-icon">🤝</div>
         <div>
           <div class="analysis-title" data-i18n="h2hTitle">H2H</div>
           <div class="analysis-sub" data-i18n="h2hSub">Previous meetings</div>
         </div>
       </div>
       <div class="analysis-item" data-target="section-xg" style="cursor:pointer;">
-        <div class="analysis-icon">xG</div>
         <div>
           <div class="analysis-title" data-i18n="expectedValuesTitle">Expected Values</div>
           <div class="analysis-sub" data-i18n="expectedValuesSub">Shots, corners, cards</div>
         </div>
       </div>
       <div class="analysis-item" data-target="section-odds" style="cursor:pointer;">
-        <div class="analysis-icon">💹</div>
         <div>
           <div class="analysis-title" data-i18n="marketOddsTitle">Market &amp; Odds</div>
           <div class="analysis-sub" data-i18n="marketOddsSub">Odds movement</div>
         </div>
       </div>
       <div class="analysis-item" data-target="section-standings" style="cursor:pointer;">
-        <div class="analysis-icon">🏆</div>
         <div>
           <div class="analysis-title" data-i18n="standingsTitle">League Standings</div>
           <div class="analysis-sub" data-i18n="standingsSub">Full table</div>
@@ -699,8 +692,9 @@
 <div class="bottom-nav">
   <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
   <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
-  <a class="nav-item active" href="analiz-ekrani.html"><span class="nav-icon">📊</span><span data-i18n="navAnalysis">Analysis</span></a>
-  <a class="nav-item" href="notlarim.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
+  <a class="nav-item" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></a>
+  <a class="nav-item" href="favoriler.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <script>
@@ -759,7 +753,7 @@ const TRANSLATIONS = {
     standingsTitle: 'LEAGUE STANDINGS', standingsSub: 'Full table',
     standingsTeam: 'Team', standingsPlayed: 'P', standingsGoalDiff: 'GD', standingsPoints: 'Pts',
     standingsUnavailable: 'League standings not available for this match',
-    navHome: 'Home', navMatches: 'Matches', navAnalysis: 'Analysis', navFav: 'Favorites',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Notes', navFav: 'Favorites',
     winStreak: 'Win Streak', lossStreak: 'Loss Streak', noStreak: 'No clear streak',
     matchesSuffix: ' Match', restedDays: ' days rested', noRestInfo: 'No rest info',
     blendedNote: 'Model ({m}%) + Market odds ({k}%) blend',
@@ -799,7 +793,7 @@ const TRANSLATIONS = {
     standingsTitle: 'PUAN DURUMU', standingsSub: 'Tam tablo',
     standingsTeam: 'Takım', standingsPlayed: 'O', standingsGoalDiff: 'Av', standingsPoints: 'P',
     standingsUnavailable: 'Bu maç için puan durumu mevcut değil',
-    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navAnalysis: 'Analiz', navFav: 'Favoriler',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım', navFav: 'Favoriler',
     winStreak: 'Galibiyet Serisi', lossStreak: 'Mağlubiyet Serisi', noStreak: 'Belirgin seri yok',
     matchesSuffix: ' Maçlık', restedDays: ' gün dinlenmiş', noRestInfo: 'Dinlenme bilgisi yok',
     blendedNote: 'Model (%{m}) + Piyasa oranı (%{k}) harmanı',
