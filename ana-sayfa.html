@@ -183,6 +183,21 @@
   .match-row-status.upcoming { background: rgba(245,185,66,0.1); color: var(--amber); }
   .match-row-score { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-top: 2px; }
 
+  .fav-btn {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    border: none;
+    font-size: 15px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: transform 0.12s ease, color 0.12s ease;
+  }
+  .fav-btn:active { transform: scale(0.85); }
+  .fav-btn.active { color: var(--amber); }
+
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .quick-card {
     display: block;
@@ -267,6 +282,7 @@
   <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
   <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
   <a class="nav-item" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></a>
+  <a class="nav-item" href="favoriler.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <script>
@@ -278,6 +294,61 @@
 
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const MAX_LIST_ITEMS = 14;
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('matchedge_token')}`,
+  };
+}
+
+// Favoriler backend'de kullaniciya bagli saklaniyor (bkz. mac-sonuclari.html
+// ve maclar.html'deki ayni desen / backend api/favorites).
+const favorites = new Set();
+
+async function loadFavoritesFromServer() {
+  try {
+    const res = await fetch(`${API_BASE}/api/favorites`, { headers: authHeaders() });
+    if (res.status === 401) {
+      localStorage.removeItem('matchedge_token');
+      window.location.href = 'giris.html';
+      return;
+    }
+    const data = await res.json();
+    (data.favorites || []).forEach(f => favorites.add(String(f.fixtureId)));
+  } catch (err) {
+    console.warn('Favoriler alinamadi:', err.message);
+  }
+}
+
+async function toggleFavorite(fixtureId, homeTeam, awayTeam, btnEl) {
+  const key = String(fixtureId);
+  const wasFavorite = favorites.has(key);
+
+  if (wasFavorite) {
+    favorites.delete(key);
+    btnEl.classList.remove('active');
+    btnEl.textContent = '☆';
+  } else {
+    favorites.add(key);
+    btnEl.classList.add('active');
+    btnEl.textContent = '★';
+  }
+
+  try {
+    if (wasFavorite) {
+      await fetch(`${API_BASE}/api/favorites/${fixtureId}`, { method: 'DELETE', headers: authHeaders() });
+    } else {
+      await fetch(`${API_BASE}/api/favorites`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ fixtureId, homeTeam, awayTeam }),
+      });
+    }
+  } catch (err) {
+    console.warn('Favori güncellenemedi:', err.message);
+  }
+}
 // Ana sayfa eskiden sadece sayfa acilirken bir kere veri cekiyordu - canli
 // bir macta gol olsa bile kullanici sayfayi yeniden acmadan skor hic
 // guncellenmiyordu (mac icine girince guncel gorunuyordu cunku o ekran
@@ -303,7 +374,7 @@ const TRANSLATIONS = {
     qaResultsTitle: 'Match Results', qaResultsSub: 'Weekly results',
     qaNotesTitle: 'My Notes', qaNotesSub: 'Your betting picks',
     qaFavTitle: 'Upcoming Week', qaFavSub: 'Next 7 days, all leagues',
-    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Notes',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Notes', navFav: 'Favorites',
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
     noMatchesToday: 'No matches found for today',
     loadError: "Couldn't load matches - pull to refresh",
@@ -328,7 +399,7 @@ const TRANSLATIONS = {
     qaResultsTitle: 'Maç Sonuçları', qaResultsSub: 'Haftalık sonuçlar',
     qaNotesTitle: 'Notlarım', qaNotesSub: 'Bahis seçimlerin',
     qaFavTitle: 'Önümüzdeki Hafta', qaFavSub: '7 gün, tüm ligler',
-    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım', navFav: 'Favoriler',
     legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan MatchEdge sorumlu tutulamaz.<br><br>MatchEdge © 2026 — Eddas tarafından geliştirildi.',
     noMatchesToday: 'Bugün için maç bulunamadı',
     loadError: 'Maçlar yüklenemedi - yenilemek için tekrar dene',
@@ -540,26 +611,45 @@ function renderTodayList(matches, loadFailed) {
     const rowLink = m.isLive
       ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
       : analysisLink(m);
+    const isFav = favorites.has(String(m.fixtureId));
 
     return `
-      <a class="match-row-card" href="${rowLink}" style="display:flex; text-decoration:none; color:inherit;">
+      <div class="match-row-card" data-link="${rowLink}" style="display:flex; text-decoration:none; color:inherit;">
         <div class="match-row-left">
           <div class="match-row-league">${m.league || ''}</div>
           <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
         </div>
+        <button type="button" class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}">${isFav ? '★' : '☆'}</button>
         <div class="match-row-right">
           <div class="match-row-time">${timeLabel}</div>
           ${m.isLive ? `<div class="match-row-score">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</div>` : ''}
           <div class="match-row-status ${m.isLive ? 'live' : 'upcoming'}">${m.isLive ? t('live') : t('upcoming')}</div>
         </div>
-      </a>
+      </div>
     `;
   }).join('');
+
+  container.querySelectorAll('.match-row-card').forEach(row => {
+    row.addEventListener('click', () => {
+      const link = row.dataset.link;
+      if (link) window.location.href = link;
+    });
+  });
+
+  container.querySelectorAll('.fav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavorite(btn.dataset.fixtureId, btn.dataset.home, btn.dataset.away, btn);
+    });
+  });
 }
 
 applyStaticTranslations();
 renderWelcome();
-loadHome();
+(async () => {
+  await loadFavoritesFromServer();
+  loadHome();
+})();
 setInterval(loadHome, POLL_INTERVAL_MS);
 </script>
 
