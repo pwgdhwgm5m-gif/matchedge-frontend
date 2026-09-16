@@ -215,6 +215,15 @@
     text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px;
   }
   .error-state .icon { font-size: 28px; margin-bottom: 10px; }
+
+  .legal-footer {
+    font-size: 8.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 22px 8px 6px;
+    opacity: 0.75;
+  }
 </style>
 </head>
 <body>
@@ -349,6 +358,12 @@
     </div>
   </div>
 
+  <div class="legal-footer" data-i18n="legalText">
+    Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.
+    <br><br>
+    MatchEdge © 2026 — Built by Eddas.
+  </div>
+
   </div>
 
 </div>
@@ -389,6 +404,7 @@ const TRANSLATIONS = {
     loadError: "Couldn't load live data for this match",
     loadErrorSub: 'It may have ended, or data is temporarily unavailable',
     statsUnavailableNote: "Live stats aren't provided by the data source for this match (common for smaller/lesser-known leagues) - that's why pressure, goal proximity and xG stay flat.",
+    legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
   },
   tr: {
     brandSub: 'CANLI MAÇ SİMÜLATÖRÜ', liveTag: 'CANLI',
@@ -407,6 +423,7 @@ const TRANSLATIONS = {
     loadError: 'Bu maç için canlı veri yüklenemedi',
     loadErrorSub: 'Maç bitmiş olabilir, ya da veri geçici olarak ulaşılamıyor',
     statsUnavailableNote: 'Bu maç için veri kaynağı canlı istatistik sağlamıyor (küçük/az bilinen liglerde bu normaldir) - baskı, gol yakınlığı ve xG bu yüzden sabit görünüyor.',
+    legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan MatchEdge sorumlu tutulamaz.<br><br>MatchEdge © 2026 — Eddas tarafından geliştirildi.',
   },
 };
 
