@@ -535,25 +535,15 @@ function renderResults(matches) {
     btn.addEventListener('click', (e) => e.stopPropagation());
   });
 
-  container.querySelectorAll('.match-card').forEach(card => {
+  // Sonuclar ekraninda maca tiklayinca analiz ekranina girilmesin istendi -
+  // bitmis bir mac icin "analiz" (mac oncesi tahmin ekrani) zaten anlamsiz.
+  // Sadece hala devam eden (canli) maclar simulator ekranina goturuyor,
+  // bitmis maclarda kart tiklanabilir DEGIL (favori/not butonlari ayri
+  // calismaya devam ediyor, onlarin kendi click handler'i var).
+  container.querySelectorAll('.match-card.is-live').forEach(card => {
     card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
-      const isLive = card.classList.contains('is-live');
-      if (isLive) {
-        window.location.href = `canli-simulator.html?fixtureId=${encodeURIComponent(card.dataset.fixtureId)}`;
-        return;
-      }
-      const params = new URLSearchParams({
-        fixtureId: card.dataset.fixtureId,
-        homeTeamName: card.dataset.home,
-        awayTeamName: card.dataset.away,
-        leagueName: card.dataset.league,
-        kickoff: card.dataset.kickoff || '',
-        tsdbLeagueId: card.dataset.tsdbLeague || '',
-        homeBadge: card.dataset.homeBadge || '',
-        awayBadge: card.dataset.awayBadge || '',
-      });
-      window.location.href = `analiz-ekrani.html?${params.toString()}`;
+      window.location.href = `canli-simulator.html?fixtureId=${encodeURIComponent(card.dataset.fixtureId)}`;
     });
   });
 }
