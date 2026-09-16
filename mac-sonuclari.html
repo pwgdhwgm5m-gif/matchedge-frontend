@@ -288,7 +288,7 @@ const TRANSLATIONS = {
     navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navFav: 'Favorites',
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load results - pull to refresh",
-    liveMatches: 'LIVE MATCHES', otherMatches: 'OTHER MATCHES',
+    liveMatches: 'LIVE MATCHES', otherMatches: 'FINISHED MATCHES',
     live: 'LIVE', ft: 'FT', notStarted: 'Not Started',
     htPrefix: 'HT',
     goal: 'GOAL!', minuteSuffix: '\'',
@@ -300,7 +300,7 @@ const TRANSLATIONS = {
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navFav: 'Favoriler',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Sonuçlar yüklenemedi - yenilemek için tekrar dene',
-    liveMatches: 'CANLI MAÇLAR', otherMatches: 'DİĞER MAÇLAR',
+    liveMatches: 'CANLI MAÇLAR', otherMatches: 'BİTEN MAÇLAR',
     live: 'CANLI', ft: 'MS', notStarted: 'Başlamadı',
     htPrefix: 'İY',
     goal: 'GOL!', minuteSuffix: '. dakika',
@@ -405,9 +405,17 @@ function renderDayTabs() {
   });
 }
 
+// Sonuclar ekraninda sadece CANLI ve BITMIS maclar anlamli oldugu icin
+// (henuz baslamamis maclar icin "Maclar" sekmesi var), lig filtre
+// cipleri de sadece bu iki durumdaki maclardan turetiliyor - yoksa
+// sadece NS maci olan bir lig secilince liste hep bos gorunurdu.
+function relevantMatches(matches) {
+  return matches.filter(m => m.isLive || m.statusShort === 'FT');
+}
+
 function renderLeagueFilters() {
   const filtersEl = document.getElementById('leagueFilters');
-  const leagues = [...new Set(allMatchesForDay.map(m => m.league).filter(Boolean))].sort();
+  const leagues = [...new Set(relevantMatches(allMatchesForDay).map(m => m.league).filter(Boolean))].sort();
 
   if (leagues.length <= 1) {
     filtersEl.innerHTML = '';
@@ -470,13 +478,18 @@ function statusClass(m) {
 function renderResults(matches) {
   const container = document.getElementById('resultsContainer');
 
-  if (matches.length === 0) {
+  // Sonuclar ekrani sadece CANLI ve BITMIS maclari gosterir - henuz
+  // baslamamis (NS) maclar burada anlamsiz (onlar icin "Maclar" sekmesi
+  // var), bu yuzden listeye hic girmiyorlar.
+  const shown = relevantMatches(matches);
+
+  if (shown.length === 0) {
     container.innerHTML = `<div class="empty-state">${t('noMatchesDate')}</div>`;
     return;
   }
 
-  const liveMatches = matches.filter(m => m.isLive);
-  const otherMatches = matches.filter(m => !m.isLive);
+  const liveMatches = shown.filter(m => m.isLive);
+  const otherMatches = shown.filter(m => !m.isLive);
 
   let html = '';
 
