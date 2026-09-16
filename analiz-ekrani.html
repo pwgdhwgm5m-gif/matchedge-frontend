@@ -14,6 +14,7 @@
     --teal-dim: #1a4d47;
     --purple: #9d7cf0;
     --amber: #f5b942;
+    --red: #f0556b;
     --text-primary: #f2f4f8;
     --text-secondary: #8b93a7;
     --text-muted: #5a6478;
@@ -36,7 +37,6 @@
     padding: 16px;
   }
 
-  /* ---------- Header ---------- */
   .top-bar {
     display: flex;
     justify-content: space-between;
@@ -100,7 +100,6 @@
     font-size: 15px;
   }
 
-  /* ---------- Card shell ---------- */
   .card {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -127,7 +126,6 @@
     color: var(--text-muted);
   }
 
-  /* ---------- Match header ---------- */
   .match-meta {
     display: flex;
     justify-content: center;
@@ -162,7 +160,9 @@
     border: 1px solid var(--border-subtle);
     display: flex; align-items: center; justify-content: center;
     font-size: 20px;
+    overflow: hidden;
   }
+  .team-crest img { width: 100%; height: 100%; object-fit: contain; }
   .team-name { font-size: 15px; font-weight: 700; text-align: center; }
   .vs-block {
     display: flex;
@@ -177,7 +177,6 @@
     font-weight: 600;
   }
 
-  /* ---------- Probability bars ---------- */
   .prob-row {
     display: flex;
     justify-content: space-between;
@@ -199,7 +198,6 @@
   }
   .prob-bar-fill { height: 100%; }
 
-  /* ---------- Reading cards grid ---------- */
   .reading-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -233,11 +231,13 @@
   }
   .mini-bar-fill { height: 100%; background: var(--teal); }
 
-  /* ---------- Stats trio ---------- */
   .stats-trio {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
+  }
+  .stats-trio .stat-box:last-child {
+    grid-column: span 2;
   }
   .stat-box {
     background: var(--bg-card-inner);
@@ -247,10 +247,11 @@
     text-align: center;
   }
   .stat-label {
-    font-size: 9.5px;
+    font-size: 9px;
     color: var(--text-muted);
-    letter-spacing: 0.8px;
+    letter-spacing: 0.3px;
     margin-bottom: 10px;
+    line-height: 1.3;
   }
   .xg-value { font-size: 19px; font-weight: 800; }
   .xg-value .home { color: var(--teal); }
@@ -283,7 +284,6 @@
   .signal-tag { font-size: 9.5px; color: var(--text-secondary); }
   .signal-conf { font-size: 11px; color: var(--text-primary); font-weight: 600; margin-top: 2px; }
 
-  /* ---------- Other analysis accordion ---------- */
   .analysis-header {
     display: flex;
     justify-content: space-between;
@@ -317,7 +317,6 @@
   .analysis-sub { font-size: 9.5px; color: var(--text-muted); margin-top: 2px; }
   .chevron { color: var(--text-muted); font-size: 14px; margin-left: auto; }
 
-  /* ---------- Bottom nav ---------- */
   .bottom-nav {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -364,6 +363,16 @@
     color: var(--text-muted);
     font-size: 13px;
   }
+  .error-banner {
+    text-align: center;
+    padding: 14px;
+    color: var(--red);
+    font-size: 12px;
+    background: rgba(240,85,107,0.08);
+    border: 1px solid rgba(240,85,107,0.3);
+    border-radius: 12px;
+    margin-bottom: 14px;
+  }
 </style>
 </head>
 <body>
@@ -384,7 +393,8 @@
     </div>
   </div>
 
-  <!-- Maç Başlığı -->
+  <div id="errorBanner"></div>
+
   <div class="card">
     <div class="match-meta">
       <span id="league-flag">🏴</span>
@@ -407,7 +417,6 @@
     </div>
   </div>
 
-  <!-- Maç Sonucu Olasılıkları -->
   <div class="card" id="section-probabilities">
     <div class="card-title">
       <span data-i18n="matchProbTitle">MATCH RESULT PROBABILITIES</span>
@@ -435,7 +444,6 @@
     <div class="signal-tag" style="text-align:center; margin-top:10px;" id="prob-source-note" data-i18n="modelPrediction">Model prediction</div>
   </div>
 
-  <!-- Maç Okuması -->
   <div class="card" id="section-reading">
     <div class="card-title">
       <span data-i18n="matchReadingTitle">MATCH READING</span>
@@ -469,7 +477,6 @@
     </div>
   </div>
 
-  <!-- xG / Kalite / Sinyal -->
   <div class="card" id="section-xg">
     <div class="stats-trio">
       <div class="stat-box">
@@ -501,7 +508,6 @@
     </div>
   </div>
 
-  <!-- Kadro Durumu -->
   <div class="card">
     <div class="card-title">
       <span data-i18n="squadStatusTitle">SQUAD STATUS</span>
@@ -519,7 +525,6 @@
     </div>
   </div>
 
-  <!-- Ev/Deplasman Spesifik Form + Motivasyon -->
   <div class="card" id="section-form">
     <div class="card-title" data-i18n="homeAwayFormTitle">HOME / AWAY FORM</div>
     <div class="reading-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
@@ -554,7 +559,6 @@
     </div>
   </div>
 
-  <!-- Oran Hareketi -->
   <div class="card" id="section-odds">
     <div class="card-title" data-i18n="oddsMovementTitle">ODDS MOVEMENT (LAST 24H)</div>
     <div class="xg-legend" style="display:flex; justify-content:center; gap:16px; margin-bottom:10px; font-size:10.5px; color:var(--text-secondary);">
@@ -567,7 +571,6 @@
     <div class="signal-tag" style="text-align:center; margin-top:10px;" id="odds-trend-caption" data-i18n="oddsTrendWaiting">Odds trend will appear here once enough data accumulates</div>
   </div>
 
-  <!-- İlk Yarı Analizi -->
   <div class="card">
     <div class="card-title" data-i18n="firstHalfTitle">FIRST-HALF GOAL - WHO SCORES?</div>
     <div class="prob-row" style="margin-bottom:10px;">
@@ -587,10 +590,9 @@
     <div class="signal-tag" style="text-align:center; margin-top:10px;" id="fh-sample-note" data-i18n="fhOwnOnly">Based on own past matches</div>
   </div>
 
-  <!-- Korner Tahmini -->
   <div class="card">
     <div class="card-title" data-i18n="cornerPredictionTitle">CORNER PREDICTION</div>
-    <div class="stats-trio-like" style="display:flex; gap:10px;">
+    <div style="display:flex; gap:10px;">
       <div class="reading-card" style="flex:1;">
         <div class="reading-label" data-i18n="expectedMinCorner">EXPECTED MIN. CORNERS</div>
         <div class="reading-value" id="corner-min-value" style="font-size:22px;">–</div>
@@ -601,12 +603,11 @@
         <div class="mini-bar"><div class="mini-bar-fill" id="corner-over85-bar" style="width:0%"></div></div>
       </div>
     </div>
-    <div class="signal-tag" style="text-align:center; margin-top:10px; color:var(--text-muted);">
-      Beklenen gol temposundan türetilmiş tahmini değer (gerçek korner istatistiği değil)
+    <div class="signal-tag" style="text-align:center; margin-top:10px; color:var(--text-muted);" data-i18n="cornerDisclaimer">
+      Estimated from expected goal tempo (not real corner statistics)
     </div>
   </div>
 
-  <!-- Diğer Maç Analizi -->
   <div class="card">
     <div class="analysis-header">
       <div class="card-title" style="margin-bottom:0;" data-i18n="otherAnalysisTitle">OTHER MATCH ANALYSIS</div>
@@ -662,31 +663,35 @@
 
 <div class="bottom-nav">
   <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
   <a class="nav-item active" href="analiz-ekrani.html"><span class="nav-icon">📊</span><span data-i18n="navAnalysis">Analysis</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
-</div>
-  <div class="nav-item"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></div>
-  <div class="nav-item"><span class="nav-icon">📊</span><span data-i18n="navAnalysis">Analysis</span></div>
-  <div class="nav-item"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></div>
+  <a class="nav-item" href="notlarim.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <script>
-// Giris kontrolu - token yoksa giris ekranina yonlendir
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
     window.location.href = 'giris.html';
   }
 })();
 
-/**
- * BAĞLANTI NOKTASI:
- * Bu sayfa /api/analysis/:fixtureId endpoint'inden veri bekliyor
- * (matchedge-backend projesindeki analysis.js route'u).
- * Gerçek entegrasyon için URL'i kendi backend adresinle değiştir.
- */
-const API_BASE = 'https://matchedge-backend-kujb.onrender.com'; // örn: 'https://matchedge-backend.onrender.com'
-const FIXTURE_ID = new URLSearchParams(window.location.search).get('fixtureId') || 'demo';
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
+const qs = new URLSearchParams(window.location.search);
+const FIXTURE_ID = qs.get('fixtureId');
+
+// Liste ekranlarindan (maclar.html, mac-sonuclari.html, ana-sayfa.html)
+// URL uzerinden gelen baglamsal bilgi - backend bunlari hem hesaplama
+// icin (tsdbLeagueId -> FotMob eslesmesi) hem de ekranda hemen gostermek
+// icin kullanir.
+const CONTEXT = {
+  homeTeamName: qs.get('homeTeamName') || '',
+  awayTeamName: qs.get('awayTeamName') || '',
+  leagueName: qs.get('leagueName') || '',
+  kickoff: qs.get('kickoff') || '',
+  tsdbLeagueId: qs.get('tsdbLeagueId') || '',
+  homeBadge: qs.get('homeBadge') || '',
+  awayBadge: qs.get('awayBadge') || '',
+};
 
 const TRANSLATIONS = {
   en: {
@@ -703,11 +708,12 @@ const TRANSLATIONS = {
     noData: 'No data', scoredLabel: 'Scored: ', concededLabel: 'Conceded: ',
     motivation: 'MOTIVATION', streakRestTitle: 'FORM STREAK & REST',
     oddsMovementTitle: 'ODDS MOVEMENT (LAST 24H)', oddsTrendWaiting: 'Odds trend will appear here once enough data accumulates',
-    oddsTrendSample: 'Showing sample data', oddsTrendReal: 'measurements so far - updates every 30 minutes',
+    oddsTrendReal: 'measurements so far - updates every 30 minutes',
     firstHalfTitle: 'FIRST-HALF GOAL - WHO SCORES?',
     fhOwnH2h: 'Based on own past matches + last {n} head-to-head meetings',
     fhOwnOnly: 'Based on own past matches (not enough head-to-head data)',
     cornerPredictionTitle: 'CORNER PREDICTION', expectedMinCorner: 'EXPECTED MIN. CORNERS', over85Prob: 'OVER 8.5 PROBABILITY',
+    cornerDisclaimer: 'Estimated from expected goal tempo (not real corner statistics)',
     otherAnalysisTitle: 'OTHER MATCH ANALYSIS',
     teamStatsTitle: 'Team Statistics', teamStatsSub: 'Overall performance, form',
     last5Title: 'Last 5 Matches', last5Sub: 'Form chart',
@@ -721,6 +727,8 @@ const TRANSLATIONS = {
     blendedNote: 'Model ({m}%) + Market odds ({k}%) blend',
     modelOnlyNote: 'Model prediction only (no market match)',
     notStartedStatus: 'Not Started', unknownLeague: 'League unknown',
+    noFixture: 'No match selected', noFixtureSub: 'Go back and pick a match to analyze',
+    loadError: "Couldn't load analysis for this match", loadErrorSub: 'Please try again in a moment',
   },
   tr: {
     brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...',
@@ -736,11 +744,12 @@ const TRANSLATIONS = {
     noData: 'Veri yok', scoredLabel: 'Attığı: ', concededLabel: 'Yediği: ',
     motivation: 'MOTİVASYON', streakRestTitle: 'FORM SERİSİ & DİNLENME',
     oddsMovementTitle: 'ORAN HAREKETİ (SON 24 SAAT)', oddsTrendWaiting: 'Yeterli veri birikince oran trendi burada görünecek',
-    oddsTrendSample: 'Örnek veri gösteriliyor', oddsTrendReal: 'ölçüm - 30 dakikada bir güncellenir',
+    oddsTrendReal: 'ölçüm - 30 dakikada bir güncellenir',
     firstHalfTitle: 'İLK YARI GOLÜ - KİM ATAR?',
     fhOwnH2h: 'Kendi geçmiş maçları + son {n} aralarındaki maça göre',
     fhOwnOnly: 'Kendi geçmiş maçlarına göre (yeterli aralarındaki maç verisi yok)',
     cornerPredictionTitle: 'KORNER TAHMİNİ', expectedMinCorner: 'BEKLENEN MİN. KORNER', over85Prob: '8.5 ÜST OLASILIK',
+    cornerDisclaimer: 'Beklenen gol temposundan türetilmiş tahmini değer (gerçek korner istatistiği değil)',
     otherAnalysisTitle: 'DİĞER MAÇ ANALİZİ',
     teamStatsTitle: 'Takım İstatistikleri', teamStatsSub: 'Genel performans, form',
     last5Title: 'Son 5 Maç', last5Sub: 'Form grafiği',
@@ -754,6 +763,8 @@ const TRANSLATIONS = {
     blendedNote: 'Model (%{m}) + Piyasa oranı (%{k}) harmanı',
     modelOnlyNote: 'Sadece model tahmini (piyasa oranı eşleşmedi)',
     notStartedStatus: 'Başlamadı', unknownLeague: 'Lig bilgisi yok',
+    noFixture: 'Maç seçilmedi', noFixtureSub: 'Geri dönüp analiz edilecek bir maç seç',
+    loadError: 'Bu maç için analiz yüklenemedi', loadErrorSub: 'Lütfen biraz sonra tekrar dene',
   },
 };
 
@@ -777,80 +788,77 @@ document.getElementById('langToggle').addEventListener('click', () => {
   loadOddsHistory();
 });
 
-// Backend'e bağlı değilken ekranı önizlemek için örnek veri (mockup'taki maça benzer)
-const FALLBACK_DATA = {
-  homeTeam: 'Brentford',
-  awayTeam: 'Sunderland',
-  league: 'Premier League',
-  leagueFlag: '🏴',
-  kickoff: '2026-09-09T17:00:00',
-  matchProbabilities: { homeWinProbability: 60, drawProbability: 23, awayWinProbability: 17, blended: true, modelWeight: 0.5, marketWeight: 0.5 },
-  marketProbabilities: { over25GoalsPercent: 58.2, bttsPercent: 53.1 },
-  cornerOverPercent: 56.4,
-  secondHalfGoalPercent: 54.6,
-  homeLambda: 1.58,
-  awayLambda: 1.09,
-  dataQualityScore: 91,
-  strongestSignal: { label: '2.5 Üst Gol', confidenceScore: 1.68, isStrong: true },
-  injuries: {
-    home: [{ player: 'Örnek Oyuncu', reason: 'Kas sakatlığı' }],
-    away: [],
-  },
-  homeAwayForm: {
-    home: { played: 5, wins: 4, draws: 1, losses: 0, avgGoalsFor: 2.1, avgGoalsAgainst: 0.8 },
-    away: { played: 5, wins: 1, draws: 2, losses: 2, avgGoalsFor: 0.9, avgGoalsAgainst: 1.6 },
-  },
-  motivation: {
-    home: { label: 'Orta Sıra - Nötr', multiplier: 1.0 },
-    away: { label: 'Küme Düşme Hattı', multiplier: 1.12 },
-  },
-  firstHalfProximity: { home: 58.3, away: 41.7, h2hSampleSize: 4 },
-  cornerMetrics: { expectedTotal: 10.2, minExpected: 8, over85Percent: 62.4, homeShare: 59, awayShare: 41 },
-  streak: {
-    home: { type: 'win', length: 3 },
-    away: { type: 'loss', length: 2 },
-  },
-  fatigue: {
-    home: { restDays: 6, multiplier: 1.0 },
-    away: { restDays: 2, multiplier: 0.93 },
-  },
-};
+function showErrorBanner(msg) {
+  document.getElementById('errorBanner').innerHTML = `<div class="error-banner">${msg}</div>`;
+}
 
-async function loadAnalysis() {
-  let data = FALLBACK_DATA;
-  let isLive = false;
-
-  if (API_BASE) {
-    try {
-      const res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}`);
-      if (res.ok) {
-        data = await res.json();
-        isLive = true;
-      }
-    } catch (err) {
-      console.warn('Backend\'e ulaşılamadı, örnek veri gösteriliyor:', err.message);
+// URL'den gelen baglam bilgisini hemen ekrana yaz - fetch sonucunu
+// beklemeden kullanici takim isimlerini/ligi gorsun
+function renderContextImmediately() {
+  if (CONTEXT.homeTeamName) document.getElementById('home-name').textContent = CONTEXT.homeTeamName;
+  if (CONTEXT.awayTeamName) document.getElementById('away-name').textContent = CONTEXT.awayTeamName;
+  if (CONTEXT.leagueName) document.getElementById('league-name').textContent = CONTEXT.leagueName;
+  if (CONTEXT.homeTeamName) document.getElementById('home-label').textContent = CONTEXT.homeTeamName;
+  if (CONTEXT.awayTeamName) document.getElementById('away-label').textContent = CONTEXT.awayTeamName;
+  if (CONTEXT.homeTeamName) document.getElementById('xg-legend-home').textContent = CONTEXT.homeTeamName;
+  if (CONTEXT.awayTeamName) document.getElementById('xg-legend-away').textContent = CONTEXT.awayTeamName;
+  if (CONTEXT.homeBadge) document.getElementById('home-crest').innerHTML = `<img src="${CONTEXT.homeBadge}" onerror="this.parentElement.textContent='⚽'">`;
+  if (CONTEXT.awayBadge) document.getElementById('away-crest').innerHTML = `<img src="${CONTEXT.awayBadge}" onerror="this.parentElement.textContent='⚽'">`;
+  if (CONTEXT.kickoff) {
+    const d = new Date(CONTEXT.kickoff);
+    if (!isNaN(d)) {
+      const locale = currentLang === 'tr' ? 'tr-TR' : 'en-GB';
+      document.getElementById('match-date').textContent =
+        d.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' }) +
+        ' • ' + d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
     }
   }
+}
 
-  renderAnalysis(data);
+async function loadAnalysis() {
+  if (!FIXTURE_ID) {
+    showErrorBanner(`${t('noFixture')} — ${t('noFixtureSub')}`);
+    return;
+  }
+
+  renderContextImmediately();
+
+  try {
+    const params = new URLSearchParams();
+    if (CONTEXT.homeTeamName) params.set('homeTeamName', CONTEXT.homeTeamName);
+    if (CONTEXT.awayTeamName) params.set('awayTeamName', CONTEXT.awayTeamName);
+    if (CONTEXT.leagueName) params.set('leagueName', CONTEXT.leagueName);
+    if (CONTEXT.kickoff) params.set('kickoff', CONTEXT.kickoff);
+    if (CONTEXT.tsdbLeagueId) params.set('tsdbLeagueId', CONTEXT.tsdbLeagueId);
+
+    const res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`);
+    if (!res.ok) throw new Error('http_' + res.status);
+    const data = await res.json();
+    renderAnalysis(data);
+  } catch (err) {
+    console.warn('Analiz alınamadı:', err.message);
+    showErrorBanner(`${t('loadError')} — ${t('loadErrorSub')}`);
+  }
 }
 
 function renderAnalysis(data) {
-  document.getElementById('league-name').textContent = data.league || t('unknownLeague');
-  document.getElementById('league-flag').textContent = data.leagueFlag || '🏳️';
-  document.getElementById('home-name').textContent = data.homeTeam || '—';
-  document.getElementById('away-name').textContent = data.awayTeam || '—';
-  document.getElementById('home-label').textContent = data.homeTeam || t('home');
-  document.getElementById('away-label').textContent = data.awayTeam || t('away');
-  document.getElementById('xg-legend-home').textContent = data.homeTeam || t('home');
-  document.getElementById('xg-legend-away').textContent = data.awayTeam || t('away');
+  document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
+  document.getElementById('home-name').textContent = data.homeTeam || CONTEXT.homeTeamName || '—';
+  document.getElementById('away-name').textContent = data.awayTeam || CONTEXT.awayTeamName || '—';
+  document.getElementById('home-label').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
+  document.getElementById('away-label').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
+  document.getElementById('xg-legend-home').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
+  document.getElementById('xg-legend-away').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
 
-  if (data.kickoff) {
-    const d = new Date(data.kickoff);
-    const locale = currentLang === 'tr' ? 'tr-TR' : 'en-GB';
-    document.getElementById('match-date').textContent =
-      d.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' }) +
-      ' • ' + d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  const kickoff = data.kickoff || CONTEXT.kickoff;
+  if (kickoff) {
+    const d = new Date(kickoff);
+    if (!isNaN(d)) {
+      const locale = currentLang === 'tr' ? 'tr-TR' : 'en-GB';
+      document.getElementById('match-date').textContent =
+        d.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' }) +
+        ' • ' + d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+    }
   }
   document.getElementById('match-status').textContent = data.status || t('notStartedStatus');
 
@@ -887,8 +895,8 @@ function renderAnalysis(data) {
   document.getElementById('signal-confidence').textContent =
     signal.confidenceScore ? t('confidencePrefix') + signal.confidenceScore : '–';
 
-  document.getElementById('injuries-home-title').textContent = data.homeTeam || t('home');
-  document.getElementById('injuries-away-title').textContent = data.awayTeam || t('away');
+  document.getElementById('injuries-home-title').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
+  document.getElementById('injuries-away-title').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
   renderInjuryList('injuries-home-list', data.injuries?.home);
   renderInjuryList('injuries-away-list', data.injuries?.away);
 
@@ -900,16 +908,16 @@ function renderAnalysis(data) {
   document.getElementById('motivation-home-badge').textContent = mot.home?.label || '—';
   document.getElementById('motivation-away-badge').textContent = mot.away?.label || '—';
 
-  document.getElementById('streak-home-label').textContent = data.homeTeam || t('home');
-  document.getElementById('streak-away-label').textContent = data.awayTeam || t('away');
+  document.getElementById('streak-home-label').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
+  document.getElementById('streak-away-label').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
   renderStreak('streak-home-value', data.streak?.home);
   renderStreak('streak-away-value', data.streak?.away);
   renderRest('rest-home-value', data.fatigue?.home);
   renderRest('rest-away-value', data.fatigue?.away);
 
   const fh = data.firstHalfProximity || { home: 50, away: 50 };
-  document.getElementById('fh-home-label').textContent = data.homeTeam || t('home');
-  document.getElementById('fh-away-label').textContent = data.awayTeam || t('away');
+  document.getElementById('fh-home-label').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
+  document.getElementById('fh-away-label').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
   document.getElementById('fh-home-prob').textContent = fh.home + '%';
   document.getElementById('fh-away-prob').textContent = fh.away + '%';
   document.getElementById('fh-bar-home').style.width = fh.home + '%';
@@ -925,7 +933,7 @@ function renderAnalysis(data) {
 }
 
 function renderFormBox(recordId, goalsId, formData) {
-  if (!formData) {
+  if (!formData || !formData.played) {
     document.getElementById(recordId).textContent = t('noData');
     document.getElementById(goalsId).textContent = '';
     return;
@@ -943,9 +951,7 @@ function renderStreak(elementId, streak) {
     return;
   }
   const labelMap = { win: t('winStreak'), loss: t('lossStreak') };
-  el.textContent = currentLang === 'tr'
-    ? `${streak.length}${t('matchesSuffix')} ${labelMap[streak.type]}`
-    : `${streak.length}${t('matchesSuffix')} ${labelMap[streak.type]}`;
+  el.textContent = `${streak.length}${t('matchesSuffix')} ${labelMap[streak.type]}`;
   el.style.color = streak.type === 'win' ? 'var(--teal)' : 'var(--red)';
 }
 
@@ -975,7 +981,6 @@ function setReading(prefix, value) {
   document.getElementById(`${prefix}-bar`).style.width = v + '%';
 }
 
-// "Diger Mac Analizi" kartlarina tiklaninca ilgili bolume yumusak kaydir
 document.querySelectorAll('.analysis-item[data-target]').forEach(item => {
   item.addEventListener('click', () => {
     const target = document.getElementById(item.dataset.target);
@@ -988,45 +993,30 @@ loadAnalysis();
 
 /**
  * Oran hareketi grafigi ayri bir endpoint'ten geliyor (/api/odds-history/:sportKey)
- * çünkü bu veri mac bazli degil, lig bazli biriktiriliyor (bkz. backend README).
+ * cunku bu veri mac bazli degil, lig bazli biriktiriliyor.
  */
 async function loadOddsHistory() {
-  const sportKey = new URLSearchParams(window.location.search).get('sportKey') || 'soccer_epl';
+  const sportKey = qs.get('sportKey') || 'soccer_epl';
   let snapshots = [];
 
-  if (API_BASE) {
-    try {
-      const res = await fetch(`${API_BASE}/api/odds-history/${sportKey}`);
-      if (res.ok) {
-        const json = await res.json();
-        snapshots = json.snapshots || [];
-      }
-    } catch (err) {
-      console.warn('Oran geçmişi alınamadı:', err.message);
+  try {
+    const res = await fetch(`${API_BASE}/api/odds-history/${sportKey}`);
+    if (res.ok) {
+      const json = await res.json();
+      snapshots = json.snapshots || [];
     }
+  } catch (err) {
+    console.warn('Oran geçmişi alınamadı:', err.message);
   }
 
   if (snapshots.length < 2) {
-    // Yeterli veri birikmeden önizleme icin ornek bir trend uretelim
-    snapshots = generateFallbackOddsHistory();
-    document.getElementById('odds-trend-caption').textContent = t('oddsTrendSample');
-  } else {
-    document.getElementById('odds-trend-caption').textContent =
-      `${snapshots.length} ${t('oddsTrendReal')}`;
+    document.getElementById('odds-trend-caption').textContent = t('oddsTrendWaiting');
+    return;
   }
 
+  document.getElementById('odds-trend-caption').textContent =
+    `${snapshots.length} ${t('oddsTrendReal')}`;
   drawOddsChart(snapshots);
-}
-
-function generateFallbackOddsHistory() {
-  const points = [];
-  let home = 1.9, away = 4.2;
-  for (let i = 0; i < 12; i++) {
-    home = +(home + (Math.random() - 0.55) * 0.08).toFixed(2);
-    away = +(away + (Math.random() - 0.45) * 0.15).toFixed(2);
-    points.push({ home, away });
-  }
-  return points;
 }
 
 function drawOddsChart(snapshots) {
@@ -1039,9 +1029,7 @@ function drawOddsChart(snapshots) {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, rect.width, rect.height);
 
-  // Veri hem gercek API formatinda (matches[0].odds) hem fallback formatinda (home/away) gelebilir
   const points = snapshots.map(s => {
-    if (s.home !== undefined) return s; // fallback formatinda zaten duz
     const firstMatch = s.matches?.[0];
     const homeOdd = firstMatch?.odds?.find(o => o.name === firstMatch.homeTeam)?.price;
     const awayOdd = firstMatch?.odds?.find(o => o.name === firstMatch.awayTeam)?.price;
