@@ -284,7 +284,8 @@
   <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
   <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
   <a class="nav-item active" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
-  <a class="nav-item" href="notlarim.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
+  <a class="nav-item" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></a>
+  <a class="nav-item" href="favoriler.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <script>
@@ -300,7 +301,7 @@ const LIVE_POLL_INTERVAL_MS = 20000;
 const TRANSLATIONS = {
   en: {
     brandSub: 'MATCH RESULTS', loading: 'Loading...',
-    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navFav: 'Favorites',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Notes', navFav: 'Favorites',
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load results - pull to refresh",
     liveMatches: 'LIVE MATCHES', otherMatches: 'FINISHED MATCHES',
@@ -313,7 +314,7 @@ const TRANSLATIONS = {
   },
   tr: {
     brandSub: 'MAÇ SONUÇLARI', loading: 'Yükleniyor...',
-    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navFav: 'Favoriler',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım', navFav: 'Favoriler',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Sonuçlar yüklenemedi - yenilemek için tekrar dene',
     liveMatches: 'CANLI MAÇLAR', otherMatches: 'BİTEN MAÇLAR',
@@ -585,11 +586,9 @@ function renderMatchCard(m) {
           ${hasHalftime ? `<div class="halftime-note">${t('htPrefix')}: ${m.halftimeHome}-${m.halftimeAway}</div>` : ''}
         </div>
         <div class="card-actions" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
-          ${m.isLive ? `
-            <div class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}">
-              ${isFav ? '★' : '☆'}
-            </div>
-          ` : ''}
+          <div class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}">
+            ${isFav ? '★' : '☆'}
+          </div>
           <a class="note-add-btn" href="notlarim.html?match=${encodeURIComponent(m.homeTeam + ' - ' + m.awayTeam)}&fixtureId=${encodeURIComponent(m.fixtureId)}&matchDate=${encodeURIComponent((m.kickoff || '').split('T')[0])}" style="text-decoration:none; width:28px; height:28px; display:flex; align-items:center; justify-content:center; background:var(--bg-card-inner); border:1px solid var(--border-subtle); border-radius:8px; font-size:14px;" title="Not ekle">
             📝
           </a>
