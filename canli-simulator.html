@@ -55,6 +55,20 @@
     background: var(--red);
     animation: pulse 1.2s infinite;
   }
+  /* Mac bitince (statusShort: FT) kirmizi/nabiz atan "CANLI" gorunumu yaniltici
+     olur - sabit, notr bir "SONA ERDI" gorunumune geciliyor. */
+  .live-pill.finished {
+    background: rgba(139, 147, 167, 0.12);
+    border-color: var(--border-subtle);
+    color: var(--text-secondary);
+  }
+  .live-pill.finished .live-dot { animation: none; background: var(--text-muted); }
+  .minute-badge.finished {
+    background: rgba(139, 147, 167, 0.1);
+    border-color: var(--border-subtle);
+    color: var(--text-secondary);
+  }
+  .minute-badge.finished .pip { animation: none; background: var(--text-muted); }
   @keyframes pulse {
     0% { box-shadow: 0 0 0 0 rgba(240,85,107,0.6); }
     70% { box-shadow: 0 0 0 7px rgba(240,85,107,0); }
@@ -239,14 +253,14 @@
       <div class="lang-toggle" id="langToggle">
         <span id="langFlag">🇬🇧</span><span class="lang-code" id="langCode">EN</span>
       </div>
-      <div class="live-pill"><span class="live-dot"></span><span data-i18n="liveTag">LIVE</span></div>
+      <div class="live-pill" id="live-pill"><span class="live-dot" id="live-dot"></span><span id="live-pill-text" data-i18n="liveTag">LIVE</span></div>
     </div>
   </div>
 
   <div id="mainContent">
 
   <div class="card">
-    <div class="minute-badge"><span class="pip"></span><span id="minute-text">–</span></div>
+    <div class="minute-badge" id="minute-badge"><span class="pip"></span><span id="minute-text">–</span></div>
     <div class="score-row">
       <div class="team">
         <div class="team-crest" id="home-crest">⚽</div>
@@ -370,9 +384,10 @@
 
 <div class="bottom-nav">
   <a class="nav-item" href="ana-sayfa.html"><span class="nav-icon">🏠</span><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
-  <a class="nav-item active" href="canli-simulator.html"><span class="nav-icon">📊</span><span data-i18n="navLive">Live</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
+  <a class="nav-item" href="maclar.html"><span class="nav-icon">⚽</span><span data-i18n="navMatches">Matches</span></a>
+  <a class="nav-item" href="mac-sonuclari.html"><span class="nav-icon">📅</span><span data-i18n="navResults">Results</span></a>
+  <a class="nav-item" href="notlarim.html"><span class="nav-icon">📝</span><span data-i18n="navNotes">Notes</span></a>
+  <a class="nav-item" href="favoriler.html"><span class="nav-icon">⭐</span><span data-i18n="navFav">Favorites</span></a>
 </div>
 
 <script>
@@ -388,7 +403,7 @@ const POLLING_INTERVAL_MS = 15000;
 
 const TRANSLATIONS = {
   en: {
-    brandSub: 'LIVE MATCH SIMULATOR', liveTag: 'LIVE',
+    brandSub: 'LIVE MATCH SIMULATOR', liveTag: 'LIVE', finishedTag: 'FINISHED',
     possessionLabel: 'Possession', possessionCaption: 'Real possession share from live data',
     pressureLabel: 'Pressure', pressureCaption: "Who's applying pressure, based on recent data",
     proximityLabel: 'Goal Proximity', proximityCaption: 'Weighted by shots on target, dangerous attacks and xG',
@@ -396,7 +411,7 @@ const TRANSLATIONS = {
     valueAlertTitle: 'LIVE VALUE ALERT', noValueAlert: 'No meaningful odds deviation right now',
     valueAlertSub: "Market odds are tracking close to the model's prediction",
     liveStatsTitle: 'LIVE STATISTICS', shotsOnTarget: 'Shots on Target', corners: 'Corners', dangerousAttacks: 'Dangerous Attacks',
-    navHome: 'Home', navMatches: 'Matches', navLive: 'Live', navFav: 'Favorites',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Notes', navFav: 'Favorites',
     homePrefix: 'Home', awayPrefix: 'Away',
     valueAlertMessage: "Model's estimate is notably higher than the market odds",
     noFixture: 'No live match selected',
@@ -407,7 +422,7 @@ const TRANSLATIONS = {
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
   },
   tr: {
-    brandSub: 'CANLI MAÇ SİMÜLATÖRÜ', liveTag: 'CANLI',
+    brandSub: 'CANLI MAÇ SİMÜLATÖRÜ', liveTag: 'CANLI', finishedTag: 'SONA ERDİ',
     possessionLabel: 'Topa Sahip Olma', possessionCaption: 'Canlı veriden gerçek topa sahip olma oranı',
     pressureLabel: 'Baskı', pressureCaption: 'Son verilere göre kim baskı kuruyor',
     proximityLabel: 'Gole Yakınlık', proximityCaption: 'İsabetli şut, tehlikeli atak ve xG ağırlıklı',
@@ -415,7 +430,7 @@ const TRANSLATIONS = {
     valueAlertTitle: 'CANLI VALUE ALERT', noValueAlert: 'Şu an anlamlı bir oran sapması yok',
     valueAlertSub: 'Piyasa oranı model tahminine yakın seyrediyor',
     liveStatsTitle: 'CANLI İSTATİSTİKLER', shotsOnTarget: 'İsabetli Şut', corners: 'Korner', dangerousAttacks: 'Tehlikeli Atak',
-    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navLive: 'Canlı', navFav: 'Favoriler',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım', navFav: 'Favoriler',
     homePrefix: 'Ev', awayPrefix: 'Dep',
     valueAlertMessage: 'Model tahmini piyasa oranından belirgin şekilde yüksek',
     noFixture: 'Canlı maç seçilmedi',
@@ -545,7 +560,17 @@ function renderTick(data) {
   document.getElementById('home-crest').innerHTML = crestHtml(data.homeBadge, data.homeTeam);
   document.getElementById('away-crest').innerHTML = crestHtml(data.awayBadge, data.awayTeam);
 
-  document.getElementById('minute-text').textContent = data.minute != null ? data.minute + "'" : t('liveTag');
+  // Mac artik bitmisse (backend'in "donmus canli veri" korumasi devreye
+  // girdiginde de statusShort FT olarak gelir) kirmizi/nabiz atan "CANLI"
+  // gorunumu yerine sabit "SONA ERDI" gosteriliyor - aksi halde bitmis bir
+  // mac sonsuza kadar "canli" gibi gorunmeye devam ederdi.
+  const isFinished = data.statusShort === 'FT';
+  document.getElementById('minute-text').textContent = isFinished
+    ? t('finishedTag')
+    : (data.minute != null ? data.minute + "'" : t('liveTag'));
+  document.getElementById('minute-badge').classList.toggle('finished', isFinished);
+  document.getElementById('live-pill').classList.toggle('finished', isFinished);
+  document.getElementById('live-pill-text').textContent = isFinished ? t('finishedTag') : t('liveTag');
   document.getElementById('home-score').textContent = data.homeScore ?? 0;
   document.getElementById('away-score').textContent = data.awayScore ?? 0;
 
