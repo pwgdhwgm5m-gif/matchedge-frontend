@@ -215,6 +215,56 @@
     text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px;
   }
   .error-state .icon { font-size: 28px; margin-bottom: 10px; }
+
+  .timeline-list { display: flex; flex-direction: column; gap: 10px; }
+  .timeline-item {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12.5px;
+  }
+  .timeline-item.away { flex-direction: row-reverse; text-align: right; }
+  .timeline-minute {
+    flex-shrink: 0; width: 34px; text-align: center;
+    font-weight: 800; font-size: 11px; color: var(--text-secondary);
+    background: var(--bg-card-inner); border-radius: 8px; padding: 3px 0;
+  }
+  .timeline-icon { flex-shrink: 0; font-size: 14px; width: 18px; text-align: center; }
+  .timeline-body { flex: 1; }
+  .timeline-player { font-weight: 700; }
+  .timeline-detail { color: var(--text-muted); font-size: 11px; }
+
+  .lineup-columns { display: flex; gap: 14px; }
+  .lineup-col { flex: 1; min-width: 0; }
+  .lineup-col-title {
+    font-size: 10.5px; font-weight: 800; color: var(--text-secondary);
+    margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .lineup-player-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; padding: 5px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .lineup-player-row:last-child { border-bottom: none; }
+  .lineup-number {
+    flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--bg-card-inner); border: 1px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9.5px; font-weight: 800; color: var(--text-secondary);
+  }
+  .lineup-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lineup-pos { flex-shrink: 0; font-size: 9.5px; color: var(--text-muted); }
+
+  .extras-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap;
+  }
+  .extras-tag {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-secondary);
+    background: var(--bg-card-inner); border: 1px solid var(--border-subtle);
+    border-radius: 20px; padding: 6px 12px;
+    text-decoration: none;
+  }
+  .extras-tag img { width: 14px; height: 14px; object-fit: contain; border-radius: 3px; }
 </style>
 </head>
 <body>
@@ -347,6 +397,29 @@
     </div>
   </div>
 
+  <div class="card" id="extras-card" style="display:none;">
+    <div class="extras-row" id="extras-row"></div>
+  </div>
+
+  <div class="card" id="timeline-card" style="display:none;">
+    <div class="card-title" data-i18n="timelineTitle">MATCH EVENTS</div>
+    <div class="timeline-list" id="timeline-list"></div>
+  </div>
+
+  <div class="card" id="lineup-card" style="display:none;">
+    <div class="card-title" data-i18n="lineupTitle">LINEUPS</div>
+    <div class="lineup-columns">
+      <div class="lineup-col">
+        <div class="lineup-col-title" id="lineup-home-title">–</div>
+        <div id="lineup-home-list"></div>
+      </div>
+      <div class="lineup-col">
+        <div class="lineup-col-title" id="lineup-away-title">–</div>
+        <div id="lineup-away-list"></div>
+      </div>
+    </div>
+  </div>
+
   </div>
 
 </div>
@@ -386,6 +459,9 @@ const TRANSLATIONS = {
     noFixtureSub: 'Go back and tap a live match to see it here',
     loadError: "Couldn't load live data for this match",
     loadErrorSub: 'It may have ended, or data is temporarily unavailable',
+    timelineTitle: 'MATCH EVENTS', lineupTitle: 'LINEUPS',
+    goalEvent: 'Goal', substEvent: 'Substitution', yellowCardEvent: 'Yellow card', redCardEvent: 'Red card',
+    watchHighlights: 'Highlights', watchTv: 'Broadcast',
   },
   tr: {
     brandSub: 'CANLI MAÇ SİMÜLATÖRÜ', liveTag: 'CANLI',
@@ -403,6 +479,9 @@ const TRANSLATIONS = {
     noFixtureSub: 'Geri dönüp canlı bir maça dokun',
     loadError: 'Bu maç için canlı veri yüklenemedi',
     loadErrorSub: 'Maç bitmiş olabilir, ya da veri geçici olarak ulaşılamıyor',
+    timelineTitle: 'MAÇ OLAYLARI', lineupTitle: 'KADROLAR',
+    goalEvent: 'Gol', substEvent: 'Oyuncu değişikliği', yellowCardEvent: 'Sarı kart', redCardEvent: 'Kırmızı kart',
+    watchHighlights: 'Öne Çıkanlar', watchTv: 'Yayın',
   },
 };
 
@@ -552,6 +631,91 @@ function renderTick(data) {
   }
 
   drawXgChart();
+  renderExtras(data);
+}
+
+const TIMELINE_ICONS = { goal: '⚽', substitution: '🔄', yellow_card: '🟨', red_card: '🟥', other: '•' };
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, function (c) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+  });
+}
+
+function renderTimeline(events) {
+  const card = document.getElementById('timeline-card');
+  const list = document.getElementById('timeline-list');
+  if (!events || !events.length) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  list.innerHTML = events.map(function (ev) {
+    const icon = TIMELINE_ICONS[ev.type] || TIMELINE_ICONS.other;
+    const side = ev.isHome ? 'home' : 'away';
+    const detailKey = ev.type === 'goal' && ev.assist ? (currentLang === 'tr' ? 'Asist: ' + ev.assist : 'Assist: ' + ev.assist) : (ev.detail || '');
+    return `
+      <div class="timeline-item ${side}">
+        <div class="timeline-minute">${ev.minute != null ? ev.minute + "'" : '–'}</div>
+        <div class="timeline-icon">${icon}</div>
+        <div class="timeline-body">
+          <div class="timeline-player">${escapeHtml(ev.player)}</div>
+          ${detailKey ? `<div class="timeline-detail">${escapeHtml(detailKey)}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderLineupList(players) {
+  return players.map(function (p) {
+    return `
+      <div class="lineup-player-row">
+        <div class="lineup-number">${p.squadNumber || '–'}</div>
+        <div class="lineup-name">${escapeHtml(p.player)}</div>
+        <div class="lineup-pos">${escapeHtml(p.positionShort || '')}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderLineup(lineup, homeTeam, awayTeam) {
+  const card = document.getElementById('lineup-card');
+  if (!lineup || (!lineup.home.length && !lineup.away.length)) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  document.getElementById('lineup-home-title').textContent = homeTeam || t('homePrefix');
+  document.getElementById('lineup-away-title').textContent = awayTeam || t('awayPrefix');
+  document.getElementById('lineup-home-list').innerHTML = renderLineupList(lineup.home);
+  document.getElementById('lineup-away-list').innerHTML = renderLineupList(lineup.away);
+}
+
+function renderExtrasRow(tv, highlightVideo) {
+  const card = document.getElementById('extras-card');
+  const row = document.getElementById('extras-row');
+  const tags = [];
+
+  if (highlightVideo) {
+    tags.push(`<a class="extras-tag" href="${escapeHtml(highlightVideo)}" target="_blank" rel="noopener">🎬 ${t('watchHighlights')}</a>`);
+  }
+  if (tv && tv.length) {
+    const first = tv[0];
+    const logo = first.logo ? `<img src="${escapeHtml(first.logo)}" alt="">` : '📺';
+    tags.push(`<span class="extras-tag">${logo} ${escapeHtml(first.channel)}${tv.length > 1 ? ' +' + (tv.length - 1) : ''}</span>`);
+  }
+
+  if (!tags.length) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  row.innerHTML = tags.join('');
+}
+
+function renderExtras(data) {
+  renderTimeline(data.timeline);
+  renderLineup(data.lineup, data.homeTeam, data.awayTeam);
+  renderExtrasRow(data.tv, data.highlightVideo);
 }
 
 async function tick() {
