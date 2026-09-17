@@ -183,6 +183,30 @@
   .match-row-status.upcoming { background: rgba(245,185,66,0.1); color: var(--amber); }
   .match-row-score { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-top: 2px; }
 
+  .home-league-group {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .home-league-header {
+    min-height: 54px;
+    padding: 11px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .home-league-title { font-size: 13px; font-weight: 800; }
+  .home-league-count { font-size: 9.5px; color: var(--text-muted); margin-top: 3px; }
+  .home-league-chevron { color: var(--teal); font-size: 22px; transition: transform .18s ease; }
+  .home-league-matches { display: none; padding: 0 8px 8px; }
+  .home-league-group.expanded .home-league-matches { display: block; }
+  .home-league-group.expanded .home-league-chevron { transform: rotate(90deg); }
+  .home-league-group .match-row-card { background: var(--bg-card-inner); margin-bottom: 7px; }
+
   .fav-btn {
     width: 34px; height: 34px;
     display: flex; align-items: center; justify-content: center;
@@ -511,7 +535,7 @@ async function loadHome() {
 
   renderDateHeader();
   renderFeaturedSection();
-  renderTodayList(matches.slice(0, MAX_LIST_ITEMS), loadFailed);
+  renderTodayList(matches, loadFailed);
 }
 
 // Tek bir mac icin "featured-card" markup'i - hem tekil "Ozne Cikan" gorunumunde
@@ -609,7 +633,15 @@ function renderTodayList(matches, loadFailed) {
     return;
   }
 
-  container.innerHTML = matches.map(m => {
+  const groups = new Map();
+  matches.forEach(match => {
+    const key = String(match.leagueId || match.league || 'unknown');
+    if (!groups.has(key)) groups.set(key, { league: match.league || 'Diğer', matches: [] });
+    groups.get(key).matches.push(match);
+  });
+
+  container.innerHTML = Array.from(groups.values()).map((group, groupIndex) => {
+    const rows = group.matches.map(m => {
     const timeLabel = m.isLive
       ? (m.minute != null ? `${t('live')} ${m.minute}'` : t('live'))
       : (m.kickoff
@@ -624,7 +656,6 @@ function renderTodayList(matches, loadFailed) {
     return `
       <div class="match-row-card" data-link="${rowLink}" style="display:flex; text-decoration:none; color:inherit;">
         <div class="match-row-left">
-          <div class="match-row-league">${m.league || ''}</div>
           <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
         </div>
         <button type="button" class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>
@@ -635,7 +666,24 @@ function renderTodayList(matches, loadFailed) {
         </div>
       </div>
     `;
+    }).join('');
+
+    return `
+      <div class="home-league-group ${groupIndex === 0 ? 'expanded' : ''}">
+        <div class="home-league-header">
+          <div>
+            <div class="home-league-title">${group.league}</div>
+            <div class="home-league-count">${group.matches.length} ${currentLang === 'tr' ? 'maç' : 'matches'}</div>
+          </div>
+          <div class="home-league-chevron">›</div>
+        </div>
+        <div class="home-league-matches">${rows}</div>
+      </div>`;
   }).join('');
+
+  container.querySelectorAll('.home-league-header').forEach(header => {
+    header.addEventListener('click', () => header.parentElement.classList.toggle('expanded'));
+  });
 
   container.querySelectorAll('.match-row-card').forEach(row => {
     row.addEventListener('click', () => {

@@ -44,7 +44,7 @@
     padding: 4px 4px 20px;
   }
 
-  .back-row { margin-bottom: 10px; }
+  .match-navigation { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
   .back-button {
     appearance: none;
     border: 1px solid var(--border-subtle);
@@ -63,6 +63,15 @@
   }
   .back-button:active { transform: scale(.97); }
   .back-arrow { color: var(--teal); font-size: 20px; line-height: 1; }
+  .match-stepper { display:flex; align-items:center; gap:7px; }
+  .match-step-button {
+    width:40px; height:40px; border-radius:12px; border:1px solid var(--border-subtle);
+    background:var(--bg-card); color:var(--teal); font-size:25px; line-height:1;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .match-step-button:disabled { opacity:.28; cursor:default; }
+  .match-step-button:not(:disabled):active { transform:scale(.94); }
+  .match-position { min-width:38px; text-align:center; color:var(--text-muted); font-size:10px; font-weight:700; }
 
   .brand-name {
     font-size: 19px;
@@ -304,39 +313,6 @@
   .signal-tag { font-size: 9.5px; color: var(--text-secondary); }
   .signal-conf { font-size: 11px; color: var(--text-primary); font-weight: 600; margin-top: 2px; }
 
-  .analysis-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-  }
-  .analysis-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 16px;
-  }
-  .analysis-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    background: var(--bg-card-inner);
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-  }
-  .analysis-icon {
-    width: 34px; height: 34px;
-    border-radius: 10px;
-    background: rgba(45,212,191,0.08);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
-    flex-shrink: 0;
-  }
-  .analysis-title { font-size: 12.5px; font-weight: 700; }
-  .analysis-sub { font-size: 9.5px; color: var(--text-muted); margin-top: 2px; }
-  .chevron { color: var(--text-muted); font-size: 14px; margin-left: auto; }
-
   .lang-toggle {
     display: flex; align-items: center; gap: 4px;
     background: var(--bg-card);
@@ -421,10 +397,15 @@
 
 <div class="app">
 
-  <div class="back-row">
+  <div class="match-navigation">
     <button class="back-button" id="backButton" type="button" aria-label="Go back">
       <span class="back-arrow">←</span><span data-i18n="backToMatches">Back to matches</span>
     </button>
+    <div class="match-stepper">
+      <button class="match-step-button" id="previousMatch" type="button" aria-label="Previous match" disabled>‹</button>
+      <span class="match-position" id="matchPosition">—</span>
+      <button class="match-step-button" id="nextMatch" type="button" aria-label="Next match" disabled>›</button>
+    </div>
   </div>
 
   <div class="top-bar">
@@ -700,57 +681,6 @@
     </div>
     <div class="signal-tag" style="text-align:center; margin-top:10px; color:var(--text-muted);" data-i18n="cornerDisclaimer">
       Estimated from expected goal tempo (not real corner statistics)
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="analysis-header">
-      <div class="card-title" style="margin-bottom:0;" data-i18n="otherAnalysisTitle">OTHER MATCH ANALYSIS</div>
-      <span class="chevron">▲</span>
-    </div>
-    <div class="analysis-list">
-      <div class="analysis-item" data-target="section-form" style="cursor:pointer;">
-        <div>
-          <div class="analysis-title" data-i18n="teamStatsTitle">Team Statistics</div>
-          <div class="analysis-sub" data-i18n="teamStatsSub">Overall performance, form</div>
-        </div>
-      </div>
-      <div class="analysis-item" data-target="section-form" style="cursor:pointer;">
-        <div>
-          <div class="analysis-title" data-i18n="last5Title">Last 5 Matches</div>
-          <div class="analysis-sub" data-i18n="last5Sub">Form chart</div>
-        </div>
-      </div>
-      <div class="analysis-item" data-target="section-reading" style="cursor:pointer;">
-        <div>
-          <div class="analysis-title" data-i18n="comparativeTitle">Comparative Analysis</div>
-          <div class="analysis-sub" data-i18n="comparativeSub">Team averages</div>
-        </div>
-      </div>
-      <div class="analysis-item" data-target="section-probabilities" style="cursor:pointer;">
-        <div>
-          <div class="analysis-title" data-i18n="h2hTitle">H2H</div>
-          <div class="analysis-sub" data-i18n="h2hSub">Previous meetings</div>
-        </div>
-      </div>
-      <div class="analysis-item" data-target="section-xg" style="cursor:pointer;">
-        <div>
-          <div class="analysis-title" data-i18n="expectedValuesTitle">Expected Values</div>
-          <div class="analysis-sub" data-i18n="expectedValuesSub">Shots, corners, cards</div>
-        </div>
-      </div>
-      <div class="analysis-item" data-target="section-odds" style="cursor:pointer;">
-        <div>
-          <div class="analysis-title" data-i18n="marketOddsTitle">Market &amp; Odds</div>
-          <div class="analysis-sub" data-i18n="marketOddsSub">Odds movement</div>
-        </div>
-      </div>
-      <div class="analysis-item" data-target="section-standings" style="cursor:pointer;">
-        <div>
-          <div class="analysis-title" data-i18n="standingsTitle">League Standings</div>
-          <div class="analysis-sub" data-i18n="standingsSub">Full table</div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -1253,12 +1183,58 @@ function setReading(prefix, value) {
   document.getElementById(`${prefix}-bar`).style.width = v + '%';
 }
 
-document.querySelectorAll('.analysis-item[data-target]').forEach(item => {
-  item.addEventListener('click', () => {
-    const target = document.getElementById(item.dataset.target);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+function adjacentAnalysisLink(match) {
+  const params = new URLSearchParams({
+    fixtureId: match.fixtureId,
+    homeTeamName: match.homeTeam || '',
+    awayTeamName: match.awayTeam || '',
+    leagueName: match.league || '',
+    kickoff: match.kickoff || '',
+    tsdbLeagueId: match.leagueId || '',
+    homeBadge: match.homeBadge || '',
+    awayBadge: match.awayBadge || '',
   });
-});
+  return `analiz-ekrani.html?${params.toString()}`;
+}
+
+function navigationDateKey() {
+  const date = CONTEXT.kickoff ? new Date(CONTEXT.kickoff) : new Date();
+  const valid = Number.isNaN(date.getTime()) ? new Date() : date;
+  const year = valid.getFullYear();
+  const month = String(valid.getMonth() + 1).padStart(2, '0');
+  const day = String(valid.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+async function loadMatchNavigation() {
+  const previousButton = document.getElementById('previousMatch');
+  const nextButton = document.getElementById('nextMatch');
+  const position = document.getElementById('matchPosition');
+  try {
+    const date = navigationDateKey();
+    let response = await fetch(`${API_BASE}/api/matches?date=${date}`);
+    let payload = response.ok ? await response.json() : { matches: [] };
+    if (!payload.matches?.length) {
+      response = await fetch(`${API_BASE}/api/results?date=${date}`);
+      payload = response.ok ? await response.json() : { matches: [] };
+    }
+    const matches = (payload.matches || [])
+      .filter(match => match?.fixtureId)
+      .sort((a, b) => new Date(a.kickoff || 0) - new Date(b.kickoff || 0));
+    const index = matches.findIndex(match => String(match.fixtureId) === String(FIXTURE_ID));
+    if (index < 0) return;
+
+    position.textContent = `${index + 1}/${matches.length}`;
+    const previous = matches[index - 1];
+    const next = matches[index + 1];
+    previousButton.disabled = !previous;
+    nextButton.disabled = !next;
+    if (previous) previousButton.addEventListener('click', () => { window.location.href = adjacentAnalysisLink(previous); });
+    if (next) nextButton.addEventListener('click', () => { window.location.href = adjacentAnalysisLink(next); });
+  } catch (error) {
+    console.warn('Maç geçişleri hazırlanamadı:', error.message);
+  }
+}
 
 document.getElementById('backButton').addEventListener('click', () => {
   try {
@@ -1273,6 +1249,7 @@ document.getElementById('backButton').addEventListener('click', () => {
 
 applyStaticTranslations();
 loadAnalysis();
+loadMatchNavigation();
 
 /**
  * Oran hareketi grafigi ayri bir endpoint'ten geliyor (/api/odds-history/:sportKey)
