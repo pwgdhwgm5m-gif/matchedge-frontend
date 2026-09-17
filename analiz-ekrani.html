@@ -97,18 +97,7 @@
     gap: 8px;
   }
 
-  .live-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(45, 212, 191, 0.12);
-    border: 1px solid rgba(45, 212, 191, 0.3);
-    color: var(--teal);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 20px;
-  }
+  .live-pill { display:flex; align-items:center; gap:4px; background:transparent; border:0; color:var(--red); font-size:9px; font-weight:800; padding:3px 5px; border-radius:8px; }
   .live-dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--teal);
@@ -405,6 +394,7 @@
   .chat-room-button { text-decoration:none; min-height:40px; display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:12px; border:1px solid rgba(45,212,191,.38); background:rgba(45,212,191,.10); color:var(--teal); font-size:11px; font-weight:850; }
   .chat-room-button:active { transform:scale(.97); }
   .chat-room-row { display:flex; justify-content:flex-end; margin:-2px 4px 14px; }
+  .collapsible>.card-title{cursor:pointer;margin-bottom:0}.collapsible>.card-title::after{content:'⌄';color:var(--teal);font-size:15px;margin-left:auto}.collapsible:not(.collapsed)>.card-title{margin-bottom:18px}.collapsible:not(.collapsed)>.card-title::after{content:'⌃'}.collapsible.collapsed>:not(.card-title){display:none!important}
   .community-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.community-head strong{font-size:12px}.community-head span{font-size:9px;color:var(--text-muted)}.community-list{display:grid;gap:9px}.community-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.community-label{font-size:11px;font-weight:750}.community-count{font-size:9px;color:var(--text-muted);margin-top:3px}.community-percent{color:var(--teal);font-size:13px;font-weight:900}.community-track{grid-column:1/-1;height:5px;border-radius:9px;background:#090d16;overflow:hidden}.community-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:inherit}.community-empty{text-align:center;color:var(--text-muted);font-size:10px;padding:10px}
 </style>
 </head>
@@ -820,7 +810,7 @@ const TRANSLATIONS = {
     notStartedStatus: 'Not Started', unknownLeague: 'League unknown',
     noFixture: 'No match selected', noFixtureSub: 'Go back and pick a match to analyze',
     loadError: "Couldn't load analysis for this match", loadErrorSub: 'Please try again in a moment',
-    legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
+    legalText: 'MatchEdge analysis, community picks and virtual game features are for information and entertainment only, not betting advice. Edge Coin has no monetary value and cannot be purchased, transferred, redeemed for cash or prizes. Data may be delayed or incomplete; users remain responsible for their decisions. Not intended for gambling use by minors.<br><br>© 2026 MatchEdge. All rights reserved. Design, software and content may not be copied without permission.',
   },
   tr: {
     couponTitle: 'KUPON SEÇİMLERİ', addCoupon: 'SEÇİLENLERİ KUPONUMA EKLE', couponAdded: 'Kuponuma eklendi', couponError: 'Kupon eklenemedi',
@@ -871,7 +861,7 @@ const TRANSLATIONS = {
     notStartedStatus: 'Başlamadı', unknownLeague: 'Lig bilgisi yok',
     noFixture: 'Maç seçilmedi', noFixtureSub: 'Geri dönüp analiz edilecek bir maç seç',
     loadError: 'Bu maç için analiz yüklenemedi', loadErrorSub: 'Lütfen biraz sonra tekrar dene',
-    legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan MatchEdge sorumlu tutulamaz.<br><br>MatchEdge © 2026 — Eddas tarafından geliştirildi.',
+    legalText: 'MatchEdge analizleri, topluluk seçimleri ve sanal oyun özellikleri yalnızca bilgi ve eğlence amaçlıdır; bahis tavsiyesi değildir. Edge Coin parasal değer taşımaz; satın alınamaz, devredilemez, nakde veya ödüle çevrilemez. Veriler gecikebilir ya da eksik olabilir; alınan kararların sorumluluğu kullanıcıya aittir. 18 yaş altı bahis amaçlı kullanım için uygun değildir.<br><br>© 2026 MatchEdge. Tüm hakları saklıdır. Tasarım, yazılım ve içerikler izinsiz kopyalanamaz.',
   },
 };
 
@@ -1466,6 +1456,16 @@ function drawOddsChart(snapshots) {
 }
 
 window.addEventListener('resize', () => loadOddsHistory());
+
+// Compact accordions keep the long analysis easy to scan.
+document.querySelectorAll('.card').forEach((card,index)=>{
+ const title=card.querySelector(':scope > .card-title');
+ if(!title||card.id==='coupon-market-card'||card.id==='community-picks-card')return;
+ card.classList.add('collapsible');
+ if(index>5)card.classList.add('collapsed');
+ title.addEventListener('click',()=>card.classList.toggle('collapsed'));
+});
+
 loadOddsHistory();
 loadWallet();
 </script>
