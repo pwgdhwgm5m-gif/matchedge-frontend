@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>MatchEdge - Maç Sonuçları</title>
+<title>SoccerEdge Pro - Maç Sonuçları</title>
 <style>
   :root {
     --bg-base: #0a0e17;
@@ -267,7 +267,7 @@
 
   <div class="top-bar">
     <div>
-      <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
+      <div class="brand-name">SOCCEREDGE<span class="premium">PRO</span></div>
       <div class="brand-sub" data-i18n="brandSub">MATCH RESULTS</div>
     </div>
     <div class="top-actions">
@@ -286,9 +286,9 @@
   </div>
 
   <div class="legal-footer" data-i18n="legalText">
-    Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.
+    Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.
     <br><br>
-    MatchEdge © 2026 — Built by Eddas.
+    SoccerEdge Pro © 2026 — Built by Eddas.
   </div>
 
 </div>
@@ -324,7 +324,7 @@ const TRANSLATIONS = {
     allLeagues: 'All',
     goalSound: 'Goal notifications', favoritesTitle: 'MY FAVORITES', soundOn: 'Sound On', soundOff: 'Sound Off',
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    legalText: 'MatchEdge analysis, community picks and virtual game features are for information and entertainment only, not betting advice. Edge Coin has no monetary value and cannot be purchased, transferred, redeemed for cash or prizes. Data may be delayed or incomplete; users remain responsible for their decisions. Not intended for gambling use by minors.<br><br>© 2026 MatchEdge. All rights reserved. Design, software and content may not be copied without permission.',
+    legalText: 'SoccerEdge Pro analysis, community picks and virtual game features are for information and entertainment only, not betting advice. Edge Coin has no monetary value and cannot be purchased, transferred, redeemed for cash or prizes. Data may be delayed or incomplete; users remain responsible for their decisions. Not intended for gambling use by minors.<br><br>© 2026 SoccerEdge Pro. All rights reserved. Design, software and content may not be copied without permission.',
   },
   tr: {
     brandSub: 'MAÇ SONUÇLARI', loading: 'Yükleniyor...',
@@ -338,7 +338,7 @@ const TRANSLATIONS = {
     allLeagues: 'Tümü',
     goalSound: 'Gol bildirimleri', favoritesTitle: 'FAVORİLERİM', soundOn: 'Ses Açık', soundOff: 'Ses Kapalı',
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
-    legalText: 'MatchEdge analizleri, topluluk seçimleri ve sanal oyun özellikleri yalnızca bilgi ve eğlence amaçlıdır; bahis tavsiyesi değildir. Edge Coin parasal değer taşımaz; satın alınamaz, devredilemez, nakde veya ödüle çevrilemez. Veriler gecikebilir ya da eksik olabilir; karar sorumluluğu kullanıcıya aittir. 18 yaş altı bahis amaçlı kullanım için uygun değildir.<br><br>© 2026 MatchEdge. Tüm hakları saklıdır. Tasarım, yazılım ve içerikler izinsiz kopyalanamaz.',
+    legalText: 'SoccerEdge Pro analizleri, topluluk seçimleri ve sanal oyun özellikleri yalnızca bilgi ve eğlence amaçlıdır; bahis tavsiyesi değildir. Edge Coin parasal değer taşımaz; satın alınamaz, devredilemez, nakde veya ödüle çevrilemez. Veriler gecikebilir ya da eksik olabilir; karar sorumluluğu kullanıcıya aittir. 18 yaş altı bahis amaçlı kullanım için uygun değildir.<br><br>© 2026 SoccerEdge Pro. Tüm hakları saklıdır. Tasarım, yazılım ve içerikler izinsiz kopyalanamaz.',
   },
 };
 
@@ -693,7 +693,7 @@ function playGoalSound(force = false) {
   audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
   if (audioContext.state === 'suspended') audioContext.resume();
   const now = audioContext.currentTime + .02;
-  // MatchEdge Premium: tum kullanicilar icin sabit gol sesi.
+  // SoccerEdge Pro Premium: tum kullanicilar icin sabit gol sesi.
   tone(523, now, .22, .1, 'sine');
   tone(784, now + .12, .28, .12, 'sine');
   tone(1047, now + .25, .34, .1, 'sine');
