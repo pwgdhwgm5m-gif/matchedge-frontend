@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>MatchEdge - Tribün Chat</title>
+<title>MatchEdge - Tribün Akışı</title>
 <style>
 :root{--bg:#0a0e17;--card:#121826;--inner:#0d1220;--line:#253047;--teal:#2dd4bf;--amber:#f5b942;--red:#f0556b;--text:#f4f6fa;--soft:#cbd2df;--muted:#98a2b6}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{max-width:480px;margin:auto;min-height:100vh;padding:14px 14px 120px}.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--teal);font-size:24px}.title{font-size:18px;font-weight:900}.sub{font-size:11px;color:var(--soft);margin-top:2px}.safe{margin-left:auto;font-size:9px;color:var(--teal);border:1px solid rgba(45,212,191,.35);padding:6px 8px;border-radius:99px}.match{background:linear-gradient(145deg,#151e30,#101622);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}.match small{display:block;color:var(--teal);font-weight:800;letter-spacing:1px;margin-bottom:6px}.match strong{font-size:14px}.notice{font-size:10.5px;line-height:1.45;color:var(--soft);background:rgba(245,185,66,.07);border:1px solid rgba(245,185,66,.24);border-radius:12px;padding:10px 12px;margin-bottom:10px}.notice button{border:0;background:none;color:var(--amber);font-weight:800;padding:0}.messages{display:grid;gap:8px}.empty{text-align:center;color:var(--muted);font-size:12px;padding:42px 20px}.legal-mini{font-size:8px;line-height:1.5;color:var(--muted);text-align:center;padding:28px 10px 90px}.msg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px}.msg.mine{border-color:rgba(45,212,191,.38);background:rgba(45,212,191,.06)}.msg-head{display:flex;align-items:center;gap:7px;margin-bottom:6px}.rank-badge{font-size:8px;font-weight:850;color:var(--amber);border:1px solid rgba(245,185,66,.28);background:rgba(245,185,66,.08);padding:3px 6px;border-radius:999px}.coin-mini{font-size:8px;color:var(--soft)}.avatar{width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(157,124,240,.14);color:#bda9ff;font-weight:900;font-size:11px}.name{font-size:11px;font-weight:800}.time{font-size:9px;color:var(--muted);margin-left:auto}.more{border:0;background:none;color:var(--soft);font-size:18px;padding:0 2px}.body{font-size:12.5px;line-height:1.45;color:var(--text);overflow-wrap:anywhere}.composer{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(10,14,23,.96);border-top:1px solid var(--line);z-index:20}.composer-inner{max-width:452px;margin:auto}.compose-row{display:flex;gap:8px;align-items:flex-end}.input-wrap{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px}textarea{display:block;width:100%;min-height:36px;max-height:90px;resize:none;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:12px}.count{text-align:right;font-size:8px;color:var(--muted)}.send{height:48px;border:0;border-radius:14px;background:var(--teal);color:#051512;font-weight:900;padding:0 16px}.send:disabled{opacity:.4}.feedback{min-height:16px;font-size:10px;color:var(--red);padding:4px 2px 0}.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;z-index:50}.overlay.show{display:flex}.sheet{width:min(480px,100%);background:#111827;border:1px solid var(--line);border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}.sheet h2{font-size:18px;margin:0 0 10px}.sheet p,.sheet li{color:var(--soft);font-size:12px;line-height:1.5}.sheet ul{padding-left:20px}.primary,.secondary,.danger{width:100%;border-radius:12px;padding:12px;font-weight:850;margin-top:8px}.primary{border:0;background:var(--teal);color:#06201c}.secondary{border:1px solid var(--line);background:var(--inner);color:var(--text)}.danger{border:1px solid rgba(240,85,107,.4);background:rgba(240,85,107,.08);color:var(--red)}select,.support-text{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--inner);color:var(--text);padding:11px;margin-top:8px}.support-text{min-height:100px;resize:vertical}.legal{font-size:9px;color:var(--muted);text-align:center;padding:16px 8px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{max-width:480px;margin:auto;min-height:100vh;padding:14px 14px 120px}.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--teal);font-size:24px}.title{font-size:18px;font-weight:900}.sub{font-size:11px;color:var(--soft);margin-top:2px}.safe{margin-left:auto;font-size:9px;color:var(--teal);border:1px solid rgba(45,212,191,.35);padding:6px 8px;border-radius:99px}.match{background:linear-gradient(145deg,#151e30,#101622);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}.match small{display:block;color:var(--teal);font-weight:800;letter-spacing:1px;margin-bottom:6px}.match strong{font-size:14px}.notice{font-size:10.5px;line-height:1.45;color:var(--soft);background:rgba(245,185,66,.07);border:1px solid rgba(245,185,66,.24);border-radius:12px;padding:10px 12px;margin-bottom:10px}.notice button{border:0;background:none;color:var(--amber);font-weight:800;padding:0}.messages{display:grid;gap:8px}.empty{text-align:center;color:var(--muted);font-size:12px;padding:42px 20px}.legal-mini{font-size:8px;line-height:1.5;color:var(--muted);text-align:center;padding:28px 10px 90px}.msg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px}.msg.mine{border-color:rgba(45,212,191,.38);background:rgba(45,212,191,.06)}.msg.ai{border-color:rgba(45,212,191,.28);background:linear-gradient(145deg,rgba(45,212,191,.08),rgba(157,124,240,.06))}.ai-badge{font-size:8px;font-weight:900;letter-spacing:.7px;color:#051512;background:var(--teal);padding:3px 6px;border-radius:999px}.msg-head{display:flex;align-items:center;gap:7px;margin-bottom:6px}.rank-badge{font-size:8px;font-weight:850;color:var(--amber);border:1px solid rgba(245,185,66,.28);background:rgba(245,185,66,.08);padding:3px 6px;border-radius:999px}.coin-mini{font-size:8px;color:var(--soft)}.avatar{width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(157,124,240,.14);color:#bda9ff;font-weight:900;font-size:11px}.name{font-size:11px;font-weight:800}.time{font-size:9px;color:var(--muted);margin-left:auto}.more{border:0;background:none;color:var(--soft);font-size:18px;padding:0 2px}.body{font-size:12.5px;line-height:1.45;color:var(--text);overflow-wrap:anywhere}.composer{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(10,14,23,.96);border-top:1px solid var(--line);z-index:20}.composer-inner{max-width:452px;margin:auto}.compose-row{display:flex;gap:8px;align-items:flex-end}.input-wrap{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px}textarea{display:block;width:100%;min-height:36px;max-height:90px;resize:none;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:12px}.count{text-align:right;font-size:8px;color:var(--muted)}.send{height:48px;border:0;border-radius:14px;background:var(--teal);color:#051512;font-weight:900;padding:0 16px}.send:disabled{opacity:.4}.feedback{min-height:16px;font-size:10px;color:var(--red);padding:4px 2px 0}.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;z-index:50}.overlay.show{display:flex}.sheet{width:min(480px,100%);background:#111827;border:1px solid var(--line);border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}.sheet h2{font-size:18px;margin:0 0 10px}.sheet p,.sheet li{color:var(--soft);font-size:12px;line-height:1.5}.sheet ul{padding-left:20px}.primary,.secondary,.danger{width:100%;border-radius:12px;padding:12px;font-weight:850;margin-top:8px}.primary{border:0;background:var(--teal);color:#06201c}.secondary{border:1px solid var(--line);background:var(--inner);color:var(--text)}.danger{border:1px solid rgba(240,85,107,.4);background:rgba(240,85,107,.08);color:var(--red)}select,.support-text{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--inner);color:var(--text);padding:11px;margin-top:8px}.support-text{min-height:100px;resize:vertical}.legal{font-size:9px;color:var(--muted);text-align:center;padding:16px 8px}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="top"><button class="back" id="back">‹</button><div><div class="title">Tribün Chat</div><div class="sub" id="roomSub">Topluluk sohbeti</div></div><span class="safe">GÜVENLİ SOHBET</span></div>
+  <div class="top"><button class="back" id="back">‹</button><div><div class="title">Tribün Akışı</div><div class="sub" id="roomSub">AI analiz + topluluk sohbeti</div></div><span class="safe">GÜVENLİ SOHBET</span></div>
   <div class="match"><small>MATCHEDGE COMMUNITY</small><strong id="matchLabel">Maç yükleniyor…</strong></div>
   <div class="notice">Saygılı ol. Küfür, hakaret, tehdit, reklam ve iletişim bilgisi paylaşımı yasaktır. <button id="rulesOpen">Kurallar</button> · <button id="supportOpen">Destek</button></div>
   <div class="messages" id="messages"><div class="empty">Mesajlar yükleniyor…</div></div>
@@ -36,11 +36,13 @@ const home=qs.get('homeTeam')||qs.get('homeTeamName')||'Ev';
 const away=qs.get('awayTeam')||qs.get('awayTeamName')||'Deplasman';
 const matchLabel=(home+' - '+away).slice(0,140);
 document.getElementById('matchLabel').textContent=matchLabel;
-document.getElementById('roomSub').textContent=fixtureId?'Maça özel topluluk sohbeti':'Maç bilgisi eksik';
+document.getElementById('roomSub').textContent=fixtureId?'AI analiz + gerçek topluluk sohbeti':'Maç bilgisi eksik';
 const headers=()=>({'Content-Type':'application/json',Authorization:'Bearer '+token});
 let rulesAccepted=localStorage.getItem('matchedge_chat_rules')==='accepted';
 let selectedMessage=null;
 let polling=null;
+let aiFeed=[];
+let userMessages=[];
 
 function openSheet(id){document.getElementById(id).classList.add('show')}
 function closeSheets(){document.querySelectorAll('.overlay').forEach(x=>x.classList.remove('show'))}
@@ -55,23 +57,72 @@ function showFeedback(text,ok=false){const el=document.getElementById('feedback'
 function fmtTime(value){const d=new Date(value);return d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}
 function initials(name){return String(name||'?').slice(0,2).toUpperCase()}
 
-function render(messages){
+function render(messages=userMessages){
+ userMessages=messages;
+ const items=[...aiFeed,...userMessages];
  const box=document.getElementById('messages');
- if(!messages.length){box.innerHTML='<div class="empty">Bu sohbette ilk mesajı sen yaz.</div>';return}
- box.replaceChildren(...messages.map(m=>{
-  const card=document.createElement('div');card.className='msg'+(m.mine?' mine':'');
+ if(!items.length){box.innerHTML='<div class="empty">Henüz analiz veya topluluk mesajı yok. İlk mesajı sen yaz.</div>';return}
+ box.replaceChildren(...items.map(m=>{
+  const card=document.createElement('div');card.className='msg'+(m.mine?' mine':'')+(m.ai?' ai':'');
   const head=document.createElement('div');head.className='msg-head';
-  const avatar=document.createElement('span');avatar.className='avatar';avatar.textContent=initials(m.authorName);
+  const avatar=document.createElement('span');avatar.className='avatar';avatar.textContent=m.ai?'ME':initials(m.authorName);
   const name=document.createElement('span');name.className='name';name.textContent=m.authorName;
-  const rank=document.createElement('span');rank.className='rank-badge';rank.textContent=(m.rank?.icon||'🌱')+' '+(m.rank?.name||'Çaylak');
+  const rank=document.createElement('span');rank.className=m.ai?'ai-badge':'rank-badge';rank.textContent=m.ai?'ME AI':(m.rank?.icon||'🌱')+' '+(m.rank?.name||'Çaylak');
   const coins=document.createElement('span');coins.className='coin-mini';coins.textContent='🪙 '+(m.edgeCoins||0);
-  const time=document.createElement('span');time.className='time';time.textContent=fmtTime(m.createdAt);
+  const time=document.createElement('span');time.className='time';time.textContent=m.ai?'Sistem analizi':fmtTime(m.createdAt);
   const more=document.createElement('button');more.className='more';more.textContent='•••';more.setAttribute('aria-label','Mesaj seçenekleri');
   more.onclick=()=>{selectedMessage=m;if(m.mine){if(confirm('Mesajını silmek istiyor musun?'))deleteMessage(m.id)}else{document.getElementById('actionUser').textContent=m.authorName;openSheet('actionSheet')}};
   const body=document.createElement('div');body.className='body';body.textContent=m.text;
-  head.append(avatar,name,rank,coins,time,more);card.append(head,body);return card;
+  if(m.ai)head.append(avatar,name,rank,time);else head.append(avatar,name,rank,coins,time,more);
+  card.append(head,body);return card;
  }));
- window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+
+function pct(value){
+ const n=Number(value);if(!Number.isFinite(n))return null;
+ return Math.round((n<=1?n*100:n)*10)/10;
+}
+function pickText(pick){
+ if(!pick)return null;
+ const label=pick.label||pick.name||pick.market||pick.selection||pick.pick;
+ const probability=pct(pick.probability??pick.modelProbability??pick.confidence??pick.value);
+ return label?(label+(probability!==null?' • %'+probability:'')):null;
+}
+async function loadAiFeed(){
+ if(!fixtureId)return;
+ const next=[];
+ try{
+  const q='?homeTeamName='+encodeURIComponent(home)+'&awayTeamName='+encodeURIComponent(away);
+  const r=await fetch(API_BASE+'/api/analysis/'+encodeURIComponent(fixtureId)+q,{headers:headers()});
+  if(r.ok){
+   const a=await r.json();
+   const picks=a?.premium?.topPicks||a?.topPicks||a?.marketBoard?.allMarkets||[];
+   const strongest=pickText(a?.strongestSignal||picks[0]);
+   if(strongest)next.push({ai:true,authorName:'Atlas · MatchEdge AI',text:'Modelin öne çıkardığı seçim: '+strongest+'. Bu kart sistem analizidir; kullanıcı mesajı değildir.'});
+   const homeXg=Number(a?.homeLambda??a?.expectedGoals?.home),awayXg=Number(a?.awayLambda??a?.expectedGoals?.away);
+   const homeWin=pct(a?.matchProbabilities?.home??a?.probabilities?.home);
+   const draw=pct(a?.matchProbabilities?.draw??a?.probabilities?.draw);
+   const awayWin=pct(a?.matchProbabilities?.away??a?.probabilities?.away);
+   const facts=[];
+   if(Number.isFinite(homeXg)&&Number.isFinite(awayXg))facts.push('beklenen gol '+home+' '+homeXg.toFixed(2)+' - '+awayXg.toFixed(2)+' '+away);
+   if(homeWin!==null&&draw!==null&&awayWin!==null)facts.push('1X2: %'+homeWin+' / %'+draw+' / %'+awayWin);
+   if(facts.length)next.push({ai:true,authorName:'Nova · Veri Analisti',text:facts.join(' • ')+'. Yalnızca mevcut model verilerinden üretilmiştir.'});
+  }
+ }catch(_){}
+ try{
+  const r=await fetch(API_BASE+'/api/community/fixture/'+encodeURIComponent(fixtureId),{headers:headers()});
+  if(r.ok){
+   const d=await r.json();
+   const total=Number(d?.totalUsers??d?.totalSelections??d?.summary?.totalUsers??0);
+   const top=d?.topSelections?.[0]||d?.selections?.[0];
+   if(total>0&&top){
+    const label=top.label||top.selection||top.name||'seçim';
+    const share=pct(top.percentage??top.share);
+    next.push({ai:true,authorName:'Scout · Tribün Takip',text:total+' gerçek kullanıcı seçimi içinde en yoğun tercih: '+label+(share!==null?' (%'+share+')':'')+'.'});
+   }else next.push({ai:true,authorName:'Scout · Tribün Takip',text:'Bu maç için henüz topluluk seçimi yok. İlk seçimi analiz ekranından kuponuna ekleyebilirsin.'});
+  }
+ }catch(_){}
+ aiFeed=next;render();
 }
 
 async function loadMessages(silent=false){
@@ -117,7 +168,7 @@ document.getElementById('send').onclick=sendMessage;
 document.getElementById('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(polling)}else{loadMessages(true);polling=setInterval(()=>loadMessages(true),10000)}});
 if(!rulesAccepted)openSheet('rulesSheet');
-loadMessages();polling=setInterval(()=>loadMessages(true),10000);
+Promise.all([loadAiFeed(),loadMessages()]);polling=setInterval(()=>loadMessages(true),10000);
 </script>
 </body>
 </html>
