@@ -405,6 +405,7 @@
   .chat-room-button { text-decoration:none; min-height:40px; display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:12px; border:1px solid rgba(45,212,191,.38); background:rgba(45,212,191,.10); color:var(--teal); font-size:11px; font-weight:850; }
   .chat-room-button:active { transform:scale(.97); }
   .chat-room-row { display:flex; justify-content:flex-end; margin:-2px 4px 14px; }
+  .community-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.community-head strong{font-size:12px}.community-head span{font-size:9px;color:var(--text-muted)}.community-list{display:grid;gap:9px}.community-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.community-label{font-size:11px;font-weight:750}.community-count{font-size:9px;color:var(--text-muted);margin-top:3px}.community-percent{color:var(--teal);font-size:13px;font-weight:900}.community-track{grid-column:1/-1;height:5px;border-radius:9px;background:#090d16;overflow:hidden}.community-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:inherit}.community-empty{text-align:center;color:var(--text-muted);font-size:10px;padding:10px}
 </style>
 </head>
 <body>
@@ -488,6 +489,11 @@
     <div class="coupon-market-grid" id="couponMarketGrid"></div>
     <button class="coupon-add" id="addCouponButton" type="button" disabled data-i18n="addCoupon">SEÇİLENLERİ KUPONUMA EKLE</button>
     <div class="coupon-feedback" id="couponFeedback"></div>
+  </div>
+
+  <div class="card" id="community-picks-card">
+    <div class="community-head"><strong>TRİBÜN ANALİZİ</strong><span id="communityTotal">0 kullanıcı</span></div>
+    <div class="community-list" id="communityPicks"><div class="community-empty">İlk seçimi sen yap.</div></div>
   </div>
 
   <div class="card" id="section-probabilities">
@@ -897,6 +903,17 @@ function renderContextImmediately() {
   }
 }
 
+
+async function loadCommunityPicks(){
+ if(!FIXTURE_ID)return;
+ try{
+  const response=await fetch(API_BASE+'/api/community/fixture/'+encodeURIComponent(FIXTURE_ID),{headers:{Authorization:'Bearer '+localStorage.getItem('matchedge_token')}});
+  const data=await response.json();if(!response.ok)throw new Error('community');
+  document.getElementById('communityTotal').textContent=data.totalUsers+' kullanıcı · '+data.totalVotes+' seçim';
+  document.getElementById('communityPicks').innerHTML=(data.selections||[]).slice(0,6).map(item=>'<div class="community-row"><div><div class="community-label">'+item.label+'</div><div class="community-count">'+item.count+' seçim</div></div><div class="community-percent">%'+item.percent+'</div><div class="community-track"><div class="community-fill" style="width:'+item.percent+'%"></div></div></div>').join('')||'<div class="community-empty">İlk seçimi sen yap.</div>';
+ }catch(_){}
+}
+
 async function loadAnalysis() {
   if (!FIXTURE_ID) {
     showErrorBanner(`${t('noFixture')} — ${t('noFixtureSub')}`);
@@ -917,6 +934,7 @@ async function loadAnalysis() {
     if (!res.ok) throw new Error('http_' + res.status);
     const data = await res.json();
     renderAnalysis(data);
+    loadCommunityPicks();
   } catch (err) {
     console.warn('Analiz alınamadı:', err.message);
     showErrorBanner(`${t('loadError')} — ${t('loadErrorSub')}`);
