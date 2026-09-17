@@ -15,8 +15,8 @@
     --amber: #f5b942;
     --red: #f0556b;
     --text-primary: #f2f4f8;
-    --text-secondary: #8b93a7;
-    --text-muted: #5a6478;
+    --text-secondary: #e2e6ee;
+    --text-muted: #bdc5d3;
     --radius: 16px;
   }
 
@@ -200,6 +200,13 @@
   .live-stat-value { font-size: 15px; font-weight: 800; width: 30px; text-align: center; }
   .live-stat-value.home { color: var(--teal); }
   .live-stat-value.away { color: var(--purple); }
+  .goal-side-call {
+    margin-top:14px; padding:12px 14px; border-radius:12px;
+    background:rgba(45,212,191,.09); border:1px solid rgba(45,212,191,.34);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .goal-side-call span { color:var(--text-secondary); font-size:11px; font-weight:650; }
+  .goal-side-call strong { color:var(--teal); font-size:14px; text-align:right; }
 
   .bottom-nav {
     position: fixed; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: 10px; right: 10px;
@@ -322,6 +329,11 @@
       <div class="momentum-caption" data-i18n="proximityCaption">Weighted by shots on target, dangerous attacks and xG</div>
     </div>
 
+    <div class="goal-side-call" id="goal-side-call">
+      <span data-i18n="closestGoalTitle">Closest to scoring</span>
+      <strong id="closest-goal-team">—</strong>
+    </div>
+
     <div id="statsUnavailableNote" style="display:none; margin-top:16px; text-align:center; font-size:10.5px; line-height:1.5; color:var(--text-muted); background:var(--bg-card-inner); border:1px solid var(--border-subtle); border-radius:10px; padding:10px 12px;"></div>
   </div>
 
@@ -413,6 +425,7 @@ const TRANSLATIONS = {
     possessionLabel: 'Possession', possessionCaption: 'Real possession share from live data',
     pressureLabel: 'Pressure', pressureCaption: "Who's applying pressure, based on recent data",
     proximityLabel: 'Goal Proximity', proximityCaption: 'Weighted by shots on target, dangerous attacks and xG',
+    closestGoalTitle: 'Closest to scoring', balancedGoalCall: 'Balanced',
     liveXgTitle: 'LIVE EXPECTED GOALS (xG)', homeXgLabel: 'HOME xG', awayXgLabel: 'AWAY xG',
     valueAlertTitle: 'LIVE VALUE ALERT', noValueAlert: 'No meaningful odds deviation right now',
     valueAlertSub: "Market odds are tracking close to the model's prediction",
@@ -432,6 +445,7 @@ const TRANSLATIONS = {
     possessionLabel: 'Topa Sahip Olma', possessionCaption: 'Canlı veriden gerçek topa sahip olma oranı',
     pressureLabel: 'Baskı', pressureCaption: 'Son verilere göre kim baskı kuruyor',
     proximityLabel: 'Gole Yakınlık', proximityCaption: 'İsabetli şut, tehlikeli atak ve xG ağırlıklı',
+    closestGoalTitle: 'Gol atmaya daha yakın', balancedGoalCall: 'Dengeli',
     liveXgTitle: 'CANLI GOL BEKLENTİSİ (xG)', homeXgLabel: 'EV xG', awayXgLabel: 'DEP xG',
     valueAlertTitle: 'CANLI VALUE ALERT', noValueAlert: 'Şu an anlamlı bir oran sapması yok',
     valueAlertSub: 'Piyasa oranı model tahminine yakın seyrediyor',
@@ -600,6 +614,19 @@ function renderTick(data) {
 
   document.getElementById('xg-current-home').textContent = (data.homeLiveXg ?? 0).toFixed(2);
   document.getElementById('xg-current-away').textContent = (data.awayLiveXg ?? 0).toFixed(2);
+
+  const homeXg = Number(data.homeLiveXg || 0);
+  const awayXg = Number(data.awayLiveXg || 0);
+  const xgTotal = homeXg + awayXg;
+  const homeGoalShare = xgTotal > 0 ? Math.round((homeXg / xgTotal) * 100) : Number(gp.home || 50);
+  const awayGoalShare = 100 - homeGoalShare;
+  const goalCall = Math.abs(homeGoalShare - awayGoalShare) < 5
+    ? t('balancedGoalCall')
+    : homeGoalShare > awayGoalShare
+      ? `${data.homeTeam || t('homePrefix')} · %${homeGoalShare}`
+      : `${data.awayTeam || t('awayPrefix')} · %${awayGoalShare}`;
+  document.getElementById('closest-goal-team').textContent = goalCall;
+  document.getElementById('goal-side-call').style.display = data.statsAvailable === false ? 'none' : 'flex';
 
   if (data.minute != null) {
     xgHistory.push({ minute: data.minute, home: data.homeLiveXg ?? 0, away: data.awayLiveXg ?? 0 });
