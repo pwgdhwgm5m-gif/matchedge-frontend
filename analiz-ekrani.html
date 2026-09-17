@@ -402,6 +402,8 @@
   .coupon-add { width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px; background:var(--teal); color:#05201c; font-weight:900; font-size:13px; cursor:pointer; }
   .coupon-add:disabled { opacity:.4; }
   .coupon-feedback { min-height:18px; text-align:center; font-size:10px; color:var(--teal); margin-top:8px; }
+  .chat-room-button { text-decoration:none; min-height:40px; display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:12px; border:1px solid rgba(45,212,191,.38); background:rgba(45,212,191,.10); color:var(--teal); font-size:11px; font-weight:850; }
+  .chat-room-button:active { transform:scale(.97); }
 </style>
 </head>
 <body>
@@ -414,6 +416,7 @@
       <span class="match-position" id="matchPosition">—</span>
       <button class="match-step-button" id="nextMatch" type="button" aria-label="Next match" disabled>›</button>
     </div>
+    <a class="chat-room-button" id="chatRoomButton" href="mac-odasi.html">💬 Maç Odası</a>
   </div>
 
   <div class="top-bar">
@@ -733,6 +736,13 @@ const CONTEXT = {
   homeBadge: qs.get('homeBadge') || '',
   awayBadge: qs.get('awayBadge') || '',
 };
+
+const chatParams = new URLSearchParams({
+  fixtureId: FIXTURE_ID || '',
+  homeTeam: CONTEXT.homeTeamName,
+  awayTeam: CONTEXT.awayTeamName,
+});
+document.getElementById('chatRoomButton').href = `mac-odasi.html?${chatParams.toString()}`;
 
 const TRANSLATIONS = {
   en: {
