@@ -508,6 +508,13 @@ function analysisLink(m) {
   return `analiz-ekrani.html?${params.toString()}`;
 }
 
+function isUpcomingMatch(match, now = Date.now()) {
+  if (match.isLive) return true;
+  if (!match.kickoff) return false;
+  const kickoff = new Date(match.kickoff).getTime();
+  return Number.isFinite(kickoff) && kickoff > now;
+}
+
 async function loadHome() {
   let matches = [];
   let loadFailed = false;
@@ -525,6 +532,8 @@ async function loadHome() {
     loadFailed = true;
   }
 
+  const now = Date.now();
+  matches = matches.filter(match => isUpcomingMatch(match, now));
   matches.sort((a, b) => {
     if (a.isLive && !b.isLive) return -1;
     if (!a.isLive && b.isLive) return 1;
