@@ -393,6 +393,15 @@
   .source-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
   .source-chip { font-size:9px; color:var(--text-muted); padding:5px 7px; border:1px solid var(--border-subtle); border-radius:999px; }
   .source-chip.ok { color:var(--teal); border-color:rgba(45,212,191,.25); background:rgba(45,212,191,.06); }
+  .coupon-market-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  .coupon-market { border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--text-primary); border-radius:12px; padding:11px; text-align:left; cursor:pointer; }
+  .coupon-market.selected { border-color:var(--teal); background:rgba(45,212,191,.12); box-shadow:0 0 0 2px rgba(45,212,191,.08); }
+  .coupon-market span { display:block; color:var(--text-secondary); font-size:9px; margin-bottom:5px; }
+  .coupon-market strong { font-size:13px; }
+  .coupon-market em { float:right; color:var(--amber); font-style:normal; font-weight:800; }
+  .coupon-add { width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px; background:var(--teal); color:#05201c; font-weight:900; font-size:13px; cursor:pointer; }
+  .coupon-add:disabled { opacity:.4; }
+  .coupon-feedback { min-height:18px; text-align:center; font-size:10px; color:var(--teal); margin-top:8px; }
 </style>
 </head>
 <body>
@@ -468,6 +477,13 @@
       <div class="health-track"><div class="health-fill" id="health-fill"></div></div>
       <div class="source-chips" id="source-chips"></div>
     </div>
+  </div>
+
+  <div class="card" id="coupon-market-card">
+    <div class="card-title" data-i18n="couponTitle">KUPON SEÇİMLERİ</div>
+    <div class="coupon-market-grid" id="couponMarketGrid"></div>
+    <button class="coupon-add" id="addCouponButton" type="button" disabled data-i18n="addCoupon">SEÇİLENLERİ KUPONUMA EKLE</button>
+    <div class="coupon-feedback" id="couponFeedback"></div>
   </div>
 
   <div class="card" id="section-probabilities">
@@ -701,6 +717,8 @@
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const qs = new URLSearchParams(window.location.search);
 const FIXTURE_ID = qs.get('fixtureId');
+let currentAnalysis = null;
+const selectedCouponMarkets = new Map();
 
 // Liste ekranlarindan (maclar.html, mac-sonuclari.html, ana-sayfa.html)
 // URL uzerinden gelen baglamsal bilgi - backend bunlari hem hesaplama
@@ -718,6 +736,7 @@ const CONTEXT = {
 
 const TRANSLATIONS = {
   en: {
+    couponTitle: 'COUPON PICKS', addCoupon: 'ADD SELECTED PICKS TO MY COUPON', couponAdded: 'Added to My Coupon', couponError: 'Could not add coupon',
     brandSub: 'PRO MATCH INTELLIGENCE', liveData: 'LIVE DATA', loading: 'Loading...', backToMatches: 'Back to matches',
     edgeVerdict: 'MATCHEDGE VERDICT', analysing: 'ANALYSING', decisionLoading: 'Checking price, sample and data quality…',
     selection: 'Selection', model: 'Model', edge: 'Edge', dataHealth: 'Data health',
@@ -757,7 +776,7 @@ const TRANSLATIONS = {
     standingsTitle: 'LEAGUE STANDINGS', standingsSub: 'Full table',
     standingsTeam: 'Team', standingsPlayed: 'P', standingsGoalDiff: 'GD', standingsPoints: 'Pts',
     standingsUnavailable: 'League standings not available for this match',
-    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Notes', navFav: 'Favorites',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Coupon', navFav: 'Favorites',
     winStreak: 'Win Streak', lossStreak: 'Loss Streak', noStreak: 'No clear streak',
     matchesSuffix: ' Match', restedDays: ' days rested', noRestInfo: 'No rest info',
     blendedNote: 'Model ({m}%) + Market odds ({k}%) blend',
@@ -768,6 +787,7 @@ const TRANSLATIONS = {
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
   },
   tr: {
+    couponTitle: 'KUPON SEÇİMLERİ', addCoupon: 'SEÇİLENLERİ KUPONUMA EKLE', couponAdded: 'Kuponuma eklendi', couponError: 'Kupon eklenemedi',
     brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...', backToMatches: 'Maçlara dön',
     edgeVerdict: 'MATCHEDGE KARARI', analysing: 'İNCELENİYOR', decisionLoading: 'Fiyat, örneklem ve veri kalitesi kontrol ediliyor…',
     selection: 'Seçim', model: 'Model', edge: 'Avantaj', dataHealth: 'Veri sağlığı',
@@ -807,7 +827,7 @@ const TRANSLATIONS = {
     standingsTitle: 'PUAN DURUMU', standingsSub: 'Tam tablo',
     standingsTeam: 'Takım', standingsPlayed: 'O', standingsGoalDiff: 'Av', standingsPoints: 'P',
     standingsUnavailable: 'Bu maç için puan durumu mevcut değil',
-    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Notlarım', navFav: 'Favoriler',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Kuponum', navFav: 'Favoriler',
     winStreak: 'Galibiyet Serisi', lossStreak: 'Mağlubiyet Serisi', noStreak: 'Belirgin seri yok',
     matchesSuffix: ' Maçlık', restedDays: ' gün dinlenmiş', noRestInfo: 'Dinlenme bilgisi yok',
     blendedNote: 'Model (%{m}) + Piyasa oranı (%{k}) harmanı',
@@ -893,6 +913,7 @@ async function loadAnalysis() {
 }
 
 function renderAnalysis(data) {
+  currentAnalysis = data;
   document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
   document.getElementById('home-name').textContent = data.homeTeam || CONTEXT.homeTeamName || '—';
   document.getElementById('away-name').textContent = data.awayTeam || CONTEXT.awayTeamName || '—';
@@ -914,6 +935,7 @@ function renderAnalysis(data) {
   document.getElementById('match-status').textContent = data.status || t('notStartedStatus');
 
   renderPremiumIntelligence(data.premium, data);
+  renderCouponMarkets(data);
 
   const mp = data.matchProbabilities || {};
   document.getElementById('home-prob').textContent = (mp.homeWinProbability ?? '–') + '%';
@@ -1108,6 +1130,51 @@ function renderPremiumIntelligence(premium, data) {
     return chip;
   }));
 }
+
+function renderCouponMarkets(data) {
+  const markets = data?.marketBoard?.allMarkets || [];
+  const grid = document.getElementById('couponMarketGrid');
+  selectedCouponMarkets.clear();
+  grid.innerHTML = markets.map(item => `<button type="button" class="coupon-market" data-key="${item.key}"><span>${item.market}</span><strong>${item.label}</strong><em>%${item.probability}</em></button>`).join('');
+  grid.querySelectorAll('.coupon-market').forEach(button => {
+    button.addEventListener('click', () => {
+      const item = markets.find(market => market.key === button.dataset.key);
+      if (!item) return;
+      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key); else selectedCouponMarkets.set(item.key, item);
+      button.classList.toggle('selected', selectedCouponMarkets.has(item.key));
+      document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
+    });
+  });
+}
+
+document.getElementById('addCouponButton').addEventListener('click', async () => {
+  if (!currentAnalysis || !selectedCouponMarkets.size) return;
+  const button = document.getElementById('addCouponButton');
+  const feedback = document.getElementById('couponFeedback');
+  button.disabled = true;
+  try {
+    const response = await fetch(`${API_BASE}/api/coupons`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('matchedge_token')}` },
+      body: JSON.stringify({
+        fixtureId: FIXTURE_ID,
+        homeTeam: currentAnalysis.homeTeam || CONTEXT.homeTeamName,
+        awayTeam: currentAnalysis.awayTeam || CONTEXT.awayTeamName,
+        league: currentAnalysis.league || CONTEXT.leagueName,
+        kickoff: currentAnalysis.kickoff || CONTEXT.kickoff,
+        selections: [...selectedCouponMarkets.values()],
+      }),
+    });
+    if (!response.ok) throw new Error('coupon');
+    feedback.textContent = t('couponAdded');
+    selectedCouponMarkets.clear();
+    document.querySelectorAll('.coupon-market.selected').forEach(item => item.classList.remove('selected'));
+    setTimeout(() => { window.location.href = 'kuponum.html'; }, 600);
+  } catch (_) {
+    feedback.textContent = t('couponError');
+    button.disabled = false;
+  }
+});
 
 function renderStandings(standings) {
   const tbody = document.getElementById('standings-tbody');
