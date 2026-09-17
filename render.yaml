@@ -2,7 +2,6 @@ services:
   - type: web
     name: matchedge-frontend
     runtime: static
-    plan: free
     branch: main
     buildCommand: echo "Static MatchEdge frontend"
     staticPublishPath: .
