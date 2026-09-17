@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MatchEdge - Maç Odası</title>
+<style>
+:root{--bg:#0a0e17;--card:#121826;--inner:#0d1220;--line:#253047;--teal:#2dd4bf;--amber:#f5b942;--red:#f0556b;--text:#f4f6fa;--soft:#cbd2df;--muted:#98a2b6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{max-width:480px;margin:auto;min-height:100vh;padding:14px 14px 120px}.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--teal);font-size:24px}.title{font-size:18px;font-weight:900}.sub{font-size:11px;color:var(--soft);margin-top:2px}.safe{margin-left:auto;font-size:9px;color:var(--teal);border:1px solid rgba(45,212,191,.35);padding:6px 8px;border-radius:99px}.match{background:linear-gradient(145deg,#151e30,#101622);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}.match small{display:block;color:var(--teal);font-weight:800;letter-spacing:1px;margin-bottom:6px}.match strong{font-size:14px}.notice{font-size:10.5px;line-height:1.45;color:var(--soft);background:rgba(245,185,66,.07);border:1px solid rgba(245,185,66,.24);border-radius:12px;padding:10px 12px;margin-bottom:10px}.notice button{border:0;background:none;color:var(--amber);font-weight:800;padding:0}.messages{display:grid;gap:8px}.empty{text-align:center;color:var(--muted);font-size:12px;padding:42px 20px}.msg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px}.msg.mine{border-color:rgba(45,212,191,.38);background:rgba(45,212,191,.06)}.msg-head{display:flex;align-items:center;gap:7px;margin-bottom:6px}.avatar{width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(157,124,240,.14);color:#bda9ff;font-weight:900;font-size:11px}.name{font-size:11px;font-weight:800}.time{font-size:9px;color:var(--muted);margin-left:auto}.more{border:0;background:none;color:var(--soft);font-size:18px;padding:0 2px}.body{font-size:12.5px;line-height:1.45;color:var(--text);overflow-wrap:anywhere}.composer{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(10,14,23,.96);border-top:1px solid var(--line);z-index:20}.composer-inner{max-width:452px;margin:auto}.compose-row{display:flex;gap:8px;align-items:flex-end}.input-wrap{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px}textarea{display:block;width:100%;min-height:36px;max-height:90px;resize:none;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:12px}.count{text-align:right;font-size:8px;color:var(--muted)}.send{height:48px;border:0;border-radius:14px;background:var(--teal);color:#051512;font-weight:900;padding:0 16px}.send:disabled{opacity:.4}.feedback{min-height:16px;font-size:10px;color:var(--red);padding:4px 2px 0}.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;z-index:50}.overlay.show{display:flex}.sheet{width:min(480px,100%);background:#111827;border:1px solid var(--line);border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}.sheet h2{font-size:18px;margin:0 0 10px}.sheet p,.sheet li{color:var(--soft);font-size:12px;line-height:1.5}.sheet ul{padding-left:20px}.primary,.secondary,.danger{width:100%;border-radius:12px;padding:12px;font-weight:850;margin-top:8px}.primary{border:0;background:var(--teal);color:#06201c}.secondary{border:1px solid var(--line);background:var(--inner);color:var(--text)}.danger{border:1px solid rgba(240,85,107,.4);background:rgba(240,85,107,.08);color:var(--red)}select,.support-text{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--inner);color:var(--text);padding:11px;margin-top:8px}.support-text{min-height:100px;resize:vertical}.legal{font-size:9px;color:var(--muted);text-align:center;padding:16px 8px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><button class="back" id="back">‹</button><div><div class="title">Maç Odası</div><div class="sub" id="roomSub">Topluluk sohbeti</div></div><span class="safe">GÜVENLİ SOHBET</span></div>
+  <div class="match"><small>MATCHEDGE COMMUNITY</small><strong id="matchLabel">Maç yükleniyor…</strong></div>
+  <div class="notice">Saygılı ol. Küfür, hakaret, tehdit, reklam ve iletişim bilgisi paylaşımı yasaktır. <button id="rulesOpen">Kurallar</button> · <button id="supportOpen">Destek</button></div>
+  <div class="messages" id="messages"><div class="empty">Mesajlar yükleniyor…</div></div>
+  <div class="legal">Mesajlar otomatik filtrelerden geçer ve şikâyet üzerine incelenebilir. Kişisel bilgi paylaşma.</div>
+</div>
+<div class="composer"><div class="composer-inner"><div class="compose-row"><div class="input-wrap"><textarea id="messageInput" maxlength="280" placeholder="Maç hakkında düşünceni yaz…" aria-label="Mesaj"></textarea><div class="count"><span id="count">0</span>/280</div></div><button class="send" id="send">Gönder</button></div><div class="feedback" id="feedback"></div></div></div>
+
+<div class="overlay" id="rulesSheet"><div class="sheet"><h2>Topluluk Kuralları</h2><p>Maç Odası’nı kullanarak aşağıdaki kuralları kabul edersin:</p><ul><li>Küfür, hakaret, nefret söylemi, tehdit ve zorbalık yasaktır.</li><li>Cinsel içerik, reklam, spam, bağlantı ve iletişim bilgisi paylaşılamaz.</li><li>Kişisel veri veya başka bir kullanıcıya ait özel bilgi yazılamaz.</li><li>Kuralları ihlal eden mesajlar kaldırılabilir; hesap geçici veya kalıcı olarak sınırlandırılabilir.</li></ul><button class="primary" id="acceptRules">Kabul Et ve Devam Et</button><button class="secondary close-sheet">Kapat</button></div></div>
+
+<div class="overlay" id="actionSheet"><div class="sheet"><h2 id="actionUser">Mesaj seçenekleri</h2><select id="reportReason"><option value="abuse">Hakaret veya zorbalık</option><option value="spam">Spam veya reklam</option><option value="hate">Nefret söylemi</option><option value="sexual">Uygunsuz/cinsel içerik</option><option value="personal_info">Kişisel bilgi</option><option value="other">Diğer</option></select><button class="danger" id="reportButton">Mesajı Şikâyet Et</button><button class="secondary" id="blockButton">Kullanıcıyı Engelle</button><button class="secondary close-sheet">Vazgeç</button></div></div>
+
+<div class="overlay" id="supportSheet"><div class="sheet"><h2>MatchEdge Destek</h2><p>Güvenlik, kullanıcı davranışı veya teknik bir sorun için bize uygulama içinden ulaşabilirsin.</p><textarea class="support-text" id="supportText" maxlength="1000" placeholder="Sorunu açıkla…"></textarea><button class="primary" id="supportSend">Destek Talebi Gönder</button><button class="secondary close-sheet">Kapat</button></div></div>
+
+<script>
+const API_BASE='https://matchedge-backend-kujb.onrender.com';
+const token=localStorage.getItem('matchedge_token');
+if(!token) location.href='giris.html';
+const qs=new URLSearchParams(location.search);
+const fixtureId=qs.get('fixtureId')||'';
+const home=qs.get('homeTeam')||qs.get('homeTeamName')||'Ev';
+const away=qs.get('awayTeam')||qs.get('awayTeamName')||'Deplasman';
+const matchLabel=(home+' - '+away).slice(0,140);
+document.getElementById('matchLabel').textContent=matchLabel;
+document.getElementById('roomSub').textContent=fixtureId?'Maça özel topluluk sohbeti':'Maç bilgisi eksik';
+const headers=()=>({'Content-Type':'application/json',Authorization:'Bearer '+token});
+let rulesAccepted=localStorage.getItem('matchedge_chat_rules')==='accepted';
+let selectedMessage=null;
+let polling=null;
+
+function openSheet(id){document.getElementById(id).classList.add('show')}
+function closeSheets(){document.querySelectorAll('.overlay').forEach(x=>x.classList.remove('show'))}
+document.querySelectorAll('.close-sheet').forEach(x=>x.onclick=closeSheets);
+document.querySelectorAll('.overlay').forEach(x=>x.addEventListener('click',e=>{if(e.target===x)closeSheets()}));
+document.getElementById('rulesOpen').onclick=()=>openSheet('rulesSheet');
+document.getElementById('supportOpen').onclick=()=>openSheet('supportSheet');
+document.getElementById('acceptRules').onclick=()=>{rulesAccepted=true;localStorage.setItem('matchedge_chat_rules','accepted');closeSheets()};
+document.getElementById('back').onclick=()=>history.length>1?history.back():location.assign('maclar.html');
+
+function showFeedback(text,ok=false){const el=document.getElementById('feedback');el.style.color=ok?'var(--teal)':'var(--red)';el.textContent=text;setTimeout(()=>{if(el.textContent===text)el.textContent=''},3500)}
+function fmtTime(value){const d=new Date(value);return d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}
+function initials(name){return String(name||'?').slice(0,2).toUpperCase()}
+
+function render(messages){
+ const box=document.getElementById('messages');
+ if(!messages.length){box.innerHTML='<div class="empty">Bu maç odasında ilk mesajı sen yaz.</div>';return}
+ box.replaceChildren(...messages.map(m=>{
+  const card=document.createElement('div');card.className='msg'+(m.mine?' mine':'');
+  const head=document.createElement('div');head.className='msg-head';
+  const avatar=document.createElement('span');avatar.className='avatar';avatar.textContent=initials(m.authorName);
+  const name=document.createElement('span');name.className='name';name.textContent=m.authorName;
+  const time=document.createElement('span');time.className='time';time.textContent=fmtTime(m.createdAt);
+  const more=document.createElement('button');more.className='more';more.textContent='•••';more.setAttribute('aria-label','Mesaj seçenekleri');
+  more.onclick=()=>{selectedMessage=m;if(m.mine){if(confirm('Mesajını silmek istiyor musun?'))deleteMessage(m.id)}else{document.getElementById('actionUser').textContent=m.authorName;openSheet('actionSheet')}};
+  const body=document.createElement('div');body.className='body';body.textContent=m.text;
+  head.append(avatar,name,time,more);card.append(head,body);return card;
+ }));
+ window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+
+async function loadMessages(silent=false){
+ if(!fixtureId)return;
+ try{
+  const r=await fetch(API_BASE+'/api/chat/'+encodeURIComponent(fixtureId),{headers:headers()});
+  if(r.status===401){localStorage.removeItem('matchedge_token');location.href='giris.html';return}
+  const data=await r.json();if(!r.ok)throw new Error(data.error||'Sohbet yüklenemedi');
+  rulesAccepted=rulesAccepted||data.rulesAccepted;if(data.rulesAccepted)localStorage.setItem('matchedge_chat_rules','accepted');
+  render(data.messages||[]);
+ }catch(e){if(!silent)document.getElementById('messages').innerHTML='<div class="empty">'+e.message+'</div>'}
+}
+
+async function sendMessage(){
+ const input=document.getElementById('messageInput'),button=document.getElementById('send'),text=input.value.trim();
+ if(!rulesAccepted){openSheet('rulesSheet');return}
+ if(!text)return;
+ button.disabled=true;
+ try{
+  const r=await fetch(API_BASE+'/api/chat/'+encodeURIComponent(fixtureId),{method:'POST',headers:headers(),body:JSON.stringify({text,matchLabel,acceptedRules:true})});
+  const data=await r.json();if(!r.ok)throw new Error(data.error||'Mesaj gönderilemedi');
+  input.value='';document.getElementById('count').textContent='0';await loadMessages(true);
+ }catch(e){showFeedback(e.message)}finally{button.disabled=false}
+}
+
+async function deleteMessage(id){
+ try{const r=await fetch(API_BASE+'/api/chat/message/'+id,{method:'DELETE',headers:headers()});if(!r.ok)throw new Error('Mesaj silinemedi');await loadMessages(true)}catch(e){showFeedback(e.message)}
+}
+document.getElementById('reportButton').onclick=async()=>{
+ if(!selectedMessage)return;
+ try{const r=await fetch(API_BASE+'/api/chat/message/'+selectedMessage.id+'/report',{method:'POST',headers:headers(),body:JSON.stringify({reason:document.getElementById('reportReason').value})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Şikâyet gönderilemedi');closeSheets();showFeedback('Şikâyetin incelemeye alındı.',true);await loadMessages(true)}catch(e){showFeedback(e.message)}
+};
+document.getElementById('blockButton').onclick=async()=>{
+ if(!selectedMessage)return;
+ try{const r=await fetch(API_BASE+'/api/chat/block/'+selectedMessage.authorId,{method:'POST',headers:headers()});const d=await r.json();if(!r.ok)throw new Error(d.error||'Kullanıcı engellenemedi');closeSheets();showFeedback('Kullanıcı engellendi.',true);await loadMessages(true)}catch(e){showFeedback(e.message)}
+};
+document.getElementById('supportSend').onclick=async()=>{
+ const text=document.getElementById('supportText').value.trim();if(!text)return;
+ try{const r=await fetch(API_BASE+'/api/chat/support',{method:'POST',headers:headers(),body:JSON.stringify({category:'chat_safety',message:text})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Talep gönderilemedi');document.getElementById('supportText').value='';closeSheets();showFeedback('Destek talebin alındı.',true)}catch(e){showFeedback(e.message)}
+};
+document.getElementById('messageInput').addEventListener('input',e=>document.getElementById('count').textContent=e.target.value.length);
+document.getElementById('send').onclick=sendMessage;
+document.getElementById('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(polling)}else{loadMessages(true);polling=setInterval(()=>loadMessages(true),10000)}});
+if(!rulesAccepted)openSheet('rulesSheet');
+loadMessages();polling=setInterval(()=>loadMessages(true),10000);
+</script>
+</body>
+</html>
