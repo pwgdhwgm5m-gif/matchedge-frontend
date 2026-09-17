@@ -370,6 +370,48 @@
     border-radius: 12px;
     margin-bottom: 14px;
   }
+
+  .premium-verdict {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 92% 0%, rgba(45,212,191,.18), transparent 34%),
+      linear-gradient(145deg, #141c2d 0%, #0f1522 100%);
+    border-color: rgba(45,212,191,.28);
+    box-shadow: 0 18px 48px rgba(0,0,0,.22);
+  }
+  .premium-verdict::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--teal);
+  }
+  .verdict-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .eyebrow { font-size:10px; letter-spacing:1.6px; color:var(--teal); font-weight:800; }
+  .method-badge { font-size:9px; color:var(--text-secondary); border:1px solid var(--border-subtle); border-radius:999px; padding:5px 8px; }
+  .decision-line { display:flex; align-items:center; gap:12px; }
+  .decision-icon { width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:rgba(45,212,191,.12); font-size:21px; }
+  .decision-title { font-size:22px; line-height:1.05; font-weight:900; letter-spacing:-.3px; }
+  .decision-sub { margin-top:6px; font-size:11px; color:var(--text-secondary); line-height:1.45; }
+  .verdict-value .decision-title { color:var(--teal); }
+  .verdict-watch .decision-title { color:var(--amber); }
+  .verdict-no-bet .decision-title { color:var(--red); }
+  .edge-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:18px; }
+  .edge-cell { padding:11px 8px; border-radius:12px; background:rgba(7,11,19,.58); border:1px solid var(--border-subtle); text-align:center; }
+  .edge-cell span { display:block; font-size:9px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px; }
+  .edge-cell strong { font-size:16px; }
+  .edge-positive { color:var(--teal); }
+  .reason-list { display:grid; gap:7px; margin-top:14px; }
+  .reason-row { display:flex; align-items:flex-start; gap:8px; color:var(--text-secondary); font-size:11px; line-height:1.4; }
+  .reason-dot { width:6px; height:6px; border-radius:50%; background:var(--teal); flex:0 0 auto; margin-top:5px; }
+  .data-health { margin-top:15px; padding-top:14px; border-top:1px solid var(--border-subtle); }
+  .data-health-line { display:flex; align-items:center; justify-content:space-between; font-size:10px; color:var(--text-secondary); margin-bottom:8px; }
+  .health-track { height:6px; border-radius:99px; overflow:hidden; background:#090d16; }
+  .health-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--amber),var(--teal)); width:0; transition:width .35s ease; }
+  .source-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .source-chip { font-size:9px; color:var(--text-muted); padding:5px 7px; border:1px solid var(--border-subtle); border-radius:999px; }
+  .source-chip.ok { color:var(--teal); border-color:rgba(45,212,191,.25); background:rgba(45,212,191,.06); }
 </style>
 </head>
 <body>
@@ -411,6 +453,31 @@
         <div class="team-crest" id="away-crest">⚽</div>
         <div class="team-name" id="away-name">—</div>
       </div>
+    </div>
+  </div>
+
+  <div class="card premium-verdict verdict-watch" id="premium-verdict">
+    <div class="verdict-head">
+      <div class="eyebrow" data-i18n="edgeVerdict">MATCHEDGE VERDICT</div>
+      <div class="method-badge">MODEL × MARKET</div>
+    </div>
+    <div class="decision-line">
+      <div class="decision-icon" id="decision-icon">◌</div>
+      <div>
+        <div class="decision-title" id="decision-title" data-i18n="analysing">ANALYSING</div>
+        <div class="decision-sub" id="decision-sub" data-i18n="decisionLoading">Checking price, sample and data quality…</div>
+      </div>
+    </div>
+    <div class="edge-strip">
+      <div class="edge-cell"><span data-i18n="selection">Selection</span><strong id="edge-selection">—</strong></div>
+      <div class="edge-cell"><span data-i18n="model">Model</span><strong id="edge-model">—</strong></div>
+      <div class="edge-cell"><span data-i18n="edge">Edge</span><strong id="edge-points">—</strong></div>
+    </div>
+    <div class="reason-list" id="premium-reasons"></div>
+    <div class="data-health">
+      <div class="data-health-line"><span data-i18n="dataHealth">Data health</span><strong id="health-score">—/100</strong></div>
+      <div class="health-track"><div class="health-fill" id="health-fill"></div></div>
+      <div class="source-chips" id="source-chips"></div>
     </div>
   </div>
 
@@ -722,6 +789,21 @@ const CONTEXT = {
 const TRANSLATIONS = {
   en: {
     brandSub: 'PRO MATCH INTELLIGENCE', liveData: 'LIVE DATA', loading: 'Loading...',
+    edgeVerdict: 'MATCHEDGE VERDICT', analysing: 'ANALYSING', decisionLoading: 'Checking price, sample and data quality…',
+    selection: 'Selection', model: 'Model', edge: 'Edge', dataHealth: 'Data health',
+    valueStatus: 'VALUE FOUND', watchStatus: 'WATCHLIST', noBetStatus: 'NO BET',
+    valueSub: 'The model price is meaningfully above the market price and the data threshold is met.',
+    watchSub: 'There is a signal, but price or data strength is not yet sufficient for a value call.',
+    noBetSub: 'MatchEdge is protecting you from a low-quality or weak-price selection.',
+    sourceOdds: 'Market odds', sourceTable: 'Standings', sourceInjuries: 'Squad data', sourceH2h: 'H2H', sourceSample: '5-match sample',
+    reasonSmallSample: 'Fewer than 5 relevant home/away matches — early-sample protection is active.',
+    reasonNoOdds: 'No matching market price, so a real value edge cannot be verified.',
+    reasonLowData: 'Data coverage is below the premium decision threshold.',
+    reasonNoStandings: 'League table context is unavailable for this match.',
+    reasonHomeXg: 'Home expected-goal advantage: +{v}.', reasonAwayXg: 'Away expected-goal advantage: +{v}.',
+    reasonHomeAttack: 'Home scoring form is strong ({v} per match).', reasonAwayAttack: 'Away scoring form is strong ({v} per match).',
+    reasonHomeDefence: 'Home defensive risk is elevated ({v} conceded).', reasonAwayDefence: 'Away defensive risk is elevated ({v} conceded).',
+    reasonEdge: 'Best model-to-market difference: {v} percentage points.',
     matchProbTitle: 'MATCH RESULT PROBABILITIES', home: 'Home', draw: 'Draw', away: 'Away',
     modelPrediction: 'Model prediction',
     matchReadingTitle: 'MATCH READING', over25: 'OVER 2.5 GOALS', bttsYes: 'BTTS YES',
@@ -762,6 +844,21 @@ const TRANSLATIONS = {
   },
   tr: {
     brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...',
+    edgeVerdict: 'MATCHEDGE KARARI', analysing: 'İNCELENİYOR', decisionLoading: 'Fiyat, örneklem ve veri kalitesi kontrol ediliyor…',
+    selection: 'Seçim', model: 'Model', edge: 'Avantaj', dataHealth: 'Veri sağlığı',
+    valueStatus: 'DEĞER VAR', watchStatus: 'İZLE', noBetStatus: 'BAHİS YOK',
+    valueSub: 'Model olasılığı piyasa fiyatından anlamlı biçimde yüksek ve veri eşiği karşılanıyor.',
+    watchSub: 'Sinyal var; ancak fiyat veya veri gücü henüz değer seçimi için yeterli değil.',
+    noBetSub: 'MatchEdge zayıf fiyatlı veya düşük verili bir seçimden seni koruyor.',
+    sourceOdds: 'Piyasa oranı', sourceTable: 'Puan durumu', sourceInjuries: 'Kadro verisi', sourceH2h: 'H2H', sourceSample: '5 maç örneklemi',
+    reasonSmallSample: '5’ten az ilgili ev/deplasman maçı var — erken sezon koruması aktif.',
+    reasonNoOdds: 'Eşleşen piyasa oranı yok; gerçek değer avantajı doğrulanamıyor.',
+    reasonLowData: 'Veri kapsamı premium karar eşiğinin altında.',
+    reasonNoStandings: 'Bu maç için lig sıralaması bağlamı bulunamadı.',
+    reasonHomeXg: 'Ev sahibinin beklenen gol avantajı: +{v}.', reasonAwayXg: 'Deplasmanın beklenen gol avantajı: +{v}.',
+    reasonHomeAttack: 'Ev sahibinin gol formu güçlü (maç başına {v}).', reasonAwayAttack: 'Deplasmanın gol formu güçlü (maç başına {v}).',
+    reasonHomeDefence: 'Ev sahibinin savunma riski yüksek (maç başına {v} gol yiyor).', reasonAwayDefence: 'Deplasmanın savunma riski yüksek (maç başına {v} gol yiyor).',
+    reasonEdge: 'En iyi model–piyasa farkı: {v} yüzde puan.',
     matchProbTitle: 'MAÇ SONUCU OLASILIKLARI', home: 'Ev Sahibi', draw: 'Beraberlik', away: 'Deplasman',
     modelPrediction: 'Model tahmini',
     matchReadingTitle: 'MAÇ OKUMASI', over25: '2.5 ÜST GOL', bttsYes: 'KG VAR',
@@ -896,6 +993,8 @@ function renderAnalysis(data) {
   }
   document.getElementById('match-status').textContent = data.status || t('notStartedStatus');
 
+  renderPremiumIntelligence(data.premium, data);
+
   const mp = data.matchProbabilities || {};
   document.getElementById('home-prob').textContent = (mp.homeWinProbability ?? '–') + '%';
   document.getElementById('draw-prob').textContent = (mp.drawProbability ?? '–') + '%';
@@ -970,6 +1069,80 @@ function renderAnalysis(data) {
   document.getElementById('corner-over85-bar').style.width = (cm.over85Percent || 0) + '%';
 
   renderStandings(data.standings);
+}
+
+function premiumOutcomeLabel(outcome, data) {
+  if (outcome === 'home') return data.homeTeam || CONTEXT.homeTeamName || t('home');
+  if (outcome === 'away') return data.awayTeam || CONTEXT.awayTeamName || t('away');
+  if (outcome === 'draw') return t('draw');
+  return '—';
+}
+
+function premiumReasonText(code, value) {
+  const keys = {
+    SMALL_SAMPLE: 'reasonSmallSample', NO_MARKET_ODDS: 'reasonNoOdds',
+    LOW_DATA_HEALTH: 'reasonLowData', NO_STANDINGS: 'reasonNoStandings',
+    HOME_XG_EDGE: 'reasonHomeXg', AWAY_XG_EDGE: 'reasonAwayXg',
+    HOME_ATTACK_FORM: 'reasonHomeAttack', AWAY_ATTACK_FORM: 'reasonAwayAttack',
+    HOME_DEFENCE_RISK: 'reasonHomeDefence', AWAY_DEFENCE_RISK: 'reasonAwayDefence',
+  };
+  return t(keys[code] || code).replace('{v}', value ?? '');
+}
+
+function renderPremiumIntelligence(premium, data) {
+  if (!premium) return;
+  const card = document.getElementById('premium-verdict');
+  const statusMeta = {
+    VALUE: { cls: 'verdict-value', icon: '↗', title: 'valueStatus', sub: 'valueSub' },
+    WATCH: { cls: 'verdict-watch', icon: '◉', title: 'watchStatus', sub: 'watchSub' },
+    NO_BET: { cls: 'verdict-no-bet', icon: '✕', title: 'noBetStatus', sub: 'noBetSub' },
+  };
+  const meta = statusMeta[premium.status] || statusMeta.WATCH;
+  card.classList.remove('verdict-value', 'verdict-watch', 'verdict-no-bet');
+  card.classList.add(meta.cls);
+  document.getElementById('decision-icon').textContent = meta.icon;
+  document.getElementById('decision-title').textContent = t(meta.title);
+  document.getElementById('decision-sub').textContent = t(meta.sub);
+
+  const best = premium.bestEdge;
+  document.getElementById('edge-selection').textContent = premiumOutcomeLabel(premium.selection, data);
+  document.getElementById('edge-model').textContent = best ? `${best.modelProbability}%` : '—';
+  const edgeEl = document.getElementById('edge-points');
+  edgeEl.textContent = best ? `${best.edgePoints >= 0 ? '+' : ''}${best.edgePoints}` : '—';
+  edgeEl.classList.toggle('edge-positive', !!best && best.edgePoints >= 3);
+
+  const reasons = [];
+  if (best) reasons.push(t('reasonEdge').replace('{v}', best.edgePoints >= 0 ? `+${best.edgePoints}` : best.edgePoints));
+  (premium.drivers || []).slice(0, 2).forEach(d => reasons.push(premiumReasonText(d.code, d.strength)));
+  (premium.blockers || []).slice(0, 2).forEach(code => reasons.push(premiumReasonText(code)));
+  const reasonList = document.getElementById('premium-reasons');
+  reasonList.replaceChildren(...reasons.slice(0, 4).map(reason => {
+    const row = document.createElement('div');
+    row.className = 'reason-row';
+    const dot = document.createElement('span');
+    dot.className = 'reason-dot';
+    const copy = document.createElement('span');
+    copy.textContent = reason;
+    row.append(dot, copy);
+    return row;
+  }));
+
+  const health = premium.dataHealth || {};
+  document.getElementById('health-score').textContent = `${health.score ?? '—'}/100`;
+  document.getElementById('health-fill').style.width = `${health.score || 0}%`;
+  const checks = health.checks || {};
+  const sampleOk = (health.sample?.home || 0) >= 5 && (health.sample?.away || 0) >= 5;
+  const chipData = [
+    [t('sourceOdds'), checks.odds], [t('sourceTable'), checks.standings],
+    [t('sourceInjuries'), checks.injuries], [t('sourceH2h'), checks.h2h],
+    [t('sourceSample'), sampleOk],
+  ];
+  document.getElementById('source-chips').replaceChildren(...chipData.map(([label, ok]) => {
+    const chip = document.createElement('span');
+    chip.className = `source-chip${ok ? ' ok' : ''}`;
+    chip.textContent = `${ok ? '✓' : '–'} ${label}`;
+    return chip;
+  }));
 }
 
 function renderStandings(standings) {
