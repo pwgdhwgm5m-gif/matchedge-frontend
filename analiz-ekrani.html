@@ -16,8 +16,8 @@
     --amber: #f5b942;
     --red: #f0556b;
     --text-primary: #f2f4f8;
-    --text-secondary: #c9cfdb;
-    --text-muted: #929caf;
+    --text-secondary: #e2e6ee;
+    --text-muted: #bdc5d3;
     --radius: 16px;
   }
 
@@ -372,7 +372,7 @@
   .decision-line { display:flex; align-items:center; gap:12px; }
   .decision-icon { width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:rgba(45,212,191,.12); font-size:21px; }
   .decision-title { font-size:22px; line-height:1.05; font-weight:900; letter-spacing:-.3px; }
-  .decision-sub { margin-top:6px; font-size:11px; color:var(--text-secondary); line-height:1.45; }
+  .decision-sub { display:none; }
   .verdict-value .decision-title { color:var(--teal); }
   .verdict-watch .decision-title { color:var(--amber); }
   .verdict-no-bet .decision-title { color:var(--red); }
@@ -456,7 +456,6 @@
       <div class="decision-icon" id="decision-icon">◌</div>
       <div>
         <div class="decision-title" id="decision-title" data-i18n="analysing">ANALYSING</div>
-        <div class="decision-sub" id="decision-sub" data-i18n="decisionLoading">Checking price, sample and data quality…</div>
       </div>
     </div>
     <div class="edge-strip">
@@ -563,7 +562,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="section-squad">
     <div class="card-title">
       <span data-i18n="squadStatusTitle">SQUAD STATUS</span>
       <span class="info-dot">i</span>
@@ -636,7 +635,7 @@
     <div class="signal-tag" style="text-align:center; margin-top:10px;" id="standings-note" data-i18n="noInfo">No information</div>
   </div>
 
-  <div class="card" id="section-odds">
+  <div class="card" id="section-odds" style="display:none;">
     <div class="card-title" data-i18n="oddsMovementTitle">ODDS MOVEMENT (LAST 24H)</div>
     <div class="xg-legend" style="display:flex; justify-content:center; gap:16px; margin-bottom:10px; font-size:10.5px; color:var(--text-secondary);">
       <span><span class="legend-dot" style="background:var(--teal); width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px;"></span><span id="odds-legend-home">Ev</span></span>
@@ -740,7 +739,7 @@ const TRANSLATIONS = {
     reasonEdge: 'Best model-to-market difference: {v} percentage points.',
     matchProbTitle: 'MATCH RESULT PROBABILITIES', home: 'Home', draw: 'Draw', away: 'Away',
     modelPrediction: 'Model prediction',
-    matchReadingTitle: 'MATCH READING', over25: 'OVER 2.5 GOALS', bttsYes: 'BTTS YES',
+    matchReadingTitle: 'MATCH ANALYSIS', over25: 'OVER 2.5 GOALS', bttsYes: 'BTTS YES',
     cornerOver: 'OVER 8.5 CORNERS', mostGoalsHalf: 'HIGHEST-SCORING HALF', secondHalf: 'Second Half',
     expectedGoals: 'EXPECTED GOALS (xG)', dataQuality: 'DATA QUALITY', strongestSignal: 'STRONGEST SIGNAL',
     confidenceScore: 'Confidence Score', confidencePrefix: 'Confidence: ',
@@ -756,13 +755,6 @@ const TRANSLATIONS = {
     fhOwnOnly: 'Based on own past matches (not enough head-to-head data)',
     cornerPredictionTitle: 'CORNER PREDICTION', expectedMinCorner: 'EXPECTED MIN. CORNERS', over85Prob: 'OVER 8.5 PROBABILITY',
     cornerDisclaimer: 'Estimated from expected goal tempo (not real corner statistics)',
-    otherAnalysisTitle: 'OTHER MATCH ANALYSIS',
-    teamStatsTitle: 'Team Statistics', teamStatsSub: 'Overall performance, form',
-    last5Title: 'Last 5 Matches', last5Sub: 'Form chart',
-    comparativeTitle: 'Comparative Analysis', comparativeSub: 'Team averages',
-    h2hTitle: 'H2H', h2hSub: 'Previous meetings',
-    expectedValuesTitle: 'Expected Values', expectedValuesSub: 'Shots, corners, cards',
-    marketOddsTitle: 'Market & Odds', marketOddsSub: 'Odds movement',
     standingsTitle: 'LEAGUE STANDINGS', standingsSub: 'Full table',
     standingsTeam: 'Team', standingsPlayed: 'P', standingsGoalDiff: 'GD', standingsPoints: 'Pts',
     standingsUnavailable: 'League standings not available for this match',
@@ -797,7 +789,7 @@ const TRANSLATIONS = {
     reasonEdge: 'En iyi model–piyasa farkı: {v} yüzde puan.',
     matchProbTitle: 'MAÇ SONUCU OLASILIKLARI', home: 'Ev Sahibi', draw: 'Beraberlik', away: 'Deplasman',
     modelPrediction: 'Model tahmini',
-    matchReadingTitle: 'MAÇ OKUMASI', over25: '2.5 ÜST GOL', bttsYes: 'KG VAR',
+    matchReadingTitle: 'MAÇ ANALİZİ', over25: '2.5 ÜST GOL', bttsYes: 'KG VAR',
     cornerOver: '8.5 ÜST KORNER', mostGoalsHalf: 'EN GOLLÜ YARI', secondHalf: 'İkinci Yarı',
     expectedGoals: 'BEKLENEN GOL (xG)', dataQuality: 'VERİ KALİTESİ', strongestSignal: 'EN GÜÇLÜ SİNYAL',
     confidenceScore: 'Güven Skoru', confidencePrefix: 'Güven: ',
@@ -813,13 +805,6 @@ const TRANSLATIONS = {
     fhOwnOnly: 'Kendi geçmiş maçlarına göre (yeterli aralarındaki maç verisi yok)',
     cornerPredictionTitle: 'KORNER TAHMİNİ', expectedMinCorner: 'BEKLENEN MİN. KORNER', over85Prob: '8.5 ÜST OLASILIK',
     cornerDisclaimer: 'Beklenen gol temposundan türetilmiş tahmini değer (gerçek korner istatistiği değil)',
-    otherAnalysisTitle: 'DİĞER MAÇ ANALİZİ',
-    teamStatsTitle: 'Takım İstatistikleri', teamStatsSub: 'Genel performans, form',
-    last5Title: 'Son 5 Maç', last5Sub: 'Form grafiği',
-    comparativeTitle: 'Karşılaştırmalı Analiz', comparativeSub: 'Takım ortalamaları',
-    h2hTitle: 'H2H', h2hSub: 'Son karşılaşmalar',
-    expectedValuesTitle: 'Beklenen Değerler', expectedValuesSub: 'Şut, korner, kart',
-    marketOddsTitle: 'Piyasa & Oran', marketOddsSub: 'Oran hareketleri',
     standingsTitle: 'PUAN DURUMU', standingsSub: 'Tam tablo',
     standingsTeam: 'Takım', standingsPlayed: 'O', standingsGoalDiff: 'Av', standingsPoints: 'P',
     standingsUnavailable: 'Bu maç için puan durumu mevcut değil',
@@ -972,6 +957,8 @@ function renderAnalysis(data) {
   document.getElementById('injuries-away-title').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
   renderInjuryList('injuries-home-list', data.injuries?.home);
   renderInjuryList('injuries-away-list', data.injuries?.away);
+  const hasSquadData = (data.injuries?.home?.length || 0) + (data.injuries?.away?.length || 0) > 0;
+  document.getElementById('section-squad').style.display = hasSquadData ? '' : 'none';
 
   const haf = data.homeAwayForm || {};
   renderFormBox('home-form-record', 'home-form-goals', haf.home);
@@ -1060,7 +1047,6 @@ function renderPremiumIntelligence(premium, data) {
   card.classList.add(meta.cls);
   document.getElementById('decision-icon').textContent = meta.icon;
   document.getElementById('decision-title').textContent = t(meta.title);
-  document.getElementById('decision-sub').textContent = t(meta.sub);
 
   const best = premium.bestEdge;
   const strongestPicks = [];
@@ -1296,10 +1282,11 @@ async function loadOddsHistory() {
   }
 
   if (snapshots.length < 2) {
-    document.getElementById('odds-trend-caption').textContent = t('oddsTrendWaiting');
+    document.getElementById('section-odds').style.display = 'none';
     return;
   }
 
+  document.getElementById('section-odds').style.display = '';
   document.getElementById('odds-trend-caption').textContent =
     `${snapshots.length} ${t('oddsTrendReal')}`;
   drawOddsChart(snapshots);
