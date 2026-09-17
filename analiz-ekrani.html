@@ -16,8 +16,8 @@
     --amber: #f5b942;
     --red: #f0556b;
     --text-primary: #f2f4f8;
-    --text-secondary: #8b93a7;
-    --text-muted: #5a6478;
+    --text-secondary: #c9cfdb;
+    --text-muted: #929caf;
     --radius: 16px;
   }
 
@@ -378,8 +378,9 @@
   .verdict-no-bet .decision-title { color:var(--red); }
   .edge-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:18px; }
   .edge-cell { padding:11px 8px; border-radius:12px; background:rgba(7,11,19,.58); border:1px solid var(--border-subtle); text-align:center; }
-  .edge-cell span { display:block; font-size:9px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px; }
-  .edge-cell strong { font-size:16px; }
+  .edge-cell span { display:block; font-size:10px; color:var(--text-secondary); margin-bottom:7px; text-transform:uppercase; letter-spacing:.35px; line-height:1.25; min-height:25px; }
+  .edge-cell strong { display:block; font-size:18px; color:var(--text-primary); }
+  .edge-cell:first-child { border-color:rgba(45,212,191,.42); background:rgba(45,212,191,.08); }
   .edge-positive { color:var(--teal); }
   .reason-list { display:grid; gap:7px; margin-top:14px; }
   .reason-row { display:flex; align-items:flex-start; gap:8px; color:var(--text-secondary); font-size:11px; line-height:1.4; }
@@ -459,9 +460,9 @@
       </div>
     </div>
     <div class="edge-strip">
-      <div class="edge-cell"><span data-i18n="selection">Selection</span><strong id="edge-selection">—</strong></div>
-      <div class="edge-cell"><span data-i18n="model">Model</span><strong id="edge-model">—</strong></div>
-      <div class="edge-cell"><span data-i18n="edge">Edge</span><strong id="edge-points">—</strong></div>
+      <div class="edge-cell"><span id="pick-label-1">—</span><strong id="pick-prob-1">—</strong></div>
+      <div class="edge-cell"><span id="pick-label-2">—</span><strong id="pick-prob-2">—</strong></div>
+      <div class="edge-cell"><span id="pick-label-3">—</span><strong id="pick-prob-3">—</strong></div>
     </div>
     <div class="reason-list" id="premium-reasons"></div>
     <div class="data-health">
@@ -722,9 +723,11 @@ const TRANSLATIONS = {
     brandSub: 'PRO MATCH INTELLIGENCE', liveData: 'LIVE DATA', loading: 'Loading...', backToMatches: 'Back to matches',
     edgeVerdict: 'MATCHEDGE VERDICT', analysing: 'ANALYSING', decisionLoading: 'Checking price, sample and data quality…',
     selection: 'Selection', model: 'Model', edge: 'Edge', dataHealth: 'Data health',
-    valueStatus: 'VALUE PICK', pickStatus: 'TOP PICK', noBetStatus: 'NO SELECTION',
+    valueStatus: 'VALUE PICKS', pickStatus: 'STRONGEST PICKS', noBetStatus: 'NO SELECTION',
     valueSub: 'The model price is meaningfully above the market price and the data threshold is met.',
-    pickSub: 'The strongest model selection for this match. Check the data notes before placing a bet.',
+    pickSub: 'The three strongest options across result, goals, BTTS and corners.',
+    over25Pick: 'OVER 2.5', under25Pick: 'UNDER 2.5', bttsYesPick: 'BTTS YES', bttsNoPick: 'BTTS NO',
+    cornerOverPick: 'OVER 8.5 CORNERS', cornerUnderPick: 'UNDER 8.5 CORNERS',
     noBetSub: 'A valid model selection could not be produced for this match.',
     sourceOdds: 'Market odds', sourceTable: 'Standings', sourceInjuries: 'Squad data', sourceH2h: 'H2H', sourceSample: '5-match sample',
     reasonSmallSample: 'Fewer than 5 relevant home/away matches — early-sample protection is active.',
@@ -777,9 +780,11 @@ const TRANSLATIONS = {
     brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...', backToMatches: 'Maçlara dön',
     edgeVerdict: 'MATCHEDGE KARARI', analysing: 'İNCELENİYOR', decisionLoading: 'Fiyat, örneklem ve veri kalitesi kontrol ediliyor…',
     selection: 'Seçim', model: 'Model', edge: 'Avantaj', dataHealth: 'Veri sağlığı',
-    valueStatus: 'DEĞERLİ SEÇİM', pickStatus: 'EN GÜÇLÜ SEÇİM', noBetStatus: 'SEÇİM YOK',
+    valueStatus: 'DEĞERLİ SEÇİMLER', pickStatus: 'EN GÜÇLÜ SEÇİMLER', noBetStatus: 'SEÇİM YOK',
     valueSub: 'Model olasılığı piyasa fiyatından anlamlı biçimde yüksek ve veri eşiği karşılanıyor.',
-    pickSub: 'Bu maçta modelin öne çıkardığı en güçlü seçim. Oynamadan önce veri notlarını kontrol et.',
+    pickSub: 'Taraf, gol, karşılıklı gol ve korner marketlerinden en güçlü üç seçenek.',
+    over25Pick: '2.5 ÜST', under25Pick: '2.5 ALT', bttsYesPick: 'KG VAR', bttsNoPick: 'KG YOK',
+    cornerOverPick: '8.5 ÜST KORNER', cornerUnderPick: '8.5 ALT KORNER',
     noBetSub: 'Bu maç için geçerli bir model seçimi üretilemedi.',
     sourceOdds: 'Piyasa oranı', sourceTable: 'Puan durumu', sourceInjuries: 'Kadro verisi', sourceH2h: 'H2H', sourceSample: '5 maç örneklemi',
     reasonSmallSample: '5’ten az ilgili ev/deplasman maçı var — erken sezon koruması aktif.',
@@ -1058,11 +1063,32 @@ function renderPremiumIntelligence(premium, data) {
   document.getElementById('decision-sub').textContent = t(meta.sub);
 
   const best = premium.bestEdge;
-  document.getElementById('edge-selection').textContent = premiumOutcomeLabel(premium.selection, data);
-  document.getElementById('edge-model').textContent = best ? `${best.modelProbability}%` : '—';
-  const edgeEl = document.getElementById('edge-points');
-  edgeEl.textContent = Number.isFinite(best?.edgePoints) ? `${best.edgePoints >= 0 ? '+' : ''}${best.edgePoints}` : '—';
-  edgeEl.classList.toggle('edge-positive', Number.isFinite(best?.edgePoints) && best.edgePoints >= 3);
+  const strongestPicks = [];
+  const addDirectionalPick = (probability, positiveLabel, negativeLabel) => {
+    const value = Number(probability);
+    if (!Number.isFinite(value) || value <= 0 || value >= 100) return;
+    strongestPicks.push({
+      label: value >= 50 ? positiveLabel : negativeLabel,
+      probability: +(value >= 50 ? value : 100 - value).toFixed(1),
+    });
+  };
+
+  if (best && Number(best.modelProbability) > 0) {
+    strongestPicks.push({
+      label: premiumOutcomeLabel(premium.selection, data),
+      probability: +Number(best.modelProbability).toFixed(1),
+    });
+  }
+  addDirectionalPick(data?.marketProbabilities?.over25GoalsPercent, t('over25Pick'), t('under25Pick'));
+  addDirectionalPick(data?.marketProbabilities?.bttsPercent, t('bttsYesPick'), t('bttsNoPick'));
+  addDirectionalPick(data?.cornerMetrics?.over85Percent, t('cornerOverPick'), t('cornerUnderPick'));
+  strongestPicks.sort((a, b) => b.probability - a.probability);
+
+  for (let index = 0; index < 3; index += 1) {
+    const pick = strongestPicks[index];
+    document.getElementById(`pick-label-${index + 1}`).textContent = pick?.label || '—';
+    document.getElementById(`pick-prob-${index + 1}`).textContent = pick ? `${pick.probability}%` : '—';
+  }
 
   const reasons = [];
   if (Number.isFinite(best?.edgePoints)) reasons.push(t('reasonEdge').replace('{v}', best.edgePoints >= 0 ? `+${best.edgePoints}` : best.edgePoints));
