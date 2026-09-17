@@ -44,14 +44,7 @@
   .card-back-button { width:40px; height:40px; border-radius:12px; border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--teal); font-size:25px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-bottom:12px; }
   .card-back-button:active { transform:scale(.95); }
 
-  .live-pill {
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(240, 85, 107, 0.12);
-    border: 1px solid rgba(240, 85, 107, 0.35);
-    color: var(--red);
-    font-size: 11px; font-weight: 700;
-    padding: 6px 12px; border-radius: 20px;
-  }
+  .live-pill { display:flex; align-items:center; gap:4px; background:transparent; border:0; color:var(--red); font-size:9px; font-weight:800; padding:3px 5px; border-radius:8px; }
   .live-dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--red);
@@ -451,7 +444,7 @@ const TRANSLATIONS = {
     loadError: "Couldn't load live data for this match",
     loadErrorSub: 'It may have ended, or data is temporarily unavailable',
     statsUnavailableNote: "Live stats aren't provided by the data source for this match (common for smaller/lesser-known leagues) - that's why pressure, goal proximity and xG stay flat.",
-    legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
+    legalText: 'MatchEdge analysis, community picks and virtual game features are for information and entertainment only, not betting advice. Edge Coin has no monetary value and cannot be purchased, transferred, redeemed for cash or prizes. Data may be delayed or incomplete; users remain responsible for their decisions. Not intended for gambling use by minors.<br><br>© 2026 MatchEdge. All rights reserved. Content may not be copied without permission.',
   },
   tr: {
     brandSub: 'CANLI MAÇ SİMÜLATÖRÜ', liveTag: 'CANLI', finishedTag: 'SONA ERDİ',
@@ -471,7 +464,7 @@ const TRANSLATIONS = {
     loadError: 'Bu maç için canlı veri yüklenemedi',
     loadErrorSub: 'Maç bitmiş olabilir, ya da veri geçici olarak ulaşılamıyor',
     statsUnavailableNote: 'Bu maç için veri kaynağı canlı istatistik sağlamıyor (küçük/az bilinen liglerde bu normaldir) - baskı, gol yakınlığı ve xG bu yüzden sabit görünüyor.',
-    legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan MatchEdge sorumlu tutulamaz.<br><br>MatchEdge © 2026 — Eddas tarafından geliştirildi.',
+    legalText: 'MatchEdge analizleri, topluluk seçimleri ve sanal oyun özellikleri yalnızca bilgi ve eğlence amaçlıdır; bahis tavsiyesi değildir. Edge Coin parasal değer taşımaz; satın alınamaz, devredilemez, nakde veya ödüle çevrilemez. Veriler gecikebilir ya da eksik olabilir; karar sorumluluğu kullanıcıya aittir. 18 yaş altı bahis amaçlı kullanım için uygun değildir.<br><br>© 2026 MatchEdge. Tüm hakları saklıdır. İçerikler izinsiz kopyalanamaz.',
   },
 };
 
