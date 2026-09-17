@@ -316,7 +316,7 @@
         <div class="momentum-fill home" id="momentum-home" style="width:50%"></div>
         <div class="momentum-fill away" id="momentum-away" style="width:50%"></div>
       </div>
-      <div class="momentum-caption" data-i18n="pressureCaption">Who's applying pressure, based on recent data</div>
+      
     </div>
 
     <div class="momentum-wrap">
@@ -329,7 +329,7 @@
         <div class="momentum-fill home" id="proximity-home" style="width:50%; background: var(--amber);"></div>
         <div class="momentum-fill away" id="proximity-away" style="width:50%; background: var(--border-subtle);"></div>
       </div>
-      <div class="momentum-caption" data-i18n="proximityCaption">Weighted by shots on target, dangerous attacks and xG</div>
+      
     </div>
 
     <div class="goal-side-call" id="goal-side-call">
@@ -337,10 +337,9 @@
       <strong id="closest-goal-team">—</strong>
     </div>
 
-    <div id="statsUnavailableNote" style="display:none; margin-top:16px; text-align:center; font-size:10.5px; line-height:1.5; color:var(--text-muted); background:var(--bg-card-inner); border:1px solid var(--border-subtle); border-radius:10px; padding:10px 12px;"></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="xgCard">
     <div class="card-title" data-i18n="liveXgTitle">LIVE EXPECTED GOALS (xG)</div>
     <div class="xg-legend">
       <span><span class="legend-dot" style="background:var(--teal)"></span><span id="xg-legend-home">Ev</span></span>
@@ -372,7 +371,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="liveStatsCard">
     <div class="card-title" data-i18n="liveStatsTitle">LIVE STATISTICS</div>
     <div class="live-stats-grid">
       <div class="live-stat-row">
@@ -655,13 +654,11 @@ function renderTick(data) {
   document.getElementById('stat-attacks-home').textContent = s.dangerousAttacksHome ?? 0;
   document.getElementById('stat-attacks-away').textContent = s.dangerousAttacksAway ?? 0;
 
-  const statsNote = document.getElementById('statsUnavailableNote');
-  if (data.statsAvailable === false) {
-    statsNote.style.display = 'block';
-    statsNote.textContent = t('statsUnavailableNote');
-  } else {
-    statsNote.style.display = 'none';
-  }
+  const hasLiveStats = data.statsAvailable !== false;
+  document.querySelectorAll('.momentum-wrap').forEach(el => { el.style.display = hasLiveStats ? '' : 'none'; });
+  document.getElementById('goal-side-call').style.display = hasLiveStats ? 'flex' : 'none';
+  document.getElementById('xgCard').style.display = hasLiveStats ? '' : 'none';
+  document.getElementById('liveStatsCard').style.display = hasLiveStats ? '' : 'none';
 
   const alertBox = document.getElementById('alert-card');
   const alertText = document.getElementById('alert-text');
