@@ -401,7 +401,7 @@
   .coupon-market em { float:right; color:var(--amber); font-style:normal; font-weight:800; }
   .coupon-add { width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px; background:var(--teal); color:#05201c; font-weight:900; font-size:13px; cursor:pointer; }
   .coupon-add:disabled { opacity:.4; }
-  .coupon-feedback { min-height:18px; text-align:center; font-size:10px; color:var(--teal); margin-top:8px; }
+  .coupon-feedback { min-height:18px; text-align:center; font-size:10px; color:var(--teal); margin-top:8px; }.coupon-wallet{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;padding:9px 10px;border-radius:11px;background:rgba(245,185,66,.07);border:1px solid rgba(245,185,66,.2);font-size:10px;color:var(--text-secondary)}.coupon-wallet strong{color:var(--amber)}.coupon-return{display:flex;justify-content:space-between;margin-top:10px;font-size:10px;color:var(--text-muted)}.coupon-return strong{color:var(--teal)}
   .chat-room-button { text-decoration:none; min-height:40px; display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:12px; border:1px solid rgba(45,212,191,.38); background:rgba(45,212,191,.10); color:var(--teal); font-size:11px; font-weight:850; }
   .chat-room-button:active { transform:scale(.97); }
   .chat-room-row { display:flex; justify-content:flex-end; margin:-2px 4px 14px; }
@@ -486,8 +486,10 @@
 
   <div class="card" id="coupon-market-card">
     <div class="card-title" data-i18n="couponTitle">KUPON SEÇİMLERİ</div>
+    <div class="coupon-wallet"><span>Cüzdan: <strong id="couponBalance">— Coin</strong></span><span>Kupon bedeli: <strong>10 Coin</strong></span></div>
     <div class="coupon-market-grid" id="couponMarketGrid"></div>
-    <button class="coupon-add" id="addCouponButton" type="button" disabled data-i18n="addCoupon">SEÇİLENLERİ KUPONUMA EKLE</button>
+    <div class="coupon-return"><span id="couponLegs">0/3 seçim</span><span>Olası dönüş: <strong id="couponPayout">— Coin</strong></span></div>
+    <button class="coupon-add" id="addCouponButton" type="button" disabled>10 COIN İLE KUPONU OYNA</button>
     <div class="coupon-feedback" id="couponFeedback"></div>
   </div>
 
@@ -729,6 +731,22 @@ const qs = new URLSearchParams(window.location.search);
 const FIXTURE_ID = qs.get('fixtureId');
 let currentAnalysis = null;
 const selectedCouponMarkets = new Map();
+let edgeCoinBalance = 0;
+function estimateCouponPayout(){
+ let multiplier=1;
+ [...selectedCouponMarkets.values()].forEach(item=>{const p=Math.min(85,Math.max(25,Number(item.probability)||50));multiplier*=Math.min(3,Math.max(1.2,100/p))});
+ return Math.floor(10*Math.min(6,Math.max(1.2,Number(multiplier.toFixed(2)))));
+}
+function refreshCouponWallet(){
+ const count=selectedCouponMarkets.size,payout=count?estimateCouponPayout():0;
+ document.getElementById('couponLegs').textContent=count+'/3 seçim';
+ document.getElementById('couponPayout').textContent=count?payout+' Coin':'— Coin';
+ document.getElementById('couponBalance').textContent=edgeCoinBalance+' Coin';
+ document.getElementById('addCouponButton').disabled=count===0||edgeCoinBalance<10;
+}
+async function loadWallet(){
+ try{const r=await fetch(API_BASE+'/api/community/me',{headers:{Authorization:'Bearer '+localStorage.getItem('matchedge_token')}});const d=await r.json();if(r.ok){edgeCoinBalance=d.profile.edgeCoins;refreshCouponWallet()}}catch(_){}
+}
 
 // Liste ekranlarindan (maclar.html, mac-sonuclari.html, ana-sayfa.html)
 // URL uzerinden gelen baglamsal bilgi - backend bunlari hem hesaplama
@@ -1169,9 +1187,13 @@ function renderCouponMarkets(data) {
     button.addEventListener('click', () => {
       const item = markets.find(market => market.key === button.dataset.key);
       if (!item) return;
-      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key); else selectedCouponMarkets.set(item.key, item);
+      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key);
+      else {
+        if (selectedCouponMarkets.size >= 3) { document.getElementById('couponFeedback').textContent='Bir kupona en fazla 3 seçim eklenebilir.'; return; }
+        selectedCouponMarkets.set(item.key, item);
+      }
       button.classList.toggle('selected', selectedCouponMarkets.has(item.key));
-      document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
+      refreshCouponWallet();
     });
   });
 }
@@ -1196,8 +1218,10 @@ document.getElementById('addCouponButton').addEventListener('click', async () =>
     });
     const responseData = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(responseData.error || 'coupon');
-    feedback.textContent = t('couponAdded');
+    edgeCoinBalance = Number(responseData.edgeCoins ?? Math.max(0, edgeCoinBalance - 10));
+    feedback.textContent = 'Kupon oynandı · Olası dönüş '+responseData.coupon.potentialPayout+' Coin';
     selectedCouponMarkets.clear();
+    refreshCouponWallet();
     document.querySelectorAll('.coupon-market.selected').forEach(item => item.classList.remove('selected'));
     setTimeout(() => { window.location.href = 'kuponum.html'; }, 600);
   } catch (error) {
@@ -1442,6 +1466,7 @@ function drawOddsChart(snapshots) {
 
 window.addEventListener('resize', () => loadOddsHistory());
 loadOddsHistory();
+loadWallet();
 </script>
 
 </body>
