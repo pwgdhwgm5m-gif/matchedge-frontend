@@ -322,7 +322,9 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 
     btn.textContent = t('connecting');
     const endpoint = currentMode === 'login' ? '/api/auth/login' : '/api/auth/register';
-    const body = currentMode === 'login' ? { username, password } : { username, email, password };
+    const body = currentMode === 'login'
+      ? { username, password, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '' }
+      : { username, email, password };
 
     const res = await fetch(`${API_BASE}${endpoint}`, {
       method: 'POST',
