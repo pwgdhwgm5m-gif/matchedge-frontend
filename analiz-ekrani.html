@@ -28,7 +28,7 @@
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
-    padding-bottom: 90px;
+    padding-bottom: 24px;
   }
 
   .app {
@@ -316,23 +316,6 @@
   .analysis-title { font-size: 12.5px; font-weight: 700; }
   .analysis-sub { font-size: 9.5px; color: var(--text-muted); margin-top: 2px; }
   .chevron { color: var(--text-muted); font-size: 14px; margin-left: auto; }
-
-  .bottom-nav {
-    position: fixed; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: 10px; right: 10px;
-    background: var(--bg-card);
-    border-radius: 22px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 0 1px var(--border-subtle);
-    display: flex; justify-content: space-around;
-    padding: 8px 4px;
-    z-index: 40;
-  }
-  .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9.5px; color: var(--text-muted); transition: color 0.12s ease, transform 0.12s ease; flex: 1; }
-  .nav-item:active { transform: scale(0.92); }
-  .nav-item.active { color: var(--text-primary); }
-  .nav-icon-box { width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: background 0.15s ease; }
-  .nav-item.active .nav-icon-box { background: rgba(45,212,191,0.18); }
-  .nav-icon-box svg { width: 18px; height: 18px; stroke: var(--text-muted); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.15s ease; }
-  .nav-item.active .nav-icon-box svg { stroke: var(--teal); }
 
   .lang-toggle {
     display: flex; align-items: center; gap: 4px;
@@ -753,14 +736,6 @@
 
 </div>
 
-<div class="bottom-nav">
-  <a class="nav-item" href="ana-sayfa.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></div><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="maclar.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2"/></svg></div><span data-i18n="navMatches">Matches</span></a>
-  <a class="nav-item" href="mac-sonuclari.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg></div><span data-i18n="navResults">Results</span></a>
-  <a class="nav-item" href="notlarim.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6"/></svg></div><span data-i18n="navNotes">Notes</span></a>
-  <a class="nav-item" href="favoriler.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></div><span data-i18n="navFav">Favorites</span></a>
-</div>
-
 <script>
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
@@ -791,10 +766,10 @@ const TRANSLATIONS = {
     brandSub: 'PRO MATCH INTELLIGENCE', liveData: 'LIVE DATA', loading: 'Loading...',
     edgeVerdict: 'MATCHEDGE VERDICT', analysing: 'ANALYSING', decisionLoading: 'Checking price, sample and data quality…',
     selection: 'Selection', model: 'Model', edge: 'Edge', dataHealth: 'Data health',
-    valueStatus: 'VALUE FOUND', watchStatus: 'WATCHLIST', noBetStatus: 'NO BET',
+    valueStatus: 'VALUE PICK', pickStatus: 'TOP PICK', noBetStatus: 'NO SELECTION',
     valueSub: 'The model price is meaningfully above the market price and the data threshold is met.',
-    watchSub: 'There is a signal, but price or data strength is not yet sufficient for a value call.',
-    noBetSub: 'MatchEdge is protecting you from a low-quality or weak-price selection.',
+    pickSub: 'The strongest model selection for this match. Check the data notes before placing a bet.',
+    noBetSub: 'A valid model selection could not be produced for this match.',
     sourceOdds: 'Market odds', sourceTable: 'Standings', sourceInjuries: 'Squad data', sourceH2h: 'H2H', sourceSample: '5-match sample',
     reasonSmallSample: 'Fewer than 5 relevant home/away matches — early-sample protection is active.',
     reasonNoOdds: 'No matching market price, so a real value edge cannot be verified.',
@@ -846,10 +821,10 @@ const TRANSLATIONS = {
     brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...',
     edgeVerdict: 'MATCHEDGE KARARI', analysing: 'İNCELENİYOR', decisionLoading: 'Fiyat, örneklem ve veri kalitesi kontrol ediliyor…',
     selection: 'Seçim', model: 'Model', edge: 'Avantaj', dataHealth: 'Veri sağlığı',
-    valueStatus: 'DEĞER VAR', watchStatus: 'İZLE', noBetStatus: 'BAHİS YOK',
+    valueStatus: 'DEĞERLİ SEÇİM', pickStatus: 'EN GÜÇLÜ SEÇİM', noBetStatus: 'SEÇİM YOK',
     valueSub: 'Model olasılığı piyasa fiyatından anlamlı biçimde yüksek ve veri eşiği karşılanıyor.',
-    watchSub: 'Sinyal var; ancak fiyat veya veri gücü henüz değer seçimi için yeterli değil.',
-    noBetSub: 'MatchEdge zayıf fiyatlı veya düşük verili bir seçimden seni koruyor.',
+    pickSub: 'Bu maçta modelin öne çıkardığı en güçlü seçim. Oynamadan önce veri notlarını kontrol et.',
+    noBetSub: 'Bu maç için geçerli bir model seçimi üretilemedi.',
     sourceOdds: 'Piyasa oranı', sourceTable: 'Puan durumu', sourceInjuries: 'Kadro verisi', sourceH2h: 'H2H', sourceSample: '5 maç örneklemi',
     reasonSmallSample: '5’ten az ilgili ev/deplasman maçı var — erken sezon koruması aktif.',
     reasonNoOdds: 'Eşleşen piyasa oranı yok; gerçek değer avantajı doğrulanamıyor.',
@@ -1094,10 +1069,11 @@ function renderPremiumIntelligence(premium, data) {
   const card = document.getElementById('premium-verdict');
   const statusMeta = {
     VALUE: { cls: 'verdict-value', icon: '↗', title: 'valueStatus', sub: 'valueSub' },
-    WATCH: { cls: 'verdict-watch', icon: '◉', title: 'watchStatus', sub: 'watchSub' },
+    PICK: { cls: 'verdict-watch', icon: '★', title: 'pickStatus', sub: 'pickSub' },
+    WATCH: { cls: 'verdict-watch', icon: '★', title: 'pickStatus', sub: 'pickSub' },
     NO_BET: { cls: 'verdict-no-bet', icon: '✕', title: 'noBetStatus', sub: 'noBetSub' },
   };
-  const meta = statusMeta[premium.status] || statusMeta.WATCH;
+  const meta = statusMeta[premium.status] || statusMeta.PICK;
   card.classList.remove('verdict-value', 'verdict-watch', 'verdict-no-bet');
   card.classList.add(meta.cls);
   document.getElementById('decision-icon').textContent = meta.icon;
@@ -1108,11 +1084,11 @@ function renderPremiumIntelligence(premium, data) {
   document.getElementById('edge-selection').textContent = premiumOutcomeLabel(premium.selection, data);
   document.getElementById('edge-model').textContent = best ? `${best.modelProbability}%` : '—';
   const edgeEl = document.getElementById('edge-points');
-  edgeEl.textContent = best ? `${best.edgePoints >= 0 ? '+' : ''}${best.edgePoints}` : '—';
-  edgeEl.classList.toggle('edge-positive', !!best && best.edgePoints >= 3);
+  edgeEl.textContent = Number.isFinite(best?.edgePoints) ? `${best.edgePoints >= 0 ? '+' : ''}${best.edgePoints}` : '—';
+  edgeEl.classList.toggle('edge-positive', Number.isFinite(best?.edgePoints) && best.edgePoints >= 3);
 
   const reasons = [];
-  if (best) reasons.push(t('reasonEdge').replace('{v}', best.edgePoints >= 0 ? `+${best.edgePoints}` : best.edgePoints));
+  if (Number.isFinite(best?.edgePoints)) reasons.push(t('reasonEdge').replace('{v}', best.edgePoints >= 0 ? `+${best.edgePoints}` : best.edgePoints));
   (premium.drivers || []).slice(0, 2).forEach(d => reasons.push(premiumReasonText(d.code, d.strength)));
   (premium.blockers || []).slice(0, 2).forEach(code => reasons.push(premiumReasonText(code)));
   const reasonList = document.getElementById('premium-reasons');
