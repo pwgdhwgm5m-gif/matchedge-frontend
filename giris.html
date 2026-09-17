@@ -340,6 +340,20 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 
     localStorage.setItem('matchedge_token', data.token);
     localStorage.setItem('matchedge_username', data.username);
+    if (data.email) localStorage.setItem('matchedge_pending_email', data.email);
+
+    if (currentMode === 'register') {
+      localStorage.setItem('matchedge_show_install_guide', '1');
+      window.location.href = 'verify.html?email=' + encodeURIComponent(data.email || email);
+      return;
+    }
+
+    if (data.emailVerified === false) {
+      window.location.href = 'verify.html?email=' + encodeURIComponent(data.email || '');
+      return;
+    }
+
+    localStorage.removeItem('matchedge_pending_email');
     window.location.href = 'ana-sayfa.html';
   } catch (err) {
     showError(t('networkError'));
