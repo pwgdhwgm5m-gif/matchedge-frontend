@@ -156,6 +156,9 @@
   .featured-signal-icon { font-size: 16px; }
   .featured-signal-text { font-size: 12px; font-weight: 700; }
   .featured-signal-sub { font-size: 9.5px; color: var(--text-muted); margin-top: 1px; }
+  .featured-market { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .featured-probability { color:var(--amber); font-size:18px; font-weight:900; white-space:nowrap; }
+  .featured-health { color:var(--text-secondary); font-size:9.5px; margin-top:5px; }
 
   .match-row-card {
     display: flex;
@@ -394,6 +397,7 @@ const POLL_INTERVAL_MS = 20000;
 // sadece bu listeden filtrelenerek render edilir.
 let allMatches = [];
 let featuredViewMode = 'featured'; // 'featured' | 'live'
+let matchAnalyses = new Map();
 
 const TRANSLATIONS = {
   en: {
@@ -419,6 +423,8 @@ const TRANSLATIONS = {
     todayFallback: 'Today',
     welcomeBack: 'Welcome back, ',
     featuredTab: 'Featured', liveTab: 'Live',
+    topTab: 'Top Predictions', valueTab: 'Values', loadingAnalysis: 'Analysing matches...',
+    noValue: 'No price-backed value pick found', dataHealth: 'Data health',
     noLiveNow: 'No matches are live right now',
   },
   tr: {
@@ -444,6 +450,8 @@ const TRANSLATIONS = {
     todayFallback: 'Bugün',
     welcomeBack: 'Tekrar hoş geldin, ',
     featuredTab: 'Öne Çıkan', liveTab: 'Canlı',
+    topTab: 'En Güçlü', valueTab: 'Değerli Seçimler', loadingAnalysis: 'Maçlar analiz ediliyor...',
+    noValue: 'Oranla doğrulanmış değerli seçim bulunamadı', dataHealth: 'Veri sağlığı',
     noLiveNow: 'Şu anda canlı maç yok',
   },
 };
@@ -545,11 +553,45 @@ async function loadHome() {
   renderDateHeader();
   renderFeaturedSection();
   renderTodayList(matches, loadFailed);
+  loadHomeAnalyses(matches);
+}
+
+function homeAnalysisUrl(m) {
+  const params = new URLSearchParams({
+    homeTeamName: m.homeTeam || '', awayTeamName: m.awayTeam || '',
+    leagueName: m.league || '', kickoff: m.kickoff || '', tsdbLeagueId: m.leagueId || '',
+  });
+  return `${API_BASE}/api/analysis/${encodeURIComponent(m.fixtureId)}?${params.toString()}`;
+}
+
+async function loadHomeAnalyses(matches) {
+  const candidates = matches.filter(m => !m.isLive).slice(0, 6);
+  if (!candidates.length) return;
+  const settled = await Promise.allSettled(candidates.map(async m => {
+    const response = await fetch(homeAnalysisUrl(m));
+    if (!response.ok) throw new Error('analysis');
+    matchAnalyses.set(String(m.fixtureId), await response.json());
+  }));
+  if (settled.some(result => result.status === 'fulfilled')) renderFeaturedSection();
+}
+
+function rankedMatches(valueOnly = false) {
+  return allMatches.map(match => {
+    const analysis = matchAnalyses.get(String(match.fixtureId));
+    const best = analysis?.marketBoard?.best;
+    const value = analysis?.marketBoard?.valuePicks?.[0];
+    const hours = Math.max(0, (new Date(match.kickoff || 0).getTime() - Date.now()) / 3600000);
+    const featuredScore = (best?.score || 0) - Math.min(hours, 12) * 0.35;
+    return { match, analysis, best, value, featuredScore };
+  }).filter(item => item.analysis && (!valueOnly || item.value))
+    .sort((a, b) => valueOnly
+      ? (b.value.edgePoints || 0) - (a.value.edgePoints || 0)
+      : b.featuredScore - a.featuredScore);
 }
 
 // Tek bir mac icin "featured-card" markup'i - hem tekil "Ozne Cikan" gorunumunde
 // hem de "Canli" sekmesindeki listede (birden fazla mac ust uste) kullanilir.
-function featuredCardHtml(m) {
+function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), forcedPick = null) {
   const isLive = !!m.isLive;
   const timeLabel = isLive
     ? (m.minute != null ? `${t('live')} ${m.minute}'` : t('live'))
@@ -560,6 +602,10 @@ function featuredCardHtml(m) {
   const link = isLive
     ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
     : analysisLink(m);
+  const pick = forcedPick || analysis?.marketBoard?.best;
+  const signal = pick
+    ? `<div class="featured-market"><div><div class="featured-signal-text">${pick.market} · ${pick.label}</div><div class="featured-health">${t('dataHealth')} ${pick.dataHealth}/100</div></div><div class="featured-probability">%${pick.probability}</div></div>`
+    : `<div><div class="featured-signal-text">${isLive ? t('liveAnalysisAvailable') : t('preMatchReady')}</div><div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('loadingAnalysis')}</div></div>`;
 
   return `
     <a class="featured-card" href="${link}" style="display:block; text-decoration:none; color:inherit;">
@@ -568,10 +614,7 @@ function featuredCardHtml(m) {
       <div class="featured-meta">${m.league || ''} • ${timeLabel}</div>
       <div class="featured-signal">
         <div class="featured-signal-icon">${isLive ? '⚡' : '📈'}</div>
-        <div>
-          <div class="featured-signal-text">${isLive ? t('liveAnalysisAvailable') : t('preMatchReady')}</div>
-          <div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('seeSignalsTab')}</div>
-        </div>
+        <div style="flex:1">${signal}</div>
       </div>
     </a>
   `;
@@ -583,7 +626,7 @@ function featuredCardHtml(m) {
 function renderFeaturedSection() {
   const container = document.getElementById('featuredSection');
   const hasLive = allMatches.some(m => m.isLive);
-  const featured = allMatches.find(m => m.isLive) || allMatches[0];
+  const featured = rankedMatches()[0]?.match || allMatches.find(m => m.isLive) || allMatches[0];
 
   if (!featured) {
     container.innerHTML = '';
@@ -596,6 +639,8 @@ function renderFeaturedSection() {
     </div>
     <div class="toggle-bar">
       <button type="button" class="toggle-btn ${featuredViewMode === 'featured' ? 'active' : ''}" data-mode="featured">${t('featuredTab')}</button>
+      <button type="button" class="toggle-btn ${featuredViewMode === 'top' ? 'active' : ''}" data-mode="top">${t('topTab')}</button>
+      <button type="button" class="toggle-btn ${featuredViewMode === 'value' ? 'active' : ''}" data-mode="value">${t('valueTab')}</button>
       <button type="button" class="toggle-btn ${featuredViewMode === 'live' ? 'active' : ''}" data-mode="live">${t('liveTab')}</button>
     </div>
     <div id="featuredContent"></div>
@@ -625,8 +670,21 @@ function renderFeaturedContent() {
     return;
   }
 
-  const featured = allMatches.find(m => m.isLive) || allMatches[0];
-  el.innerHTML = featured ? featuredCardHtml(featured) : '';
+  if (featuredViewMode === 'top') {
+    const ranked = rankedMatches().slice(0, 3);
+    el.innerHTML = ranked.length ? ranked.map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('') : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
+    return;
+  }
+
+  if (featuredViewMode === 'value') {
+    const values = rankedMatches(true).slice(0, 3);
+    el.innerHTML = values.length ? values.map(item => featuredCardHtml(item.match, item.analysis, item.value)).join('') : `<div class="empty-state">${t('noValue')}</div>`;
+    return;
+  }
+
+  const top = rankedMatches()[0];
+  const featured = top?.match || allMatches.find(m => m.isLive) || allMatches[0];
+  el.innerHTML = featured ? featuredCardHtml(featured, top?.analysis, top?.best) : '';
 }
 
 function renderTodayList(matches, loadFailed) {
