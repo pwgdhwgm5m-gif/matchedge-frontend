@@ -1194,13 +1194,14 @@ document.getElementById('addCouponButton').addEventListener('click', async () =>
         selections: [...selectedCouponMarkets.values()],
       }),
     });
-    if (!response.ok) throw new Error('coupon');
+    const responseData = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(responseData.error || 'coupon');
     feedback.textContent = t('couponAdded');
     selectedCouponMarkets.clear();
     document.querySelectorAll('.coupon-market.selected').forEach(item => item.classList.remove('selected'));
     setTimeout(() => { window.location.href = 'kuponum.html'; }, 600);
-  } catch (_) {
-    feedback.textContent = t('couponError');
+  } catch (error) {
+    feedback.textContent = error.message === 'coupon' ? t('couponError') : error.message;
     button.disabled = false;
   }
 });
