@@ -44,6 +44,26 @@
     padding: 4px 4px 20px;
   }
 
+  .back-row { margin-bottom: 10px; }
+  .back-button {
+    appearance: none;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-radius: 12px;
+    min-height: 40px;
+    padding: 8px 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+  }
+  .back-button:active { transform: scale(.97); }
+  .back-arrow { color: var(--teal); font-size: 20px; line-height: 1; }
+
   .brand-name {
     font-size: 19px;
     font-weight: 800;
@@ -400,6 +420,12 @@
 <body>
 
 <div class="app">
+
+  <div class="back-row">
+    <button class="back-button" id="backButton" type="button" aria-label="Go back">
+      <span class="back-arrow">←</span><span data-i18n="backToMatches">Back to matches</span>
+    </button>
+  </div>
 
   <div class="top-bar">
     <div>
@@ -763,7 +789,7 @@ const CONTEXT = {
 
 const TRANSLATIONS = {
   en: {
-    brandSub: 'PRO MATCH INTELLIGENCE', liveData: 'LIVE DATA', loading: 'Loading...',
+    brandSub: 'PRO MATCH INTELLIGENCE', liveData: 'LIVE DATA', loading: 'Loading...', backToMatches: 'Back to matches',
     edgeVerdict: 'MATCHEDGE VERDICT', analysing: 'ANALYSING', decisionLoading: 'Checking price, sample and data quality…',
     selection: 'Selection', model: 'Model', edge: 'Edge', dataHealth: 'Data health',
     valueStatus: 'VALUE PICK', pickStatus: 'TOP PICK', noBetStatus: 'NO SELECTION',
@@ -818,7 +844,7 @@ const TRANSLATIONS = {
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. MatchEdge is not liable for any losses arising from decisions based on this data.<br><br>MatchEdge © 2026 — Built by Eddas.',
   },
   tr: {
-    brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...',
+    brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...', backToMatches: 'Maçlara dön',
     edgeVerdict: 'MATCHEDGE KARARI', analysing: 'İNCELENİYOR', decisionLoading: 'Fiyat, örneklem ve veri kalitesi kontrol ediliyor…',
     selection: 'Seçim', model: 'Model', edge: 'Avantaj', dataHealth: 'Veri sağlığı',
     valueStatus: 'DEĞERLİ SEÇİM', pickStatus: 'EN GÜÇLÜ SEÇİM', noBetStatus: 'SEÇİM YOK',
@@ -1065,7 +1091,28 @@ function premiumReasonText(code, value) {
 }
 
 function renderPremiumIntelligence(premium, data) {
-  if (!premium) return;
+  premium = premium || {};
+  const probabilities = data?.matchProbabilities || data?.modelOnlyProbabilities || {};
+  const fallbackChoices = [
+    { outcome: 'home', modelProbability: Number(probabilities.homeWinProbability || 0) },
+    { outcome: 'draw', modelProbability: Number(probabilities.drawProbability || 0) },
+    { outcome: 'away', modelProbability: Number(probabilities.awayWinProbability || 0) },
+  ].sort((a, b) => b.modelProbability - a.modelProbability);
+  const premiumHasSelection = premium.selection && Number(premium.bestEdge?.modelProbability) > 0;
+  if (!premiumHasSelection && fallbackChoices[0].modelProbability > 0) {
+    premium = {
+      ...premium,
+      status: 'PICK',
+      selection: fallbackChoices[0].outcome,
+      bestEdge: {
+        outcome: fallbackChoices[0].outcome,
+        modelProbability: fallbackChoices[0].modelProbability,
+        marketProbability: null,
+        edgePoints: null,
+        odds: null,
+      },
+    };
+  }
   const card = document.getElementById('premium-verdict');
   const statusMeta = {
     VALUE: { cls: 'verdict-value', icon: '↗', title: 'valueStatus', sub: 'valueSub' },
@@ -1211,6 +1258,17 @@ document.querySelectorAll('.analysis-item[data-target]').forEach(item => {
     const target = document.getElementById(item.dataset.target);
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+});
+
+document.getElementById('backButton').addEventListener('click', () => {
+  try {
+    const previous = document.referrer ? new URL(document.referrer) : null;
+    if (previous && previous.origin === window.location.origin) {
+      window.history.back();
+      return;
+    }
+  } catch (_) {}
+  window.location.href = 'maclar.html';
 });
 
 applyStaticTranslations();
