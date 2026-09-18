@@ -11,12 +11,12 @@
 </head>
 <body>
 <main class="app">
-  <div class="top"><div><div class="brand">SOCCEREDGE PRO <span>ADMIN</span></div><div style="color:var(--muted);font-size:11px;margin-top:4px">Yalnızca eddas34</div></div><a class="button" href="ana-sayfa.html">← Uygulamaya dön</a></div>
+  <div class="top"><div><div class="brand">SOCCEREDGE PRO <span>ADMIN</span></div><div style="color:var(--muted);font-size:11px;margin-top:4px">Yalnızca yetkili yöneticiler</div></div><a class="button" href="ana-sayfa.html">← Uygulamaya dön</a></div>
   <div id="message" class="empty">Yükleniyor…</div>
   <section id="content" style="display:none">
     <div class="stats"><div class="stat"><span>Toplam üye</span><strong id="total">0</strong></div><div class="stat"><span>Doğrulanmış</span><strong id="verified">0</strong></div><div class="stat"><span>Son girişler</span><strong id="loginTotal">0</strong></div></div>
     <div class="panel"><h2>MODEL KARNESİ</h2><div id="modelSummary" style="font-size:12px;color:var(--muted);margin-bottom:8px">Tahminler yükleniyor…</div><div class="table-wrap"><table><thead><tr><th>Lig</th><th>Tahmin</th><th>Maç</th><th>İsabet</th><th>Brier ↓</th><th>Beklenen / Gerçekleşen</th></tr></thead><tbody id="modelRows"></tbody></table></div></div>
-    <div class="panel"><h2>ÜYELER</h2><div class="table-wrap"><table><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Kayıt</th><th>Son giriş</th><th>Giriş</th><th>Durum</th></tr></thead><tbody id="users"></tbody></table></div></div>
+    <div class="panel"><h2>MODEL KALİBRASYONU</h2><div id="calibrationSummary" style="font-size:12px;color:var(--muted);margin-bottom:8px">Öğrenme verisi yükleniyor…</div><div class="table-wrap"><table><thead><tr><th>Lig</th><th>Market</th><th>Durum</th><th>Eğitim / Kontrol</th><th>Brier önce / sonra</th></tr></thead><tbody id="calibrationRows"></tbody></table></div></div><div class="panel"><h2>ÜYELER</h2><div class="table-wrap"><table><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Kayıt</th><th>Son giriş</th><th>Giriş</th><th>Durum</th></tr></thead><tbody id="users"></tbody></table></div></div>
     <div class="panel"><h2>SON GİRİŞLER VE YAKLAŞIK KONUM</h2><div class="table-wrap"><table><thead><tr><th>Zaman</th><th>Kullanıcı</th><th>Ülke</th><th>Şehir</th><th>İlçe</th><th>Saat dilimi</th><th>Cihaz</th></tr></thead><tbody id="logins"></tbody></table></div></div>
   </section>
 </main>
@@ -31,7 +31,7 @@ async function loadAdmin(){
   try{
     const response=await fetch(`${API_BASE}/api/admin/users`,{headers:{Authorization:`Bearer ${token}`}});
     if(response.status===401){window.location.href='giris.html';return}
-    if(response.status===403){throw new Error('Bu sayfaya yalnızca admin hesabı erişebilir. eddas34 ile çıkış yapıp yeniden giriş yapın.')}
+    if(response.status===403){throw new Error('Bu sayfaya yalnızca yetkili yönetici hesabı erişebilir.')}
     if(!response.ok)throw new Error('Admin verileri alınamadı.')
     const data=await response.json();
     document.getElementById('total').textContent=data.total||0;
@@ -40,6 +40,10 @@ async function loadAdmin(){
     document.getElementById('users').innerHTML=(data.users||[]).map(user=>`<tr><td><strong>${safe(user.username)}</strong>${user.role==='admin'?' · ADMIN':''}</td><td>${safe(user.email)}</td><td>${fmt(user.createdAt)}</td><td>${fmt(user.lastLoginAt)}</td><td>${user.loginCount||0}</td><td class="${user.emailVerified?'yes':'no'}">${user.emailVerified?'Doğrulandı':'Bekliyor'}</td></tr>`).join('')||'<tr><td colspan="6">Üye yok</td></tr>';
     document.getElementById('logins').innerHTML=(data.recentLogins||[]).map(item=>`<tr><td>${fmt(item.loginAt)}</td><td><strong>${safe(item.userId?.username||'—')}</strong></td><td class="location">${safe(item.country||item.countryCode||'—')}</td><td class="location">${safe(item.city||'—')}</td><td class="location">${safe(item.district||'—')}</td><td>${safe(item.timezone||'—')}</td><td>${safe(item.userAgent||'—')}</td></tr>`).join('')||'<tr><td colspan="7">Henüz giriş kaydı yok</td></tr>';
     message.style.display='none';document.getElementById('content').style.display='block';
+    fetch(`${API_BASE}/api/admin/model-calibration`,{headers:{Authorization:`Bearer ${token}`}})
+      .then(r=>{if(!r.ok)throw Error('Kalibrasyon alınamadı.');return r.json()})
+      .then(data=>{const rows=data.rows||[];document.getElementById('calibrationSummary').textContent=rows.length?`${rows.filter(x=>x.active).length} kalibrasyon aktif. Yalnızca geçmiş maçlarla doğrulanan değişiklikler uygulanır.`:'Henüz yeterli geçmiş veri yok; temel model kullanılıyor.';document.getElementById('calibrationRows').innerHTML=rows.map(x=>`<tr><td>${safe(x.league)}</td><td>${safe(x.market)}</td><td>${x.active?'Aktif':'Temel model'}</td><td>${x.trainCount||0} / ${x.validationCount||0}</td><td>${Number(x.baselineBrier).toFixed(4)} / ${Number(x.adjustedBrier).toFixed(4)}</td></tr>`).join('')})
+      .catch(err=>document.getElementById('calibrationSummary').textContent=err.message);
     fetch(`${API_BASE}/api/admin/model-performance`,{headers:{Authorization:`Bearer ${token}`}})
       .then(r=>{if(!r.ok)throw Error('Model karnesi alınamadı.');return r.json()})
       .then(report=>{
