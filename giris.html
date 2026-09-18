@@ -180,7 +180,7 @@
       <input type="email" class="field-input" id="forgotEmailInput" autocomplete="email">
     </div>
 
-    <label id="geoChoice" style="display:flex;align-items:flex-start;gap:9px;color:#aab7c9;font-size:11px;line-height:1.5;margin:10px 0 15px;"><input type="checkbox" id="geoConsent" style="margin-top:2px;accent-color:#2dd4bf;"><span data-i18n="geoChoice">Allow approximate city/country from my IP to appear in the private admin login log (kept for 90 days). No GPS.</span></label>
+    <label id="geoChoice" style="display:flex;align-items:flex-start;gap:9px;color:#aab7c9;font-size:11px;line-height:1.5;margin:10px 0 15px;"><input type="checkbox" id="geoConsent" style="margin-top:2px;accent-color:#2dd4bf;"><span data-i18n="geoChoice">If I opt in, my IP is sent to ipwho.is for an approximate city/country, shown only to admins for 90 days. No GPS.</span></label>
     <button class="submit-btn" id="submitBtn" data-i18n="loginBtn">Log In</button>
 
     <div class="forgot-link" id="forgotLink" data-i18n="forgotLink">Forgot password?</div>
@@ -193,7 +193,7 @@ const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 
 const TRANSLATIONS = {
   en: {
-    brandSub: 'PRO MATCH INTELLIGENCE', betaNote: 'BETA · All features are free during beta.', geoChoice: 'Allow approximate city/country from my IP to appear in the private admin login log (kept for 90 days). No GPS.', loginTab: 'Log In', registerTab: 'Sign Up',
+    brandSub: 'PRO MATCH INTELLIGENCE', betaNote: 'BETA · All features are free during beta.', geoChoice: 'If I opt in, my IP is sent to ipwho.is for an approximate city/country, shown only to admins for 90 days. No GPS.', loginTab: 'Log In', registerTab: 'Sign Up',
     usernameLabel: 'Username', emailLabel: 'Email', passwordLabel: 'Password',
     loginBtn: 'Log In', registerBtn: 'Create Account', resetBtn: 'Send Reset Link',
     fillFields: 'Please fill in all fields.',
@@ -205,7 +205,7 @@ const TRANSLATIONS = {
     registerSuccess: 'Account created successfully.',
   },
   tr: {
-    brandSub: 'PRO MAÇ ZEKASI', betaNote: 'BETA · Beta süresince tüm özellikler ücretsiz.', geoChoice: 'IP adresimden yaklaşık şehir/ülke bilgisinin yalnızca yöneticiye açık giriş kaydında 90 gün saklanmasına izin veriyorum. GPS kullanılmaz.', loginTab: 'Giriş Yap', registerTab: 'Kayıt Ol',
+    brandSub: 'PRO MAÇ ZEKASI', betaNote: 'BETA · Beta süresince tüm özellikler ücretsiz.', geoChoice: 'İzin verirsem IP adresim yaklaşık şehir/ülke belirlemek için ipwho.is servisine gönderilir; sonuç yalnızca yöneticiye açık kayıtta 90 gün saklanır. GPS kullanılmaz.', loginTab: 'Giriş Yap', registerTab: 'Kayıt Ol',
     usernameLabel: 'Kullanıcı Adı', emailLabel: 'E-posta', passwordLabel: 'Şifre',
     loginBtn: 'Giriş Yap', registerBtn: 'Hesap Oluştur', resetBtn: 'Sıfırlama Bağlantısı Gönder',
     fillFields: 'Lütfen tüm alanları doldur.',
