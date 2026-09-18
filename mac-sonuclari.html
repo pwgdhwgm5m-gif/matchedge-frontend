@@ -556,6 +556,12 @@ function renderResults(matches) {
   }
 
   container.innerHTML = html;
+  container.querySelectorAll('.score-scroll').forEach(list => {
+    const cards = [...list.querySelectorAll('.match-card')];
+    if (cards.length <= 5) { list.style.maxHeight = 'none'; return; }
+    const height = cards.slice(0,5).reduce((total,card) => total + card.getBoundingClientRect().height + parseFloat(getComputedStyle(card).marginBottom || 0),0);
+    list.style.maxHeight = Math.ceil(height) + 'px';
+  });
 
   container.querySelectorAll('.fav-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
