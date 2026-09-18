@@ -396,6 +396,9 @@
   .source-chip.ok { color:var(--teal); border-color:rgba(45,212,191,.25); background:rgba(45,212,191,.06); }
   .coupon-market-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
   .coupon-market { border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--text-primary); border-radius:12px; padding:11px; text-align:left; cursor:pointer; }
+  .edge-cell[role="button"] { cursor:pointer; border-radius:10px; }
+  .edge-cell[role="button"]:focus-visible { outline:2px solid var(--teal); }
+  .edge-cell.selected { box-shadow: inset 0 0 0 2px var(--teal); background:rgba(45,212,191,.1); }
   .coupon-market.selected { border-color:var(--teal); background:rgba(45,212,191,.12); box-shadow:0 0 0 2px rgba(45,212,191,.08); }
   .coupon-market span { display:block; color:var(--text-secondary); font-size:9px; margin-bottom:5px; }
   .coupon-market strong { font-size:13px; }
@@ -470,9 +473,9 @@
       </div>
     </div>
     <div class="edge-strip">
-      <div class="edge-cell"><span id="pick-label-1">—</span><strong id="pick-prob-1">—</strong></div>
-      <div class="edge-cell"><span id="pick-label-2">—</span><strong id="pick-prob-2">—</strong></div>
-      <div class="edge-cell"><span id="pick-label-3">—</span><strong id="pick-prob-3">—</strong></div>
+      <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-1">—</span><strong id="pick-prob-1">—</strong></div>
+      <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-2">—</span><strong id="pick-prob-2">—</strong></div>
+      <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-3">—</span><strong id="pick-prob-3">—</strong></div>
     </div>
     <div class="reason-list" id="premium-reasons"></div>
     <div class="data-health">
@@ -1086,6 +1089,7 @@ function renderPremiumIntelligence(premium, data) {
     strongestPicks.push({
       label: value >= 50 ? positiveLabel : negativeLabel,
       probability: +(value >= 50 ? value : 100 - value).toFixed(1),
+      key: positiveLabel === t('over25Pick') ? (value >= 50 ? 'over25' : 'under25') : positiveLabel === t('bttsYesPick') ? (value >= 50 ? 'bttsYes' : 'bttsNo') : (value >= 50 ? 'cornersOver85' : 'cornersUnder85'),
     });
   };
 
@@ -1093,6 +1097,7 @@ function renderPremiumIntelligence(premium, data) {
     strongestPicks.push({
       label: premiumOutcomeLabel(premium.selection, data),
       probability: +Number(best.modelProbability).toFixed(1),
+      key: premium.selection,
     });
   }
   addDirectionalPick(data?.marketProbabilities?.over25GoalsPercent, t('over25Pick'), t('under25Pick'));
@@ -1102,6 +1107,10 @@ function renderPremiumIntelligence(premium, data) {
 
   for (let index = 0; index < 3; index += 1) {
     const pick = strongestPicks[index];
+    const cell = document.getElementById(`pick-label-${index + 1}`).closest('.edge-cell');
+    cell.dataset.marketKey = pick?.key || '';
+    cell.setAttribute('aria-label', pick ? `${pick.label} ${pick.probability}% · ${t('addCoupon')}` : '—');
+    cell.classList.toggle('selected', Boolean(pick && selectedCouponMarkets.has(pick.key)));
     document.getElementById(`pick-label-${index + 1}`).textContent = pick?.label || '—';
     document.getElementById(`pick-prob-${index + 1}`).textContent = pick ? `${pick.probability}%` : '—';
   }
@@ -1149,13 +1158,29 @@ function renderCouponMarkets(data) {
     button.addEventListener('click', () => {
       const item = markets.find(market => market.key === button.dataset.key);
       if (!item) return;
-      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key); else selectedCouponMarkets.set(item.key, item);
+      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key); else if (selectedCouponMarkets.size < 3) selectedCouponMarkets.set(item.key, item);
       button.classList.toggle('selected', selectedCouponMarkets.has(item.key));
+      syncFeaturedPicks();
       document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
     });
   });
 }
 
+function syncFeaturedPicks() {
+  document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => cell.classList.toggle('selected', selectedCouponMarkets.has(cell.dataset.marketKey)));
+}
+document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => {
+  function toggle() {
+    const item = (currentAnalysis?.marketBoard?.allMarkets || []).find(m => m.key === cell.dataset.marketKey);
+    if (!item) return;
+    selectedCouponMarkets.clear();
+    selectedCouponMarkets.set(item.key, item);
+    document.getElementById('addCouponButton').disabled = false;
+    document.getElementById('addCouponButton').click();
+  }
+  cell.addEventListener('click', toggle);
+  cell.addEventListener('keydown', event => { if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); } });
+});
 document.getElementById('addCouponButton').addEventListener('click', async () => {
   if (!currentAnalysis || !selectedCouponMarkets.size) return;
   const button = document.getElementById('addCouponButton');
