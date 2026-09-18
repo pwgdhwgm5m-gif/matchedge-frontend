@@ -198,6 +198,8 @@
     '2.5 Alt':'Under 2.5','2.5 Üst':'Over 2.5','2.5 ALT':'UNDER 2.5','2.5 ÜST':'OVER 2.5',
     'KG VAR':'BTTS YES','KG YOK':'BTTS NO','Veri kalitesi':'Data quality','Bugün':'Today',
     'Yakında':'Upcoming','En Güçlü Seçimler':'Top Predictions','Değerli Seçimler':'Value Picks',
+    'Sıralamada yalnızca 250 XP ve üzerindeki kullanıcılar görünür. Coin bakiyen profilinde her zaman görünür.':'Only users with at least 250 XP appear on the leaderboard. Your Coin balance stays visible in your profile.',
+    'Sıralama için 250 XP gerekli':'250 XP required to rank','Henüz 250 XP’ye ulaşan oyuncu yok.':'No players have reached 250 XP yet.',
   });
 
   function translateDocument(code) {
