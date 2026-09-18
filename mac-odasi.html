@@ -170,5 +170,6 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInter
 if(!rulesAccepted)openSheet('rulesSheet');
 Promise.all([loadAiFeed(),loadMessages()]);polling=setInterval(()=>loadMessages(true),10000);
 </script>
+<script src="language-selector.js"></script>
 </body>
 </html>
