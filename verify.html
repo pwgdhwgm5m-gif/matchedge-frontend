@@ -1,74 +1,110 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SoccerEdge Pro - E-posta Doğrulama</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SoccerEdge Pro - Verify Email</title>
 <style>
-:root{--bg:#0a0e17;--card:#121826;--inner:#0d1220;--line:#253047;--teal:#2dd4bf;--red:#f0556b;--text:#f4f6fa;--soft:#cbd2df;--muted:#98a2b6}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at top,rgba(45,212,191,.1),transparent 38%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.card{width:min(100%,390px);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px 22px;box-shadow:0 24px 70px rgba(0,0,0,.35)}.brand{font-size:20px;font-weight:900;margin-bottom:26px}.brand span{color:var(--teal)}.icon{width:58px;height:58px;display:grid;place-items:center;margin:0 auto 16px;border-radius:18px;background:rgba(45,212,191,.1);font-size:28px}h1{text-align:center;font-size:21px;margin:0 0 9px}p{text-align:center;color:var(--soft);font-size:13px;line-height:1.55;margin:0 0 19px}.email{color:var(--teal);font-weight:800}.code{width:100%;padding:16px 12px;text-align:center;letter-spacing:11px;font-size:25px;font-weight:900;color:var(--text);background:var(--inner);border:1px solid var(--line);border-radius:14px;outline:0}.code:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(45,212,191,.1)}button,.link{width:100%;border:0;border-radius:13px;padding:14px;font-weight:900;font-size:13px;cursor:pointer}.primary{margin-top:12px;background:var(--teal);color:#05201c}.secondary{margin-top:8px;background:transparent;color:var(--soft);border:1px solid var(--line)}button:disabled{opacity:.45}.message{display:none;margin-top:13px;padding:11px;border-radius:11px;font-size:12px;line-height:1.45}.message.show{display:block}.message.ok{background:rgba(45,212,191,.09);color:var(--teal)}.message.error{background:rgba(240,85,107,.09);color:var(--red)}.foot{text-align:center;margin-top:15px;color:var(--muted);font-size:10px}.foot a{color:var(--soft)}
-</style></head>
-<body><main class="card">
-<div class="brand">SOCCEREDGE <span>PRO</span></div>
-<div class="icon" id="icon">✉️</div>
-<h1 id="title">E-postanı doğrula</h1>
-<p id="intro">E-postana gönderdiğimiz 6 haneli kodu gir.<br><span class="email" id="emailText"></span></p>
-<div id="codeArea">
-<input class="code" id="codeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Doğrulama kodu">
-<button class="primary" id="verifyBtn">Hesabımı Doğrula</button>
-<button class="secondary" id="resendBtn">Kodu Tekrar Gönder</button>
+  :root {
+    --bg-base: #0a0e17; --bg-card: #121826; --border-subtle: #1e2636;
+    --teal: #2dd4bf; --red: #f0556b;
+    --text-primary: #f2f4f8; --text-muted: #5a6478;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-base); color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 20px; text-align: center;
+  }
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 32px 24px; max-width: 340px;
+  }
+  .icon { font-size: 40px; margin-bottom: 16px; }
+  h2 { font-size: 17px; margin-bottom: 10px; }
+  p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+  a.btn {
+    display: inline-block; background: var(--teal); color: #05201c;
+    padding: 12px 24px; border-radius: 10px; text-decoration: none;
+    font-size: 13px; font-weight: 800;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="icon" id="icon">⏳</div>
+  <h2 id="title">Doğrulanıyor...</h2>
+  <p id="message">Lütfen bekle.</p>
+  <a class="btn" href="giris.html" id="loginBtn" style="display:none;">Girişe Git</a>
 </div>
-<div class="message" id="message"></div>
-<div class="foot">E-posta gelmediyse spam klasörünü kontrol et. · <a href="giris.html">Girişe dön</a></div>
-</main>
+
 <script>
-const API_BASE='https://matchedge-backend-kujb.onrender.com';
-const params=new URLSearchParams(location.search);
-const email=params.get('email')||localStorage.getItem('matchedge_pending_email')||'';
-const token=params.get('token')||'';
-const codeInput=document.getElementById('codeInput');
-const verifyBtn=document.getElementById('verifyBtn');
-const resendBtn=document.getElementById('resendBtn');
-const message=document.getElementById('message');
-document.getElementById('emailText').textContent=email;
-function show(text,type='error'){message.textContent=text;message.className='message show '+type}
-function success(){
- document.getElementById('icon').textContent='✅';
- document.getElementById('title').textContent='E-posta doğrulandı';
- document.getElementById('intro').textContent='Hesabın aktif. Artık topluluk sohbetini ve tüm özellikleri kullanabilirsin.';
- document.getElementById('codeArea').innerHTML='<button class="primary" onclick="location.href=\'ana-sayfa.html\'">Ana Sayfaya Git</button>';
- localStorage.removeItem('matchedge_pending_email');
- show('Doğrulama tamamlandı.','ok');
+const API_BASE = 'https://matchedge-backend-kujb.onrender.com'; // örn: 'https://matchedge-backend.onrender.com'
+const lang = localStorage.getItem('matchedge_lang') || 'en';
+
+const T = {
+  tr: {
+    checking: ['⏳', 'Doğrulanıyor...', 'Lütfen bekle.'],
+    success: ['✅', 'E-posta Doğrulandı', 'Hesabın aktif. Şimdi giriş yapabilirsin.'],
+    fail: ['❌', 'Doğrulama Başarısız', 'Bağlantı geçersiz veya süresi dolmuş. Girişten yeni bir doğrulama e-postası isteyebilirsin.'],
+    noToken: ['❌', 'Geçersiz Bağlantı', 'Bu sayfa bir doğrulama bağlantısı olmadan açılamaz.'],
+    backendMissing: ['⚠️', 'Backend Bağlı Değil', 'Bu dosyadaki API_BASE değerini ayarlaman gerekiyor.'],
+    loginBtnText: 'Girişe Git',
+  },
+  en: {
+    checking: ['⏳', 'Verifying...', 'Please wait.'],
+    success: ['✅', 'Email Verified', 'Your account is active. You can log in now.'],
+    fail: ['❌', 'Verification Failed', 'The link is invalid or expired. You can request a new one from the login screen.'],
+    noToken: ['❌', 'Invalid Link', 'This page cannot be opened without a verification link.'],
+    backendMissing: ['⚠️', 'Backend Not Connected', 'Set the API_BASE value in this file first.'],
+    loginBtnText: 'Go to Login',
+  },
+};
+
+function setState(key) {
+  const [icon, title, message] = T[lang][key];
+  document.getElementById('icon').textContent = icon;
+  document.getElementById('title').textContent = title;
+  document.getElementById('message').textContent = message;
+  document.getElementById('loginBtn').textContent = T[lang].loginBtnText;
 }
-async function verifyToken(){
- try{
-  const res=await fetch(API_BASE+'/api/auth/verify-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
-  const data=await res.json();
-  if(!res.ok) throw new Error(data.error||'Bağlantının süresi dolmuş.');
-  success();
- }catch(err){show(err.message)}
+
+async function verify() {
+  const token = new URLSearchParams(window.location.search).get('token');
+
+  if (!token) {
+    setState('noToken');
+    return;
+  }
+  if (!API_BASE) {
+    setState('backendMissing');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/verify-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+
+    if (res.ok) {
+      setState('success');
+    } else {
+      setState('fail');
+    }
+  } catch (err) {
+    setState('fail');
+  } finally {
+    document.getElementById('loginBtn').style.display = 'inline-block';
+  }
 }
-verifyBtn.addEventListener('click',async()=>{
- const code=codeInput.value.replace(/\D/g,'');
- if(!email){show('E-posta bilgisi bulunamadı. Lütfen yeniden giriş yap.');return}
- if(code.length!==6){show('6 haneli doğrulama kodunu gir.');return}
- verifyBtn.disabled=true;
- try{
-  const res=await fetch(API_BASE+'/api/auth/verify-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,code})});
-  const data=await res.json();
-  if(!res.ok) throw new Error(data.error||'Kod doğrulanamadı.');
-  success();
- }catch(err){show(err.message)}finally{verifyBtn.disabled=false}
-});
-codeInput.addEventListener('input',()=>{codeInput.value=codeInput.value.replace(/\D/g,'').slice(0,6)});
-resendBtn.addEventListener('click',async()=>{
- if(!email){show('E-posta bilgisi bulunamadı.');return}
- resendBtn.disabled=true;
- try{
-  const res=await fetch(API_BASE+'/api/auth/resend-verification',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
-  const data=await res.json();
-  if(!res.ok) throw new Error(data.error||'Kod gönderilemedi.');
-  show(data.sent===false?'E-posta servisi yapılandırılmamış. Yöneticiyle iletişime geç.':'Yeni kod gönderildi.','ok');
- }catch(err){show(err.message)}finally{setTimeout(()=>resendBtn.disabled=false,60000)}
-});
-if(token) verifyToken(); else if(!email) show('Doğrulama için giriş ekranından hesabına giriş yap.');
-</script></body></html>
+
+setState('checking');
+verify();
+</script>
+
+</body>
+</html>

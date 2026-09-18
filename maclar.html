@@ -207,7 +207,7 @@
 
   <div class="top-bar">
     <div>
-      <div class="brand-name">SOCCEREDGE<span class="premium">PRO</span></div>
+      <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
       <div class="brand-sub" data-i18n="brandSub">UPCOMING MATCHES</div>
     </div>
     <div class="top-actions">
@@ -339,6 +339,8 @@ const WHITELISTED_LEAGUE_IDS = new Set([
   '4339', // Turkiye Super Lig
   '4621', // Avusturya Bundesliga
   '4675', // Isvicre Super League
+  '4629', // Hirvatistan HNL
+  '4691', // Romanya Liga I
   // --- Amerika 1. Ligleri ---
   '4346', // ABD MLS
   '4350', // Meksika Liga MX
@@ -359,6 +361,8 @@ const WHITELISTED_LEAGUE_IDS = new Set([
   '4490', // UEFA Uluslar Ligi
   '5071', // UEFA Konferans Ligi
   '4503', // FIFA Kulupler Dunya Kupasi
+  '4510', // Portekiz Kupasi
+  '206',  // Turkiye Kupasi (API-Football tamamlayici kaynak)
 ]);
 
 // Bu alt kume, ayni beyaz liste icinde en cok takip edilen ligleri/kupalari
@@ -366,6 +370,7 @@ const WHITELISTED_LEAGUE_IDS = new Set([
 // onlar zaten yukaridaki beyaz listede yoklar).
 const PRIORITY_LEAGUE_IDS = new Set([
   '4339', '4328', '4335', '4332', '4331', '4334', '4480', '4481',
+  '4629', '4691', '4510', '206',
 ]);
 
 const TRANSLATIONS = {
@@ -377,7 +382,7 @@ const TRANSLATIONS = {
     live: 'LIVE',
     matchCount: (n) => n === 1 ? '1 match' : `${n} matches`,
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    legalText: 'SoccerEdge Pro analysis, community picks and virtual game features are for information and entertainment only, not betting advice. Edge Coin has no monetary value and cannot be purchased, transferred, redeemed for cash or prizes. Data may be delayed or incomplete; users remain responsible for their decisions. Not intended for gambling use by minors.<br><br>© 2026 SoccerEdge Pro. All rights reserved. Design, software and content may not be copied without permission.',
+    legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
   },
   tr: {
     brandSub: 'YAKLAŞAN MAÇLAR', loading: 'Yükleniyor...',
@@ -387,12 +392,12 @@ const TRANSLATIONS = {
     live: 'CANLI',
     matchCount: (n) => n === 1 ? '1 maç' : `${n} maç`,
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
-    legalText: 'SoccerEdge Pro analizleri, topluluk seçimleri ve sanal oyun özellikleri yalnızca bilgi ve eğlence amaçlıdır; bahis tavsiyesi değildir. Edge Coin parasal değer taşımaz; satın alınamaz, devredilemez, nakde veya ödüle çevrilemez. Veriler gecikebilir ya da eksik olabilir; karar sorumluluğu kullanıcıya aittir. 18 yaş altı bahis amaçlı kullanım için uygun değildir.<br><br>© 2026 SoccerEdge Pro. Tüm hakları saklıdır. Tasarım, yazılım ve içerikler izinsiz kopyalanamaz.',
+    legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan SoccerEdge Pro sorumlu tutulamaz.<br><br>SoccerEdge Pro © 2026 — Eddas tarafından geliştirildi.',
   },
 };
 
-let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
-function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+let currentLang = localStorage.getItem('matchedge_lang') || 'en';
+function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -451,6 +456,8 @@ function analysisLink(m) {
     tsdbLeagueId: m.leagueId || '',
     homeBadge: m.homeBadge || '',
     awayBadge: m.awayBadge || '',
+    home: m.homeId || '',
+    away: m.awayId || '',
   });
   return `analiz-ekrani.html?${params.toString()}`;
 }
@@ -592,5 +599,6 @@ renderDayTabs();
 setInterval(loadMatches, POLL_INTERVAL_MS);
 </script>
 
+<script src="language-selector.js"></script>
 </body>
 </html>

@@ -146,7 +146,7 @@
 
 <div class="wrap">
   <div class="brand">
-    <div class="brand-name">SOCCEREDGE<span class="premium">PRO</span></div>
+    <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
     <div class="brand-sub" data-i18n="brandSub">PRO MATCH INTELLIGENCE</div>
   </div>
 
@@ -214,10 +214,10 @@ const TRANSLATIONS = {
   },
 };
 
-let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
+let currentLang = localStorage.getItem('matchedge_lang') || 'en';
 let currentMode = 'login'; // login | register | forgot
 
-function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -340,20 +340,6 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 
     localStorage.setItem('matchedge_token', data.token);
     localStorage.setItem('matchedge_username', data.username);
-    if (data.email) localStorage.setItem('matchedge_pending_email', data.email);
-
-    if (currentMode === 'register') {
-      localStorage.setItem('matchedge_show_install_guide', '1');
-      window.location.href = 'verify.html?email=' + encodeURIComponent(data.email || email);
-      return;
-    }
-
-    if (data.emailVerified === false) {
-      window.location.href = 'verify.html?email=' + encodeURIComponent(data.email || '');
-      return;
-    }
-
-    localStorage.removeItem('matchedge_pending_email');
     window.location.href = 'ana-sayfa.html';
   } catch (err) {
     showError(t('networkError'));
@@ -366,5 +352,6 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 applyStaticTranslations();
 </script>
 
+<script src="language-selector.js"></script>
 </body>
 </html>

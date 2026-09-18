@@ -266,7 +266,7 @@
 <div class="app">
   <div class="top-bar">
     <div>
-      <div class="brand-name">SOCCEREDGE<span class="premium">PRO</span></div>
+      <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
       <div class="brand-sub" data-i18n="brandSub">MY NOTES</div>
     </div>
     <div class="top-actions">
@@ -429,8 +429,8 @@ const PRESET_LABELS = {
   },
 };
 
-let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
-function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+let currentLang = localStorage.getItem('matchedge_lang') || 'en';
+function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
 function displaySelection(sel) { return PRESET_LABELS[currentLang][sel] ?? sel; }
 
 function applyStaticTranslations() {
@@ -844,5 +844,6 @@ setInterval(async () => {
 }, 60000);
 </script>
 
+<script src="language-selector.js"></script>
 </body>
 </html>

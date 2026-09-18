@@ -97,7 +97,18 @@
     gap: 8px;
   }
 
-  .live-pill { display:flex; align-items:center; gap:4px; background:transparent; border:0; color:var(--red); font-size:9px; font-weight:800; padding:3px 5px; border-radius:8px; }
+  .live-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(45, 212, 191, 0.12);
+    border: 1px solid rgba(45, 212, 191, 0.3);
+    color: var(--teal);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
   .live-dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--teal);
@@ -390,12 +401,7 @@
   .coupon-market em { float:right; color:var(--amber); font-style:normal; font-weight:800; }
   .coupon-add { width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px; background:var(--teal); color:#05201c; font-weight:900; font-size:13px; cursor:pointer; }
   .coupon-add:disabled { opacity:.4; }
-  .coupon-feedback { min-height:18px; text-align:center; font-size:10px; color:var(--teal); margin-top:8px; }.coupon-wallet{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;padding:9px 10px;border-radius:11px;background:rgba(245,185,66,.07);border:1px solid rgba(245,185,66,.2);font-size:10px;color:var(--text-secondary)}.coupon-wallet strong{color:var(--amber)}.coupon-return{display:flex;justify-content:space-between;margin-top:10px;font-size:10px;color:var(--text-muted)}.coupon-return strong{color:var(--teal)}
-  .chat-room-button { text-decoration:none; min-height:40px; display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:12px; border:1px solid rgba(45,212,191,.38); background:rgba(45,212,191,.10); color:var(--teal); font-size:11px; font-weight:850; }
-  .chat-room-button:active { transform:scale(.97); }
-  .chat-room-row { display:flex; justify-content:flex-end; margin:-2px 4px 14px; }
-  .collapsible>.card-title{cursor:pointer;margin-bottom:0}.collapsible>.card-title::after{content:'⌄';color:var(--teal);font-size:15px;margin-left:auto}.collapsible:not(.collapsed)>.card-title{margin-bottom:18px}.collapsible:not(.collapsed)>.card-title::after{content:'⌃'}.collapsible.collapsed>:not(.card-title){display:none!important}
-  .community-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.community-head strong{font-size:12px}.community-head span{font-size:9px;color:var(--text-muted)}.community-list{display:grid;gap:9px}.community-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.community-label{font-size:11px;font-weight:750}.community-count{font-size:9px;color:var(--text-muted);margin-top:3px}.community-percent{color:var(--teal);font-size:13px;font-weight:900}.community-track{grid-column:1/-1;height:5px;border-radius:9px;background:#090d16;overflow:hidden}.community-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:inherit}.community-empty{text-align:center;color:var(--text-muted);font-size:10px;padding:10px}
+  .coupon-feedback { min-height:18px; text-align:center; font-size:10px; color:var(--teal); margin-top:8px; }
 </style>
 </head>
 <body>
@@ -412,7 +418,7 @@
 
   <div class="top-bar">
     <div>
-      <div class="brand-name">SOCCEREDGE<span class="premium">PRO</span></div>
+      <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
       <div class="brand-sub" data-i18n="brandSub">PRO MATCH INTELLIGENCE</div>
     </div>
     <div class="top-actions">
@@ -448,11 +454,10 @@
       </div>
     </div>
   </div>
-  <div class="chat-room-row"><a class="chat-room-button" id="chatRoomButton" href="mac-odasi.html">💬 Tribün Chat</a></div>
 
   <div class="card premium-verdict verdict-watch" id="premium-verdict">
     <div class="verdict-head">
-      <div class="eyebrow" data-i18n="edgeVerdict">SOCCEREDGE PRO VERDICT</div>
+      <div class="eyebrow" data-i18n="edgeVerdict">MATCHEDGE VERDICT</div>
       <div class="method-badge">MODEL × MARKET</div>
     </div>
     <div class="decision-line">
@@ -476,16 +481,9 @@
 
   <div class="card" id="coupon-market-card">
     <div class="card-title" data-i18n="couponTitle">KUPON SEÇİMLERİ</div>
-    <div class="coupon-wallet"><span>Cüzdan: <strong id="couponBalance">— Coin</strong></span><span>Kupon bedeli: <strong>10 Coin</strong></span></div>
     <div class="coupon-market-grid" id="couponMarketGrid"></div>
-    <div class="coupon-return"><span id="couponLegs">0/3 seçim</span><span>Olası dönüş: <strong id="couponPayout">— Coin</strong></span></div>
-    <button class="coupon-add" id="addCouponButton" type="button" disabled>10 COIN İLE KUPONU OYNA</button>
+    <button class="coupon-add" id="addCouponButton" type="button" disabled data-i18n="addCoupon">SEÇİLENLERİ KUPONUMA EKLE</button>
     <div class="coupon-feedback" id="couponFeedback"></div>
-  </div>
-
-  <div class="card" id="community-picks-card">
-    <div class="community-head"><strong>TRİBÜN ANALİZİ</strong><span id="communityTotal">0 kullanıcı</span></div>
-    <div class="community-list" id="communityPicks"><div class="community-empty">İlk seçimi sen yap.</div></div>
   </div>
 
   <div class="card" id="section-probabilities">
@@ -721,23 +719,6 @@ const qs = new URLSearchParams(window.location.search);
 const FIXTURE_ID = qs.get('fixtureId');
 let currentAnalysis = null;
 const selectedCouponMarkets = new Map();
-let edgeCoinBalance = 0;
-const MARKET_MULTIPLIERS={home:1.8,draw:2.8,away:2.1,over25:1.7,under25:1.8,bttsYes:1.7,bttsNo:1.9,cornersOver85:1.8,cornersUnder85:1.8,fhHome:2.2,fhDraw:2.6,fhAway:2.4,shHome:2.1,shDraw:2.5,shAway:2.3,mostGoalsFirst:2.2,mostGoalsEqual:2.8,mostGoalsSecond:1.9};
-function estimateCouponPayout(){
- let multiplier=1;
- [...selectedCouponMarkets.values()].forEach(item=>{multiplier*=MARKET_MULTIPLIERS[item.key]||1.5});
- return Math.floor(10*Math.min(6,Math.max(1.2,Number(multiplier.toFixed(2)))));
-}
-function refreshCouponWallet(){
- const count=selectedCouponMarkets.size,payout=count?estimateCouponPayout():0;
- document.getElementById('couponLegs').textContent=count+'/3 seçim';
- document.getElementById('couponPayout').textContent=count?payout+' Coin':'— Coin';
- document.getElementById('couponBalance').textContent=edgeCoinBalance+' Coin';
- document.getElementById('addCouponButton').disabled=count===0||edgeCoinBalance<10;
-}
-async function loadWallet(){
- try{const r=await fetch(API_BASE+'/api/community/me',{headers:{Authorization:'Bearer '+localStorage.getItem('matchedge_token')}});const d=await r.json();if(r.ok){edgeCoinBalance=d.profile.edgeCoins;refreshCouponWallet()}}catch(_){}
-}
 
 // Liste ekranlarindan (maclar.html, mac-sonuclari.html, ana-sayfa.html)
 // URL uzerinden gelen baglamsal bilgi - backend bunlari hem hesaplama
@@ -753,18 +734,11 @@ const CONTEXT = {
   awayBadge: qs.get('awayBadge') || '',
 };
 
-const chatParams = new URLSearchParams({
-  fixtureId: FIXTURE_ID || '',
-  homeTeam: CONTEXT.homeTeamName,
-  awayTeam: CONTEXT.awayTeamName,
-});
-document.getElementById('chatRoomButton').href = `mac-odasi.html?${chatParams.toString()}`;
-
 const TRANSLATIONS = {
   en: {
     couponTitle: 'COUPON PICKS', addCoupon: 'ADD SELECTED PICKS TO MY COUPON', couponAdded: 'Added to My Coupon', couponError: 'Could not add coupon',
     brandSub: 'PRO MATCH INTELLIGENCE', liveData: 'LIVE DATA', loading: 'Loading...', backToMatches: 'Back to matches',
-    edgeVerdict: 'SOCCEREDGE PRO VERDICT', analysing: 'ANALYSING', decisionLoading: 'Checking price, sample and data quality…',
+    edgeVerdict: 'MATCHEDGE VERDICT', analysing: 'ANALYSING', decisionLoading: 'Checking price, sample and data quality…',
     selection: 'Selection', model: 'Model', edge: 'Edge', dataHealth: 'Data health',
     valueStatus: 'VALUE PICKS', pickStatus: 'STRONGEST PICKS', noBetStatus: 'NO SELECTION',
     valueSub: 'The model price is meaningfully above the market price and the data threshold is met.',
@@ -810,12 +784,12 @@ const TRANSLATIONS = {
     notStartedStatus: 'Not Started', unknownLeague: 'League unknown',
     noFixture: 'No match selected', noFixtureSub: 'Go back and pick a match to analyze',
     loadError: "Couldn't load analysis for this match", loadErrorSub: 'Please try again in a moment',
-    legalText: 'SoccerEdge Pro analysis, community picks and virtual game features are for information and entertainment only, not betting advice. Edge Coin has no monetary value and cannot be purchased, transferred, redeemed for cash or prizes. Data may be delayed or incomplete; users remain responsible for their decisions. Not intended for gambling use by minors.<br><br>© 2026 SoccerEdge Pro. All rights reserved. Design, software and content may not be copied without permission.',
+    legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
   },
   tr: {
     couponTitle: 'KUPON SEÇİMLERİ', addCoupon: 'SEÇİLENLERİ KUPONUMA EKLE', couponAdded: 'Kuponuma eklendi', couponError: 'Kupon eklenemedi',
     brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...', backToMatches: 'Maçlara dön',
-    edgeVerdict: 'SOCCEREDGE PRO KARARI', analysing: 'İNCELENİYOR', decisionLoading: 'Fiyat, örneklem ve veri kalitesi kontrol ediliyor…',
+    edgeVerdict: 'MATCHEDGE KARARI', analysing: 'İNCELENİYOR', decisionLoading: 'Fiyat, örneklem ve veri kalitesi kontrol ediliyor…',
     selection: 'Seçim', model: 'Model', edge: 'Avantaj', dataHealth: 'Veri sağlığı',
     valueStatus: 'DEĞERLİ SEÇİMLER', pickStatus: 'EN GÜÇLÜ SEÇİMLER', noBetStatus: 'SEÇİM YOK',
     valueSub: 'Model olasılığı piyasa fiyatından anlamlı biçimde yüksek ve veri eşiği karşılanıyor.',
@@ -861,12 +835,12 @@ const TRANSLATIONS = {
     notStartedStatus: 'Başlamadı', unknownLeague: 'Lig bilgisi yok',
     noFixture: 'Maç seçilmedi', noFixtureSub: 'Geri dönüp analiz edilecek bir maç seç',
     loadError: 'Bu maç için analiz yüklenemedi', loadErrorSub: 'Lütfen biraz sonra tekrar dene',
-    legalText: 'SoccerEdge Pro analizleri, topluluk seçimleri ve sanal oyun özellikleri yalnızca bilgi ve eğlence amaçlıdır; bahis tavsiyesi değildir. Edge Coin parasal değer taşımaz; satın alınamaz, devredilemez, nakde veya ödüle çevrilemez. Veriler gecikebilir ya da eksik olabilir; alınan kararların sorumluluğu kullanıcıya aittir. 18 yaş altı bahis amaçlı kullanım için uygun değildir.<br><br>© 2026 SoccerEdge Pro. Tüm hakları saklıdır. Tasarım, yazılım ve içerikler izinsiz kopyalanamaz.',
+    legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan SoccerEdge Pro sorumlu tutulamaz.<br><br>SoccerEdge Pro © 2026 — Eddas tarafından geliştirildi.',
   },
 };
 
-let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
-function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+let currentLang = localStorage.getItem('matchedge_lang') || 'en';
+function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -912,17 +886,6 @@ function renderContextImmediately() {
   }
 }
 
-
-async function loadCommunityPicks(){
- if(!FIXTURE_ID)return;
- try{
-  const response=await fetch(API_BASE+'/api/community/fixture/'+encodeURIComponent(FIXTURE_ID),{headers:{Authorization:'Bearer '+localStorage.getItem('matchedge_token')}});
-  const data=await response.json();if(!response.ok)throw new Error('community');
-  document.getElementById('communityTotal').textContent=data.totalUsers+' kullanıcı · '+data.totalVotes+' seçim';
-  document.getElementById('communityPicks').innerHTML=(data.selections||[]).slice(0,6).map(item=>'<div class="community-row"><div><div class="community-label">'+item.label+'</div><div class="community-count">'+item.count+' seçim</div></div><div class="community-percent">%'+item.percent+'</div><div class="community-track"><div class="community-fill" style="width:'+item.percent+'%"></div></div></div>').join('')||'<div class="community-empty">İlk seçimi sen yap.</div>';
- }catch(_){}
-}
-
 async function loadAnalysis() {
   if (!FIXTURE_ID) {
     showErrorBanner(`${t('noFixture')} — ${t('noFixtureSub')}`);
@@ -943,7 +906,6 @@ async function loadAnalysis() {
     if (!res.ok) throw new Error('http_' + res.status);
     const data = await res.json();
     renderAnalysis(data);
-    loadCommunityPicks();
   } catch (err) {
     console.warn('Analiz alınamadı:', err.message);
     showErrorBanner(`${t('loadError')} — ${t('loadErrorSub')}`);
@@ -1178,13 +1140,9 @@ function renderCouponMarkets(data) {
     button.addEventListener('click', () => {
       const item = markets.find(market => market.key === button.dataset.key);
       if (!item) return;
-      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key);
-      else {
-        if (selectedCouponMarkets.size >= 3) { document.getElementById('couponFeedback').textContent='Bir kupona en fazla 3 seçim eklenebilir.'; return; }
-        selectedCouponMarkets.set(item.key, item);
-      }
+      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key); else selectedCouponMarkets.set(item.key, item);
       button.classList.toggle('selected', selectedCouponMarkets.has(item.key));
-      refreshCouponWallet();
+      document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
     });
   });
 }
@@ -1207,16 +1165,13 @@ document.getElementById('addCouponButton').addEventListener('click', async () =>
         selections: [...selectedCouponMarkets.values()],
       }),
     });
-    const responseData = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(responseData.error || 'coupon');
-    edgeCoinBalance = Number(responseData.edgeCoins ?? Math.max(0, edgeCoinBalance - 10));
-    feedback.textContent = 'Kupon oynandı · Olası dönüş '+responseData.coupon.potentialPayout+' Coin';
+    if (!response.ok) throw new Error('coupon');
+    feedback.textContent = t('couponAdded');
     selectedCouponMarkets.clear();
-    refreshCouponWallet();
     document.querySelectorAll('.coupon-market.selected').forEach(item => item.classList.remove('selected'));
     setTimeout(() => { window.location.href = 'kuponum.html'; }, 600);
-  } catch (error) {
-    feedback.textContent = error.message === 'coupon' ? t('couponError') : error.message;
+  } catch (_) {
+    feedback.textContent = t('couponError');
     button.disabled = false;
   }
 });
@@ -1456,19 +1411,9 @@ function drawOddsChart(snapshots) {
 }
 
 window.addEventListener('resize', () => loadOddsHistory());
-
-// Compact accordions keep the long analysis easy to scan.
-document.querySelectorAll('.card').forEach((card,index)=>{
- const title=card.querySelector(':scope > .card-title');
- if(!title||card.id==='coupon-market-card'||card.id==='community-picks-card')return;
- card.classList.add('collapsible');
- if(index>5)card.classList.add('collapsed');
- title.addEventListener('click',()=>card.classList.toggle('collapsed'));
-});
-
 loadOddsHistory();
-loadWallet();
 </script>
 
+<script src="language-selector.js"></script>
 </body>
 </html>

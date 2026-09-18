@@ -207,8 +207,11 @@
   .goal-toast-text { font-size: 12.5px; font-weight: 700; line-height: 1.4; }
   .goal-toast-sub { font-size: 10.5px; color: var(--text-secondary); font-weight: 500; margin-top: 2px; }
   .sound-panel { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:12px; margin-bottom:14px; }
-  .sound-head { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:11px; font-weight:800; }
+  .sound-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; font-size:11px; font-weight:800; }
   .sound-toggle { border:1px solid var(--teal); background:rgba(45,212,191,.1); color:var(--teal); border-radius:9px; padding:7px 9px; font-size:10px; font-weight:800; }
+  .sound-options { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .sound-option { border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--text-secondary); border-radius:9px; padding:8px 4px; font-size:9.5px; }
+  .sound-option.active { color:var(--amber); border-color:var(--amber); }
   .favorite-card { border-color:rgba(245,185,66,.5); }
 
   .bottom-nav {
@@ -267,7 +270,7 @@
 
   <div class="top-bar">
     <div>
-      <div class="brand-name">SOCCEREDGE<span class="premium">PRO</span></div>
+      <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
       <div class="brand-sub" data-i18n="brandSub">MATCH RESULTS</div>
     </div>
     <div class="top-actions">
@@ -279,7 +282,7 @@
 
   <div class="day-tabs" id="dayTabs"></div>
   <div class="league-filters" id="leagueFilters"></div>
-  <div class="sound-panel"><div class="sound-head"><span data-i18n="goalSound">Gol bildirimi</span><button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false">Ses Kapalı</button></div></div>
+  <div class="sound-panel"><div class="sound-head"><span data-i18n="goalSound">Favori gol sesi</span><button class="sound-toggle" id="soundToggle" type="button">Sesi Aç</button></div><div class="sound-options"><button class="sound-option" data-sound="whistle">Düdük</button><button class="sound-option" data-sound="double">Çift Zil</button><button class="sound-option" data-sound="premium">Premium</button></div></div>
 
   <div id="resultsContainer">
     <div class="empty-state" data-i18n="loading">Loading...</div>
@@ -322,9 +325,9 @@ const TRANSLATIONS = {
     htPrefix: 'HT',
     goal: 'GOAL!', minuteSuffix: '\'',
     allLeagues: 'All',
-    goalSound: 'Goal notifications', favoritesTitle: 'MY FAVORITES', soundOn: 'Sound On', soundOff: 'Sound Off',
+    goalSound: 'Favorite goal sound', favoritesTitle: 'MY FAVORITES', soundOn: 'Sound On', soundOff: 'Sound Off',
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    legalText: 'SoccerEdge Pro analysis, community picks and virtual game features are for information and entertainment only, not betting advice. Edge Coin has no monetary value and cannot be purchased, transferred, redeemed for cash or prizes. Data may be delayed or incomplete; users remain responsible for their decisions. Not intended for gambling use by minors.<br><br>© 2026 SoccerEdge Pro. All rights reserved. Design, software and content may not be copied without permission.',
+    legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
   },
   tr: {
     brandSub: 'MAÇ SONUÇLARI', loading: 'Yükleniyor...',
@@ -336,14 +339,14 @@ const TRANSLATIONS = {
     htPrefix: 'İY',
     goal: 'GOL!', minuteSuffix: '. dakika',
     allLeagues: 'Tümü',
-    goalSound: 'Gol bildirimleri', favoritesTitle: 'FAVORİLERİM', soundOn: 'Ses Açık', soundOff: 'Ses Kapalı',
+    goalSound: 'Favori gol sesi', favoritesTitle: 'FAVORİLERİM', soundOn: 'Ses Açık', soundOff: 'Sesi Aç',
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
-    legalText: 'SoccerEdge Pro analizleri, topluluk seçimleri ve sanal oyun özellikleri yalnızca bilgi ve eğlence amaçlıdır; bahis tavsiyesi değildir. Edge Coin parasal değer taşımaz; satın alınamaz, devredilemez, nakde veya ödüle çevrilemez. Veriler gecikebilir ya da eksik olabilir; karar sorumluluğu kullanıcıya aittir. 18 yaş altı bahis amaçlı kullanım için uygun değildir.<br><br>© 2026 SoccerEdge Pro. Tüm hakları saklıdır. Tasarım, yazılım ve içerikler izinsiz kopyalanamaz.',
+    legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan SoccerEdge Pro sorumlu tutulamaz.<br><br>SoccerEdge Pro © 2026 — Eddas tarafından geliştirildi.',
   },
 };
 
-let currentLang = localStorage.getItem('matchedge_lang') || 'tr';
-function t(key) { return TRANSLATIONS[currentLang][key] ?? key; }
+let currentLang = localStorage.getItem('matchedge_lang') || 'en';
+function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -372,6 +375,7 @@ function authHeaders() {
 
 const favorites = new Set();
 let goalSoundEnabled = localStorage.getItem('matchedge_goal_sound') === 'on';
+let selectedGoalSound = localStorage.getItem('matchedge_goal_sound_type') || 'premium';
 let audioContext = null;
 
 async function loadFavoritesFromServer() {
@@ -693,10 +697,9 @@ function playGoalSound(force = false) {
   audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
   if (audioContext.state === 'suspended') audioContext.resume();
   const now = audioContext.currentTime + .02;
-  // SoccerEdge Pro Premium: tum kullanicilar icin sabit gol sesi.
-  tone(523, now, .22, .1, 'sine');
-  tone(784, now + .12, .28, .12, 'sine');
-  tone(1047, now + .25, .34, .1, 'sine');
+  if (selectedGoalSound === 'whistle') { tone(1300, now, .18, .11, 'sine'); tone(1750, now + .16, .3, .12, 'sine'); }
+  else if (selectedGoalSound === 'double') { tone(880, now, .16, .14, 'triangle'); tone(1175, now + .22, .2, .14, 'triangle'); }
+  else { tone(523, now, .22, .1, 'sine'); tone(784, now + .12, .28, .12, 'sine'); tone(1047, now + .25, .34, .1, 'sine'); }
 }
 
 function showSystemGoalNotification(m) {
@@ -705,9 +708,8 @@ function showSystemGoalNotification(m) {
 }
 
 function renderSoundSettings() {
-  const button = document.getElementById('soundToggle');
-  button.textContent = goalSoundEnabled ? t('soundOn') : t('soundOff');
-  button.setAttribute('aria-pressed', goalSoundEnabled ? 'true' : 'false');
+  document.getElementById('soundToggle').textContent = goalSoundEnabled ? t('soundOn') : t('soundOff');
+  document.querySelectorAll('.sound-option').forEach(button => button.classList.toggle('active', button.dataset.sound === selectedGoalSound));
 }
 
 document.getElementById('soundToggle').addEventListener('click', async () => {
@@ -719,6 +721,12 @@ document.getElementById('soundToggle').addEventListener('click', async () => {
   }
   renderSoundSettings();
 });
+document.querySelectorAll('.sound-option').forEach(button => button.addEventListener('click', () => {
+  selectedGoalSound = button.dataset.sound;
+  localStorage.setItem('matchedge_goal_sound_type', selectedGoalSound);
+  goalSoundEnabled = true; localStorage.setItem('matchedge_goal_sound', 'on');
+  renderSoundSettings(); playGoalSound(true);
+}));
 
 function showGoalToast(m) {
   const toast = document.getElementById('goalToast');
@@ -741,5 +749,6 @@ setInterval(pollLiveForGoals, LIVE_POLL_INTERVAL_MS);
 pollLiveForGoals();
 </script>
 
+<script src="language-selector.js"></script>
 </body>
 </html>
