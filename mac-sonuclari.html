@@ -209,7 +209,7 @@
   .sound-panel { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:12px; margin-bottom:14px; }
   .sound-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; font-size:11px; font-weight:800; }
   .sound-toggle { border:1px solid var(--teal); background:rgba(45,212,191,.1); color:var(--teal); border-radius:9px; padding:7px 9px; font-size:10px; font-weight:800; }
-  .sound-options { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .sound-options { display:none; }
   .sound-option { border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--text-secondary); border-radius:9px; padding:8px 4px; font-size:9.5px; }
   .sound-option.active { color:var(--amber); border-color:var(--amber); }
   .favorite-card { border-color:rgba(245,185,66,.5); }
@@ -282,7 +282,8 @@
 
   <div class="day-tabs" id="dayTabs"></div>
   <div class="league-filters" id="leagueFilters"></div>
-  <div class="sound-panel"><div class="sound-head"><span data-i18n="goalSound">Favori gol sesi</span><button class="sound-toggle" id="soundToggle" type="button">Sesi Aç</button></div><div class="sound-options"><button class="sound-option" data-sound="whistle">Düdük</button><button class="sound-option" data-sound="double">Çift Zil</button><button class="sound-option" data-sound="premium">Premium</button></div></div>
+  <div class="sound-panel"><div class="sound-head" style="margin-bottom:0"><span data-i18n="goalSound">Gol sesi</span><button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false">Sesi Aç</button></div></div>
+  <div class="league-filters" id="scoreFilters"><button class="league-chip active" id="allScores" type="button" data-i18n="allScores">All scores</button><button class="league-chip" id="favoriteScores" type="button" data-i18n="favoriteScores">★ Favorites</button></div>
 
   <div id="resultsContainer">
     <div class="empty-state" data-i18n="loading">Loading...</div>
@@ -301,7 +302,7 @@
   <a class="nav-item" href="maclar.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2"/></svg></div><span data-i18n="navMatches">Matches</span></a>
   <a class="nav-item active" href="mac-sonuclari.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg></div><span data-i18n="navResults">Results</span></a>
   <a class="nav-item" href="kuponum.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6"/></svg></div><span data-i18n="navNotes">Coupon</span></a>
-  <a class="nav-item" href="favoriler.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></div><span data-i18n="navFav">Favorites</span></a>
+  <a class="nav-item" href="edge-arena.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M8 4h8v3h4v3c0 3-2 5-5 5-1 2-2 3-3 3s-2-1-3-3c-3 0-5-2-5-5V7h4V4Z"/><path d="M9 21h6M12 18v3"/></svg></div><span data-i18n="navArena">Arena</span></a>
 </div>
 
 <script>
@@ -317,7 +318,7 @@ const LIVE_POLL_INTERVAL_MS = 20000;
 const TRANSLATIONS = {
   en: {
     brandSub: 'MATCH RESULTS', loading: 'Loading...',
-    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Coupon', navFav: 'Favorites',
+    navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Coupon', navFav: 'Favorites', navArena: 'Arena',
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load results - pull to refresh",
     liveMatches: 'LIVE MATCHES', otherMatches: 'FINISHED MATCHES',
@@ -325,13 +326,13 @@ const TRANSLATIONS = {
     htPrefix: 'HT',
     goal: 'GOAL!', minuteSuffix: '\'',
     allLeagues: 'All',
-    goalSound: 'Favorite goal sound', favoritesTitle: 'MY FAVORITES', soundOn: 'Sound On', soundOff: 'Sound Off',
+    goalSound: 'Goal sound', favoritesTitle: 'MY FAVORITES', soundOn: 'Sound On', soundOff: 'Sound Off', allScores: 'All scores', favoriteScores: '★ Favorites', noFavorites: 'No favorite matches for this date',
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
   },
   tr: {
     brandSub: 'MAÇ SONUÇLARI', loading: 'Yükleniyor...',
-    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Kuponum', navFav: 'Favoriler',
+    navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Kuponum', navFav: 'Favoriler', navArena: 'Arena',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Sonuçlar yüklenemedi - yenilemek için tekrar dene',
     liveMatches: 'CANLI MAÇLAR', otherMatches: 'BİTEN MAÇLAR',
@@ -339,7 +340,7 @@ const TRANSLATIONS = {
     htPrefix: 'İY',
     goal: 'GOL!', minuteSuffix: '. dakika',
     allLeagues: 'Tümü',
-    goalSound: 'Favori gol sesi', favoritesTitle: 'FAVORİLERİM', soundOn: 'Ses Açık', soundOff: 'Sesi Aç',
+    goalSound: 'Gol sesi', favoritesTitle: 'FAVORİLERİM', soundOn: 'Ses Açık', soundOff: 'Sesi Aç', allScores: 'Tüm skorlar', favoriteScores: '★ Favoriler', noFavorites: 'Bu tarihte favori maç yok',
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
     legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan SoccerEdge Pro sorumlu tutulamaz.<br><br>SoccerEdge Pro © 2026 — Eddas tarafından geliştirildi.',
   },
@@ -375,7 +376,8 @@ function authHeaders() {
 
 const favorites = new Set();
 let goalSoundEnabled = localStorage.getItem('matchedge_goal_sound') === 'on';
-let selectedGoalSound = localStorage.getItem('matchedge_goal_sound_type') || 'premium';
+let showFavoriteScoresOnly = false;
+localStorage.removeItem('matchedge_goal_sound_type');
 let audioContext = null;
 
 async function loadFavoritesFromServer() {
@@ -521,10 +523,10 @@ function renderResults(matches) {
   // Sonuclar ekrani sadece CANLI ve BITMIS maclari gosterir - henuz
   // baslamamis (NS) maclar burada anlamsiz (onlar icin "Maclar" sekmesi
   // var), bu yuzden listeye hic girmiyorlar.
-  const shown = relevantMatches(matches);
+  const shown = relevantMatches(matches).filter(m => !showFavoriteScoresOnly || favorites.has(String(m.fixtureId)));
 
   if (shown.length === 0) {
-    container.innerHTML = `<div class="empty-state">${t('noMatchesDate')}</div>`;
+    container.innerHTML = `<div class="empty-state">${t(showFavoriteScoresOnly ? 'noFavorites' : 'noMatchesDate')}</div>`;
     return;
   }
 
@@ -584,7 +586,7 @@ function escapeAttr(str) {
 function renderMatchCard(m, favoriteSection = false) {
   const homeScore = m.homeScore ?? '-';
   const awayScore = m.awayScore ?? '-';
-  const hasHalftime = m.halftimeHome !== null && m.halftimeHome !== undefined;
+  const hasHalftime = m.halftimeHome != null && m.halftimeAway != null;
   const isFav = favorites.has(String(m.fixtureId));
 
   return `
@@ -697,9 +699,7 @@ function playGoalSound(force = false) {
   audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
   if (audioContext.state === 'suspended') audioContext.resume();
   const now = audioContext.currentTime + .02;
-  if (selectedGoalSound === 'whistle') { tone(1300, now, .18, .11, 'sine'); tone(1750, now + .16, .3, .12, 'sine'); }
-  else if (selectedGoalSound === 'double') { tone(880, now, .16, .14, 'triangle'); tone(1175, now + .22, .2, .14, 'triangle'); }
-  else { tone(523, now, .22, .1, 'sine'); tone(784, now + .12, .28, .12, 'sine'); tone(1047, now + .25, .34, .1, 'sine'); }
+  tone(523, now, .22, .1, 'sine'); tone(784, now + .12, .28, .12, 'sine'); tone(1047, now + .25, .34, .1, 'sine');
 }
 
 function showSystemGoalNotification(m) {
@@ -709,7 +709,7 @@ function showSystemGoalNotification(m) {
 
 function renderSoundSettings() {
   document.getElementById('soundToggle').textContent = goalSoundEnabled ? t('soundOn') : t('soundOff');
-  document.querySelectorAll('.sound-option').forEach(button => button.classList.toggle('active', button.dataset.sound === selectedGoalSound));
+  document.getElementById('soundToggle').setAttribute('aria-pressed', String(goalSoundEnabled));
 }
 
 document.getElementById('soundToggle').addEventListener('click', async () => {
@@ -721,12 +721,6 @@ document.getElementById('soundToggle').addEventListener('click', async () => {
   }
   renderSoundSettings();
 });
-document.querySelectorAll('.sound-option').forEach(button => button.addEventListener('click', () => {
-  selectedGoalSound = button.dataset.sound;
-  localStorage.setItem('matchedge_goal_sound_type', selectedGoalSound);
-  goalSoundEnabled = true; localStorage.setItem('matchedge_goal_sound', 'on');
-  renderSoundSettings(); playGoalSound(true);
-}));
 
 function showGoalToast(m) {
   const toast = document.getElementById('goalToast');
@@ -738,6 +732,14 @@ function showGoalToast(m) {
   setTimeout(() => toast.classList.remove('show'), 4500);
 }
 
+document.getElementById('allScores').addEventListener('click', () => setScoreFilter(false));
+document.getElementById('favoriteScores').addEventListener('click', () => setScoreFilter(true));
+function setScoreFilter(favoritesOnly) {
+  showFavoriteScoresOnly = favoritesOnly;
+  document.getElementById('allScores').classList.toggle('active', !favoritesOnly);
+  document.getElementById('favoriteScores').classList.toggle('active', favoritesOnly);
+  renderResults(filterByLeague(allMatchesForDay));
+}
 applyStaticTranslations();
 renderSoundSettings();
 renderDayTabs();
