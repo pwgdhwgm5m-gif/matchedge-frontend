@@ -213,6 +213,8 @@
   .sound-option { border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--text-secondary); border-radius:9px; padding:8px 4px; font-size:9.5px; }
   .sound-option.active { color:var(--amber); border-color:var(--amber); }
   .favorite-card { border-color:rgba(245,185,66,.5); }
+  .score-scroll { max-height:740px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+  .score-scroll .match-card { margin-bottom:10px; }
 
   .bottom-nav {
     position: fixed; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: 10px; right: 10px;
@@ -543,14 +545,14 @@ function renderResults(matches) {
 
   if (liveMatches.length > 0) {
     html += `<div class="section-label"><span class="live-pip"></span>${t('liveMatches')}</div>`;
-    html += liveMatches.map(renderMatchCard).join('');
+    html += `<div class="score-scroll" aria-label="${t('liveMatches')}">${liveMatches.map(renderMatchCard).join('')}</div>`;
   }
 
   if (otherMatches.length > 0) {
     if (liveMatches.length > 0 || favoriteMatches.length > 0) {
       html += `<div class="section-label" style="margin-top:18px;">${t('otherMatches')}</div>`;
     }
-    html += otherMatches.map(renderMatchCard).join('');
+    html += `<div class="score-scroll" aria-label="${t('otherMatches')}">${otherMatches.map(renderMatchCard).join('')}</div>`;
   }
 
   container.innerHTML = html;
