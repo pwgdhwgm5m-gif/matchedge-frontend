@@ -693,6 +693,10 @@ function renderFeaturedContent() {
       return;
     }
     el.innerHTML = `<div class="featured-scroll" aria-label="${t('liveTab')}">${liveMatches.map(featuredCardHtml).join('')}</div>`;
+    const list = el.querySelector('.featured-scroll');
+    const cards = [...list.querySelectorAll('.featured-card')];
+    if (cards.length > 5) list.style.maxHeight = Math.ceil(cards.slice(0,5).reduce((n,card) => n + card.getBoundingClientRect().height + parseFloat(getComputedStyle(card).marginBottom || 0),0)) + 'px';
+    else list.style.maxHeight = 'none';
     return;
   }
 
