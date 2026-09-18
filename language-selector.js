@@ -198,7 +198,6 @@
     '2.5 Alt':'Under 2.5','2.5 Üst':'Over 2.5','2.5 ALT':'UNDER 2.5','2.5 ÜST':'OVER 2.5',
     'KG VAR':'BTTS YES','KG YOK':'BTTS NO','Veri kalitesi':'Data quality','Bugün':'Today',
     'Yakında':'Upcoming','En Güçlü Seçimler':'Top Predictions','Değerli Seçimler':'Value Picks',
-    'Alt Korner':'Under Corners','Üst Korner':'Over Corners','Alt':'Under','Üst':'Over'
   });
 
   function translateDocument(code) {
