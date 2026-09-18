@@ -253,6 +253,7 @@
     padding: 22px 8px 6px;
     opacity: 0.75;
   }
+.match-shortcuts{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.match-home-button{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border:1px solid var(--teal);border-radius:11px;color:var(--teal);background:rgba(45,212,191,.1);font-size:12px;font-weight:800;text-decoration:none}
 </style>
 </head>
 <body>
@@ -275,7 +276,7 @@
   <div id="mainContent">
 
   <div class="card">
-    <button class="card-back-button" id="backButton" type="button" aria-label="Geri">←</button>
+    <div class="match-shortcuts"><button class="card-back-button" id="backButton" type="button" aria-label="Back">←</button><a class="match-home-button" href="ana-sayfa.html" data-i18n="navHome" aria-label="Home">Home</a></div>
     <div class="minute-badge" id="minute-badge"><span class="pip"></span><span id="minute-text">–</span></div>
     <div class="score-row">
       <div class="team">
