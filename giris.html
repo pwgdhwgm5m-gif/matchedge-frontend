@@ -256,7 +256,7 @@ function setMode(mode) {
   document.getElementById('mainFields').style.display = mode === 'forgot' ? 'none' : 'block';
   document.getElementById('forgotFields').classList.toggle('visible', mode === 'forgot');
   document.getElementById('emailGroup').classList.toggle('visible', mode === 'register');
-  document.getElementById('forgotLink').style.display = mode === 'forgot' ? 'none' : 'block';
+  document.getElementById('forgotLink').style.display = 'none';
   document.getElementById('backLink').style.display = mode === 'forgot' ? 'block' : 'none';
 
   updateSubmitLabel();
