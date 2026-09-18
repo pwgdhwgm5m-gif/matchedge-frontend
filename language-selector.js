@@ -51,10 +51,120 @@
     }
   };
 
+
+  const analysisExtra = {
+    de: {
+      couponTitle:'SCHEIN-AUSWAHL',addCoupon:'AUSWAHL ZUM SCHEIN HINZUFÜGEN',couponAdded:'Zum Schein hinzugefügt',couponError:'Schein konnte nicht hinzugefügt werden',
+      liveData:'LIVE-DATEN',backToMatches:'Zurück zu den Spielen',edgeVerdict:'SOCCEREDGE-URTEIL',analysing:'ANALYSE LÄUFT',decisionLoading:'Quote, Stichprobe und Datenqualität werden geprüft…',
+      selection:'Auswahl',model:'Modell',edge:'Vorteil',dataHealth:'Datenqualität',valueStatus:'WERT-AUSWAHL',pickStatus:'STÄRKSTE AUSWAHL',noBetStatus:'KEINE AUSWAHL',
+      valueSub:'Die Modellwahrscheinlichkeit liegt deutlich über dem Markt und die Datengrenze ist erfüllt.',pickSub:'Die drei stärksten Optionen aus Ergebnis, Toren, Beide treffen und Ecken.',
+      over25Pick:'ÜBER 2,5',under25Pick:'UNTER 2,5',bttsYesPick:'BEIDE TREFFEN: JA',bttsNoPick:'BEIDE TREFFEN: NEIN',cornerOverPick:'ÜBER 8,5 ECKEN',cornerUnderPick:'UNTER 8,5 ECKEN',
+      noBetSub:'Für dieses Spiel konnte keine gültige Modellauswahl erstellt werden.',sourceOdds:'Marktquote',sourceTable:'Tabelle',sourceInjuries:'Kaderdaten',sourceSample:'5-Spiele-Stichprobe',
+      home:'Heim',draw:'Unentschieden',away:'Auswärts',over25:'ÜBER 2,5 TORE',bttsYes:'BEIDE TREFFEN: JA',cornerOver:'ÜBER 8,5 ECKEN',mostGoalsHalf:'TORREICHSTE HÄLFTE',secondHalf:'Zweite Hälfte',
+      veryHigh:'Sehr hoch',high:'Hoch',medium:'Mittel',low:'Niedrig',squadStatusTitle:'KADERSTATUS',noInfo:'Keine Angaben',noMissingPlayers:'Keine Ausfälle gemeldet',
+      homeAwayFormTitle:'HEIM-/AUSWÄRTSFORM',atHomeLast5:'ZU HAUSE (LETZTE 5)',awayLast5:'AUSWÄRTS (LETZTE 5)',scoredLabel:'Erzielt: ',concededLabel:'Kassiert: ',
+      streakRestTitle:'FORM & ERHOLUNG',oddsMovementTitle:'QUOTENBEWEGUNG (24 STD.)',oddsTrendWaiting:'Der Quotentrend erscheint, sobald genug Daten vorliegen',
+      cornerDisclaimer:'Schätzung aus dem erwarteten Torgefälle; keine echte Eckenstatistik',standingsSub:'Gesamte Tabelle',standingsTeam:'Team',standingsPlayed:'Sp.',standingsGoalDiff:'Diff.',standingsPoints:'Pkt.',
+      winStreak:'Siegesserie',lossStreak:'Niederlagenserie',noStreak:'Keine klare Serie',unknownLeague:'Liga unbekannt',noFixture:'Kein Spiel ausgewählt',noFixtureSub:'Gehe zurück und wähle ein Spiel aus'
+    },
+    fr: {
+      couponTitle:'CHOIX DU COUPON',addCoupon:'AJOUTER LES CHOIX À MON COUPON',couponAdded:'Ajouté à mon coupon',couponError:"Impossible d’ajouter le coupon",
+      liveData:'DONNÉES EN DIRECT',backToMatches:'Retour aux matchs',edgeVerdict:'VERDICT SOCCEREDGE',analysing:'ANALYSE EN COURS',decisionLoading:'Vérification des cotes, de l’échantillon et des données…',
+      selection:'Choix',model:'Modèle',edge:'Avantage',dataHealth:'Qualité des données',valueStatus:'CHOIX DE VALEUR',pickStatus:'CHOIX LES PLUS FORTS',noBetStatus:'AUCUN CHOIX',
+      valueSub:'La probabilité du modèle dépasse nettement celle du marché et le seuil de données est atteint.',pickSub:'Les trois meilleures options parmi résultat, buts, les deux équipes marquent et corners.',
+      over25Pick:'PLUS DE 2,5',under25Pick:'MOINS DE 2,5',bttsYesPick:'LES DEUX MARQUENT : OUI',bttsNoPick:'LES DEUX MARQUENT : NON',cornerOverPick:'PLUS DE 8,5 CORNERS',cornerUnderPick:'MOINS DE 8,5 CORNERS',
+      noBetSub:'Aucun choix de modèle valide n’a pu être produit.',sourceOdds:'Cotes du marché',sourceTable:'Classement',sourceInjuries:'Données effectif',sourceSample:'Échantillon de 5 matchs',
+      home:'Domicile',draw:'Nul',away:'Extérieur',over25:'PLUS DE 2,5 BUTS',bttsYes:'LES DEUX MARQUENT : OUI',cornerOver:'PLUS DE 8,5 CORNERS',mostGoalsHalf:'MI-TEMPS LA PLUS RICHE EN BUTS',secondHalf:'Deuxième mi-temps',
+      veryHigh:'Très élevée',high:'Élevée',medium:'Moyenne',low:'Faible',squadStatusTitle:"ÉTAT DE L’EFFECTIF",noInfo:'Aucune information',noMissingPlayers:'Aucune absence signalée',
+      homeAwayFormTitle:'FORME DOMICILE / EXTÉRIEUR',atHomeLast5:'À DOMICILE (5 DERNIERS)',awayLast5:"À L’EXTÉRIEUR (5 DERNIERS)",scoredLabel:'Marqués : ',concededLabel:'Encaissés : ',
+      streakRestTitle:'SÉRIE & REPOS',oddsMovementTitle:'ÉVOLUTION DES COTES (24 H)',oddsTrendWaiting:'La tendance apparaîtra lorsque les données seront suffisantes',
+      cornerDisclaimer:'Estimation issue du rythme de buts attendu, pas de vraies statistiques de corners',standingsSub:'Classement complet',standingsTeam:'Équipe',standingsPlayed:'MJ',standingsGoalDiff:'Diff.',standingsPoints:'Pts',
+      winStreak:'Série de victoires',lossStreak:'Série de défaites',noStreak:'Aucune série nette',unknownLeague:'Ligue inconnue',noFixture:'Aucun match sélectionné',noFixtureSub:'Revenez choisir un match à analyser'
+    },
+    es: {
+      couponTitle:'SELECCIONES DEL CUPÓN',addCoupon:'AÑADIR SELECCIONES A MI CUPÓN',couponAdded:'Añadido a Mi Cupón',couponError:'No se pudo añadir el cupón',
+      liveData:'DATOS EN VIVO',backToMatches:'Volver a partidos',edgeVerdict:'VEREDICTO SOCCEREDGE',analysing:'ANALIZANDO',decisionLoading:'Comprobando cuotas, muestra y calidad de datos…',
+      selection:'Selección',model:'Modelo',edge:'Ventaja',dataHealth:'Calidad de datos',valueStatus:'SELECCIONES DE VALOR',pickStatus:'SELECCIONES MÁS FUERTES',noBetStatus:'SIN SELECCIÓN',
+      valueSub:'La probabilidad del modelo supera claramente al mercado y se cumple el umbral de datos.',pickSub:'Las tres mejores opciones entre resultado, goles, ambos marcan y córners.',
+      over25Pick:'MÁS DE 2,5',under25Pick:'MENOS DE 2,5',bttsYesPick:'AMBOS MARCAN: SÍ',bttsNoPick:'AMBOS MARCAN: NO',cornerOverPick:'MÁS DE 8,5 CÓRNERS',cornerUnderPick:'MENOS DE 8,5 CÓRNERS',
+      noBetSub:'No se pudo generar una selección válida para este partido.',sourceOdds:'Cuotas de mercado',sourceTable:'Clasificación',sourceInjuries:'Datos de plantilla',sourceSample:'Muestra de 5 partidos',
+      home:'Local',draw:'Empate',away:'Visitante',over25:'MÁS DE 2,5 GOLES',bttsYes:'AMBOS MARCAN: SÍ',cornerOver:'MÁS DE 8,5 CÓRNERS',mostGoalsHalf:'MITAD CON MÁS GOLES',secondHalf:'Segunda parte',
+      veryHigh:'Muy alta',high:'Alta',medium:'Media',low:'Baja',squadStatusTitle:'ESTADO DE LA PLANTILLA',noInfo:'Sin información',noMissingPlayers:'No se informaron bajas',
+      homeAwayFormTitle:'FORMA LOCAL / VISITANTE',atHomeLast5:'EN CASA (ÚLTIMOS 5)',awayLast5:'FUERA (ÚLTIMOS 5)',scoredLabel:'Marcados: ',concededLabel:'Recibidos: ',
+      streakRestTitle:'RACHA Y DESCANSO',oddsMovementTitle:'MOVIMIENTO DE CUOTAS (24 H)',oddsTrendWaiting:'La tendencia aparecerá cuando haya suficientes datos',
+      cornerDisclaimer:'Estimación basada en el ritmo esperado de goles; no son estadísticas reales de córners',standingsSub:'Tabla completa',standingsTeam:'Equipo',standingsPlayed:'PJ',standingsGoalDiff:'DG',standingsPoints:'Pts',
+      winStreak:'Racha de victorias',lossStreak:'Racha de derrotas',noStreak:'Sin racha clara',unknownLeague:'Liga desconocida',noFixture:'Ningún partido seleccionado',noFixtureSub:'Vuelve y elige un partido para analizar'
+    },
+    it: {
+      couponTitle:'SELEZIONI SCHEDINA',addCoupon:'AGGIUNGI LE SELEZIONI ALLA SCHEDINA',couponAdded:'Aggiunto alla schedina',couponError:'Impossibile aggiungere la schedina',
+      liveData:'DATI LIVE',backToMatches:'Torna alle partite',edgeVerdict:'VERDETTO SOCCEREDGE',analysing:'ANALISI IN CORSO',decisionLoading:'Controllo quote, campione e qualità dati…',
+      selection:'Selezione',model:'Modello',edge:'Vantaggio',dataHealth:'Qualità dati',valueStatus:'SELEZIONI DI VALORE',pickStatus:'SELEZIONI PIÙ FORTI',noBetStatus:'NESSUNA SELEZIONE',
+      valueSub:'La probabilità del modello supera chiaramente il mercato e la soglia dati è soddisfatta.',pickSub:'Le tre opzioni migliori tra risultato, gol, entrambe segnano e corner.',
+      over25Pick:'OVER 2,5',under25Pick:'UNDER 2,5',bttsYesPick:'GOL: SÌ',bttsNoPick:'GOL: NO',cornerOverPick:'OVER 8,5 CORNER',cornerUnderPick:'UNDER 8,5 CORNER',
+      noBetSub:'Non è stato possibile produrre una selezione valida.',sourceOdds:'Quote di mercato',sourceTable:'Classifica',sourceInjuries:'Dati rosa',sourceSample:'Campione di 5 partite',
+      home:'Casa',draw:'Pareggio',away:'Trasferta',over25:'OVER 2,5 GOL',bttsYes:'GOL: SÌ',cornerOver:'OVER 8,5 CORNER',mostGoalsHalf:'TEMPO CON PIÙ GOL',secondHalf:'Secondo tempo',
+      veryHigh:'Molto alta',high:'Alta',medium:'Media',low:'Bassa',squadStatusTitle:'STATO ROSA',noInfo:'Nessuna informazione',noMissingPlayers:'Nessuna assenza segnalata',
+      homeAwayFormTitle:'FORMA CASA / TRASFERTA',atHomeLast5:'IN CASA (ULTIME 5)',awayLast5:'IN TRASFERTA (ULTIME 5)',scoredLabel:'Segnati: ',concededLabel:'Subiti: ',
+      streakRestTitle:'SERIE & RIPOSO',oddsMovementTitle:'MOVIMENTO QUOTE (24 ORE)',oddsTrendWaiting:'La tendenza apparirà quando ci saranno dati sufficienti',
+      cornerDisclaimer:'Stima basata sul ritmo gol previsto; non sono statistiche reali dei corner',standingsSub:'Classifica completa',standingsTeam:'Squadra',standingsPlayed:'G',standingsGoalDiff:'DR',standingsPoints:'Pt',
+      winStreak:'Serie di vittorie',lossStreak:'Serie di sconfitte',noStreak:'Nessuna serie chiara',unknownLeague:'Campionato sconosciuto',noFixture:'Nessuna partita selezionata',noFixtureSub:'Torna indietro e scegli una partita da analizzare'
+    }
+  };
+  Object.keys(analysisExtra).forEach(function(code){ Object.assign(common[code], analysisExtra[code]); });
+
+  const literalMaps = {
+    en: {
+      'Tribün Akışı':'Matchday Hub','AI analiz + topluluk sohbeti':'AI analysis + community chat','GÜVENLİ SOHBET':'SAFE CHAT','Maç yükleniyor…':'Loading match…',
+      'Saygılı ol. Küfür, hakaret, tehdit, reklam ve iletişim bilgisi paylaşımı yasaktır.':'Be respectful. Abuse, threats, advertising and sharing contact information are prohibited.',
+      'Kurallar':'Rules','Destek':'Support','Mesajlar yükleniyor…':'Loading messages…','Mesajlar otomatik filtrelerden geçer ve şikâyet üzerine incelenebilir. Kişisel bilgi paylaşma.':'Messages are automatically filtered and may be reviewed after reports. Do not share personal information.',
+      'Gönder':'Send','Topluluk Kuralları':'Community Rules','Kabul Et ve Devam Et':'Accept and Continue','Kapat':'Close','Mesaj seçenekleri':'Message options','Mesajı Şikâyet Et':'Report Message','Kullanıcıyı Engelle':'Block User','Vazgeç':'Cancel',
+      'Hakaret veya zorbalık':'Abuse or bullying','Spam veya reklam':'Spam or advertising','Nefret söylemi':'Hate speech','Uygunsuz/cinsel içerik':'Inappropriate/sexual content','Kişisel bilgi':'Personal information','Diğer':'Other',
+      'SoccerEdge Pro Destek':'SoccerEdge Pro Support','Destek Talebi Gönder':'Send Support Request','Henüz analiz veya topluluk mesajı yok. İlk mesajı sen yaz.':'No analysis or community messages yet. Write the first message.',
+      'KUPONUM':'MY COUPON','OTOMATİK KONTROL':'AUTOMATIC CHECK','Kontrol ediliyor…':'Checking…','BEKLİYOR':'PENDING','TUTTU':'WON','TUTMADI':'LOST','Kuponlar yükleniyor…':'Loading coupons…','Ana Sayfa':'Home','Maçlar':'Matches','Sonuçlar':'Results','Kuponum':'Coupon','Favoriler':'Favorites','Kuponu sil':'Delete coupon',
+      'EDGE ARENA':'EDGE ARENA','GENEL SIRALAMA':'LEADERBOARD','SEÇİM YAP':'MAKE PICKS','Sıralama yükleniyor…':'Loading leaderboard…','Profil yükleniyor…':'Loading profile…','ⓘ Edge Coin kuralları':'ⓘ Edge Coin rules'
+    },
+    de: {
+      'Tribün Akışı':'Spieltag-Hub','AI analiz + topluluk sohbeti':'KI-Analyse + Community-Chat','GÜVENLİ SOHBET':'SICHERER CHAT','Maç yükleniyor…':'Spiel wird geladen…','Kurallar':'Regeln','Destek':'Support','Mesajlar yükleniyor…':'Nachrichten werden geladen…','Gönder':'Senden','Topluluk Kuralları':'Community-Regeln','Kabul Et ve Devam Et':'Akzeptieren und fortfahren','Kapat':'Schließen','Mesaj seçenekleri':'Nachrichtenoptionen','Mesajı Şikâyet Et':'Nachricht melden','Kullanıcıyı Engelle':'Benutzer blockieren','Vazgeç':'Abbrechen',
+      'KUPONUM':'MEIN SCHEIN','OTOMATİK KONTROL':'AUTOMATISCHE PRÜFUNG','Kontrol ediliyor…':'Wird geprüft…','BEKLİYOR':'OFFEN','TUTTU':'GEWONNEN','TUTMADI':'VERLOREN','Kuponlar yükleniyor…':'Scheine werden geladen…','Ana Sayfa':'Start','Maçlar':'Spiele','Sonuçlar':'Ergebnisse','Kuponum':'Mein Schein','Favoriler':'Favoriten','Kuponu sil':'Schein löschen',
+      'GENEL SIRALAMA':'RANGLISTE','SEÇİM YAP':'TIPPS ABGEBEN','Sıralama yükleniyor…':'Rangliste wird geladen…','Profil yükleniyor…':'Profil wird geladen…','ⓘ Edge Coin kuralları':'ⓘ Edge-Coin-Regeln'
+    },
+    fr: {
+      'Tribün Akışı':'Espace Match','AI analiz + topluluk sohbeti':'Analyse IA + chat communautaire','GÜVENLİ SOHBET':'CHAT SÉCURISÉ','Maç yükleniyor…':'Chargement du match…','Kurallar':'Règles','Destek':'Assistance','Mesajlar yükleniyor…':'Chargement des messages…','Gönder':'Envoyer','Topluluk Kuralları':'Règles de la communauté','Kabul Et ve Devam Et':'Accepter et continuer','Kapat':'Fermer','Mesaj seçenekleri':'Options du message','Mesajı Şikâyet Et':'Signaler le message','Kullanıcıyı Engelle':'Bloquer l’utilisateur','Vazgeç':'Annuler',
+      'KUPONUM':'MON COUPON','OTOMATİK KONTROL':'VÉRIFICATION AUTOMATIQUE','Kontrol ediliyor…':'Vérification…','BEKLİYOR':'EN ATTENTE','TUTTU':'GAGNÉ','TUTMADI':'PERDU','Kuponlar yükleniyor…':'Chargement des coupons…','Ana Sayfa':'Accueil','Maçlar':'Matchs','Sonuçlar':'Résultats','Kuponum':'Mon coupon','Favoriler':'Favoris','Kuponu sil':'Supprimer le coupon',
+      'GENEL SIRALAMA':'CLASSEMENT GÉNÉRAL','SEÇİM YAP':'FAIRE DES CHOIX','Sıralama yükleniyor…':'Chargement du classement…','Profil yükleniyor…':'Chargement du profil…','ⓘ Edge Coin kuralları':'ⓘ Règles Edge Coin'
+    },
+    es: {
+      'Tribün Akışı':'Zona de Partido','AI analiz + topluluk sohbeti':'Análisis IA + chat comunitario','GÜVENLİ SOHBET':'CHAT SEGURO','Maç yükleniyor…':'Cargando partido…','Kurallar':'Reglas','Destek':'Soporte','Mesajlar yükleniyor…':'Cargando mensajes…','Gönder':'Enviar','Topluluk Kuralları':'Reglas de la comunidad','Kabul Et ve Devam Et':'Aceptar y continuar','Kapat':'Cerrar','Mesaj seçenekleri':'Opciones del mensaje','Mesajı Şikâyet Et':'Reportar mensaje','Kullanıcıyı Engelle':'Bloquear usuario','Vazgeç':'Cancelar',
+      'KUPONUM':'MI CUPÓN','OTOMATİK KONTROL':'COMPROBACIÓN AUTOMÁTICA','Kontrol ediliyor…':'Comprobando…','BEKLİYOR':'PENDIENTE','TUTTU':'GANADO','TUTMADI':'PERDIDO','Kuponlar yükleniyor…':'Cargando cupones…','Ana Sayfa':'Inicio','Maçlar':'Partidos','Sonuçlar':'Resultados','Kuponum':'Mi cupón','Favoriler':'Favoritos','Kuponu sil':'Eliminar cupón',
+      'GENEL SIRALAMA':'CLASIFICACIÓN GENERAL','SEÇİM YAP':'HACER SELECCIONES','Sıralama yükleniyor…':'Cargando clasificación…','Profil yükleniyor…':'Cargando perfil…','ⓘ Edge Coin kuralları':'ⓘ Reglas de Edge Coin'
+    },
+    it: {
+      'Tribün Akışı':'Zona Partita','AI analiz + topluluk sohbeti':'Analisi IA + chat della community','GÜVENLİ SOHBET':'CHAT SICURA','Maç yükleniyor…':'Caricamento partita…','Kurallar':'Regole','Destek':'Supporto','Mesajlar yükleniyor…':'Caricamento messaggi…','Gönder':'Invia','Topluluk Kuralları':'Regole della community','Kabul Et ve Devam Et':'Accetta e continua','Kapat':'Chiudi','Mesaj seçenekleri':'Opzioni messaggio','Mesajı Şikâyet Et':'Segnala messaggio','Kullanıcıyı Engelle':'Blocca utente','Vazgeç':'Annulla',
+      'KUPONUM':'LA MIA SCHEDINA','OTOMATİK KONTROL':'CONTROLLO AUTOMATICO','Kontrol ediliyor…':'Controllo…','BEKLİYOR':'IN ATTESA','TUTTU':'VINTA','TUTMADI':'PERSA','Kuponlar yükleniyor…':'Caricamento schedine…','Ana Sayfa':'Home','Maçlar':'Partite','Sonuçlar':'Risultati','Kuponum':'Schedina','Favoriler':'Preferiti','Kuponu sil':'Elimina schedina',
+      'GENEL SIRALAMA':'CLASSIFICA GENERALE','SEÇİM YAP':'FAI LE SELEZIONI','Sıralama yükleniyor…':'Caricamento classifica…','Profil yükleniyor…':'Caricamento profilo…','ⓘ Edge Coin kuralları':'ⓘ Regole Edge Coin'
+    }
+  };
+
+  function translateDocument(code) {
+    if (code === 'tr') return;
+    const map = literalMaps[code] || literalMaps.en;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) {
+      const parent = walker.currentNode.parentElement;
+      if (parent && !/^(SCRIPT|STYLE|TEXTAREA|OPTION)$/.test(parent.tagName)) nodes.push(walker.currentNode);
+    }
+    nodes.forEach(function(node) {
+      const raw = node.nodeValue;
+      const trimmed = raw.trim();
+      if (map[trimmed]) node.nodeValue = raw.replace(trimmed, map[trimmed]);
+    });
+  }
+
   function extendTranslations(translations) {
     if (!translations || !translations.en) return;
     ['de', 'fr', 'es', 'it'].forEach(function (code) {
-      translations[code] = Object.assign({}, translations.en, common[code]);
+      translations[code] = Object.assign({}, translations.en, common[code], analysisExtra[code] || {});
       if (typeof translations.en.matchCount === 'function') {
         translations[code].matchCount = function (n) {
           const words = { de: 'Spiele', fr: 'matchs', es: 'partidos', it: 'partite' };
@@ -71,16 +181,22 @@
   }
 
   function install() {
-    if (typeof TRANSLATIONS === 'undefined') return;
-    extendTranslations(TRANSLATIONS);
+    if (typeof TRANSLATIONS !== 'undefined') extendTranslations(TRANSLATIONS);
 
     let selected = localStorage.getItem('matchedge_lang') || 'en';
     if (!languages[selected]) selected = 'en';
     if (typeof currentLang !== 'undefined') currentLang = selected;
 
-    const oldToggle = document.getElementById('langToggle');
-    if (!oldToggle) return;
-    const toggle = oldToggle.cloneNode(true); // removes the old two-language click listener
+    let oldToggle = document.getElementById('langToggle');
+    if (!oldToggle) {
+      oldToggle = document.createElement('button');
+      oldToggle.id = 'langToggle';
+      oldToggle.type = 'button';
+      oldToggle.innerHTML = '<span id="langFlag"></span> <span id="langCode"></span>';
+      oldToggle.style.cssText = 'position:fixed;right:14px;top:14px;z-index:9998;border:1px solid #2b3850;background:#111827;color:#f4f7fb;border-radius:11px;padding:9px 11px;font-weight:800';
+      document.body.appendChild(oldToggle);
+    }
+    const toggle = oldToggle.cloneNode(true);
     oldToggle.replaceWith(toggle);
 
     const style = document.createElement('style');
@@ -105,6 +221,7 @@
     document.body.appendChild(menu);
 
     if (typeof applyStaticTranslations === 'function') applyStaticTranslations();
+    translateDocument(selected);
     const meta = languages[selected];
     const flag = toggle.querySelector('#langFlag');
     const code = toggle.querySelector('#langCode');
@@ -116,6 +233,8 @@
     });
     document.addEventListener('click', function () { menu.classList.remove('open'); });
     document.documentElement.lang = selected;
+    const observer = new MutationObserver(function(){ translateDocument(selected); });
+    observer.observe(document.body, { childList:true, subtree:true });
   }
 
   window.SoccerEdgeI18n = { languages: languages, locale: code => (languages[code] || languages.en).locale };
