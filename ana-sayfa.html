@@ -248,6 +248,16 @@
   .empty-state { text-align: center; padding: 24px; color: var(--text-secondary); font-size: 12.5px; }
   .empty-state.error { color: var(--red); }
 
+  .community-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .community-card { display:block; text-decoration:none; color:var(--text-primary); background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:14px; }
+  .community-card strong { display:block; font-size:13px; margin:7px 0 3px; }
+  .community-card span { display:block; color:var(--text-secondary); font-size:10px; line-height:1.4; }
+  .coin-panel { display:flex; align-items:center; justify-content:space-between; gap:12px; background:linear-gradient(135deg,rgba(245,185,66,.12),rgba(45,212,191,.08)); border:1px solid rgba(245,185,66,.32); border-radius:14px; padding:13px 14px; margin-bottom:10px; }
+  .coin-panel strong { color:var(--amber); font-size:16px; }
+  .coin-panel small { display:block; color:var(--text-secondary); margin-top:3px; }
+  .claim-btn { border:0; border-radius:10px; background:var(--teal); color:#05201c; padding:9px 11px; font-weight:900; font-size:10px; }
+  .claim-btn:disabled { opacity:.45; }
+
   .legal-footer {
     font-size: 8.5px;
     line-height: 1.6;
@@ -304,6 +314,18 @@
   <div class="date-header" id="dateHeader"></div>
   <div id="todayMatchesList">
     <div class="empty-state" data-i18n="loading">Loading...</div>
+  </div>
+
+  <div class="section-label"><div class="section-label-left">TOPLULUK & EDGE COIN</div></div>
+  <div class="coin-panel" id="coinPanel">
+    <div><strong id="coinBalance">🪙 —</strong><small id="coinRank">Coin ve rank yükleniyor…</small></div>
+    <button class="claim-btn" id="claimDailyBtn" type="button">GÜNLÜK COIN</button>
+  </div>
+  <div class="community-grid">
+    <a class="community-card" href="edge-arena.html"><div>🏆</div><strong>Edge Arena</strong><span>Sıralama, XP, rank ve Coin durumun</span></a>
+    <a class="community-card" href="maclar.html"><div>💬</div><strong>Maç Sohbeti</strong><span>Bir maç seç ve sohbet odasına katıl</span></a>
+    <a class="community-card" href="kuponum.html"><div>🎟️</div><strong>Kuponum</strong><span>Seçimlerini ve sonuçlarını takip et</span></a>
+    <a class="community-card" href="edge-arena.html"><div>📊</div><strong>Tribünden Analiz</strong><span>Topluluk seçimleri ve popüler tercihler</span></a>
   </div>
 
   <div class="legal-footer" data-i18n="legalText">
@@ -771,6 +793,38 @@ function renderTodayList(matches, loadFailed) {
 
 applyStaticTranslations();
 renderWelcome();
+async function loadCommunityPanel() {
+  const button = document.getElementById('claimDailyBtn');
+  try {
+    const response = await fetch(`${API_BASE}/api/community/me`, { headers: authHeaders() });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Topluluk profili yüklenemedi');
+    const profile = data.profile;
+    document.getElementById('coinBalance').textContent = '🪙 ' + profile.edgeCoins + ' Edge Coin';
+    document.getElementById('coinRank').textContent = profile.rank.icon + ' ' + profile.rank.name + ' · ' + profile.xp + ' XP';
+    const claimed = Boolean(profile.daily && profile.daily.claimedToday);
+    button.disabled = claimed;
+    button.textContent = claimed ? 'BUGÜN ALINDI' : 'GÜNLÜK COIN';
+  } catch (error) {
+    document.getElementById('coinRank').textContent = 'Profil yüklenemedi';
+    button.disabled = true;
+  }
+}
+document.getElementById('claimDailyBtn').addEventListener('click', async () => {
+  const button = document.getElementById('claimDailyBtn');
+  button.disabled = true;
+  try {
+    const response = await fetch(`${API_BASE}/api/community/daily-claim`, { method: 'POST', headers: authHeaders() });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Ödül alınamadı');
+    await loadCommunityPanel();
+  } catch (error) {
+    button.textContent = error.message;
+    setTimeout(loadCommunityPanel, 1800);
+  }
+});
+
+loadCommunityPanel();
 (async () => {
   await loadFavoritesFromServer();
   loadHome();
