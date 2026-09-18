@@ -2,10 +2,6 @@
   const languages = {
     en: { code: 'EN', flag: '🇬🇧', name: 'English', locale: 'en-GB' },
     tr: { code: 'TR', flag: '🇹🇷', name: 'Türkçe', locale: 'tr-TR' },
-    de: { code: 'DE', flag: '🇩🇪', name: 'Deutsch', locale: 'de-DE' },
-    fr: { code: 'FR', flag: '🇫🇷', name: 'Français', locale: 'fr-FR' },
-    es: { code: 'ES', flag: '🇪🇸', name: 'Español', locale: 'es-ES' },
-    it: { code: 'IT', flag: '🇮🇹', name: 'Italiano', locale: 'it-IT' },
   };
 
   // Page dictionaries are deliberately completed from English first. The
@@ -180,8 +176,32 @@
   };
   Object.keys(completeCopy).forEach(function(code){ Object.assign(literalMaps[code], completeCopy[code]); });
 
+  literalMaps.tr = Object.assign({}, literalMaps.tr || {}, {
+    'Matchday Hub':'Tribün Akışı','AI analysis + community chat':'Yapay zekâ analizi + topluluk sohbeti',
+    'SAFE CHAT':'GÜVENLİ SOHBET','Loading match…':'Maç yükleniyor…','Rules':'Kurallar','Support':'Destek',
+    'Loading messages…':'Mesajlar yükleniyor…','Send':'Gönder','Community Rules':'Topluluk Kuralları',
+    'Accept and Continue':'Kabul Et ve Devam Et','Close':'Kapat','Message options':'Mesaj seçenekleri',
+    'Report Message':'Mesajı Şikâyet Et','Block User':'Kullanıcıyı Engelle','Cancel':'Vazgeç',
+    'MY COUPON':'KUPONUM','AUTOMATIC CHECK':'OTOMATİK KONTROL','Checking…':'Kontrol ediliyor…',
+    'PENDING':'BEKLİYOR','WON':'TUTTU','LOST':'TUTMADI','Loading coupons…':'Kuponlar yükleniyor…',
+    'Home':'Ana Sayfa','Matches':'Maçlar','Results':'Sonuçlar','Coupon':'Kuponum','Favorites':'Favoriler',
+    'Delete coupon':'Kuponu sil','LEADERBOARD':'GENEL SIRALAMA','MAKE PICKS':'SEÇİM YAP',
+    'Loading leaderboard…':'Sıralama yükleniyor…','Loading profile…':'Profil yükleniyor…',
+    'Under 2.5':'2.5 Alt','Over 2.5':'2.5 Üst','UNDER 2.5':'2.5 ALT','OVER 2.5':'2.5 ÜST',
+    'Under 8.5 Corners':'8.5 Alt Korner','Over 8.5 Corners':'8.5 Üst Korner',
+    'UNDER 8.5 CORNERS':'8.5 ALT KORNER','OVER 8.5 CORNERS':'8.5 ÜST KORNER',
+    'BTTS YES':'KG VAR','BTTS NO':'KG YOK','Corners':'Korner','CORNERS':'KORNER',
+    'Data quality':'Veri kalitesi','Today':'Bugün','Upcoming':'Yakında','Top Predictions':'En Güçlü Seçimler','Values':'Değerli Seçimler'
+  });
+  Object.assign(literalMaps.en, {
+    'KORNER':'CORNERS','Korner':'Corners','8.5 Alt Korner':'Under 8.5 Corners','8.5 Üst Korner':'Over 8.5 Corners',
+    '2.5 Alt':'Under 2.5','2.5 Üst':'Over 2.5','2.5 ALT':'UNDER 2.5','2.5 ÜST':'OVER 2.5',
+    'KG VAR':'BTTS YES','KG YOK':'BTTS NO','Veri kalitesi':'Data quality','Bugün':'Today',
+    'Yakında':'Upcoming','En Güçlü Seçimler':'Top Predictions','Değerli Seçimler':'Value Picks',
+    'Alt Korner':'Under Corners','Üst Korner':'Over Corners','Alt':'Under','Üst':'Over'
+  });
+
   function translateDocument(code) {
-    if (code === 'tr') return;
     const map = literalMaps[code] || literalMaps.en;
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
@@ -191,8 +211,11 @@
     }
     nodes.forEach(function(node) {
       const raw = node.nodeValue;
-      const trimmed = raw.trim();
-      if (map[trimmed]) node.nodeValue = raw.replace(trimmed, map[trimmed]);
+      let translated = raw;
+      Object.keys(map).sort(function(a,b){ return b.length-a.length; }).forEach(function(source) {
+        if (translated.includes(source)) translated = translated.split(source).join(map[source]);
+      });
+      if (translated !== raw) node.nodeValue = translated;
     });
   }
 
