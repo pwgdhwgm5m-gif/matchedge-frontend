@@ -45,6 +45,10 @@ body{padding-bottom:82px!important}
 @media(max-width:340px){.se-bottom-nav a{font-size:9px!important}}
 @media(min-width:768px){.app,.container{margin-left:auto!important;margin-right:auto!important}}
 </style>
+<style id="se-desktop-bottom-nav-fix">
+.se-bottom-nav{left:0!important;right:0!important;bottom:0!important;transform:none!important;width:100%!important;max-width:none!important;grid-template-columns:repeat(6,minmax(72px,140px))!important;justify-content:center!important}
+@media(max-width:600px){.se-bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;justify-content:stretch!important}}
+</style>
 </head>
 <body><main class="app"><header class="top"><button class="back" onclick="history.length>1?history.back():location.href='ana-sayfa.html'">←</button><div><div class="title">EDGE ARENA</div><div class="sub">10 Coin ile kupon yap · Kazan · Rank yükselt</div></div></header>
 <section class="profile" id="profile"><div class="empty">Profil yükleniyor…</div></section><div class="vs"><div><strong id="youScore">—</strong><br><span>SEN · İSABET</span></div><b>VS</b><div><strong>AI</strong><br><span>SOCCER EDGE MODELİ</span></div></div><div class="missions"><div class="mission"><strong>🎯 Günlük Görev · 3 maçlık Slip</strong><p>Farklı maçlardan en az 3 seçimle kupon oluştur.</p><div class="mission-bar"><i id="mission1" style="width:0"></i></div></div><div class="mission"><strong>🔥 Seri Avcısı</strong><p>Doğru seçim serini büyüt ve Arena rankını yükselt.</p><div class="mission-bar"><i id="mission2" style="width:0"></i></div></div><div class="mission"><strong>🏆 Perfect Slip</strong><p>5+ maçlık bir kuponun tamamını doğru bil.</p><div class="mission-bar"><i id="mission3" style="width:0"></i></div></div></div>
