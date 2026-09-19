@@ -424,7 +424,7 @@ body{padding-bottom:82px!important}
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="liveStatsCard" style="display:none;">
     <div class="card-title" data-i18n="liveStatsTitle">LIVE STATISTICS</div>
     <div class="live-stats-grid">
       <div class="live-stat-row">
@@ -700,6 +700,16 @@ function renderTick(data) {
   }
 
   const s = data.stats || {};
+  const statValues = [
+    s.shotsOnTargetHome, s.shotsOnTargetAway,
+    s.cornersHome, s.cornersAway,
+    s.dangerousAttacksHome, s.dangerousAttacksAway
+  ];
+  const hasRealLiveStats = data.statsAvailable !== false &&
+    statValues.some(v => v !== null && v !== undefined && Number(v) !== 0);
+  const liveStatsCard = document.getElementById('liveStatsCard');
+  if (liveStatsCard) liveStatsCard.style.display = hasRealLiveStats ? '' : 'none';
+
   document.getElementById('stat-shots-home').textContent = s.shotsOnTargetHome ?? 0;
   document.getElementById('stat-shots-away').textContent = s.shotsOnTargetAway ?? 0;
   document.getElementById('stat-corners-home').textContent = s.cornersHome ?? 0;
