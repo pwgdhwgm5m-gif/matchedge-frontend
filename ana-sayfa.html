@@ -744,6 +744,31 @@ function rankedMatches(valueOnly = false) {
 
 // Tek bir mac icin "featured-card" markup'i - hem tekil "Ozne Cikan" gorunumunde
 // hem de "Canli" sekmesindeki listede (birden fazla mac ust uste) kullanilir.
+function homePickEnglish(text) {
+  if (currentLang !== 'en' || text == null) return text ?? '';
+  let s = String(text).trim();
+  const exact = {
+    'KG VAR':'BTTS YES','KG YOK':'BTTS NO','Korner':'Corners','KORNER':'CORNERS',
+    'Ev':'Home','Dep':'Away','Deplasman':'Away','Beraberlik':'Draw',
+    'İY':'HT','MS':'FT','İlk Yarı':'First Half','İkinci Yarı':'Second Half',
+    'İlk Yarı / İkinci Yarı / Eşit':'First Half / Second Half / Equal',
+    'Eşit':'Equal','Gol Yakınlığı':'Goal Proximity'
+  };
+  if (exact[s]) return exact[s];
+  s = s
+    .replace(/\bKG VAR\b/gi,'BTTS YES').replace(/\bKG YOK\b/gi,'BTTS NO')
+    .replace(/\bKorner\b/gi,'Corners')
+    .replace(/\bİlk Yarı\b/gi,'First Half').replace(/\bİkinci Yarı\b/gi,'Second Half')
+    .replace(/\bDeplasman\b/gi,'Away').replace(/\bDep\b/gi,'Away').replace(/\bEv\b/gi,'Home')
+    .replace(/\bBeraberlik\b/gi,'Draw').replace(/\bEşit\b/gi,'Equal')
+    .replace(/\bÜst\b/gi,'Over').replace(/\bAlt\b/gi,'Under')
+    .replace(/\bİY\b/g,'HT').replace(/\bMS\b/g,'FT')
+    .replace(/\bGol Yakınlığı\b/gi,'Goal Proximity');
+  s = s.replace(/(\d+)[,.](\d+)\s*(Over|Under)\s*Corners/gi, (_,a,b,ou)=>`${ou} ${a}.${b} Corners`)
+       .replace(/(\d+)[,.](\d+)\s*(Over|Under)/gi, (_,a,b,ou)=>`${ou} ${a}.${b}`);
+  return s;
+}
+
 function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), forcedPick = null) {
   const isLive = !!m.isLive;
   const timeLabel = isLive
@@ -764,10 +789,10 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
     const xgText = Number.isFinite(Number(livePick.homeXg)) && Number.isFinite(Number(livePick.awayXg))
       ? `<div class="featured-health">xG ${Number(livePick.homeXg).toFixed(2)} - ${Number(livePick.awayXg).toFixed(2)}${livePick.source === 'estimate' ? ' · estimated' : ''}</div>`
       : (health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : '');
-    signal = `<div class="featured-market"><div><div class="featured-signal-text">${livePick.market || 'Goal proximity'} · ${livePick.selection}</div>${xgText}</div><div class="featured-probability">%${probability}</div></div>`;
+    signal = `<div class="featured-market"><div><div class="featured-signal-text">${homePickEnglish(livePick.market || 'Goal proximity')} · ${homePickEnglish(livePick.selection)}</div>${xgText}</div><div class="featured-probability">%${probability}</div></div>`;
   } else if (pick && pick.market && pick.label && Number.isFinite(Number(pick.probability))) {
     const health = Number.isFinite(Number(pick.dataHealth)) ? Number(pick.dataHealth) : null;
-    signal = `<div class="featured-market"><div><div class="featured-signal-text">${pick.market} · ${pick.label}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${Number(pick.probability)}</div></div>`;
+    signal = `<div class="featured-market"><div><div class="featured-signal-text">${homePickEnglish(pick.market)} · ${homePickEnglish(pick.label)}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${Number(pick.probability)}</div></div>`;
   } else {
     signal = `<div><div class="featured-signal-text">${isLive ? 'Tap for Prediction' : t('preMatchReady')}</div><div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('loadingAnalysis')}</div></div>`;
   }
