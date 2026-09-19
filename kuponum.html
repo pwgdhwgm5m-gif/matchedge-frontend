@@ -61,7 +61,17 @@ body{padding-bottom:82px!important}
 <a class="" href="edge-arena.html"><b>◆</b><span>Arena</span></a>
 </nav>
 <script>
-if(!localStorage.getItem('matchedge_token'))location.href='giris.html';const API='https://matchedge-backend-kujb.onrender.com';const headers=()=>({Authorization:`Bearer ${localStorage.getItem('matchedge_token')}`});const safe=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));const statusText={pending:'⏳ Bekliyor',won:'✓ Tuttu',lost:'✕ Tutmadı',void:'↩ İade'};
+if(!localStorage.getItem('matchedge_token'))location.href='giris.html';const API='https://matchedge-backend-kujb.onrender.com';const headers=()=>({Authorization:`Bearer ${localStorage.getItem('matchedge_token')}`});const safe=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));const isEN=()=>localStorage.getItem('matchedge_language')==='en'||localStorage.getItem('language')==='en'||document.documentElement.lang==='en';
+const marketEN={
+ '9.5 Üst Korner':'Over 9.5 Corners','9.5 Alt Korner':'Under 9.5 Corners','2.5 Üst':'Over 2.5 Goals','2.5 Alt':'Under 2.5 Goals',
+ 'KG Var':'BTTS Yes','KG Yok':'BTTS No','Ev Sahibi':'Home','Beraberlik':'Draw','Deplasman':'Away',
+ 'İlk Yarı':'First Half','İkinci Yarı':'Second Half','Eşit':'Equal','İY 0.5 Üst':'1H Over 0.5','İY 1.5 Üst':'1H Over 1.5',
+ '2Y 0.5 Üst':'2H Over 0.5','2Y 1.5 Üst':'2H Over 1.5','Ev 1.5 Üst':'Home Over 1.5 Goals','Dep 1.5 Üst':'Away Over 1.5 Goals',
+ 'İY KG Var':'1H BTTS Yes'
+};
+function marketLabel(v){const s=String(v||'');return isEN()?(marketEN[s]||s):s}
+function statusLabel(v){const tr={pending:'⏳ Bekliyor',won:'✓ Tuttu',lost:'✕ Tutmadı',void:'↩ İade'},en={pending:'⏳ Pending',won:'✓ Won',lost:'✕ Lost',void:'↩ Void'};return (isEN()?en:tr)[v]||(isEN()?'⏳ Pending':'⏳ Bekliyor')}
+
 async function load(){
  const r=await fetch(API+'/api/coupons',{headers:headers()});
  if(r.status===401){location.href='giris.html';return}
@@ -72,10 +82,10 @@ async function load(){
   const line=(home,away,s,result,kickoff,fixtureId)=>{
    const probability=Number(s?.probability)||0,mult=probability?Math.max(1.15,Math.min(5.5,100/probability)).toFixed(2)+'x':'';
    const canDelete=c.status==='pending'&&fixtureId&&kickoff&&new Date(kickoff).getTime()>Date.now();
-   return '<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(home||'Takım')+' – '+safe(away||'Takım')+'</strong><small class="leg-selection">'+safe(s?.label||'Seçim')+(mult?' · '+mult:'')+(probability?' · %'+probability:'')+'</small></div><div class="leg-actions"><span class="badge '+(result||'pending')+'">'+(statusText[result]||'⏳ Bekliyor')+'</span>'+(canDelete?'<button class="leg-delete" onclick="removeLeg(\''+c._id+'\',\''+fixtureId+'\')">×</button>':'')+'</div></div>';
+   return '<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(home||(isEN()?'Team':'Takım'))+' – '+safe(away||(isEN()?'Team':'Takım'))+'</strong><small class="leg-selection">'+safe(marketLabel(s?.label)||(isEN()?'Pick':'Seçim'))+(mult?' · '+mult:'')+(probability?' · %'+probability:'')+'</small></div><div class="leg-actions"><span class="badge '+(result||'pending')+'">'+statusLabel(result)+'</span>'+(canDelete?'<button class="leg-delete" onclick="removeLeg(\''+c._id+'\',\''+fixtureId+'\')">×</button>':'')+'</div></div>';
   };
   const body=legs.length?legs.map(l=>line(l.homeTeam,l.awayTeam,l.selection,l.selection?.result,l.kickoff,l.fixtureId)).join(''):(c.selections||[]).map(s=>line(c.homeTeam,c.awayTeam,s,s.result,c.kickoff,null)).join('');
-  return '<article class="coupon"><div class="coupon-head"><div><div class="teams">COINEDGE SLIP · '+(legs.length||1)+' MAÇ</div><div class="meta">'+(c.createdAt?new Date(c.createdAt).toLocaleString('tr-TR'):'')+'</div></div><div class="score">'+(c.payoutMultiplier||1)+'x</div></div>'+body+(legs.length?'<div class="progress"><i style="width:'+pct+'%"></i></div><div class="progress-text"><span>'+won+'/'+legs.length+' doğru</span><span>%'+pct+' sonuçlandı</span></div>':'')+'<div class="pick"><div><small>YATIRILAN</small><strong>🪙 '+(c.stakeCoins||10)+'</strong></div><div><small>POTANSİYEL</small><strong>🪙 '+(c.potentialPayout||0)+'</strong></div></div><button class="coupon-delete" onclick="removeCoupon(\''+c._id+'\')">Kuponu sil</button></article>';
+  return '<article class="coupon"><div class="coupon-head"><div><div class="teams">COINEDGE SLIP · '+(legs.length||1)+' MAÇ</div><div class="meta">'+(c.createdAt?new Date(c.createdAt).toLocaleString(isEN()?'en-GB':'tr-TR'):'')+'</div></div><div class="score">'+(c.payoutMultiplier||1)+'x</div></div>'+body+(legs.length?'<div class="progress"><i style="width:'+pct+'%"></i></div><div class="progress-text"><span>'+won+'/'+legs.length+(isEN()?' correct':' doğru')+'</span><span>%'+pct+' '+(isEN()?'settled':'sonuçlandı')+'</span></div>':'')+'<div class="pick"><div><small>'+(isEN()?'STAKED':'YATIRILAN')+'</small><strong>🪙 '+(c.stakeCoins||10)+'</strong></div><div><small>'+(isEN()?'POTENTIAL':'POTANSİYEL')+'</small><strong>🪙 '+(c.potentialPayout||0)+'</strong></div></div><button class="coupon-delete" onclick="removeCoupon(\''+c._id+'\')">'+(isEN()?'Delete slip':'Kuponu sil')+'</button></article>';
  }).join(''):'<div class="empty">Henüz kupon yok.<br>Bir maç analizinden seçim yapabilirsin.</div>';
 }
 async function removeCoupon(id){
