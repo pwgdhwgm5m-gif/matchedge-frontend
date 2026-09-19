@@ -96,7 +96,7 @@ function draftHtml(){
  const legs=getDraft(); if(couponTab!=='pending'||!legs.length)return '';
  const x=Math.min(50,Math.max(1.15,legs.reduce((n,l)=>n*gameX(l.selection?.probability),1)));
  const body=legs.map((l,i)=>'<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(l.homeTeam||'Takım')+' – '+safe(l.awayTeam||'Takım')+'</strong><small class="leg-selection">'+safe(marketLabel(l.selection?.label)||'Seçim')+' · '+gameX(l.selection?.probability).toFixed(2)+'x'+(l.selection?.probability?' · %'+l.selection.probability:'')+'</small></div><button class="leg-delete" onclick="removeDraftLeg('+i+')">×</button></div>').join('');
- return '<article class="coupon" style="border-color:#f5b942"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY SLIP · ':'KUPONUM · ')+legs.length+(isEN()?' MATCHES':' MAÇ')+'</div></div><div class="score">'+x.toFixed(2)+'x</div></div>'+body+'</article>'; 
+ return '<article class="coupon" style="border-color:#f5b942"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY SLIP · ':'KUPONUM · ')+legs.length+(isEN()?' MATCHES':' MAÇ')+'</div></div><div class="score">'+x.toFixed(2)+'x</div></div>'+body+'<button class="play" type="button" onclick="playDraft()">'+(isEN()?'SAVE SLIP':'KUPONU KAYDET')+'</button></article>'; 
 }
 function removeDraftLeg(i){const a=getDraft();a.splice(i,1);localStorage.setItem(SLIP_KEY,JSON.stringify(a));load()}
 async function playDraft(){
