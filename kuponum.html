@@ -3,6 +3,8 @@
 .help{border:1px solid var(--line);background:var(--card);color:var(--teal);border-radius:10px;padding:8px;font-weight:800}.rules{position:fixed;inset:0;background:#000b;z-index:1000;display:none;align-items:flex-end;justify-content:center;padding:12px}.rules.open{display:flex}.rules-panel{max-width:460px;width:100%;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px}.rules-top{display:flex;justify-content:space-between;align-items:center}.rules-close{border:0;background:var(--inner);color:var(--text);width:32px;height:32px;border-radius:50%}.rule{display:flex;gap:10px;margin:14px 0}.rule b{color:var(--teal);font-size:18px}.rule strong{font-size:12px}.rule p{font-size:10px;color:var(--muted);margin:3px 0;line-height:1.45}.rules-note{font-size:9px;color:var(--amber);border:1px solid #f5b94255;border-radius:9px;padding:9px}.rules-ok{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:var(--teal);font-weight:900}
 .brand-home-link{color:inherit!important;text-decoration:none!important;cursor:pointer;display:inline-block}
 .se-bottom-nav a{min-width:0!important;padding:0 2px!important}.se-bottom-nav a span{display:block!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.se-bottom-nav a b{font-size:18px!important}@media(max-width:360px){.se-bottom-nav a{font-size:8px!important}.se-bottom-nav a b{font-size:17px!important}}
+/* six-nav-fit */
+.se-bottom-nav{padding-left:4px!important;padding-right:4px!important}.se-bottom-nav a{font-size:9px!important;gap:2px!important;padding:0 1px!important}.se-bottom-nav a b{font-size:17px!important}@media(max-width:390px){.se-bottom-nav a{font-size:7.5px!important}.se-bottom-nav a b{font-size:16px!important}}
 </style>
 <style id="socceredge-stadium-theme">
 :root{
@@ -35,7 +37,7 @@ a{--link-accent:#f2c94c}
 
 <style id="se-global-bottom-nav">
 body{padding-bottom:82px!important}
-.se-bottom-nav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(480px,100%)!important;height:68px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;background:rgba(4,21,46,.98)!important;border-top:1px solid #244b79!important;z-index:9999!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
+.se-bottom-nav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(480px,100%)!important;height:68px!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;background:rgba(4,21,46,.98)!important;border-top:1px solid #244b79!important;z-index:9999!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
 .se-bottom-nav a{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#91a7c7!important;text-decoration:none!important;font-size:10px!important;font-weight:800!important;min-width:0!important}
 .se-bottom-nav a b{font-size:20px!important;line-height:20px!important;font-weight:700!important}
 .se-bottom-nav a.active{color:#f2c94c!important}
@@ -52,6 +54,7 @@ body{padding-bottom:82px!important}
 <a class="" href="maclar.html"><b>⚽</b><span>Maçlar</span></a>
 <a class="" href="mac-sonuclari.html"><b>▣</b><span>Skor</span></a>
 <a class="" href="favoriler.html"><b>★</b><span>Favoriler</span></a>
+<a class="" href="edge-arena.html"><b>◆</b><span>Arena</span></a>
 </nav>
 <script>
 if(!localStorage.getItem('matchedge_token'))location.href='giris.html';const API='https://matchedge-backend-kujb.onrender.com';const headers=()=>({Authorization:`Bearer ${localStorage.getItem('matchedge_token')}`});const safe=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));const statusText={pending:'⏳ Bekliyor',won:'✓ Tuttu',lost:'✕ Tutmadı',void:'↩ İade'};
