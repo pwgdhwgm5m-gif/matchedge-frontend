@@ -762,7 +762,7 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
     const health = Number.isFinite(Number(pick.dataHealth)) ? Number(pick.dataHealth) : null;
     signal = `<div class="featured-market"><div><div class="featured-signal-text">${pick.market} · ${pick.label}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${Number(pick.probability)}</div></div>`;
   } else {
-    signal = `<div><div class="featured-signal-text">${isLive ? 'No live prediction' : t('preMatchReady')}</div><div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('loadingAnalysis')}</div></div>`;
+    signal = `<div><div class="featured-signal-text">${isLive ? 'Tap for Prediction' : t('preMatchReady')}</div><div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('loadingAnalysis')}</div></div>`;
   }
 
   return `
