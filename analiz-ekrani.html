@@ -1439,6 +1439,16 @@ function renderPremiumIntelligence(premium, data) {
   }));
 }
 
+function couponMarketName(market) {
+  if (currentLang !== 'en') return market === 'GOL' ? 'TOPLAM GOL 2.5' : market;
+  return ({'GOL':'TOTAL GOALS 2.5','KG':'BTTS','KORNER':'CORNERS','İLK YARI':'FIRST HALF','İKİNCİ YARI':'SECOND HALF','EN GOLLÜ YARI':'HIGHEST SCORING HALF','1X2':'1X2'})[market] || market;
+}
+function couponPickLabel(label) {
+  if (currentLang !== 'en') return label;
+  const map={'Ev Sahibi':'Home','Deplasman':'Away','Beraberlik':'Draw','2.5 Üst':'Over 2.5','2.5 Alt':'Under 2.5','KG Var':'BTTS Yes','KG Yok':'BTTS No','9.5 Üst Korner':'Over 9.5 Corners','9.5 Alt Korner':'Under 9.5 Corners','8.5 Üst Korner':'Over 8.5 Corners','8.5 Alt Korner':'Under 8.5 Corners','İlk Yarı':'First Half','İkinci Yarı':'Second Half','Eşit':'Equal','İY 0.5 Üst':'1H Over 0.5','İY 1.5 Üst':'1H Over 1.5','2Y 0.5 Üst':'2H Over 0.5','2Y 1.5 Üst':'2H Over 1.5','İY KG Var':'1H BTTS Yes','Ev 1.5 Üst':'Home Over 1.5 Goals','Dep 1.5 Üst':'Away Over 1.5 Goals'};
+  return map[label] || label;
+}
+
 function renderCouponMarkets(data) {
   const markets = data?.marketBoard?.allMarkets || [];
   const grid = document.getElementById('couponMarketGrid');
@@ -1459,10 +1469,10 @@ function renderCouponMarkets(data) {
   grid.innerHTML = orderedGroups.map(([market, items]) => {
     const optionClass = items.length === 3 ? 'coupon-options three' : 'coupon-options';
     return `<div class="coupon-group" data-market="${market}">
-      <div class="coupon-group-title">${market === 'GOL' ? 'TOPLAM GOL 2.5' : market}</div>
+      <div class="coupon-group-title">${couponMarketName(market)}</div>
       <div class="${optionClass}">
         ${items.map(item => `<button type="button" class="coupon-market" data-key="${item.key}" data-market="${item.market}">
-          <strong>${item.label}</strong><em>%${item.probability}</em>
+          <strong>${couponPickLabel(item.label)}</strong><em>%${item.probability}</em>
         </button>`).join('')}
       </div>
     </div>`;
@@ -1489,7 +1499,7 @@ function renderCouponMarkets(data) {
       syncFeaturedPicks();
       document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
       document.getElementById('couponFeedback').textContent = selectedCouponMarkets.size
-        ? selectedCouponMarkets.size + ' seçim hazır'
+        ? selectedCouponMarkets.size + (currentLang === 'en' ? ' picks ready' : ' seçim hazır')
         : '';
     });
   });
