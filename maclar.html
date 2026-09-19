@@ -632,9 +632,11 @@ function renderMatches() {
   });
 }
 
-async function loadMatches() {
+async function loadMatches({silent=false} = {}) {
   const container = document.getElementById('matchesContainer');
-  container.innerHTML = `<div class="empty-state">${t('loading')}</div>`;
+  const savedScrollY = window.scrollY;
+  const expandedLeagueIds = silent ? new Set([...container.querySelectorAll('.league-group.expanded')].map(el => el.dataset.leagueId).filter(Boolean)) : new Set();
+  if (!silent) container.innerHTML = `<div class="empty-state">${t('loading')}</div>`;
 
   let matches = [];
   let loadFailed = false;
@@ -657,6 +659,10 @@ async function loadMatches() {
   lastMatches = matches;
   lastLoadFailed = loadFailed;
   renderMatches();
+  if (silent) {
+    container.querySelectorAll('.league-group').forEach(el => { if (expandedLeagueIds.has(el.dataset.leagueId)) el.classList.add('expanded'); });
+    requestAnimationFrame(() => window.scrollTo(0, savedScrollY));
+  }
 }
 
 document.getElementById('langToggle').addEventListener('click', () => {
@@ -673,7 +679,7 @@ renderDayTabs();
   await loadFavoritesFromServer();
   loadMatches();
 })();
-setInterval(loadMatches, POLL_INTERVAL_MS);
+setInterval(() => loadMatches({silent:true}), POLL_INTERVAL_MS);
 </script>
 
 <script src="language-selector.js"></script>
