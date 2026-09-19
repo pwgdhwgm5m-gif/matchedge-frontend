@@ -737,7 +737,10 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
   if (isLive && livePick?.available && Number.isFinite(Number(livePick.probability))) {
     const probability = Number(livePick.probability).toFixed(1).replace('.0','');
     const health = Number.isFinite(Number(livePick.dataHealth)) ? Number(livePick.dataHealth) : null;
-    signal = `<div class="featured-market"><div><div class="featured-signal-text">${livePick.market || 'Live pressure'} · ${livePick.selection}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${probability}</div></div>`;
+    const xgText = Number.isFinite(Number(livePick.homeXg)) && Number.isFinite(Number(livePick.awayXg))
+      ? `<div class="featured-health">xG ${Number(livePick.homeXg).toFixed(2)} - ${Number(livePick.awayXg).toFixed(2)}${livePick.source === 'estimate' ? ' · estimated' : ''}</div>`
+      : (health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : '');
+    signal = `<div class="featured-market"><div><div class="featured-signal-text">${livePick.market || 'Goal proximity'} · ${livePick.selection}</div>${xgText}</div><div class="featured-probability">%${probability}</div></div>`;
   } else if (pick && pick.market && pick.label && Number.isFinite(Number(pick.probability))) {
     const health = Number.isFinite(Number(pick.dataHealth)) ? Number(pick.dataHealth) : null;
     signal = `<div class="featured-market"><div><div class="featured-signal-text">${pick.market} · ${pick.label}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${Number(pick.probability)}</div></div>`;
