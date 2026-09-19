@@ -116,6 +116,7 @@ async function playDraft(){
  }
 }
 async function load(){
+ document.getElementById('pageSlipTitle').textContent=isEN()?'MY SLIP':'KUPONUM';
  document.getElementById('tabPendingLabel').textContent=isEN()?'PENDING':'BEKLEYEN';
  document.getElementById('tabFinishedLabel').textContent=isEN()?'FINISHED':'BİTEN';
  const r=await fetch(API+'/api/coupons',{headers:headers()});
