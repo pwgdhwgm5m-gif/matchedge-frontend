@@ -185,6 +185,8 @@
   }
   .match-row-status.live { background: rgba(240,85,107,0.15); color: var(--red); }
   .match-row-status.upcoming { background: rgba(245,185,66,0.1); color: var(--amber); }
+  .match-row-status.finished { background: rgba(255,255,255,0.06); color: var(--text-secondary); }
+  .match-row-halves { font-size:9.5px; color:var(--text-muted); margin-top:3px; white-space:nowrap; }
   .match-row-score { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-top: 2px; }
 
   .home-league-group {
@@ -439,7 +441,7 @@ const TRANSLATIONS = {
     noMatchesToday: 'No matches found for today',
     loadError: "Couldn't load matches - pull to refresh",
     liveNow: 'LIVE NOW', featuredMatch: 'FEATURED MATCH',
-    live: 'LIVE', today: 'TODAY', upcoming: 'UPCOMING',
+    live: 'LIVE', today: 'TODAY', upcoming: 'UPCOMING', finished: 'FINISHED', htFt: 'HT/FT',
     liveAnalysisAvailable: 'Live analysis available',
     goToSimulator: "Go to Live Simulator for details",
     preMatchReady: 'Pre-match analysis ready',
@@ -466,7 +468,7 @@ const TRANSLATIONS = {
     noMatchesToday: 'Bugün için maç bulunamadı',
     loadError: 'Maçlar yüklenemedi - yenilemek için tekrar dene',
     liveNow: 'ŞU AN CANLI', featuredMatch: 'ÖNE ÇIKAN MAÇ',
-    live: 'CANLI', today: 'BUGÜN', upcoming: 'YAKINDA',
+    live: 'CANLI', today: 'BUGÜN', upcoming: 'YAKINDA', finished: 'BİTTİ', htFt: 'İY/MS',
     liveAnalysisAvailable: 'Canlı analiz mevcut',
     goToSimulator: "Detaylı görünüm için Canlı Simülatör'e git",
     preMatchReady: 'Maç öncesi analiz hazır',
@@ -739,15 +741,18 @@ function renderTodayList(matches, loadFailed) {
 
   container.innerHTML = Array.from(groups.values()).map((group, groupIndex) => {
     const rows = group.matches.map(m => {
+    const isFinished = !m.isLive && String(m.statusShort || '').toUpperCase() === 'FT';
     const timeLabel = m.isLive
       ? (m.minute != null ? `${t('live')} ${m.minute}'` : t('live'))
-      : (m.kickoff
-        ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
-        : '--:--');
+      : isFinished
+        ? t('finished')
+        : (m.kickoff
+          ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+          : '--:--');
 
     const rowLink = m.isLive
       ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
-      : analysisLink(m);
+      : isFinished ? '' : analysisLink(m);
     const isFav = favorites.has(String(m.fixtureId));
 
     return `
@@ -758,8 +763,9 @@ function renderTodayList(matches, loadFailed) {
         <button type="button" class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>
         <div class="match-row-right">
           <div class="match-row-time">${timeLabel}</div>
-          ${m.isLive ? `<div class="match-row-score">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</div>` : ''}
-          <div class="match-row-status ${m.isLive ? 'live' : 'upcoming'}">${m.isLive ? t('live') : t('upcoming')}</div>
+          ${(m.isLive || isFinished) ? `<div class="match-row-score">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</div>` : ''}
+          ${isFinished ? `<div class="match-row-halves">${t('htFt')} ${m.halftimeHome ?? '-'}-${m.halftimeAway ?? '-'} / ${m.homeScore ?? '-'}-${m.awayScore ?? '-'}</div>` : ''}
+          <div class="match-row-status ${m.isLive ? 'live' : (isFinished ? 'finished' : 'upcoming')}">${m.isLive ? t('live') : (isFinished ? t('finished') : t('upcoming'))}</div>
         </div>
       </div>
     `;
