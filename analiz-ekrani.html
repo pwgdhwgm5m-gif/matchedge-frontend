@@ -1219,17 +1219,22 @@ function renderSlip(){const legs=getSlip(),box=document.getElementById('slipDraw
 window.removeSlipLeg=i=>{const a=getSlip();a.splice(i,1);saveSlip(a)};
 document.querySelectorAll('.stake-row button').forEach(b=>b.onclick=()=>{slipStake=+b.dataset.stake;document.querySelectorAll('.stake-row button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderSlip()});
 document.getElementById('addCouponButton').addEventListener('click',()=>{if(!currentAnalysis||!selectedCouponMarkets.size)return;let legs=getSlip();const selection=[...selectedCouponMarkets.values()][0];const leg={fixtureId:FIXTURE_ID,homeTeam:currentAnalysis.homeTeam||CONTEXT.homeTeamName,awayTeam:currentAnalysis.awayTeam||CONTEXT.awayTeamName,league:currentAnalysis.league||CONTEXT.leagueName,kickoff:currentAnalysis.kickoff||CONTEXT.kickoff,selection};legs=legs.filter(x=>String(x.fixtureId)!==String(FIXTURE_ID));if(legs.length>=8){document.getElementById('couponFeedback').textContent='Kupon en fazla 8 maç olabilir';return}legs.push(leg);saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;document.getElementById('couponFeedback').textContent='CoinEdge Slip’e eklendi · Başka maç seçebilirsin'});
-document.getElementById('playSlip').onclick=async()=>{const legs=getSlip();if(!legs.length)return;const b=document.getElementById('playSlip');b.disabled=true;b.textContent='OYNANIYOR…';try{const r=await fetch(`${API_BASE}/api/coupons`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${localStorage.getItem('matchedge_token')}`},body:JSON.stringify({legs,stakeCoins:slipStake})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Kupon oluşturulamadı');localStorage.removeItem(SLIP_KEY);location.href='kuponum.html'}catch(e){document.getElementById('couponFeedback').textContent=e.message;b.disabled=false;b.textContent='KUPONU OYNA'}};
-renderSlip();
+const playSlipButton=document.getElementById('playSlip');
+if(playSlipButton){
+  playSlipButton.onclick=async()=>{const legs=getSlip();if(!legs.length)return;const b=playSlipButton;b.disabled=true;b.textContent='OYNANIYOR…';try{const r=await fetch(`${API_BASE}/api/coupons`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${localStorage.getItem('matchedge_token')}`},body:JSON.stringify({legs,stakeCoins:slipStake})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Kupon oluşturulamadı');localStorage.removeItem(SLIP_KEY);location.href='kuponum.html'}catch(e){document.getElementById('couponFeedback').textContent=e.message;b.disabled=false;b.textContent='KUPONU OYNA'}};
+  renderSlip();
+}
 </script>
 
 <script src="language-selector.js"></script>
 <script>
-// Initial page boot: request analysis immediately on first open.
-applyStaticTranslations();
-renderContextImmediately();
-loadAnalysis();
-loadOddsHistory();
+// Single safe boot: optional UI errors must not prevent match analysis.
+(function bootAnalysisPage(){
+  try { applyStaticTranslations(); } catch(e) { console.warn('translation boot:', e.message); }
+  try { renderContextImmediately(); } catch(e) { console.warn('context boot:', e.message); }
+  loadAnalysis().catch(e => console.warn('analysis boot:', e.message));
+  try { loadOddsHistory(); } catch(e) { console.warn('odds boot:', e.message); }
+})();
 </script>
 </body>
 </html>
