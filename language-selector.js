@@ -198,6 +198,10 @@
     '2.5 Alt':'Under 2.5','2.5 Üst':'Over 2.5','2.5 ALT':'UNDER 2.5','2.5 ÜST':'OVER 2.5',
     'KG VAR':'BTTS YES','KG YOK':'BTTS NO','Veri kalitesi':'Data quality','Bugün':'Today',
     'Yakında':'Upcoming','En Güçlü Seçimler':'Top Predictions','Değerli Seçimler':'Value Picks',
+    'Ana Ekran':'Home','Ana Sayfa':'Home','Skor':'Scores','Maçlar':'Matches','Favoriler':'Favorites','Kuponum':'Coupon','Kupon':'Coupon',
+    'Dep':'Away','Ev':'Home','Deplasman':'Away','İç Saha':'Home','Bitti':'Finished','İY':'HT','MS':'FT',
+    '9.5 Alt Korner':'Under 9.5 Corners','9.5 Üst Korner':'Over 9.5 Corners','9,5 Alt Korner':'Under 9.5 Corners','9,5 Üst Korner':'Over 9.5 Corners',
+    '9.5 Alt Corners':'Under 9.5 Corners','9.5 Üst Corners':'Over 9.5 Corners','Alt Corners':'Under Corners','Üst Corners':'Over Corners',
     'Sıralamada yalnızca 250 XP ve üzerindeki kullanıcılar görünür. Coin bakiyen profilinde her zaman görünür.':'Only users with at least 250 XP appear on the leaderboard. Your Coin balance stays visible in your profile.',
     'Sıralama için 250 XP gerekli':'250 XP required to rank','Henüz 250 XP’ye ulaşan oyuncu yok.':'No players have reached 250 XP yet.',
   });
