@@ -302,6 +302,10 @@ body{padding-bottom:82px!important}
 @media(max-width:340px){.se-bottom-nav a{font-size:9px!important}}
 @media(min-width:768px){.app,.container{margin-left:auto!important;margin-right:auto!important}}
 </style>
+<style id="se-desktop-bottom-nav-fix">
+.se-bottom-nav{left:0!important;right:0!important;bottom:0!important;transform:none!important;width:100%!important;max-width:none!important;grid-template-columns:repeat(6,minmax(72px,140px))!important;justify-content:center!important}
+@media(max-width:600px){.se-bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;justify-content:stretch!important}}
+</style>
 </head>
 <body>
 
