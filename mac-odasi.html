@@ -38,6 +38,13 @@ input,textarea,select{background:#09244b!important;border-color:#315781!importan
 a{--link-accent:#f2c94c}
 </style>
 
+<style id="se-global-bottom-nav">
+body{padding-bottom:82px!important}
+.se-bottom-nav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(480px,100%)!important;height:68px!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important;background:rgba(4,21,46,.98)!important;border-top:1px solid #244b79!important;z-index:9999!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
+.se-bottom-nav a{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#91a7c7!important;text-decoration:none!important;font-size:10px!important;font-weight:800!important;min-width:0!important}
+.se-bottom-nav a b{font-size:20px!important;line-height:20px!important;font-weight:700!important}
+.se-bottom-nav a.active{color:#f2c94c!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -56,6 +63,12 @@ a{--link-accent:#f2c94c}
 
 <div class="overlay" id="supportSheet"><div class="sheet"><h2>SoccerEdge Pro Destek</h2><p>Güvenlik, kullanıcı davranışı veya teknik bir sorun için bize uygulama içinden ulaşabilirsin.</p><textarea class="support-text" id="supportText" maxlength="1000" placeholder="Sorunu açıkla…"></textarea><button class="primary" id="supportSend">Destek Talebi Gönder</button><button class="secondary close-sheet">Kapat</button></div></div>
 
+<nav class="se-bottom-nav" aria-label="Ana menü">
+<a class="" href="ana-sayfa.html"><b>⌂</b><span>Ana Ekran</span></a>
+<a class="" href="kuponum.html"><b>▤</b><span>Kuponum</span></a>
+<a class="" href="maclar.html"><b>⚽</b><span>Maçlar</span></a>
+<a class="" href="mac-sonuclari.html"><b>▣</b><span>Skor</span></a>
+</nav>
 <script>
 const API_BASE='https://matchedge-backend-kujb.onrender.com';
 const token=localStorage.getItem('matchedge_token');
