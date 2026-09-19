@@ -570,7 +570,6 @@ function renderMatches() {
   const groups = groupByLeague(lastMatches);
 
   container.innerHTML = groups.map((g) => {
-    const isPriority = PRIORITY_LEAGUE_IDS.has(g.leagueId);
     const isReturnLeague = (returnLeagueId && String(g.leagueId) === String(returnLeagueId))
       || (!returnLeagueId && returnLeagueName && g.league === returnLeagueName);
     const rows = g.matches.map(m => {
@@ -593,7 +592,7 @@ function renderMatches() {
     }).join('');
 
     return `
-      <div class="league-group ${isPriority ? 'priority expanded' : ''}${isReturnLeague ? ' expanded return-league' : ''}">
+      <div class="league-group${isReturnLeague ? ' expanded return-league' : ''}" data-league-id="${g.leagueId}">
         <div class="league-header">
           <div class="league-header-left">
             <div class="league-name">${g.league}</div>
