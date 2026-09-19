@@ -502,7 +502,9 @@ function renderDayTabs() {
 // cipleri de sadece bu iki durumdaki maclardan turetiliyor - yoksa
 // sadece NS maci olan bir lig secilince liste hep bos gorunurdu.
 function relevantMatches(matches) {
-  return matches.filter(m => m.isLive || m.statusShort === 'FT');
+  // Results doubles as today's scoreboard: keep scheduled, live and finished
+  // fixtures so countries/leagues never disappear before kickoff.
+  return matches;
 }
 
 function leagueCountry(league) {
@@ -559,10 +561,20 @@ async function loadResults() {
   container.innerHTML = `<div class="empty-state">${t('loading')}</div>`;
 
   try {
-    const res = await fetch(`${API_BASE}/api/results?date=${selectedDate}`);
-    if (!res.ok) throw new Error('http_' + res.status);
-    const json = await res.json();
-    allMatchesForDay = json.matches || [];
+    const [resultsRes, fixturesRes] = await Promise.all([
+      fetch(`${API_BASE}/api/results?date=${selectedDate}`),
+      fetch(`${API_BASE}/api/matches?date=${selectedDate}`)
+    ]);
+    if (!resultsRes.ok && !fixturesRes.ok) throw new Error('results_and_matches_unavailable');
+    const resultsJson = resultsRes.ok ? await resultsRes.json() : { matches: [] };
+    const fixturesJson = fixturesRes.ok ? await fixturesRes.json() : { matches: [] };
+    const merged = new Map();
+    (fixturesJson.matches || []).forEach(m => merged.set(String(m.fixtureId), m));
+    (resultsJson.matches || []).forEach(m => {
+      const key=String(m.fixtureId), base=merged.get(key)||{};
+      merged.set(key,{...base,...m});
+    });
+    allMatchesForDay = [...merged.values()];
   } catch (err) {
     console.warn('Sonuçlar alınamadı:', err.message);
     allMatchesForDay = [];
