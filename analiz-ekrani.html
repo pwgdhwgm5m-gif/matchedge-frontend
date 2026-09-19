@@ -924,7 +924,12 @@ async function loadAnalysis() {
     const timer = setTimeout(() => controller.abort(), 18000);
     let res;
     try {
-      res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`, { signal: controller.signal });
+      params.set('_ts', Date.now().toString());
+      res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`, {
+        signal: controller.signal,
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
+      });
     } finally { clearTimeout(timer); }
     if (!res.ok) throw new Error('http_' + res.status);
     const data = await res.json();
