@@ -849,12 +849,16 @@ function renderFeaturedContent() {
   const majorLeaguePriority = (m) => {
     const id = Number(m.leagueId);
     const name = String(m.league || '').toLowerCase();
-    if (id === 78 || /bundesliga|germany|almanya/.test(name)) return 0;
-    if (id === 61 || /ligue 1|france|fransa/.test(name)) return 1;
-    if (id === 135 || /serie a|italy|italya/.test(name)) return 2;
-    if (id === 140 || /la liga|laliga|spain|ispanya/.test(name)) return 3;
-    if (id === 203 || /süper lig|super lig|turkey|türkiye/.test(name)) return 4;
-    if (id === 39 || /premier league|england|ingiltere/.test(name)) return 5;
+    // UEFA / major European cups first, then major domestic leagues.
+    if (/champions league|uefa champions|europa league|uefa europa|conference league|uefa conference|super cup|uefa süper|uefa super/.test(name)) return 0;
+    if (/fa cup|copa del rey|coppa italia|dfb.?pokal|coupe de france|knvb cup|knvb beker|türkiye kupası|turkiye kupasi|supercopa|supercoppa|community shield/.test(name)) return 1;
+    if (id === 78 || /bundesliga|germany|almanya/.test(name)) return 2;
+    if (id === 61 || /ligue 1|france|fransa/.test(name)) return 3;
+    if (id === 135 || /serie a|italy|italya/.test(name)) return 4;
+    if (id === 140 || /la liga|laliga|spain|ispanya/.test(name)) return 5;
+    if (id === 203 || /süper lig|super lig|turkey|türkiye/.test(name)) return 6;
+    if (id === 39 || /premier league|england|ingiltere/.test(name)) return 7;
+    if (id === 88 || /eredivisie|netherlands|holland|hollanda/.test(name)) return 8;
     return 99;
   };
   const kickoffTime = (m) => {
