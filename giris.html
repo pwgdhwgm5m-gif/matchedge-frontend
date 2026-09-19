@@ -171,6 +171,11 @@
         <input type="email" class="field-input" id="emailInput" autocomplete="email">
       </div>
 
+      <div class="field-group" id="birthDateGroup">
+        <div class="field-label" data-i18n="birthDateLabel">Date of Birth · 18+</div>
+        <input type="date" class="field-input" id="birthDateInput" autocomplete="bday">
+      </div>
+
       <div class="field-label" data-i18n="passwordLabel">Password</div>
       <input type="password" class="field-input" id="passwordInput" autocomplete="current-password">
     </div>
@@ -193,7 +198,7 @@ const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const TRANSLATIONS = {
   en: {
     brandSub: 'PRO MATCH INTELLIGENCE', betaNote: 'BETA · All features are free during beta.', loginTab: 'Log In', registerTab: 'Sign Up',
-    usernameLabel: 'Username', emailLabel: 'Email', passwordLabel: 'Password',
+    usernameLabel: 'Username', emailLabel: 'Email', passwordLabel: 'Password', birthDateLabel: 'Date of Birth · 18+', ageError: 'You must be 18 or older to create an account.',
     loginBtn: 'Log In', registerBtn: 'Create Account', resetBtn: 'Send Reset Link',
     fillFields: 'Please fill in all fields.',
     connecting: 'Connecting...',
@@ -205,7 +210,7 @@ const TRANSLATIONS = {
   },
   tr: {
     brandSub: 'PRO MAÇ ZEKASI', betaNote: 'BETA · Beta süresince tüm özellikler ücretsiz.', loginTab: 'Giriş Yap', registerTab: 'Kayıt Ol',
-    usernameLabel: 'Kullanıcı Adı', emailLabel: 'E-posta', passwordLabel: 'Şifre',
+    usernameLabel: 'Kullanıcı Adı', emailLabel: 'E-posta', passwordLabel: 'Şifre', birthDateLabel: 'Doğum Tarihi · 18+', ageError: 'Hesap oluşturmak için 18 yaşını doldurmuş olmalısın.',
     loginBtn: 'Giriş Yap', registerBtn: 'Hesap Oluştur', resetBtn: 'Sıfırlama Bağlantısı Gönder',
     fillFields: 'Lütfen tüm alanları doldur.',
     connecting: 'Bağlanıyor...',
@@ -258,6 +263,7 @@ function setMode(mode) {
   document.getElementById('mainFields').style.display = mode === 'forgot' ? 'none' : 'block';
   document.getElementById('forgotFields').classList.toggle('visible', mode === 'forgot');
   document.getElementById('emailGroup').classList.toggle('visible', mode === 'register');
+  document.getElementById('birthDateGroup').classList.toggle('visible', mode === 'register');
   document.getElementById('forgotLink').style.display = 'none';
   document.getElementById('backLink').style.display = mode === 'forgot' ? 'block' : 'none';
 
@@ -317,8 +323,9 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value;
     const email = document.getElementById('emailInput').value.trim();
+    const dateOfBirth = document.getElementById('birthDateInput').value;
 
-    if (!username || !password || (currentMode === 'register' && !email)) {
+    if (!username || !password || (currentMode === 'register' && (!email || !dateOfBirth))) {
       showError(t('fillFields'));
       return;
     }
@@ -327,7 +334,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     const endpoint = currentMode === 'login' ? '/api/auth/login' : '/api/auth/register';
     const body = currentMode === 'login'
       ? { username, password, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '' }
-      : { username, email, password };
+      : { username, email, password, dateOfBirth };
 
     const res = await fetch(`${API_BASE}${endpoint}`, {
       method: 'POST',
