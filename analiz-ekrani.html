@@ -70,7 +70,7 @@
     background:var(--bg-card); color:var(--teal); font-size:25px; line-height:1;
     display:flex; align-items:center; justify-content:center; cursor:pointer;
   }
-  .match-step-button:disabled { opacity:.28; cursor:default; }
+  .match-step-button:disabled { opacity:.48; cursor:default; }
   .match-step-button:not(:disabled):active { transform:scale(.94); }
   .match-position { min-width:38px; text-align:center; color:var(--text-muted); font-size:10px; font-weight:700; }
 
@@ -773,18 +773,56 @@ function leagueAnalysisUrl(m) {
   });
   return 'analiz-ekrani.html?' + params.toString();
 }
-function setupLeagueMatchNavigation() {
-  let matches = [];
-  try { matches = JSON.parse(sessionStorage.getItem('socceredge_league_matches') || '[]'); } catch (_) {}
-  matches = Array.isArray(matches) ? matches : [];
-  const index = matches.findIndex(m => String(m.fixtureId) === String(FIXTURE_ID));
+async function setupLeagueMatchNavigation() {
   const prev = document.getElementById('previousMatch');
   const next = document.getElementById('nextMatch');
   const position = document.getElementById('matchPosition');
-  if (index < 0 || !matches.length) {
-    position.textContent = '—';
-    prev.disabled = true; next.disabled = true; return;
+
+  // Arrows must always remain visible. Disabled only means there is no match
+  // in that direction; it must never hide the controls.
+  prev.style.visibility = 'visible';
+  next.style.visibility = 'visible';
+
+  let matches = [];
+  try { matches = JSON.parse(sessionStorage.getItem('socceredge_league_matches') || '[]'); } catch (_) {}
+  matches = Array.isArray(matches) ? matches : [];
+
+  const sameLeague = m => {
+    if (CONTEXT.tsdbLeagueId && m.leagueId) return String(m.leagueId) === String(CONTEXT.tsdbLeagueId);
+    return CONTEXT.leagueName && String(m.league || '').toLowerCase() === String(CONTEXT.leagueName).toLowerCase();
+  };
+  matches = matches.filter(sameLeague);
+
+  // Direct links / Home / other entry points may not have session state.
+  // Rebuild the league fixture list from the public matches endpoint.
+  if (!matches.length || !matches.some(m => String(m.fixtureId) === String(FIXTURE_ID))) {
+    const date = (CONTEXT.kickoff || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
+    try {
+      const response = await fetch(API_BASE + '/api/matches?date=' + encodeURIComponent(date), { cache:'no-store' });
+      if (response.ok) {
+        const payload = await response.json();
+        matches = (payload.matches || []).filter(sameLeague).map(m => ({
+          fixtureId:m.fixtureId, homeTeam:m.homeTeam||'', awayTeam:m.awayTeam||'',
+          league:m.league||CONTEXT.leagueName||'', leagueId:m.leagueId||CONTEXT.tsdbLeagueId||'',
+          kickoff:m.kickoff||'', homeBadge:m.homeBadge||'', awayBadge:m.awayBadge||'',
+          homeId:m.homeId||'', awayId:m.awayId||''
+        }));
+        matches.sort((a,b) => new Date(a.kickoff||0) - new Date(b.kickoff||0));
+        try { sessionStorage.setItem('socceredge_league_matches', JSON.stringify(matches)); } catch (_) {}
+      }
+    } catch (err) {
+      console.warn('League navigation fixtures unavailable:', err.message);
+    }
   }
+
+  const index = matches.findIndex(m => String(m.fixtureId) === String(FIXTURE_ID));
+  if (index < 0 || !matches.length) {
+    position.textContent = '';
+    prev.disabled = true;
+    next.disabled = true;
+    return;
+  }
+
   position.textContent = (index + 1) + ' / ' + matches.length;
   prev.disabled = index === 0;
   next.disabled = index === matches.length - 1;
