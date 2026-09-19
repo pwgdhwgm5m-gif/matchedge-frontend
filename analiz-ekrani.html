@@ -1207,6 +1207,12 @@ document.getElementById('playSlip').onclick=async()=>{const legs=getSlip();if(!l
 renderSlip();
 </script>
 
-<script src="language-selector.js"></script>
+<script src="language-selector.js">
+// Initial page boot: the analysis request must run on first open, not only after language toggle.
+applyStaticTranslations();
+renderContextImmediately();
+loadAnalysis();
+loadOddsHistory();
+</script>
 </body>
 </html>
