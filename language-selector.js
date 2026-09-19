@@ -296,6 +296,25 @@
     observer.observe(document.body, { childList:true, subtree:true });
   }
 
+  function installLegalFooter() {
+    if (location.pathname.endsWith('/privacy-legal.html')) return;
+    document.querySelectorAll('.legal-footer').forEach(function(el){ el.style.display = 'none'; });
+    const isTr = (localStorage.getItem('matchedge_lang') || 'en') === 'tr';
+    const footer = document.createElement('footer');
+    footer.className = 'global-legal-footer';
+    footer.innerHTML =
+      '<div class="global-legal-links">' +
+      '<a href="privacy-legal.html#privacy">' + (isTr ? 'Gizlilik Politikası' : 'Privacy Policy') + '</a>' +
+      '<a href="privacy-legal.html#legal">' + (isTr ? 'Yasal Uyarı' : 'Legal Notice') + '</a>' +
+      '</div><div class="global-legal-copy">SoccerEdge Pro © 2026 · ' +
+      (isTr ? 'Tüm hakları saklıdır.' : 'All rights reserved.') + '</div>';
+    const style = document.createElement('style');
+    style.textContent = '.global-legal-footer{max-width:480px;margin:24px auto 92px;padding:14px 16px;text-align:center;color:#6b7386;font-size:9px}.global-legal-links{display:flex;justify-content:center;gap:8px;margin-bottom:9px}.global-legal-links a{display:inline-flex;padding:8px 11px;border:1px solid #263249;border-radius:9px;background:#121826;color:#a8b0c2;text-decoration:none;font-weight:800;font-size:10px}.global-legal-copy{line-height:1.5}';
+    document.head.appendChild(style);
+    document.body.appendChild(footer);
+  }
+
   window.SoccerEdgeI18n = { languages: languages, locale: code => (languages[code] || languages.en).locale };
   install();
+  installLegalFooter();
 })();
