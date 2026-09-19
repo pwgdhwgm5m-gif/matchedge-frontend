@@ -5,6 +5,7 @@
 .se-bottom-nav a{min-width:0!important;padding:0 2px!important}.se-bottom-nav a span{display:block!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.se-bottom-nav a b{font-size:18px!important}@media(max-width:360px){.se-bottom-nav a{font-size:8px!important}.se-bottom-nav a b{font-size:17px!important}}
 /* six-nav-fit */
 .se-bottom-nav{padding-left:4px!important;padding-right:4px!important}.se-bottom-nav a{font-size:9px!important;gap:2px!important;padding:0 1px!important}.se-bottom-nav a b{font-size:17px!important}@media(max-width:390px){.se-bottom-nav a{font-size:7.5px!important}.se-bottom-nav a b{font-size:16px!important}}
+@media (max-width:600px){.help{display:none!important}}
 </style>
 <style id="socceredge-stadium-theme">
 :root{
@@ -95,7 +96,7 @@ function draftHtml(){
  const legs=getDraft(); if(couponTab!=='pending'||!legs.length)return '';
  const x=Math.min(50,Math.max(1.15,legs.reduce((n,l)=>n*gameX(l.selection?.probability),1)));
  const body=legs.map((l,i)=>'<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(l.homeTeam||'Takım')+' – '+safe(l.awayTeam||'Takım')+'</strong><small class="leg-selection">'+safe(marketLabel(l.selection?.label)||'Seçim')+' · '+gameX(l.selection?.probability).toFixed(2)+'x'+(l.selection?.probability?' · %'+l.selection.probability:'')+'</small></div><button class="leg-delete" onclick="removeDraftLeg('+i+')">×</button></div>').join('');
- return '<article class="coupon" style="border-color:#f5b942"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY COUPON · ':'KUPONUM · ')+legs.length+(isEN()?' MATCHES':' MAÇ')+'</div></div><div class="score">'+x.toFixed(2)+'x</div></div>'+body+'</article>'; 
+ return '<article class="coupon" style="border-color:#f5b942"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY SLIP · ':'KUPONUM · ')+legs.length+(isEN()?' MATCHES':' MAÇ')+'</div></div><div class="score">'+x.toFixed(2)+'x</div></div>'+body+'</article>'; 
 }
 function removeDraftLeg(i){const a=getDraft();a.splice(i,1);localStorage.setItem(SLIP_KEY,JSON.stringify(a));load()}
 async function playDraft(){
