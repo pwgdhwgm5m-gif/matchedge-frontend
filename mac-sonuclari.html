@@ -254,6 +254,17 @@
     padding: 22px 8px 6px;
     opacity: 0.75;
   }
+  .compact-score-head, .compact-team-row {
+    display:grid; grid-template-columns:minmax(0,1fr) 34px 34px; gap:6px; align-items:center;
+  }
+  .compact-score-head { color:var(--text-muted); font-size:9px; text-align:center; margin-bottom:5px; }
+  .compact-score-head .match-status-pill { justify-self:start; }
+  .compact-team-row { min-height:25px; font-size:12.5px; }
+  .compact-team-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; }
+  .compact-team-row strong { text-align:center; font-size:13px; }
+  .match-card { padding:9px 46px 9px 12px; margin-bottom:7px; border-radius:11px; }
+  .compact-fav { position:absolute; right:8px; top:50%; transform:translateY(-50%); width:30px; height:30px; margin:0; }
+  .compact-fav:active { transform:translateY(-50%) scale(.9); }
 </style>
 </head>
 <body>
@@ -272,7 +283,7 @@
 
   <div class="top-bar">
     <div>
-      <div class="brand-name">MATCHEDGE<span class="premium">PREMIUM</span></div>
+      <div class="brand-name">SOCCEREDGE<span class="premium">PRO</span></div>
       <div class="brand-sub" data-i18n="brandSub">MATCH RESULTS</div>
     </div>
     <div class="top-actions">
@@ -324,7 +335,7 @@ const TRANSLATIONS = {
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load results - pull to refresh",
     liveMatches: 'LIVE MATCHES', otherMatches: 'FINISHED MATCHES',
-    live: 'LIVE', ft: 'FT', notStarted: 'Not Started',
+    live: 'LIVE', ft: 'FINISHED', notStarted: 'Not Started', htColumn: 'HT', ftColumn: 'FT',
     htPrefix: 'HT',
     goal: 'GOAL!', minuteSuffix: '\'',
     allLeagues: 'All',
@@ -338,7 +349,7 @@ const TRANSLATIONS = {
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Sonuçlar yüklenemedi - yenilemek için tekrar dene',
     liveMatches: 'CANLI MAÇLAR', otherMatches: 'BİTEN MAÇLAR',
-    live: 'CANLI', ft: 'MS', notStarted: 'Başlamadı',
+    live: 'CANLI', ft: 'BİTTİ', notStarted: 'Başlamadı', htColumn: 'İY', ftColumn: 'MS',
     htPrefix: 'İY',
     goal: 'GOL!', minuteSuffix: '. dakika',
     allLeagues: 'Tümü',
@@ -570,15 +581,10 @@ function renderResults(matches) {
     });
   });
 
-  container.querySelectorAll('.note-add-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => e.stopPropagation());
-  });
-
   // Sonuclar ekraninda maca tiklayinca analiz ekranina girilmesin istendi -
   // bitmis bir mac icin "analiz" (mac oncesi tahmin ekrani) zaten anlamsiz.
   // Sadece hala devam eden (canli) maclar simulator ekranina goturuyor,
-  // bitmis maclarda kart tiklanabilir DEGIL (favori/not butonlari ayri
-  // calismaya devam ediyor, onlarin kendi click handler'i var).
+  // bitmis maclarda kart tiklanabilir DEGIL; favori dugmesi ayri calisir.
   container.querySelectorAll('.match-card.is-live').forEach(card => {
     card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
@@ -594,42 +600,26 @@ function escapeAttr(str) {
 function renderMatchCard(m, favoriteSection = false) {
   const homeScore = m.homeScore ?? '-';
   const awayScore = m.awayScore ?? '-';
-  const hasHalftime = m.halftimeHome != null && m.halftimeAway != null;
+  const homeHt = m.halftimeHome ?? '-';
+  const awayHt = m.halftimeAway ?? '-';
   const isFav = favorites.has(String(m.fixtureId));
 
   return `
     <div class="match-card ${m.isLive ? 'is-live' : ''} ${favoriteSection ? 'favorite-card' : ''}"
-      data-fixture-id="${m.fixtureId}"
-      data-home="${escapeAttr(m.homeTeam)}"
-      data-away="${escapeAttr(m.awayTeam)}"
-      data-league="${escapeAttr(m.league)}"
-      data-kickoff="${m.kickoff || ''}"
-      data-tsdb-league="${m.leagueId || ''}"
-      data-home-badge="${m.homeBadge || ''}"
-      data-away-badge="${m.awayBadge || ''}">
-      <div class="match-league">
-        <span>${m.league || ''}</span>
+      data-fixture-id="${m.fixtureId}">
+      <div class="compact-score-head">
         <span class="match-status-pill ${statusClass(m)}">${statusLabel(m)}</span>
+        <span>${t('htColumn')}</span><span>${t('ftColumn')}</span>
       </div>
-      <div class="match-row">
-        <div class="match-teams">
-          <div class="team-line">
-            <span class="tname">${m.homeTeam}</span>
-            <span class="tscore">${homeScore}</span>
-          </div>
-          <div class="team-line">
-            <span class="tname">${m.awayTeam}</span>
-            <span class="tscore">${awayScore}</span>
-          </div>
-          ${hasHalftime ? `<div class="halftime-note">${t('htPrefix')}: ${m.halftimeHome}-${m.halftimeAway}</div>` : ''}
-        </div>
-        <div class="card-actions" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
-          <div class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></div>
-          <a class="note-add-btn" href="kuponum.html?match=${encodeURIComponent(m.homeTeam + ' - ' + m.awayTeam)}&fixtureId=${encodeURIComponent(m.fixtureId)}&matchDate=${encodeURIComponent((m.kickoff || '').split('T')[0])}" style="text-decoration:none; width:28px; height:28px; display:flex; align-items:center; justify-content:center; background:var(--bg-card-inner); border:1px solid var(--border-subtle); border-radius:8px; font-size:14px;" title="Not ekle">
-            📝
-          </a>
-        </div>
+      <div class="compact-team-row">
+        <span class="compact-team-name">${m.homeTeam}</span>
+        <strong>${homeHt}</strong><strong>${homeScore}</strong>
       </div>
+      <div class="compact-team-row">
+        <span class="compact-team-name">${m.awayTeam}</span>
+        <strong>${awayHt}</strong><strong>${awayScore}</strong>
+      </div>
+      <button type="button" aria-label="Favorite" class="fav-btn compact-fav ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>
     </div>
   `;
 }
