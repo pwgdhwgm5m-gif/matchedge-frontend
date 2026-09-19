@@ -365,7 +365,7 @@ button,a{-webkit-touch-callout:none}
 .top-picks-scroll::-webkit-scrollbar{width:5px}.top-picks-scroll::-webkit-scrollbar-thumb{background:#315781;border-radius:8px}
 @media(max-width:600px){.top-picks-scroll{max-height:480px;-webkit-overflow-scrolling:touch}}
 
-.featured-carousel-wrap{position:relative;min-width:0}.featured-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:8;width:34px;height:44px;border:1px solid rgba(242,201,76,.55);border-radius:10px;background:rgba(4,21,46,.88);color:#f2c94c;font-size:25px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.28);cursor:pointer}.featured-arrow.left{left:6px}.featured-arrow.right{right:6px}.featured-arrow:active{transform:translateY(-50%) scale(.94)}
+.featured-carousel-wrap{position:relative;min-width:0}
 /* Featured matches: horizontal swipe only */
 .featured-carousel{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;gap:10px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain!important;padding:2px 2px 10px!important;scrollbar-width:none!important;touch-action:pan-x!important}
 .featured-carousel::-webkit-scrollbar{display:none!important}
@@ -831,10 +831,8 @@ function renderFeaturedContent() {
       el.innerHTML = `<div class="empty-state">${t('noLiveNow')}</div>`;
       return;
     }
-    el.innerHTML = '<div class="featured-carousel-wrap"><button class="featured-arrow left" type="button" aria-label="Previous">‹</button><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,8).map(featuredCardHtml).join('')+'</div><button class="featured-arrow right" type="button" aria-label="Next">›</button></div>';
+    el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,8).map(featuredCardHtml).join('')+'</div></div>';
     const carousel = el.querySelector('.live-carousel');
-    el.querySelector('.featured-arrow.left')?.addEventListener('click',()=>carousel?.scrollBy({left:-Math.max(260,carousel.clientWidth*.9),behavior:'smooth'}));
-    el.querySelector('.featured-arrow.right')?.addEventListener('click',()=>carousel?.scrollBy({left:Math.max(260,carousel.clientWidth*.9),behavior:'smooth'}));
     return;
   }
 
@@ -881,13 +879,11 @@ function renderFeaturedContent() {
   const picks = [...preferred, ...others].slice(0,8);
   if (!picks.length) {
     const fallback = [...allMatches].sort((a,b) => majorLeaguePriority(a) - majorLeaguePriority(b) || kickoffTime(a) - kickoffTime(b)).slice(0,8);
-    el.innerHTML = fallback.length ? '<div class="featured-carousel-wrap"><button class="featured-arrow left" type="button" aria-label="Previous">‹</button><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+fallback.map(m=>featuredCardHtml(m)).join('')+'</div><button class="featured-arrow right" type="button" aria-label="Next">›</button></div>' : '';
+    el.innerHTML = fallback.length ? '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+fallback.map(m=>featuredCardHtml(m)).join('')+'</div></div>' : '';
     return;
   }
-  el.innerHTML = '<div class="featured-carousel-wrap"><button class="featured-arrow left" type="button" aria-label="Previous">‹</button><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+picks.map(item=>featuredCardHtml(item.match,item.analysis,item.best)).join('')+'</div><button class="featured-arrow right" type="button" aria-label="Next">›</button></div>';
+  el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+picks.map(item=>featuredCardHtml(item.match,item.analysis,item.best)).join('')+'</div></div>';
   const carousel = el.querySelector('.featured-carousel');
-  el.querySelector('.featured-arrow.left')?.addEventListener('click',()=>carousel?.scrollBy({left:-Math.max(260,carousel.clientWidth*.9),behavior:'smooth'}));
-  el.querySelector('.featured-arrow.right')?.addEventListener('click',()=>carousel?.scrollBy({left:Math.max(260,carousel.clientWidth*.9),behavior:'smooth'}));
 }
 
 function renderTodayList(matches, loadFailed) {
