@@ -565,7 +565,6 @@ button,input,select,textarea{font:inherit}
         <div class="team-name" id="away-name">—</div>
       </div>
     </div>
-    <a class="match-room-btn" id="match-room-link" href="#">💬 <span data-i18n="matchChat">Chat</span></a>
   </div>
 
   <div class="card premium-verdict verdict-watch" id="premium-verdict">
@@ -854,12 +853,6 @@ const CONTEXT = {
   homeBadge: qs.get('homeBadge') || '',
   awayBadge: qs.get('awayBadge') || '',
 };
-const matchRoomParams = new URLSearchParams({
-  fixtureId: FIXTURE_ID || '',
-  homeTeamName: CONTEXT.homeTeamName,
-  awayTeamName: CONTEXT.awayTeamName,
-});
-document.getElementById('match-room-link').href = 'mac-odasi.html?' + matchRoomParams.toString();
 const backParams=new URLSearchParams();
 if(CONTEXT.tsdbLeagueId) backParams.set('leagueId',CONTEXT.tsdbLeagueId);
 if(CONTEXT.leagueName) backParams.set('leagueName',CONTEXT.leagueName);
