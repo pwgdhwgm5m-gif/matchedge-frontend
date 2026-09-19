@@ -98,6 +98,16 @@
     color: var(--teal);
   }
 
+  .country-filters { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-bottom:10px; scrollbar-width:none; }
+  .country-filters::-webkit-scrollbar { display:none; }
+  .league-group { margin-bottom:10px; }
+  .league-toggle { width:100%; min-height:44px; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:12px; color:var(--text-primary); font:inherit; font-size:12px; font-weight:800; cursor:pointer; text-align:left; }
+  .league-toggle .league-count { color:var(--text-muted); font-size:10px; font-weight:700; }
+  .league-toggle .chevron { color:var(--text-muted); transition:transform .15s ease; }
+  .league-group.open .league-toggle .chevron { transform:rotate(180deg); }
+  .league-body { display:none; padding-top:8px; }
+  .league-group.open .league-body { display:block; }
+
   .section-label {
     font-size: 11.5px; font-weight: 800; letter-spacing: 1px;
     color: var(--text-primary);
@@ -294,6 +304,7 @@
   </div>
 
   <div class="day-tabs" id="dayTabs"></div>
+  <div class="country-filters" id="countryFilters"></div>
   <div class="league-filters" id="leagueFilters"></div>
   <div class="sound-panel"><div class="sound-head" style="margin-bottom:0"><span data-i18n="goalSound">Gol sesi</span><button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false">Sesi Aç</button></div></div>
   <div class="league-filters" id="scoreFilters"><button class="league-chip active" id="allScores" type="button" data-i18n="allScores">All scores</button><button class="league-chip" id="favoriteScores" type="button" data-i18n="favoriteScores">★ Favorites</button></div>
@@ -338,7 +349,7 @@ const TRANSLATIONS = {
     live: 'LIVE', ft: 'FINISHED', notStarted: 'Not Started', htColumn: 'HT', ftColumn: 'FT',
     htPrefix: 'HT',
     goal: 'GOAL!', minuteSuffix: '\'',
-    allLeagues: 'All',
+    allLeagues: 'All', allCountries: 'All countries',
     goalSound: 'Goal sound', favoritesTitle: 'MY FAVORITES', soundOn: 'Sound On', soundOff: 'Sound Off', allScores: 'All scores', favoriteScores: '★ Favorites', noFavorites: 'No favorite matches for this date',
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
@@ -352,7 +363,7 @@ const TRANSLATIONS = {
     live: 'CANLI', ft: 'BİTTİ', notStarted: 'Başlamadı', htColumn: 'İY', ftColumn: 'MS',
     htPrefix: 'İY',
     goal: 'GOL!', minuteSuffix: '. dakika',
-    allLeagues: 'Tümü',
+    allLeagues: 'Tümü', allCountries: 'Tüm ülkeler',
     goalSound: 'Gol sesi', favoritesTitle: 'FAVORİLERİM', soundOn: 'Ses Açık', soundOff: 'Sesi Aç', allScores: 'Tüm skorlar', favoriteScores: '★ Favoriler', noFavorites: 'Bu tarihte favori maç yok',
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
     legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan SoccerEdge Pro sorumlu tutulamaz.<br><br>SoccerEdge Pro © 2026 — Eddas tarafından geliştirildi.',
@@ -430,7 +441,9 @@ function isToday(d) {
 
 let selectedDate = formatDateKey(new Date());
 let selectedLeague = null;
+let selectedCountry = null;
 let allMatchesForDay = [];
+const openLeagues = new Set();
 
 function renderDayTabs() {
   const tabsEl = document.getElementById('dayTabs');
@@ -454,6 +467,8 @@ function renderDayTabs() {
     tab.addEventListener('click', () => {
       selectedDate = tab.dataset.date;
       selectedLeague = null;
+      selectedCountry = null;
+      openLeagues.clear();
       renderDayTabs();
       loadResults();
     });
@@ -468,32 +483,53 @@ function relevantMatches(matches) {
   return matches.filter(m => m.isLive || m.statusShort === 'FT');
 }
 
-function renderLeagueFilters() {
-  const filtersEl = document.getElementById('leagueFilters');
-  const leagues = [...new Set(relevantMatches(allMatchesForDay).map(m => m.league).filter(Boolean))].sort();
+function leagueCountry(league) {
+  const s = String(league || '').toLowerCase();
+  const rules = [
+    ['Türkiye','🇹🇷',/turk|süper lig|super lig/],['İngiltere','🇬🇧',/premier|championship|league one|league two|fa cup|efl/],
+    ['İspanya','🇪🇸',/la liga|copa del rey|segunda/],['İtalya','🇮🇹',/serie a|serie b|coppa/],
+    ['Almanya','🇩🇪',/bundesliga|dfb/],['Fransa','🇫🇷',/ligue|coupe de france/],
+    ['Hollanda','🇳🇱',/eredivisie/],['Belçika','🇧🇪',/belg|pro league/],['Portekiz','🇵🇹',/portugal|primeira/],
+    ['İskoçya','🏴',/scot/],['Yunanistan','🇬🇷',/greece|greek|super league greece/],
+    ['Avrupa','🏆',/champions|europa|conference|nations league/]
+  ];
+  const hit = rules.find(r => r[2].test(s));
+  return hit ? { name: hit[0], flag: hit[1] } : { name: 'Diğer', flag: '🌍' };
+}
 
-  if (leagues.length <= 1) {
-    filtersEl.innerHTML = '';
-    return;
-  }
-
-  const chips = [`<div class="league-chip ${!selectedLeague ? 'active' : ''}" data-league="">${t('allLeagues')}</div>`]
-    .concat(leagues.map(l => `<div class="league-chip ${selectedLeague === l ? 'active' : ''}" data-league="${l.replace(/"/g, '&quot;')}">${l}</div>`));
-
-  filtersEl.innerHTML = chips.join('');
-
-  filtersEl.querySelectorAll('.league-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      selectedLeague = chip.dataset.league || null;
-      renderLeagueFilters();
-      renderResults(filterByLeague(allMatchesForDay));
-    });
+function filteredRelevantMatches() {
+  return relevantMatches(allMatchesForDay).filter(m => {
+    if (selectedCountry && leagueCountry(m.league).name !== selectedCountry) return false;
+    if (selectedLeague && m.league !== selectedLeague) return false;
+    return true;
   });
 }
 
-function filterByLeague(matches) {
-  if (!selectedLeague) return matches;
-  return matches.filter(m => m.league === selectedLeague);
+function renderCountryFilters() {
+  const el = document.getElementById('countryFilters');
+  const countries = [...new Map(relevantMatches(allMatchesForDay).map(m => {
+    const c = leagueCountry(m.league); return [c.name, c];
+  })).values()];
+  if (countries.length <= 1) { el.innerHTML=''; return; }
+  const chips = [`<button class="league-chip ${!selectedCountry?'active':''}" data-country="">${t('allCountries')}</button>`]
+    .concat(countries.map(c => `<button class="league-chip ${selectedCountry===c.name?'active':''}" data-country="${c.name}">${c.flag} ${c.name}</button>`));
+  el.innerHTML=chips.join('');
+  el.querySelectorAll('[data-country]').forEach(btn => btn.addEventListener('click', () => {
+    selectedCountry=btn.dataset.country||null; selectedLeague=null; openLeagues.clear();
+    renderCountryFilters(); renderLeagueFilters(); renderResults();
+  }));
+}
+
+function renderLeagueFilters() {
+  const filtersEl=document.getElementById('leagueFilters');
+  const source=relevantMatches(allMatchesForDay).filter(m => !selectedCountry || leagueCountry(m.league).name===selectedCountry);
+  const leagues=[...new Set(source.map(m=>m.league).filter(Boolean))].sort();
+  if(leagues.length<=1){filtersEl.innerHTML='';return;}
+  filtersEl.innerHTML=[`<button class="league-chip ${!selectedLeague?'active':''}" data-league="">${t('allLeagues')}</button>`]
+    .concat(leagues.map(l=>`<button class="league-chip ${selectedLeague===l?'active':''}" data-league="${escapeAttr(l)}">${l}</button>`)).join('');
+  filtersEl.querySelectorAll('[data-league]').forEach(btn=>btn.addEventListener('click',()=>{
+    selectedLeague=btn.dataset.league||null; openLeagues.clear(); renderLeagueFilters(); renderResults();
+  }));
 }
 
 async function loadResults() {
@@ -508,13 +544,15 @@ async function loadResults() {
   } catch (err) {
     console.warn('Sonuçlar alınamadı:', err.message);
     allMatchesForDay = [];
+    document.getElementById('countryFilters').innerHTML = '';
     document.getElementById('leagueFilters').innerHTML = '';
     container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
     return;
   }
 
+  renderCountryFilters();
   renderLeagueFilters();
-  renderResults(filterByLeague(allMatchesForDay));
+  renderResults();
 }
 
 function statusLabel(m) {
@@ -530,67 +568,37 @@ function statusClass(m) {
   return 'ft';
 }
 
-function renderResults(matches) {
+function renderResults() {
   const container = document.getElementById('resultsContainer');
-
-  // Sonuclar ekrani sadece CANLI ve BITMIS maclari gosterir - henuz
-  // baslamamis (NS) maclar burada anlamsiz (onlar icin "Maclar" sekmesi
-  // var), bu yuzden listeye hic girmiyorlar.
-  const shown = relevantMatches(matches).filter(m => !showFavoriteScoresOnly || favorites.has(String(m.fixtureId)));
-
-  if (shown.length === 0) {
+  const shown = filteredRelevantMatches().filter(m => !showFavoriteScoresOnly || favorites.has(String(m.fixtureId)));
+  if (!shown.length) {
     container.innerHTML = `<div class="empty-state">${t(showFavoriteScoresOnly ? 'noFavorites' : 'noMatchesDate')}</div>`;
     return;
   }
-
-  const favoriteMatches = shown.filter(m => favorites.has(String(m.fixtureId)));
-  const liveMatches = shown.filter(m => m.isLive && !favorites.has(String(m.fixtureId)));
-  const otherMatches = shown.filter(m => !m.isLive && !favorites.has(String(m.fixtureId)));
-
-  let html = '';
-
-  if (favoriteMatches.length > 0) {
-    html += `<div class="section-label">★ ${t('favoritesTitle')}</div>`;
-    html += favoriteMatches.map(m => renderMatchCard(m, true)).join('');
-  }
-
-  if (liveMatches.length > 0) {
-    html += `<div class="section-label"><span class="live-pip"></span>${t('liveMatches')}</div>`;
-    html += `<div class="score-scroll" aria-label="${t('liveMatches')}">${liveMatches.map(renderMatchCard).join('')}</div>`;
-  }
-
-  if (otherMatches.length > 0) {
-    if (liveMatches.length > 0 || favoriteMatches.length > 0) {
-      html += `<div class="section-label" style="margin-top:18px;">${t('otherMatches')}</div>`;
-    }
-    html += `<div class="score-scroll" aria-label="${t('otherMatches')}">${otherMatches.map(renderMatchCard).join('')}</div>`;
-  }
-
-  container.innerHTML = html;
-  container.querySelectorAll('.score-scroll').forEach(list => {
-    const cards = [...list.querySelectorAll('.match-card')];
-    if (cards.length <= 5) { list.style.maxHeight = 'none'; return; }
-    const height = cards.slice(0,5).reduce((total,card) => total + card.getBoundingClientRect().height + parseFloat(getComputedStyle(card).marginBottom || 0),0);
-    list.style.maxHeight = Math.ceil(height) + 'px';
-  });
-
-  container.querySelectorAll('.fav-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleFavorite(btn.dataset.fixtureId, btn.dataset.home, btn.dataset.away, btn);
-    });
-  });
-
-  // Sonuclar ekraninda maca tiklayinca analiz ekranina girilmesin istendi -
-  // bitmis bir mac icin "analiz" (mac oncesi tahmin ekrani) zaten anlamsiz.
-  // Sadece hala devam eden (canli) maclar simulator ekranina goturuyor,
-  // bitmis maclarda kart tiklanabilir DEGIL; favori dugmesi ayri calisir.
-  container.querySelectorAll('.match-card.is-live').forEach(card => {
-    card.style.cursor = 'pointer';
-    card.addEventListener('click', () => {
-      window.location.href = `canli-simulator.html?fixtureId=${encodeURIComponent(card.dataset.fixtureId)}`;
-    });
-  });
+  const groups = new Map();
+  shown.forEach(m => { const k=m.league||'Other'; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
+  if (groups.size === 1 && openLeagues.size === 0) openLeagues.add([...groups.keys()][0]);
+  container.innerHTML=[...groups.entries()].map(([league,matches]) => {
+    const open=openLeagues.has(league);
+    const country=leagueCountry(league);
+    return `<section class="league-group ${open?'open':''}" data-league-group="${escapeAttr(league)}">
+      <button type="button" class="league-toggle" data-toggle-league="${escapeAttr(league)}">
+        <span>${country.flag} ${league}</span><span><span class="league-count">${matches.length} maç</span> <span class="chevron">⌄</span></span>
+      </button>
+      <div class="league-body">${matches.map(m=>renderMatchCard(m, favorites.has(String(m.fixtureId)))).join('')}</div>
+    </section>`;
+  }).join('');
+  container.querySelectorAll('[data-toggle-league]').forEach(btn=>btn.addEventListener('click',()=>{
+    const league=btn.dataset.toggleLeague;
+    openLeagues.has(league)?openLeagues.delete(league):openLeagues.add(league);
+    btn.closest('.league-group').classList.toggle('open',openLeagues.has(league));
+  }));
+  container.querySelectorAll('.fav-btn').forEach(btn=>btn.addEventListener('click',(e)=>{
+    e.stopPropagation(); toggleFavorite(btn.dataset.fixtureId,btn.dataset.home,btn.dataset.away,btn);
+  }));
+  container.querySelectorAll('.match-card.is-live').forEach(card=>card.addEventListener('click',()=>{
+    window.location.href=`canli-simulator.html?fixtureId=${encodeURIComponent(card.dataset.fixtureId)}`;
+  }));
 }
 
 function escapeAttr(str) {
@@ -649,7 +657,7 @@ async function toggleFavorite(fixtureId, homeTeam, awayTeam, btnEl) {
   } catch (err) {
     console.warn('Favori güncellenemedi:', err.message);
   }
-  renderResults(filterByLeague(allMatchesForDay));
+  renderResults();
 }
 
 async function pollLiveForGoals() {
@@ -736,7 +744,7 @@ function setScoreFilter(favoritesOnly) {
   showFavoriteScoresOnly = favoritesOnly;
   document.getElementById('allScores').classList.toggle('active', !favoritesOnly);
   document.getElementById('favoriteScores').classList.toggle('active', favoritesOnly);
-  renderResults(filterByLeague(allMatchesForDay));
+  renderResults();
 }
 applyStaticTranslations();
 renderSoundSettings();
