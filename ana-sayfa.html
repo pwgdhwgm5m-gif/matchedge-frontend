@@ -831,11 +831,10 @@ function renderFeaturedContent() {
       el.innerHTML = `<div class="empty-state">${t('noLiveNow')}</div>`;
       return;
     }
-    el.innerHTML = `<div class="featured-scroll" aria-label="${t('liveTab')}">${liveMatches.map(featuredCardHtml).join('')}</div>`;
-    const list = el.querySelector('.featured-scroll');
-    const cards = [...list.querySelectorAll('.featured-card')];
-    if (cards.length > 5) list.style.maxHeight = Math.ceil(cards.slice(0,5).reduce((n,card) => n + card.getBoundingClientRect().height + parseFloat(getComputedStyle(card).marginBottom || 0),0)) + 'px';
-    else list.style.maxHeight = 'none';
+    el.innerHTML = '<div class="featured-carousel-wrap"><button class="featured-arrow left" type="button" aria-label="Previous">‹</button><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,8).map(featuredCardHtml).join('')+'</div><button class="featured-arrow right" type="button" aria-label="Next">›</button></div>';
+    const carousel = el.querySelector('.live-carousel');
+    el.querySelector('.featured-arrow.left')?.addEventListener('click',()=>carousel?.scrollBy({left:-Math.max(260,carousel.clientWidth*.9),behavior:'smooth'}));
+    el.querySelector('.featured-arrow.right')?.addEventListener('click',()=>carousel?.scrollBy({left:Math.max(260,carousel.clientWidth*.9),behavior:'smooth'}));
     return;
   }
 
