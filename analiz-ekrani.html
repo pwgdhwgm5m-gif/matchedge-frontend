@@ -924,9 +924,10 @@ async function loadAnalysis() {
     if (!res.ok) throw new Error('http_' + res.status);
     const data = await res.json();
     renderAnalysis(data);
+    document.getElementById('errorBanner').innerHTML = '';
   } catch (err) {
     console.warn('Analiz alınamadı:', err.message);
-    showErrorBanner(`${t('loadError')} — ${t('loadErrorSub')}`);
+    if (!currentAnalysis) showErrorBanner(`${t('loadError')} — ${t('loadErrorSub')}`);
   }
 }
 
