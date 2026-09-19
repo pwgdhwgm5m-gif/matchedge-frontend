@@ -660,6 +660,19 @@ async function loadHome() {
   renderFeaturedSection();
   renderTodayList(matches, loadFailed);
   loadHomeAnalyses(matches);
+  loadLivePredictions(matches);
+}
+
+async function loadLivePredictions(matches) {
+  const liveMatches = matches.filter(m => m.isLive);
+  if (!liveMatches.length) return;
+  await Promise.allSettled(liveMatches.map(async m => {
+    const response = await fetch(`${API_BASE}/api/live/${encodeURIComponent(m.fixtureId)}`);
+    if (!response.ok) return;
+    const live = await response.json();
+    matchAnalyses.set(String(m.fixtureId), { livePrediction: live.livePrediction });
+  }));
+  renderFeaturedSection();
 }
 
 function homeAnalysisUrl(m) {
@@ -718,10 +731,19 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
   const link = isLive
     ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
     : analysisLink(m);
-  const pick = forcedPick || analysis?.marketBoard?.best;
-  const signal = pick
-    ? `<div class="featured-market"><div><div class="featured-signal-text">${pick.market} · ${pick.label}</div><div class="featured-health">${t('dataHealth')} ${pick.dataHealth}/100</div></div><div class="featured-probability">%${pick.probability}</div></div>`
-    : `<div><div class="featured-signal-text">${isLive ? t('liveAnalysisAvailable') : t('preMatchReady')}</div><div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('loadingAnalysis')}</div></div>`;
+  const livePick = isLive ? analysis?.livePrediction : null;
+  const pick = isLive ? null : (forcedPick || analysis?.marketBoard?.best);
+  let signal;
+  if (isLive && livePick?.available && Number.isFinite(Number(livePick.probability))) {
+    const probability = Number(livePick.probability).toFixed(1).replace('.0','');
+    const health = Number.isFinite(Number(livePick.dataHealth)) ? Number(livePick.dataHealth) : null;
+    signal = `<div class="featured-market"><div><div class="featured-signal-text">${livePick.market || 'Live pressure'} · ${livePick.selection}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${probability}</div></div>`;
+  } else if (pick && pick.market && pick.label && Number.isFinite(Number(pick.probability))) {
+    const health = Number.isFinite(Number(pick.dataHealth)) ? Number(pick.dataHealth) : null;
+    signal = `<div class="featured-market"><div><div class="featured-signal-text">${pick.market} · ${pick.label}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${Number(pick.probability)}</div></div>`;
+  } else {
+    signal = `<div><div class="featured-signal-text">${isLive ? 'No live prediction' : t('preMatchReady')}</div><div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('loadingAnalysis')}</div></div>`;
+  }
 
   return `
     <a class="featured-card" href="${link}" style="display:block; text-decoration:none; color:inherit;">
