@@ -953,9 +953,6 @@ function renderAnalysis(data) {
   }
   document.getElementById('match-status').textContent = data.status || t('notStartedStatus');
 
-  renderPremiumIntelligence(data.premium, data);
-  renderCouponMarkets(data);
-
   const mp = data.matchProbabilities || {};
   document.getElementById('home-prob').textContent = (mp.homeWinProbability ?? '–') + '%';
   document.getElementById('draw-prob').textContent = (mp.drawProbability ?? '–') + '%';
@@ -975,9 +972,15 @@ function renderAnalysis(data) {
   setReading('over25', mkt.over25GoalsPercent);
   setReading('btts', mkt.bttsPercent);
   setReading('corner', data.cornerMetrics?.over85Percent);
-  document.getElementById('half-value').textContent =
-    (data.secondHalfGoalPercent ? t('secondHalf') + '\n' + data.secondHalfGoalPercent + '%' : '–');
-  document.getElementById('half-bar').style.width = (data.secondHalfGoalPercent || 0) + '%';
+  const mostGoalsHalf = data.halfMarkets?.mostGoalsHalf || {};
+  const halfChoices = [
+    { label: t('firstHalf'), value: Number(mostGoalsHalf.first) },
+    { label: t('secondHalf'), value: Number(mostGoalsHalf.second) },
+    { label: t('equal'), value: Number(mostGoalsHalf.equal) },
+  ].filter(item => Number.isFinite(item.value));
+  const bestHalf = halfChoices.sort((a,b) => b.value-a.value)[0];
+  document.getElementById('half-value').textContent = bestHalf ? bestHalf.label + '\n' + bestHalf.value + '%' : '–';
+  document.getElementById('half-bar').style.width = (bestHalf?.value || 0) + '%';
 
   document.getElementById('xg-home').textContent = data.homeLambda ?? '–';
   document.getElementById('xg-away').textContent = data.awayLambda ?? '–';
@@ -1032,6 +1035,10 @@ function renderAnalysis(data) {
   document.getElementById('corner-over85-bar').style.width = (cm.over85Percent || 0) + '%';
 
   renderStandings(data.standings);
+
+  // Optional premium/coupon widgets must never prevent the core analysis from rendering.
+  try { renderPremiumIntelligence(data.premium, data); } catch (err) { console.warn('Premium kart render hatasi:', err.message); }
+  try { renderCouponMarkets(data); } catch (err) { console.warn('Kupon market render hatasi:', err.message); }
 }
 
 function premiumOutcomeLabel(outcome, data) {
