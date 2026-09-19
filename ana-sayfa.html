@@ -839,7 +839,7 @@ function renderFeaturedContent() {
   if (featuredViewMode === 'top') {
     const ranked = rankedMatches().slice(0, 12);
     el.innerHTML = ranked.length
-      ? `<div class="top-picks-scroll" aria-label="${t('topTab')}">${ranked.map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('')}</div>`
+      ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${ranked.slice(0,8).map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('')}</div>`
       : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
     return;
   }
