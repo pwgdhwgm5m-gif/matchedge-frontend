@@ -450,6 +450,14 @@ function renderDayTabs() {
 }
 
 function analysisLink(m) {
+  const leagueMatches = lastMatches
+    .filter(item => String(item.leagueId || '') === String(m.leagueId || ''))
+    .map(item => ({
+      fixtureId:item.fixtureId, homeTeam:item.homeTeam||'', awayTeam:item.awayTeam||'',
+      league:item.league||'', leagueId:item.leagueId||'', kickoff:item.kickoff||'',
+      homeBadge:item.homeBadge||'', awayBadge:item.awayBadge||'', homeId:item.homeId||'', awayId:item.awayId||''
+    }));
+  try { sessionStorage.setItem('socceredge_league_matches', JSON.stringify(leagueMatches)); } catch (_) {}
   const params = new URLSearchParams({
     fixtureId: m.fixtureId,
     homeTeamName: m.homeTeam || '',
