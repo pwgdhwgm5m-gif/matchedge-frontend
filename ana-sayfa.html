@@ -360,6 +360,11 @@ button,a{-webkit-touch-callout:none}
 .se-bottom-nav{left:0!important;right:0!important;bottom:0!important;transform:none!important;width:100%!important;max-width:none!important;grid-template-columns:repeat(6,minmax(72px,140px))!important;justify-content:center!important}
 @media(max-width:600px){.se-bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;justify-content:stretch!important}}
 </style>
+<style id="top-picks-scroll-fix">
+.top-picks-scroll{max-height:560px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px;scrollbar-width:thin}
+.top-picks-scroll::-webkit-scrollbar{width:5px}.top-picks-scroll::-webkit-scrollbar-thumb{background:#315781;border-radius:8px}
+@media(max-width:600px){.top-picks-scroll{max-height:480px;-webkit-overflow-scrolling:touch}}
+</style>
 </head>
 <body>
 
@@ -776,8 +781,10 @@ function renderFeaturedContent() {
   }
 
   if (featuredViewMode === 'top') {
-    const ranked = rankedMatches().slice(0, 3);
-    el.innerHTML = ranked.length ? ranked.map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('') : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
+    const ranked = rankedMatches().slice(0, 12);
+    el.innerHTML = ranked.length
+      ? `<div class="top-picks-scroll" aria-label="${t('topTab')}">${ranked.map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('')}</div>`
+      : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
     return;
   }
 
