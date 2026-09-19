@@ -42,7 +42,7 @@ let rulesAccepted=localStorage.getItem('matchedge_chat_rules')==='accepted';
 let selectedMessage=null;
 let polling=null;
 let aiFeed=[];
-let userMessages=[];let livePolling=null;
+let userMessages=[];let livePolling=null;let botLiveFeed=[];let lastLiveSnapshot=null;
 
 function openSheet(id){document.getElementById(id).classList.add('show')}
 function closeSheets(){document.querySelectorAll('.overlay').forEach(x=>x.classList.remove('show'))}
@@ -59,15 +59,15 @@ function initials(name){return String(name||'?').slice(0,2).toUpperCase()}
 
 function render(messages=userMessages){
  userMessages=messages;
- const items=[...aiFeed,...userMessages];
+ const items=[...aiFeed,...botLiveFeed,...userMessages];
  const box=document.getElementById('messages');
  if(!items.length){box.innerHTML='<div class="empty">Henüz analiz veya topluluk mesajı yok. İlk mesajı sen yaz.</div>';return}
  box.replaceChildren(...items.map(m=>{
   const card=document.createElement('div');card.className='msg'+(m.mine?' mine':'')+(m.ai?' ai':'');
   const head=document.createElement('div');head.className='msg-head';
-  const avatar=document.createElement('span');avatar.className='avatar';avatar.textContent=m.ai?'ME':initials(m.authorName);
+  const avatar=document.createElement('span');avatar.className='avatar';avatar.textContent=m.botIcon||(m.ai?'AI':initials(m.authorName));
   const name=document.createElement('span');name.className='name';name.textContent=m.authorName;
-  const rank=document.createElement('span');rank.className=m.ai?'ai-badge':'rank-badge';rank.textContent=m.ai?'ME AI':(m.rank?.icon||'🌱')+' '+(m.rank?.name||'Çaylak');
+  const rank=document.createElement('span');rank.className=m.ai?'ai-badge':'rank-badge';rank.textContent=m.ai?(m.botLabel||'SOCCER EDGE BOT'):(m.rank?.icon||'🌱')+' '+(m.rank?.name||'Çaylak');
   const coins=document.createElement('span');coins.className='coin-mini';coins.textContent='🪙 '+(m.edgeCoins||0);
   const time=document.createElement('span');time.className='time';time.textContent=m.ai?'Sistem analizi':fmtTime(m.createdAt);
   const more=document.createElement('button');more.className='more';more.textContent='•••';more.setAttribute('aria-label','Mesaj seçenekleri');
@@ -89,7 +89,11 @@ function pickText(pick){
  return label?(label+(probability!==null?' • %'+probability:'')):null;
 }
 function statPill(label,v){if(!v||v.home==null||v.away==null)return '';return '<span class="statpill">'+label+' '+v.home+'–'+v.away+'</span>'}
-async function loadLiveRoom(){if(!fixtureId)return;try{const r=await fetch(API_BASE+'/api/match-room/'+encodeURIComponent(fixtureId),{headers:headers()});if(!r.ok)return;const d=await r.json(),m=d.match,s=d.stats||{};if(m){document.getElementById('liveScore').textContent=m.homeTeam+' '+m.homeScore+'–'+m.awayScore+' '+m.awayTeam;document.getElementById('liveStatus').textContent=m.isLive?'● CANLI '+(m.minute?m.minute+"'":m.statusShort):(m.statusShort==='FT'?'BİTTİ':m.statusShort)}document.getElementById('liveStats').innerHTML=statPill('🚩 Korner',s.corners)+statPill('🎯 İsabetli',s.shotsOnTarget)+statPill('Şut',s.totalShots)+statPill('🟨',s.yellowCards)+statPill('🟥',s.redCards)+statPill('xG',s.xg);const ev=d.timeline||[];document.getElementById('liveTimeline').innerHTML=ev.slice(-8).reverse().map(x=>'<div class="event">'+(x.type==='goal'?'⚽':x.type==='yellow_card'?'🟨':x.type==='red_card'?'🟥':'↔️')+' '+(x.minute!=null?x.minute+"' ":'')+String(x.player||x.team||x.detail||'')+'</div>').join('')}</div>}catch(_){}}
+async function loadLiveRoom(){if(!fixtureId)return;try{const r=await fetch(API_BASE+'/api/match-room/'+encodeURIComponent(fixtureId),{headers:headers()});if(!r.ok)return;const d=await r.json(),m=d.match,s=d.stats||{};if(m){document.getElementById('liveScore').textContent=m.homeTeam+' '+m.homeScore+'–'+m.awayScore+' '+m.awayTeam;document.getElementById('liveStatus').textContent=m.isLive?'● CANLI '+(m.minute?m.minute+"'":m.statusShort):(m.statusShort==='FT'?'BİTTİ':m.statusShort)}document.getElementById('liveStats').innerHTML=statPill('🚩 Korner',s.corners)+statPill('🎯 İsabetli',s.shotsOnTarget)+statPill('Şut',s.totalShots)+statPill('🟨',s.yellowCards)+statPill('🟥',s.redCards)+statPill('xG',s.xg);const ev=d.timeline||[];document.getElementById('liveTimeline').innerHTML=ev.slice(-8).reverse().map(x=>'<div class="event">'+(x.type==='goal'?'⚽':x.type==='yellow_card'?'🟨':x.type==='red_card'?'🟥':'↔️')+' '+(x.minute!=null?x.minute+"' ":'')+String(x.player||x.team||x.detail||'')+'</div>').join('');
+ const feed=[];ev.slice(-4).forEach(x=>{if(!['goal','yellow_card','red_card'].includes(x.type))return;const icon=x.type==='goal'?'⚽':x.type==='yellow_card'?'🟨':'🟥';feed.push({ai:true,botIcon:'📡',botLabel:'MATCH BOT',authorName:'Scout · Match Bot',text:icon+' '+(x.minute!=null?x.minute+"' ":'')+(x.player||x.team||x.detail||'Maç olayı')+'.',eventKey:x.type+'-'+x.minute+'-'+x.player})});
+ if(s.corners?.home!=null)feed.push({ai:true,botIcon:'📊',botLabel:'STATS BOT',authorName:'Nova · Stats Bot',text:'Kornerler '+s.corners.home+'–'+s.corners.away+(s.shotsOnTarget?.home!=null?' · İsabetli şut '+s.shotsOnTarget.home+'–'+s.shotsOnTarget.away:'')+'.',eventKey:'stats-'+s.corners.home+'-'+s.corners.away+'-'+(s.shotsOnTarget?.home||0)+'-'+(s.shotsOnTarget?.away||0)});
+ botLiveFeed=feed;lastLiveSnapshot=d.updatedAt||lastLiveSnapshot;render();
+ }catch(_){} }
 async function loadAiFeed(){
  if(!fixtureId)return;
  const next=[];
@@ -100,7 +104,7 @@ async function loadAiFeed(){
    const a=await r.json();
    const picks=a?.premium?.topPicks||a?.topPicks||a?.marketBoard?.allMarkets||[];
    const strongest=pickText(a?.strongestSignal||picks[0]);document.getElementById('aiPick').textContent=strongest?strongest.split(' • ')[0].slice(0,14):'—';
-   if(strongest)next.push({ai:true,authorName:'Atlas · SoccerEdge Pro AI',text:'Modelin öne çıkardığı seçim: '+strongest+'. Bu kart sistem analizidir; kullanıcı mesajı değildir.'});
+   if(strongest)next.push({ai:true,botIcon:'🧠',botLabel:'AI ANALYST',authorName:'Atlas · Soccer Edge AI',text:'Modelin öne çıkardığı seçim: '+strongest+'. Bu kart sistem analizidir; kullanıcı mesajı değildir.'});
    const homeXg=Number(a?.homeLambda??a?.expectedGoals?.home),awayXg=Number(a?.awayLambda??a?.expectedGoals?.away);
    const homeWin=pct(a?.matchProbabilities?.home??a?.probabilities?.home);
    const draw=pct(a?.matchProbabilities?.draw??a?.probabilities?.draw);
@@ -108,7 +112,7 @@ async function loadAiFeed(){
    const facts=[];
    if(Number.isFinite(homeXg)&&Number.isFinite(awayXg))facts.push('beklenen gol '+home+' '+homeXg.toFixed(2)+' - '+awayXg.toFixed(2)+' '+away);
    if(homeWin!==null&&draw!==null&&awayWin!==null)facts.push('1X2: %'+homeWin+' / %'+draw+' / %'+awayWin);
-   if(facts.length)next.push({ai:true,authorName:'Nova · Veri Analisti',text:facts.join(' • ')+'. Yalnızca mevcut model verilerinden üretilmiştir.'});
+   if(facts.length)next.push({ai:true,botIcon:'📊',botLabel:'STATS BOT',authorName:'Nova · Veri Analisti',text:facts.join(' • ')+'. Yalnızca mevcut model verilerinden üretilmiştir.'});
   }
  }catch(_){}
  try{
@@ -120,8 +124,8 @@ async function loadAiFeed(){
    if(total>0&&top){
     const label=top.label||top.selection||top.name||'seçim';
     const share=pct(top.percentage??top.share);
-    next.push({ai:true,authorName:'Scout · Tribün Takip',text:total+' gerçek kullanıcı seçimi içinde en yoğun tercih: '+label+(share!==null?' (%'+share+')':'')+'.'});
-   }else next.push({ai:true,authorName:'Scout · Tribün Takip',text:'Bu maç için henüz topluluk seçimi yok. İlk seçimi analiz ekranından kuponuna ekleyebilirsin.'});
+    next.push({ai:true,botIcon:'📡',botLabel:'COMMUNITY BOT',authorName:'Scout · Tribün Takip',text:total+' gerçek kullanıcı seçimi içinde en yoğun tercih: '+label+(share!==null?' (%'+share+')':'')+'.'});
+   }else next.push({ai:true,botIcon:'📡',botLabel:'COMMUNITY BOT',authorName:'Scout · Tribün Takip',text:'Bu maç için henüz topluluk seçimi yok. İlk seçimi analiz ekranından kuponuna ekleyebilirsin.'});
   }
  }catch(_){}
  aiFeed=next;render();
