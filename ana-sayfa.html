@@ -846,10 +846,31 @@ function renderFeaturedContent() {
     return;
   }
 
+  const majorLeaguePriority = (m) => {
+    const id = Number(m.leagueId);
+    const name = String(m.league || '').toLowerCase();
+    if (id === 78 || /bundesliga|germany|almanya/.test(name)) return 0;
+    if (id === 61 || /ligue 1|france|fransa/.test(name)) return 1;
+    if (id === 135 || /serie a|italy|italya/.test(name)) return 2;
+    if (id === 140 || /la liga|laliga|spain|ispanya/.test(name)) return 3;
+    if (id === 203 || /süper lig|super lig|turkey|türkiye/.test(name)) return 4;
+    if (id === 39 || /premier league|england|ingiltere/.test(name)) return 5;
+    return 99;
+  };
+  const kickoffTime = (m) => {
+    const ts = new Date(m.kickoff || 0).getTime();
+    return Number.isFinite(ts) ? ts : Number.MAX_SAFE_INTEGER;
+  };
   const ranked = rankedMatches();
-  const picks = ranked.slice(0,8);
+  const preferred = ranked
+    .filter(item => majorLeaguePriority(item.match) < 99)
+    .sort((a,b) => majorLeaguePriority(a.match) - majorLeaguePriority(b.match) || kickoffTime(a.match) - kickoffTime(b.match));
+  const others = ranked
+    .filter(item => majorLeaguePriority(item.match) === 99)
+    .sort((a,b) => kickoffTime(a.match) - kickoffTime(b.match));
+  const picks = [...preferred, ...others].slice(0,8);
   if (!picks.length) {
-    const fallback = allMatches.slice(0,8);
+    const fallback = [...allMatches].sort((a,b) => majorLeaguePriority(a) - majorLeaguePriority(b) || kickoffTime(a) - kickoffTime(b)).slice(0,8);
     el.innerHTML = fallback.length ? '<div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+fallback.map(m=>featuredCardHtml(m)).join('')+'</div>' : '';
     return;
   }
