@@ -262,8 +262,8 @@ body{display:block!important;min-height:100svh!important;padding:0!important}
       </div>
 
       <div class="field-group" id="birthDateGroup">
-        <div class="field-label" data-i18n="birthDateLabel">Date of Birth · 18+</div>
-        <input type="date" class="field-input" id="birthDateInput" autocomplete="bday">
+        <div class="field-label" data-i18n="birthDateLabel">Birth Year · 18+</div>
+        <input type="number" class="field-input" id="birthYearInput" inputmode="numeric" min="1900" max="2008" step="1" placeholder="YYYY" autocomplete="bday-year">
       </div>
 
       <div class="field-label" data-i18n="passwordLabel">Password</div>
@@ -305,7 +305,7 @@ const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const TRANSLATIONS = {
   en: {
     brandSub: 'PRO MATCH INTELLIGENCE', betaNote: 'BETA · All features are free during beta.', loginTab: 'Log In', registerTab: 'Sign Up',
-    usernameLabel: 'Username', emailLabel: 'Email', passwordLabel: 'Password', birthDateLabel: 'Date of Birth · 18+', ageError: 'You must be 18 or older to create an account.',
+    usernameLabel: 'Username', emailLabel: 'Email', passwordLabel: 'Password', birthDateLabel: 'Birth Year · 18+', ageError: 'You must be 18 or older to create an account.',
     loginBtn: 'Log In', registerBtn: 'Create Account', resetBtn: 'Send Reset Link',
     fillFields: 'Please fill in all fields.',
     connecting: 'Connecting...',
@@ -317,7 +317,7 @@ const TRANSLATIONS = {
   },
   tr: {
     brandSub: 'PRO MAÇ ZEKASI', betaNote: 'BETA · Beta süresince tüm özellikler ücretsiz.', loginTab: 'Giriş Yap', registerTab: 'Kayıt Ol',
-    usernameLabel: 'Kullanıcı Adı', emailLabel: 'E-posta', passwordLabel: 'Şifre', birthDateLabel: 'Doğum Tarihi · 18+', ageError: 'Hesap oluşturmak için 18 yaşını doldurmuş olmalısın.',
+    usernameLabel: 'Kullanıcı Adı', emailLabel: 'E-posta', passwordLabel: 'Şifre', birthDateLabel: 'Doğum Yılı · 18+', ageError: 'Hesap oluşturmak için 18 yaşını doldurmuş olmalısın.',
     loginBtn: 'Giriş Yap', registerBtn: 'Hesap Oluştur', resetBtn: 'Sıfırlama Bağlantısı Gönder',
     fillFields: 'Lütfen tüm alanları doldur.',
     connecting: 'Bağlanıyor...',
@@ -476,9 +476,9 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value;
     const email = document.getElementById('emailInput').value.trim();
-    const dateOfBirth = document.getElementById('birthDateInput').value;
+    const birthYear = document.getElementById('birthYearInput').value.trim();
 
-    if (!username || !password || (currentMode === 'register' && (!email || !dateOfBirth))) {
+    if (!username || !password || (currentMode === 'register' && (!email || !birthYear))) {
       showError(t('fillFields'));
       return;
     }
@@ -487,7 +487,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     const endpoint = currentMode === 'login' ? '/api/auth/login' : '/api/auth/register';
     const body = currentMode === 'login'
       ? { username, password, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '' }
-      : { username, email, password, dateOfBirth };
+      : { username, email, password, birthYear };
 
     const res = await fetch(`${API_BASE}${endpoint}`, {
       method: 'POST',
