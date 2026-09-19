@@ -171,6 +171,19 @@
     color: var(--text-muted);
     margin-bottom: 18px;
   }
+  .league-match-nav {
+    display:grid;
+    grid-template-columns:44px 1fr 44px;
+    align-items:center;
+    margin:2px 0 8px;
+  }
+  .league-match-nav .match-position { text-align:center; font-size:10px; color:var(--text-muted); }
+  .league-nav-arrow {
+    width:44px; height:44px; border-radius:50%;
+    font-size:28px; line-height:1; padding:0;
+  }
+  .league-nav-arrow:first-child { justify-self:start; }
+  .league-nav-arrow:last-child { justify-self:end; }
   .teams-row {
     display: flex;
     align-items: center;
@@ -436,11 +449,7 @@
 
   <div class="card">
     <div class="match-shortcuts">
-      <div class="match-stepper">
-        <button class="match-step-button" id="previousMatch" type="button" aria-label="Previous match" disabled>‹</button>
-        <span class="match-position" id="matchPosition">—</span>
-        <button class="match-step-button" id="nextMatch" type="button" aria-label="Next match" disabled>›</button>
-      </div>
+      <span></span>
       <a class="match-home-button" href="maclar.html" data-i18n="navHome" aria-label="Home">Home</a>
     </div>
     <div class="match-meta">
@@ -448,6 +457,11 @@
       <span id="league-name">—</span>
     </div>
     <div class="match-date" id="match-date">—</div>
+    <div class="league-match-nav">
+      <button class="match-step-button league-nav-arrow" id="previousMatch" type="button" aria-label="Previous match" disabled>‹</button>
+      <span class="match-position" id="matchPosition">—</span>
+      <button class="match-step-button league-nav-arrow" id="nextMatch" type="button" aria-label="Next match" disabled>›</button>
+    </div>
     <div class="teams-row">
       <div class="team">
         <div class="team-crest" id="home-crest">⚽</div>
