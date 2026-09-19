@@ -536,20 +536,25 @@ function relevantMatches(matches) {
 function leagueCountry(league) {
   const s = String(league || '').toLowerCase();
   const rules = [
-    ['Türkiye','🇹🇷',/turk|süper lig|super lig/],['İngiltere','🇬🇧',/premier|championship|league one|league two|fa cup|efl/],
-    ['İspanya','🇪🇸',/la liga|copa del rey|segunda/],['İtalya','🇮🇹',/serie a|serie b|coppa/],
-    ['Almanya','🇩🇪',/bundesliga|dfb/],['Fransa','🇫🇷',/ligue|coupe de france/],
-    ['Hollanda','🇳🇱',/eredivisie/],['Belçika','🇧🇪',/belg|pro league/],['Portekiz','🇵🇹',/portugal|primeira/],
-    ['İskoçya','🏴',/scot/],['Yunanistan','🇬🇷',/greece|greek|super league greece/],
-    ['Avrupa','🏆',/champions|europa|conference|nations league/]
+    ['turkey','🇹🇷',/turk|süper lig|super lig/],['england','🇬🇧',/premier|championship|league one|league two|fa cup|efl/],
+    ['spain','🇪🇸',/la liga|copa del rey|segunda/],['italy','🇮🇹',/serie a|serie b|coppa/],
+    ['germany','🇩🇪',/bundesliga|dfb/],['france','🇫🇷',/ligue|coupe de france/],
+    ['netherlands','🇳🇱',/eredivisie/],['belgium','🇧🇪',/belg|pro league/],['portugal','🇵🇹',/portugal|primeira/],
+    ['scotland','🏴',/scot/],['greece','🇬🇷',/greece|greek|super league greece/],
+    ['europe','🏆',/champions|europa|conference|nations league/]
   ];
+  const names={
+    en:{turkey:'Turkey',england:'England',spain:'Spain',italy:'Italy',germany:'Germany',france:'France',netherlands:'Netherlands',belgium:'Belgium',portugal:'Portugal',scotland:'Scotland',greece:'Greece',europe:'Europe',other:'Other'},
+    tr:{turkey:'Türkiye',england:'İngiltere',spain:'İspanya',italy:'İtalya',germany:'Almanya',france:'Fransa',netherlands:'Hollanda',belgium:'Belçika',portugal:'Portekiz',scotland:'İskoçya',greece:'Yunanistan',europe:'Avrupa',other:'Diğer'}
+  };
   const hit = rules.find(r => r[2].test(s));
-  return hit ? { name: hit[0], flag: hit[1] } : { name: 'Diğer', flag: '🌍' };
+  const key=hit?hit[0]:'other', lang=currentLang==='tr'?'tr':'en';
+  return { key, name:names[lang][key], flag:hit?hit[1]:'🌍' };
 }
 
 function filteredRelevantMatches() {
   return relevantMatches(allMatchesForDay).filter(m => {
-    if (selectedCountry && leagueCountry(m.league).name !== selectedCountry) return false;
+    if (selectedCountry && leagueCountry(m.league).key !== selectedCountry) return false;
     if (selectedLeague && m.league !== selectedLeague) return false;
     return true;
   });
@@ -558,11 +563,11 @@ function filteredRelevantMatches() {
 function renderCountryFilters() {
   const el = document.getElementById('countryFilters');
   const countries = [...new Map(relevantMatches(allMatchesForDay).map(m => {
-    const c = leagueCountry(m.league); return [c.name, c];
+    const c = leagueCountry(m.league); return [c.key, c];
   })).values()];
   if (countries.length <= 1) { el.innerHTML=''; return; }
   const chips = [`<button class="league-chip ${!selectedCountry?'active':''}" data-country="">${t('allCountries')}</button>`]
-    .concat(countries.map(c => `<button class="league-chip ${selectedCountry===c.name?'active':''}" data-country="${c.name}">${c.flag} ${c.name}</button>`));
+    .concat(countries.map(c => `<button class="league-chip ${selectedCountry===c.key?'active':''}" data-country="${c.key}">${c.flag} ${c.name}</button>`));
   el.innerHTML=chips.join('');
   el.querySelectorAll('[data-country]').forEach(btn => btn.addEventListener('click', () => {
     selectedCountry=btn.dataset.country||null; selectedLeague=null; openLeagues.clear();
@@ -572,7 +577,7 @@ function renderCountryFilters() {
 
 function renderLeagueFilters() {
   const filtersEl=document.getElementById('leagueFilters');
-  const source=relevantMatches(allMatchesForDay).filter(m => !selectedCountry || leagueCountry(m.league).name===selectedCountry);
+  const source=relevantMatches(allMatchesForDay).filter(m => !selectedCountry || leagueCountry(m.league).key===selectedCountry);
   const leagues=[...new Set(source.map(m=>m.league).filter(Boolean))].sort();
   if(leagues.length<=1){filtersEl.innerHTML='';return;}
   filtersEl.innerHTML=[`<button class="league-chip ${!selectedLeague?'active':''}" data-league="">${t('allLeagues')}</button>`]
