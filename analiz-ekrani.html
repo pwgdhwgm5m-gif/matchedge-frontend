@@ -1372,6 +1372,12 @@ function renderPremiumIntelligence(premium, data) {
     const pick = strongestPicks[index];
     const cell = document.getElementById(`pick-label-${index + 1}`).closest('.edge-cell');
     cell.dataset.marketKey = pick?.key || '';
+    cell._featuredPick = pick ? { ...pick, market: (
+      ['home','draw','away','homeWin','drawResult','awayWin'].includes(pick.key) ? '1X2' :
+      ['over25','under25'].includes(pick.key) ? 'GOL' :
+      ['bttsYes','bttsNo'].includes(pick.key) ? 'KG' :
+      String(pick.key).startsWith('corners') ? 'KORNER' : 'SEÇİM'
+    ) } : null;
     cell.setAttribute('aria-label', pick ? `${pick.label} ${pick.probability}% · ${t('addCoupon')}` : '—');
     cell.classList.toggle('selected', Boolean(pick && selectedCouponMarkets.has(pick.key)));
     document.getElementById(`pick-label-${index + 1}`).textContent = pick?.label || '—';
@@ -1473,8 +1479,9 @@ function syncFeaturedPicks() {
 }
 document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => {
   function toggle() {
-    const item = (currentAnalysis?.marketBoard?.allMarkets || []).find(m => m.key === cell.dataset.marketKey);
-    if (!item) return;
+    const marketItem = (currentAnalysis?.marketBoard?.allMarkets || []).find(m => m.key === cell.dataset.marketKey);
+    const item = marketItem || cell._featuredPick;
+    if (!item || !item.key || !Number.isFinite(Number(item.probability))) return;
     // Featured analysis cards only select/deselect a market.
     // Never create a coupon until the user explicitly presses "Kupona Ekle".
     if (selectedCouponMarkets.has(item.key)) {
