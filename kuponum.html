@@ -101,10 +101,19 @@ function draftHtml(){
 }
 function removeDraftLeg(i){const a=getDraft();a.splice(i,1);localStorage.setItem(SLIP_KEY,JSON.stringify(a));load()}
 async function playDraft(){
+ const button=document.querySelector('.draft-save');
  const legs=getDraft();if(!legs.length)return;
- const r=await fetch(API+'/api/coupons',{method:'POST',headers:{...headers(),'Content-Type':'application/json'},body:JSON.stringify({legs,stakeCoins:10})});
- const d=await r.json().catch(()=>({}));if(!r.ok){alert(d.error||'Kupon oluşturulamadı');return}
- localStorage.removeItem(SLIP_KEY);load();
+ if(button){button.disabled=true;button.textContent=isEN()?'SAVING...':'KAYDEDİLİYOR...'}
+ try{
+  const r=await fetch(API+'/api/coupons',{method:'POST',headers:{...headers(),'Content-Type':'application/json'},body:JSON.stringify({legs,stakeCoins:10})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||(isEN()?'Slip could not be saved.':'Kupon kaydedilemedi.'));
+  localStorage.removeItem(SLIP_KEY);
+  await load();
+ }catch(error){
+  alert(error.message||(isEN()?'Slip could not be saved.':'Kupon kaydedilemedi.'));
+  if(button){button.disabled=false;button.textContent='SAVE'}
+ }
 }
 async function load(){
  const r=await fetch(API+'/api/coupons',{headers:headers()});
