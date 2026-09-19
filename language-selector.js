@@ -243,6 +243,34 @@
     });
   }
 
+  function installResponsiveCompatibility() {
+    const style = document.createElement('style');
+    style.id = 'socceredge-cross-browser-mobile';
+    style.textContent = `
+      html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+      *,*::before,*::after{box-sizing:border-box}
+      img,svg,canvas{max-width:100%}
+      body{max-width:100vw;overflow-x:hidden}
+      input,button,select,textarea{font:inherit}
+      .se-bottom-nav{padding-bottom:max(7px,env(safe-area-inset-bottom,0px))}
+      .se-bottom-nav a{min-width:0}
+      @media(max-width:600px){
+        body{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))!important}
+        .container,.page,.page-wrap,.main,.main-content{max-width:100%!important}
+        .featured-card,.match-card,.card,.panel{max-width:100%!important}
+        .featured-teams,.match-row-teams,.team-name{overflow-wrap:anywhere;word-break:normal}
+        .featured-scroll,.top-picks-scroll{-webkit-overflow-scrolling:touch}
+        .se-bottom-nav{left:0!important;right:0!important;bottom:0!important;width:100%!important;border-radius:0!important}
+        .se-bottom-nav a{font-size:9px!important;line-height:1.08!important;overflow:hidden}
+        .se-bottom-nav a span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      }
+      @supports(padding:max(0px)){
+        .se-bottom-nav{padding-bottom:max(7px,env(safe-area-inset-bottom,0px))}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   function install() {
     if (typeof TRANSLATIONS !== 'undefined') extendTranslations(TRANSLATIONS);
 
@@ -319,6 +347,7 @@
   }
 
   window.SoccerEdgeI18n = { languages: languages, locale: code => (languages[code] || languages.en).locale };
+  installResponsiveCompatibility();
   install();
   installLegalFooter();
 })();
