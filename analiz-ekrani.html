@@ -539,7 +539,7 @@ button,input,select,textarea{font:inherit}
   <div class="card">
     <div class="match-shortcuts">
       <span></span>
-      <a class="match-home-button" href="maclar.html" data-i18n="navHome" aria-label="Home">Home</a>
+      <a class="match-home-button" id="backToMatches" href="maclar.html" data-i18n="navHome" aria-label="Home">Home</a>
     </div>
     <div class="match-meta">
       <span id="league-flag">🏴</span>
@@ -860,6 +860,11 @@ const matchRoomParams = new URLSearchParams({
   awayTeamName: CONTEXT.awayTeamName,
 });
 document.getElementById('match-room-link').href = 'mac-odasi.html?' + matchRoomParams.toString();
+const backParams=new URLSearchParams();
+if(CONTEXT.tsdbLeagueId) backParams.set('leagueId',CONTEXT.tsdbLeagueId);
+if(CONTEXT.leagueName) backParams.set('leagueName',CONTEXT.leagueName);
+if(CONTEXT.kickoff){const d=new Date(CONTEXT.kickoff);if(!Number.isNaN(d.getTime()))backParams.set('date',d.toISOString().slice(0,10));}
+document.getElementById('backToMatches').href='maclar.html'+(backParams.toString()?'?'+backParams.toString():'');
 
 function leagueAnalysisUrl(m) {
   const params = new URLSearchParams({
