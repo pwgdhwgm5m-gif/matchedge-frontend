@@ -44,7 +44,7 @@
     transition: transform 0.12s ease, background 0.12s ease;
     cursor: pointer;
   }
-  .icon-btn:active { transform: scale(0.92); background: var(--bg-card-inner); }
+  .icon-btn:active { transform: scale(0.92); background: var(--bg-card-inner); }.icon-btn.notification-on{border-color:#f2c94c!important;background:rgba(242,201,76,.12)!important;color:#f2c94c}
   .lang-toggle {
     display: flex; align-items: center; gap: 4px;
     background: var(--bg-card);
@@ -332,7 +332,7 @@ a{--link-accent:#f2c94c}
       <div class="lang-toggle" id="langToggle">
         <span id="langFlag">🇬🇧</span><span class="lang-code" id="langCode">EN</span>
       </div>
-      <div class="icon-btn">🔔</div>
+      <button type="button" class="icon-btn" id="notificationBtn" aria-pressed="false" title="Maç bildirimleri">🔕</button>
       <div class="icon-btn" id="logoutBtn" title="Logout">🚪</div>
     </div>
   </div>
@@ -872,6 +872,29 @@ document.getElementById('claimDailyBtn').addEventListener('click', async () => {
 });
 
 loadCommunityPanel();
+
+const notificationBtn=document.getElementById('notificationBtn');
+function renderNotificationButton(){
+  const enabled=localStorage.getItem('socceredge_match_notifications')==='on';
+  notificationBtn.textContent=enabled?'🔔':'🔕';
+  notificationBtn.classList.toggle('notification-on',enabled);
+  notificationBtn.setAttribute('aria-pressed',String(enabled));
+  notificationBtn.title=enabled?'Maç bildirimleri açık':'Maç bildirimleri kapalı';
+}
+notificationBtn.addEventListener('click',async()=>{
+  const currentlyOn=localStorage.getItem('socceredge_match_notifications')==='on';
+  if(currentlyOn){
+    localStorage.setItem('socceredge_match_notifications','off');
+  }else{
+    if('Notification' in window && Notification.permission==='default'){
+      try{await Notification.requestPermission()}catch(_){}
+    }
+    localStorage.setItem('socceredge_match_notifications','on');
+  }
+  renderNotificationButton();
+});
+renderNotificationButton();
+
 (async () => {
   await loadFavoritesFromServer();
   loadHome();
