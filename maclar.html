@@ -408,7 +408,10 @@ function applyStaticTranslations() {
   document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
 }
 
-let selectedDate = todayKey();
+const pageParams = new URLSearchParams(window.location.search);
+const returnLeagueId = pageParams.get('leagueId') || '';
+const returnLeagueName = pageParams.get('leagueName') || '';
+let selectedDate = pageParams.get('date') || todayKey();
 let lastMatches = [];
 let lastLoadFailed = false;
 
@@ -503,6 +506,8 @@ function renderMatches() {
 
   container.innerHTML = groups.map((g) => {
     const isPriority = PRIORITY_LEAGUE_IDS.has(g.leagueId);
+    const isReturnLeague = (returnLeagueId && String(g.leagueId) === String(returnLeagueId))
+      || (!returnLeagueId && returnLeagueName && g.league === returnLeagueName);
     const rows = g.matches.map(m => {
       const timeLabel = m.isLive
         ? (m.minute != null ? `${m.minute}'` : t('live'))
@@ -519,7 +524,7 @@ function renderMatches() {
     }).join('');
 
     return `
-      <div class="league-group ${isPriority ? 'priority expanded' : ''}">
+      <div class="league-group ${isPriority ? 'priority expanded' : ''}${isReturnLeague ? ' expanded return-league' : ''}">
         <div class="league-header">
           <div class="league-header-left">
             <div class="league-name">${g.league}</div>
@@ -530,6 +535,9 @@ function renderMatches() {
         <div class="league-matches">${rows}</div>
       </div>`;
   }).join('');
+
+  const returnGroup = container.querySelector('.league-group.return-league');
+  if (returnGroup) setTimeout(() => returnGroup.scrollIntoView({ block: 'start', behavior: 'smooth' }), 0);
 
   container.querySelectorAll('.league-group').forEach(el => {
     el.querySelector('.league-header').addEventListener('click', () => {
