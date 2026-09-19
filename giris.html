@@ -218,6 +218,16 @@ button,a{-webkit-touch-callout:none}
  .app,.container{margin-left:auto!important;margin-right:auto!important}
 }
 </style>
+<style id="login-centered-layout">
+body{display:block!important;min-height:100svh!important;padding:0!important}
+.wrap{width:min(390px,calc(100% - 28px))!important;max-width:390px!important;margin:0 auto!important;padding:clamp(72px,10vh,110px) 0 34px!important;position:relative!important}
+.brand,.tabs,.card,.install-entry{width:100%!important;max-width:100%!important}
+.login-legal{width:100%;margin:18px auto 0;text-align:center}
+.login-legal-links{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
+.login-legal-links button{border:1px solid #315781;background:#09244b;color:#d7e1f1;border-radius:9px;padding:8px 11px;font-size:10px;font-weight:800;cursor:pointer}
+.login-copyright{margin-top:10px;color:#91a7c7;font-size:9px;line-height:1.45}
+@media(max-width:420px){.wrap{width:calc(100% - 24px)!important;padding-top:72px!important}.card{width:100%!important}.lang-toggle{top:max(14px,env(safe-area-inset-top))}}
+</style>
 </head>
 <body>
 
@@ -271,6 +281,13 @@ button,a{-webkit-touch-callout:none}
     <div class="back-link" id="backLink" style="display:none;" data-i18n="backToLogin">Back to log in</div>
   </div>
   <button class="install-entry" id="installGuideBtn" type="button">📲 Soccer Edge’i cihazına ekle</button>
+  <div class="login-legal">
+    <div class="login-legal-links">
+      <button type="button" onclick="location.href='privacy.html'">Privacy Policy</button>
+      <button type="button" onclick="location.href='legal.html'">Legal Notice</button>
+    </div>
+    <div class="login-copyright">SoccerEdge Pro © 2026 · All rights reserved.</div>
+  </div>
 </div>
 
 <div class="install-sheet" id="installSheet" aria-hidden="true">
