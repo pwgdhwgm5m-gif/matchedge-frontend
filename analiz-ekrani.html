@@ -426,6 +426,68 @@
   .coupon-feedback { min-height:18px; text-align:center; font-size:10px; color:var(--teal); margin-top:8px; }
 .match-shortcuts{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.match-home-button{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border:1px solid var(--teal);border-radius:11px;color:var(--teal);background:rgba(45,212,191,.1);font-size:12px;font-weight:800;text-decoration:none}
 </style>
+<style>
+/* Soccer Edge stadium-blue visual refresh — presentation only */
+:root{
+  --bg-base:#061b3a;--bg-card:#0b2b59;--bg-card-inner:#09244b;--border-subtle:#244b79;
+  --teal:#f2c94c;--teal-dim:#745f19;--purple:#ef5350;--amber:#f2c94c;--red:#ef5350;
+  --text-primary:#f7f9fd;--text-secondary:#d7e1f1;--text-muted:#91a7c7;--radius:10px;
+}
+body{
+  background:
+    radial-gradient(circle at 50% -10%,rgba(38,105,190,.38),transparent 34%),
+    linear-gradient(180deg,#092957 0%,#061a38 46%,#04152e 100%);
+  background-attachment:fixed;
+}
+.app{max-width:520px;padding:12px 14px 24px}
+.top-bar{padding:8px 6px 18px;border-bottom:3px solid #d6ad2d;margin-bottom:12px}
+.brand-name{font-size:20px;letter-spacing:.6px}.brand-name .premium{color:#f2c94c}
+.brand-sub{color:#a9bbd6;font-weight:700}.live-pill{color:#f2c94c;background:rgba(242,201,76,.08);border-color:rgba(242,201,76,.35)}
+.live-dot{background:#f2c94c;animation:none;box-shadow:none}
+.card{
+  background:linear-gradient(180deg,rgba(15,54,105,.96),rgba(7,34,72,.98));
+  border:1px solid rgba(105,145,194,.38);border-radius:10px;padding:16px;margin-bottom:12px;
+  box-shadow:none;
+}
+.card-title{
+  border-top:1px solid rgba(255,255,255,.58);padding-top:10px;margin-bottom:14px;
+  color:#fff;font-size:12px;font-weight:900;
+}
+.card-title::before{content:"";width:4px;height:20px;background:#f2c94c;margin-right:8px;display:inline-block}
+.match-shortcuts{align-items:center}.match-home-button{border-color:#f2c94c;color:#f2c94c;background:rgba(242,201,76,.08);border-radius:8px}
+.match-meta{font-weight:900;color:#fff;font-size:14px}.match-date{color:#b7c7df;font-weight:700}
+.league-match-nav{grid-template-columns:54px 1fr 54px;margin:0 0 -2px;position:relative;z-index:4}
+.league-nav-arrow,.match-step-button{
+  border:2px solid rgba(242,201,76,.8);background:#0d376d;color:#fff;border-radius:50%;
+}
+.league-nav-arrow{width:48px;height:48px;font-size:32px;box-shadow:0 0 0 3px rgba(242,201,76,.08)}
+.match-step-button:disabled{opacity:.45}
+.league-match-nav .match-position{color:#f2c94c;font-weight:900}
+.team-crest{width:64px;height:64px;background:#113b73;border:1px solid #41689a}
+.team-name{font-size:15px;color:#fff}.vs-dash{color:#f2c94c}.match-status{color:#f2c94c;font-weight:900}
+.match-room-btn{border-color:#4775aa;background:#0b3265;color:#fff;border-radius:7px}
+.premium-verdict{
+  background:linear-gradient(180deg,#103b76,#082a59);border-color:#315d91;box-shadow:none;
+}
+.premium-verdict::before{width:4px;background:#f2c94c}
+.eyebrow{color:#fff;border-left:4px solid #f2c94c;padding-left:8px}.method-badge{color:#dbe6f5;border-color:#426994}
+.decision-icon{background:#123f7a;color:#f2c94c;border-radius:50%}.verdict-watch .decision-title,.verdict-value .decision-title{color:#f2c94c}
+.edge-cell{background:#0b2b58;border-color:#315986;border-radius:8px}.edge-cell:first-child{border-color:#f2c94c;background:#123d74}
+.edge-cell strong{color:#f2c94c}.reason-dot{background:#f2c94c}
+.health-track,.mini-bar{background:#061a37}.health-fill,.mini-bar-fill{background:linear-gradient(90deg,#7da9ed,#f2c94c)}
+.prob-bars{height:12px;border-radius:3px;background:#071a36;gap:2px}
+.prob-value.home{color:#9ec4ff}.prob-value.draw{color:#f2c94c}.prob-value.away{color:#ef5350}
+.reading-card,.stat-box,.coupon-group{background:#09264f;border-color:#315781;border-radius:8px}
+.reading-value,.quality-num,.quality-tag{color:#f2c94c}.quality-shield{border-color:#f2c94c}
+.signal-badge{background:rgba(242,201,76,.08);border-color:#f2c94c;color:#f2c94c}
+.coupon-group-title{color:#f2c94c;border-left:3px solid #f2c94c;padding-left:7px}
+.coupon-market{background:#0c3061;border-color:#315c8d;border-radius:7px}
+.coupon-market.selected{border-color:#f2c94c!important;background:rgba(242,201,76,.13)!important}
+.coupon-market em{color:#f2c94c}.add-coupon-button{background:#1d6fe8!important;color:#fff!important;border-color:#4c91f0!important}
+.source-chip.ok{color:#f2c94c;border-color:rgba(242,201,76,.35);background:rgba(242,201,76,.07)}
+@media(max-width:380px){.team-crest{width:56px;height:56px}.league-nav-arrow{width:44px;height:44px}}
+</style>
+
 </head>
 <body>
 
