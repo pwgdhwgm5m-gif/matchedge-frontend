@@ -846,9 +846,14 @@ function renderFeaturedContent() {
     return;
   }
 
-  const top = rankedMatches()[0];
-  const featured = top?.match || allMatches.find(m => m.isLive) || allMatches[0];
-  el.innerHTML = featured ? featuredCardHtml(featured, top?.analysis, top?.best) : '';
+  const ranked = rankedMatches();
+  const picks = ranked.slice(0,8);
+  if (!picks.length) {
+    const fallback = allMatches.slice(0,8);
+    el.innerHTML = fallback.length ? '<div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+fallback.map(m=>featuredCardHtml(m)).join('')+'</div>' : '';
+    return;
+  }
+  el.innerHTML = '<div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+picks.map(item=>featuredCardHtml(item.match,item.analysis,item.best)).join('')+'</div>';
 }
 
 function renderTodayList(matches, loadFailed) {
