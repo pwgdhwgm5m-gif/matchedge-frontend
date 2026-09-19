@@ -931,6 +931,14 @@ async function loadAnalysis() {
   }
 }
 
+function setReading(id, value) {
+  const valueEl = document.getElementById(id + '-value');
+  const barEl = document.getElementById(id + '-bar');
+  const numeric = Number(value);
+  if (valueEl) valueEl.textContent = Number.isFinite(numeric) ? numeric + '%' : '–';
+  if (barEl) barEl.style.width = Number.isFinite(numeric) ? Math.max(0, Math.min(100, numeric)) + '%' : '0%';
+}
+
 function renderAnalysis(data) {
   currentAnalysis = data;
   document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
