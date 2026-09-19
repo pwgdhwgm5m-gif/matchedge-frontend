@@ -770,7 +770,11 @@ function renderTodayList(matches, loadFailed) {
     groups.get(key).matches.push(match);
   });
 
-  container.innerHTML = Array.from(groups.values()).map((group, groupIndex) => {
+  const sortedGroups = Array.from(groups.values()).sort((a, b) =>
+    String(a.league || '').localeCompare(String(b.league || ''), currentLang === 'tr' ? 'tr' : 'en', { sensitivity: 'base' })
+  );
+
+  container.innerHTML = sortedGroups.map((group, groupIndex) => {
     const rows = group.matches.map(m => {
     const isFinished = !m.isLive && String(m.statusShort || '').toUpperCase() === 'FT';
     const timeLabel = m.isLive
