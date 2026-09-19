@@ -915,7 +915,12 @@ async function loadAnalysis() {
     if (CONTEXT.kickoff) params.set('kickoff', CONTEXT.kickoff);
     if (CONTEXT.tsdbLeagueId) params.set('tsdbLeagueId', CONTEXT.tsdbLeagueId);
 
-    const res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 18000);
+    let res;
+    try {
+      res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`, { signal: controller.signal });
+    } finally { clearTimeout(timer); }
     if (!res.ok) throw new Error('http_' + res.status);
     const data = await res.json();
     renderAnalysis(data);
