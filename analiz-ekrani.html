@@ -929,6 +929,7 @@ async function loadAnalysis() {
     if (!res.ok) throw new Error('http_' + res.status);
     const data = await res.json();
     renderAnalysis(data);
+    currentAnalysis = data;
     document.getElementById('errorBanner').innerHTML = '';
   } catch (err) {
     console.warn('Analiz alınamadı:', err.message);
@@ -937,7 +938,6 @@ async function loadAnalysis() {
 }
 
 function renderAnalysis(data) {
-  currentAnalysis = data;
   document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
   document.getElementById('home-name').textContent = data.homeTeam || CONTEXT.homeTeamName || '—';
   document.getElementById('away-name').textContent = data.awayTeam || CONTEXT.awayTeamName || '—';
@@ -1039,7 +1039,7 @@ function renderAnalysis(data) {
   document.getElementById('corner-over85-value').textContent = (cm.over95Percent ?? '–') + '%';
   document.getElementById('corner-over85-bar').style.width = (cm.over95Percent || 0) + '%';
 
-  renderStandings(data.standings);
+  try { renderStandings(data.standings); } catch (err) { console.warn('Puan durumu render hatasi:', err.message); }
 
   // Optional premium/coupon widgets must never prevent the core analysis from rendering.
   try { renderPremiumIntelligence(data.premium, data); } catch (err) { console.warn('Premium kart render hatasi:', err.message); }
