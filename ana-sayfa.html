@@ -686,10 +686,20 @@ function rankedMatches(valueOnly = false) {
     const analysis = matchAnalyses.get(String(match.fixtureId));
     const best = analysis?.marketBoard?.best;
     const value = analysis?.marketBoard?.valuePicks?.[0];
-    const hours = Math.max(0, (new Date(match.kickoff || 0).getTime() - Date.now()) / 3600000);
-    const featuredScore = (best?.score || 0) - Math.min(hours, 12) * 0.35;
-    return { match, analysis, best, value, featuredScore };
-  }).filter(item => item.analysis && (!valueOnly || item.value))
+    const probability = Number(best?.probability || 0);
+    const health = Number(best?.dataHealth ?? analysis?.dataHealth?.score ?? 0);
+    const edge = Number(value?.edgePoints || 0);
+
+    // Top Picks is a real-market quality ranking, not a CoinEdge ranking.
+    // Model strength + evidence quality form the base. A verified market edge
+    // can improve the rank, but missing odds never create a synthetic edge.
+    let marketScore = probability * 0.62 + health * 0.38;
+    if (value && Number.isFinite(edge) && edge > 0) marketScore += Math.min(edge, 12) * 0.75;
+    if (health < 55) marketScore -= 10;
+    if (probability < 55) marketScore -= 8;
+
+    return { match, analysis, best, value, featuredScore: +marketScore.toFixed(2) };
+  }).filter(item => item.analysis && item.best && (!valueOnly || item.value))
     .sort((a, b) => valueOnly
       ? (b.value.edgePoints || 0) - (a.value.edgePoints || 0)
       : b.featuredScore - a.featuredScore);
