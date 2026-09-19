@@ -418,14 +418,6 @@
 
 <div class="app">
 
-  <div class="match-navigation">
-    <div class="match-stepper">
-      <button class="match-step-button" id="previousMatch" type="button" aria-label="Previous match" disabled>‹</button>
-      <span class="match-position" id="matchPosition">—</span>
-      <button class="match-step-button" id="nextMatch" type="button" aria-label="Next match" disabled>›</button>
-    </div>
-  </div>
-
   <div class="top-bar">
     <div>
       <div class="brand-name">SOCCEREDGE<span class="premium">PRO</span></div>
@@ -443,7 +435,14 @@
   <div id="errorBanner"></div>
 
   <div class="card">
-    <div class="match-shortcuts"><span></span><a class="match-home-button" href="maclar.html" data-i18n="navHome" aria-label="Home">Home</a></div>
+    <div class="match-shortcuts">
+      <div class="match-stepper">
+        <button class="match-step-button" id="previousMatch" type="button" aria-label="Previous match" disabled>‹</button>
+        <span class="match-position" id="matchPosition">—</span>
+        <button class="match-step-button" id="nextMatch" type="button" aria-label="Next match" disabled>›</button>
+      </div>
+      <a class="match-home-button" href="maclar.html" data-i18n="navHome" aria-label="Home">Home</a>
+    </div>
     <div class="match-meta">
       <span id="league-flag">🏴</span>
       <span id="league-name">—</span>
