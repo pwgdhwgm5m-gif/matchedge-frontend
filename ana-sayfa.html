@@ -749,7 +749,7 @@ function homePickEnglish(text) {
   let s = String(text).trim();
   const exact = {
     'KG VAR':'BTTS YES','KG YOK':'BTTS NO','Korner':'Corners','KORNER':'CORNERS',
-    'Ev':'Home','Dep':'Away','Deplasman':'Away','Beraberlik':'Draw',
+    'Ev':'Home','Ev Sahibi':'Home','Ev sahibi':'Home','Dep':'Away','Deplasman':'Away','Beraberlik':'Draw',
     'İY':'HT','MS':'FT','İlk Yarı':'First Half','İkinci Yarı':'Second Half',
     'İlk Yarı / İkinci Yarı / Eşit':'First Half / Second Half / Equal',
     'Eşit':'Equal','Gol Yakınlığı':'Goal Proximity'
@@ -759,7 +759,7 @@ function homePickEnglish(text) {
     .replace(/\bKG VAR\b/gi,'BTTS YES').replace(/\bKG YOK\b/gi,'BTTS NO')
     .replace(/\bKorner\b/gi,'Corners')
     .replace(/\bİlk Yarı\b/gi,'First Half').replace(/\bİkinci Yarı\b/gi,'Second Half')
-    .replace(/\bDeplasman\b/gi,'Away').replace(/\bDep\b/gi,'Away').replace(/\bEv\b/gi,'Home')
+    .replace(/\bEv Sahibi\b/gi,'Home').replace(/\bEv sahibi\b/gi,'Home').replace(/\bDeplasman\b/gi,'Away').replace(/\bDep\b/gi,'Away').replace(/\bEv\b/gi,'Home')
     .replace(/\bBeraberlik\b/gi,'Draw').replace(/\bEşit\b/gi,'Equal')
     .replace(/\bÜst\b/gi,'Over').replace(/\bAlt\b/gi,'Under')
     .replace(/\bİY\b/g,'HT').replace(/\bMS\b/g,'FT')
