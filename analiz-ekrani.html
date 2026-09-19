@@ -1049,6 +1049,85 @@ function renderAnalysis(data) {
   try { renderCouponMarkets(data); } catch (err) { console.warn('Kupon market render hatasi:', err.message); }
 }
 
+function renderStandings(standings) {
+  const tbody = document.getElementById('standings-tbody');
+  const note = document.getElementById('standings-note');
+  const table = standings?.table || [];
+
+  if (!table.length) {
+    tbody.innerHTML = '';
+    note.style.display = 'block';
+    note.textContent = t('standingsUnavailable');
+    return;
+  }
+
+  note.style.display = 'none';
+  const homeId = String(standings.homeTeamId || '');
+  const awayId = String(standings.awayTeamId || '');
+
+  tbody.innerHTML = table.map(row => {
+    const isHome = String(row.teamId) === homeId;
+    const isAway = String(row.teamId) === awayId;
+    const rowStyle = isHome
+      ? 'background:rgba(45,212,191,0.1); color:var(--teal); font-weight:700;'
+      : isAway
+        ? 'background:rgba(157,124,240,0.1); color:var(--purple); font-weight:700;'
+        : '';
+    return `
+      <tr style="${rowStyle}">
+        <td style="padding:6px 4px;">${row.rank ?? '–'}</td>
+        <td style="padding:6px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${row.teamName || '–'}</td>
+        <td style="padding:6px 4px; text-align:center;">${row.played ?? '–'}</td>
+        <td style="padding:6px 4px; text-align:center;">${row.goalDiff ?? '–'}</td>
+        <td style="padding:6px 4px; text-align:center; font-weight:800;">${row.points ?? '–'}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderFormBox(recordId, goalsId, formData) {
+  if (!formData || !formData.played) {
+    document.getElementById(recordId).textContent = t('noData');
+    document.getElementById(goalsId).textContent = '';
+    return;
+  }
+  document.getElementById(recordId).textContent = `${formData.wins}W ${formData.draws}D ${formData.losses}L`;
+  document.getElementById(goalsId).textContent =
+    `${t('scoredLabel')}${formData.avgGoalsFor} · ${t('concededLabel')}${formData.avgGoalsAgainst}`;
+}
+
+function renderStreak(elementId, streak) {
+  const el = document.getElementById(elementId);
+  if (!streak || streak.type === 'none' || streak.length === 0) {
+    el.textContent = t('noStreak');
+    el.style.color = 'var(--text-primary)';
+    return;
+  }
+  const labelMap = { win: t('winStreak'), loss: t('lossStreak') };
+  el.textContent = `${streak.length}${t('matchesSuffix')} ${labelMap[streak.type]}`;
+  el.style.color = streak.type === 'win' ? 'var(--teal)' : 'var(--red)';
+}
+
+function renderRest(elementId, fatigue) {
+  const el = document.getElementById(elementId);
+  if (!fatigue || fatigue.restDays === null || fatigue.restDays === undefined) {
+    el.textContent = t('noRestInfo');
+    return;
+  }
+  el.textContent = `${fatigue.restDays}${t('restedDays')}`;
+}
+
+function renderInjuryList(elementId, list) {
+  const el = document.getElementById(elementId);
+  if (!list || list.length === 0) {
+    el.textContent = t('noMissingPlayers');
+    return;
+  }
+  el.innerHTML = list.map(p =>
+    `${p.player || '—'} <span style="color:var(--text-muted)">— ${p.reason || t('unknownReason')}</span>`
+  ).join('<br>');
+}
+
 function premiumOutcomeLabel(outcome, data) {
   if (outcome === 'home') return data.homeTeam || CONTEXT.homeTeamName || t('home');
   if (outcome === 'away') return data.awayTeam || CONTEXT.awayTeamName || t('away');
