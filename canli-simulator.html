@@ -584,55 +584,77 @@ function drawXgChart() {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, rect.width, rect.height);
 
-  const w = rect.width;
-  const h = rect.height;
-  const stepX = w / 90;
+  const w = rect.width, h = rect.height;
+  const pad = { left: 32, right: 10, top: 8, bottom: 24 };
+  const plotW = Math.max(1, w - pad.left - pad.right);
+  const plotH = Math.max(1, h - pad.top - pad.bottom);
+  const maxXg = xgHistory.length
+    ? Math.max(...xgHistory.map(p => Math.max(Number(p.home)||0, Number(p.away)||0)), 0.5) * 1.2
+    : 2;
+  const yMax = Math.max(0.5, Math.ceil(maxXg * 2) / 2);
 
-  // Izgara + dakika cizgileri (0/22/45/67/90) - veri olmasa bile her zaman cizilir
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-  ctx.lineWidth = 1;
+  ctx.font = '10px system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,.45)';
+  ctx.textBaseline = 'middle';
+
+  // Y-axis statistical grid + xG labels.
   for (let i = 0; i <= 4; i++) {
-    const y = (h / 4) * i;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(w, y);
-    ctx.stroke();
+    const y = pad.top + (plotH / 4) * i;
+    const val = yMax * (1 - i / 4);
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+    ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(val < 1 ? 2 : 1), pad.left - 6, y);
   }
+
+  // Match-minute guide lines and labels.
+  [0,15,30,45,60,75,90].forEach(minute => {
+    const x = pad.left + (minute / 90) * plotW;
+    ctx.strokeStyle = minute === 45 ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.045)';
+    ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + plotH); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.42)';
+    ctx.textAlign = minute === 0 ? 'left' : minute === 90 ? 'right' : 'center';
+    ctx.fillText(minute + "'", x, h - 8);
+  });
 
   if (xgHistory.length === 0) return;
 
-  const maxXg = Math.max(...xgHistory.map(p => Math.max(p.home, p.away)), 0.5) * 1.2;
+  const points = [...xgHistory]
+    .filter(p => Number.isFinite(Number(p.minute)))
+    .sort((a,b) => Number(a.minute) - Number(b.minute));
 
-  function drawSeries(key, color) {
-    if (xgHistory.length >= 2) {
-      ctx.beginPath();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2.5;
-      xgHistory.forEach((point, i) => {
-        const x = point.minute * stepX;
-        const y = h - (point[key] / maxXg) * (h - 10) - 5;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-    }
-
-    // Her nokta (tek nokta olsa bile) daire olarak isaretlenir, boylece
-    // mac yeni basladiginda bile grafik "bos" degil "1 nokta" gorunur.
-    ctx.fillStyle = color;
-    xgHistory.forEach(point => {
-      const x = point.minute * stepX;
-      const y = h - (point[key] / maxXg) * (h - 10) - 5;
-      ctx.beginPath();
-      ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-    });
+  function xy(point, key) {
+    return {
+      x: pad.left + (Math.max(0, Math.min(90, Number(point.minute))) / 90) * plotW,
+      y: pad.top + plotH - ((Number(point[key]) || 0) / yMax) * plotH
+    };
   }
 
-  drawSeries('home', '#2dd4bf');
-  drawSeries('away', '#9d7cf0');
-}
+  function drawSeries(key, color) {
+    if (!points.length) return;
+    // Start the observed line from 0 xG at kickoff so a current snapshot
+    // still renders as a meaningful statistical trend rather than a lone dot.
+    const series = points[0].minute > 0 ? [{ minute: 0, home: 0, away: 0 }, ...points] : points;
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    series.forEach((point, i) => {
+      const p = xy(point,key);
+      if (i === 0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+    });
+    ctx.stroke();
 
+    const last = xy(series[series.length-1],key);
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(last.x,last.y,3.5,0,Math.PI*2); ctx.fill();
+  }
+
+  drawSeries('home', '#f5c542');
+  drawSeries('away', '#ef5350');
+}
 function crestHtml(badgeUrl, teamName) {
   if (badgeUrl) {
     return `<img src="${badgeUrl}" alt="${teamName}" onerror="this.parentElement.textContent='⚽'">`;
