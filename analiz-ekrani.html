@@ -751,6 +751,14 @@ const matchRoomParams = new URLSearchParams({
 });
 document.getElementById('match-room-link').href = 'mac-odasi.html?' + matchRoomParams.toString();
 
+document.getElementById('backButton').addEventListener('click', () => {
+  const backParams = new URLSearchParams();
+  if (CONTEXT.tsdbLeagueId) backParams.set('leagueId', CONTEXT.tsdbLeagueId);
+  if (CONTEXT.leagueName) backParams.set('leagueName', CONTEXT.leagueName);
+  if (CONTEXT.kickoff) backParams.set('date', CONTEXT.kickoff.slice(0, 10));
+  window.location.href = 'maclar.html' + (backParams.toString() ? '?' + backParams.toString() : '');
+});
+
 const TRANSLATIONS = {
   en: {
     couponTitle: 'COUPON PICKS', addCoupon: 'ADD SELECTED PICKS TO MY COUPON', couponAdded: 'Added to My Coupon', couponError: 'Could not add coupon',
