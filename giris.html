@@ -313,7 +313,7 @@ const TRANSLATIONS = {
     networkError: 'Could not reach the server. Check your connection.',
     forgotLink: 'Forgot password?', backToLogin: '← Back to log in',
     resetSent: 'If that email is registered, a reset link has been sent.',
-    registerSuccess: 'Account created successfully.',
+    registerSuccess: 'Account created successfully.', installButton:'📲 Add Soccer Edge to your device', installTitle:'Add Soccer Edge to your device', installBack:'Back', installNext:'Next', installDone:'Done', installClose:'Close',
   },
   tr: {
     brandSub: 'PRO MAÇ ZEKASI', betaNote: 'BETA · Beta süresince tüm özellikler ücretsiz.', loginTab: 'Giriş Yap', registerTab: 'Kayıt Ol',
@@ -325,7 +325,7 @@ const TRANSLATIONS = {
     networkError: 'Sunucuya ulaşılamadı. Bağlantını kontrol et.',
     forgotLink: 'Şifremi unuttum', backToLogin: '← Girişe dön',
     resetSent: 'Eğer bu e-posta kayıtlıysa, bir sıfırlama bağlantısı gönderildi.',
-    registerSuccess: 'Hesap başarıyla oluşturuldu.',
+    registerSuccess: 'Hesap başarıyla oluşturuldu.', installButton:'📲 Soccer Edge’i cihazına ekle', installTitle:'Soccer Edge’i cihazına ekle', installBack:'Geri', installNext:'İleri', installDone:'Bitti', installClose:'Kapat',
   },
 };
 
@@ -342,6 +342,11 @@ function applyStaticTranslations() {
   document.getElementById('langFlag').textContent = currentLang === 'tr' ? '🇬🇧' : '🇹🇷';
   document.getElementById('langCode').textContent = currentLang === 'tr' ? 'EN' : 'TR';
   updateSubmitLabel();
+  const ib=document.getElementById('installGuideBtn'); if(ib) ib.textContent=t('installButton');
+  const it=document.getElementById('installTitle'); if(it) it.textContent=t('installTitle');
+  const ip=document.getElementById('installPrev'); if(ip) ip.textContent=t('installBack');
+  const ic=document.getElementById('installClose'); if(ic) ic.setAttribute('aria-label',t('installClose'));
+  if(document.getElementById('installSheet')?.classList.contains('open')) renderInstall();
 }
 
 function updateSubmitLabel() {
@@ -366,19 +371,29 @@ function installPlatform(){
   return 'desktop';
 }
 function installSlides(){
-  const p=installPlatform();
-  const intro={icon:'⚽',title:'Soccer Edge her zaman elinin altında',text:'Siteyi cihazının ana ekranına ekleyerek tek dokunuşla, uygulama gibi açabilirsin.'};
-  const end={icon:'✓',title:'Hazır',text:'Ekledikten sonra Soccer Edge ana ekranında kendi kısayoluyla görünecek.'};
-  if(p==='ios') return [intro,{icon:'🧭',title:'Safari’de aç',text:'Soccer Edge’i Safari’de aç. Alt menüdeki Paylaş simgesine dokun.'},{icon:'＋',title:'Ana Ekrana Ekle',text:'Menüden “Ana Ekrana Ekle” seçeneğine dokun, ardından sağ üstten “Ekle” de.'},end];
-  if(p==='android') return [intro,{icon:'⋮',title:'Chrome menüsünü aç',text:'Chrome’da sağ üstteki üç nokta menüsüne dokun.'},{icon:'📲',title:'Ana ekrana ekle',text:'“Ana ekrana ekle” veya “Uygulamayı yükle” seçeneğini seç ve onayla.'},end];
-  return [intro,{icon:'🌐',title:'Chrome veya Edge’de aç',text:'Soccer Edge’i Chrome ya da Microsoft Edge ile aç.'},{icon:'💻',title:'Kısayol oluştur',text:'Tarayıcı menüsünden “Kısayol oluştur” seçeneğini kullan.'},end];
+  const p=installPlatform(), en=currentLang==='en';
+  const intro=en
+    ? {icon:'⚽',title:'Keep Soccer Edge at your fingertips',text:'Add Soccer Edge to your home screen and open it with one tap, just like an app.'}
+    : {icon:'⚽',title:'Soccer Edge her zaman elinin altında',text:'Siteyi cihazının ana ekranına ekleyerek tek dokunuşla, uygulama gibi açabilirsin.'};
+  const end=en
+    ? {icon:'✓',title:'Ready',text:'Once added, Soccer Edge will appear on your home screen with its own shortcut.'}
+    : {icon:'✓',title:'Hazır',text:'Ekledikten sonra Soccer Edge ana ekranında kendi kısayoluyla görünecek.'};
+  if(p==='ios') return en
+    ? [intro,{icon:'🧭',title:'Open in Safari',text:'Open Soccer Edge in Safari and tap the Share button in the bottom toolbar.'},{icon:'＋',title:'Add to Home Screen',text:'Choose “Add to Home Screen”, then tap “Add” in the top-right corner.'},end]
+    : [intro,{icon:'🧭',title:'Safari’de aç',text:'Soccer Edge’i Safari’de aç. Alt menüdeki Paylaş simgesine dokun.'},{icon:'＋',title:'Ana Ekrana Ekle',text:'Menüden “Ana Ekrana Ekle” seçeneğine dokun, ardından sağ üstten “Ekle” de.'},end];
+  if(p==='android') return en
+    ? [intro,{icon:'⋮',title:'Open the Chrome menu',text:'In Chrome, tap the three-dot menu in the top-right corner.'},{icon:'📲',title:'Add to Home Screen',text:'Choose “Add to Home screen” or “Install app”, then confirm.'},end]
+    : [intro,{icon:'⋮',title:'Chrome menüsünü aç',text:'Chrome’da sağ üstteki üç nokta menüsüne dokun.'},{icon:'📲',title:'Ana ekrana ekle',text:'“Ana ekrana ekle” veya “Uygulamayı yükle” seçeneğini seç ve onayla.'},end];
+  return en
+    ? [intro,{icon:'🌐',title:'Open in Chrome or Edge',text:'Open Soccer Edge in Chrome or Microsoft Edge.'},{icon:'💻',title:'Create a shortcut',text:'Use “Create shortcut” or the install option in your browser menu.'},end]
+    : [intro,{icon:'🌐',title:'Chrome veya Edge’de aç',text:'Soccer Edge’i Chrome ya da Microsoft Edge ile aç.'},{icon:'💻',title:'Kısayol oluştur',text:'Tarayıcı menüsünden “Kısayol oluştur” seçeneğini kullan.'},end];
 }
 function renderInstall(){
   const slides=installSlides(),s=slides[installStep];
   document.getElementById('installSlide').innerHTML=`<div class="install-icon">${s.icon}</div><h3>${s.title}</h3><p>${s.text}</p>`;
   document.getElementById('installDots').innerHTML=slides.map((_,i)=>`<span class="install-dot ${i===installStep?'active':''}"></span>`).join('');
   document.getElementById('installPrev').style.visibility=installStep?'visible':'hidden';
-  document.getElementById('installNext').textContent=installStep===slides.length-1?'Bitti':'İleri';
+  document.getElementById('installNext').textContent=installStep===slides.length-1?t('installDone'):t('installNext');
 }
 function openInstallGuide(){installStep=0;renderInstall();installSheet.classList.add('open');installSheet.setAttribute('aria-hidden','false')}
 function closeInstallGuide(){installSheet.classList.remove('open');installSheet.setAttribute('aria-hidden','true');localStorage.setItem('socceredge_install_guide_seen','1')}
