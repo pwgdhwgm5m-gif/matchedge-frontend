@@ -130,6 +130,26 @@
   }
   .forgot-link:hover { color: var(--teal); }
 
+  .install-entry { margin-top:14px; width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--border-subtle); background:transparent; color:var(--text-secondary); font-size:12px; font-weight:700; cursor:pointer; }
+  .install-entry:hover { border-color:var(--teal); color:var(--teal); }
+  .install-sheet { position:fixed; inset:0; background:rgba(0,0,0,.68); display:none; align-items:flex-end; justify-content:center; z-index:1000; padding:14px; }
+  .install-sheet.open { display:flex; }
+  .install-panel { width:min(430px,100%); background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:22px; padding:18px; box-shadow:0 -20px 60px rgba(0,0,0,.35); }
+  .install-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .install-title { font-size:16px; font-weight:800; }
+  .install-close { border:0; background:var(--bg-card-inner); color:var(--text-secondary); width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer; }
+  .install-slide { min-height:190px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:12px 8px; }
+  .install-icon { font-size:46px; margin-bottom:14px; }
+  .install-slide h3 { font-size:17px; margin-bottom:9px; }
+  .install-slide p { color:var(--text-secondary); font-size:13px; line-height:1.55; max-width:330px; }
+  .install-dots { display:flex; justify-content:center; gap:6px; margin:8px 0 14px; }
+  .install-dot { width:7px; height:7px; border-radius:50%; background:var(--text-muted); }
+  .install-dot.active { background:var(--teal); width:18px; border-radius:8px; }
+  .install-actions { display:flex; gap:8px; }
+  .install-actions button { flex:1; padding:11px; border-radius:11px; font-weight:800; cursor:pointer; }
+  .install-prev { background:transparent; border:1px solid var(--border-subtle); color:var(--text-secondary); }
+  .install-next { background:var(--teal); border:0; color:#05201c; }
+
   .back-link {
     text-align: center;
     font-size: 12px;
@@ -190,6 +210,16 @@
     <div class="forgot-link" id="forgotLink" data-i18n="forgotLink">Forgot password?</div>
     <div class="back-link" id="backLink" style="display:none;" data-i18n="backToLogin">Back to log in</div>
   </div>
+  <button class="install-entry" id="installGuideBtn" type="button">📲 Soccer Edge’i cihazına ekle</button>
+</div>
+
+<div class="install-sheet" id="installSheet" aria-hidden="true">
+  <div class="install-panel">
+    <div class="install-head"><div class="install-title" id="installTitle">Soccer Edge’i cihazına ekle</div><button class="install-close" id="installClose" aria-label="Kapat">×</button></div>
+    <div class="install-slide" id="installSlide"></div>
+    <div class="install-dots" id="installDots"></div>
+    <div class="install-actions"><button class="install-prev" id="installPrev">Geri</button><button class="install-next" id="installNext">İleri</button></div>
+  </div>
 </div>
 
 <script>
@@ -247,7 +277,39 @@ function updateSubmitLabel() {
 document.getElementById('langToggle').addEventListener('click', () => {
   currentLang = currentLang === 'tr' ? 'en' : 'tr';
   localStorage.setItem('matchedge_lang', currentLang);
-  applyStaticTranslations();
+  const installSheet=document.getElementById('installSheet');
+let installStep=0;
+function installPlatform(){
+  const ua=navigator.userAgent||'';
+  if(/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+  if(/Android/i.test(ua)) return 'android';
+  return 'desktop';
+}
+function installSlides(){
+  const p=installPlatform();
+  const intro={icon:'⚽',title:'Soccer Edge her zaman elinin altında',text:'Siteyi cihazının ana ekranına ekleyerek tek dokunuşla, uygulama gibi açabilirsin.'};
+  const end={icon:'✓',title:'Hazır',text:'Ekledikten sonra Soccer Edge ana ekranında kendi kısayoluyla görünecek. İstediğin zaman buradan tekrar yönergeleri açabilirsin.'};
+  if(p==='ios') return [intro,{icon:'🧭',title:'Safari’de aç',text:'Soccer Edge’i Safari’de aç. Alt menüdeki Paylaş simgesine dokun.'},{icon:'＋',title:'Ana Ekrana Ekle',text:'Menüden “Ana Ekrana Ekle” seçeneğine dokun, ardından sağ üstten “Ekle” de.'},end];
+  if(p==='android') return [intro,{icon:'⋮',title:'Chrome menüsünü aç',text:'Chrome’da sağ üstteki üç nokta menüsüne dokun.'},{icon:'📲',title:'Ana ekrana ekle',text:'“Ana ekrana ekle” veya görünüyorsa “Uygulamayı yükle” seçeneğini seç ve onayla.'},end];
+  return [intro,{icon:'🌐',title:'Chrome veya Edge’de aç',text:'Soccer Edge’i Chrome ya da Microsoft Edge ile aç.'},{icon:'💻',title:'Kısayol oluştur',text:'Tarayıcı menüsünden “Kısayol oluştur” / “Uygulamalar” seçeneğini kullan. Yükleme simgesi görünüyorsa ona da basabilirsin.'},end];
+}
+function renderInstall(){
+  const slides=installSlides(), s=slides[installStep];
+  document.getElementById('installSlide').innerHTML=`<div class="install-icon">${s.icon}</div><h3>${s.title}</h3><p>${s.text}</p>`;
+  document.getElementById('installDots').innerHTML=slides.map((_,i)=>`<span class="install-dot ${i===installStep?'active':''}"></span>`).join('');
+  document.getElementById('installPrev').style.visibility=installStep?'visible':'hidden';
+  document.getElementById('installNext').textContent=installStep===slides.length-1?'Bitti':'İleri';
+}
+function openInstallGuide(){installStep=0;renderInstall();installSheet.classList.add('open');installSheet.setAttribute('aria-hidden','false');}
+function closeInstallGuide(){installSheet.classList.remove('open');installSheet.setAttribute('aria-hidden','true');localStorage.setItem('socceredge_install_guide_seen','1');}
+document.getElementById('installGuideBtn').addEventListener('click',openInstallGuide);
+document.getElementById('installClose').addEventListener('click',closeInstallGuide);
+document.getElementById('installPrev').addEventListener('click',()=>{if(installStep>0){installStep--;renderInstall();}});
+document.getElementById('installNext').addEventListener('click',()=>{const slides=installSlides();if(installStep<slides.length-1){installStep++;renderInstall();}else closeInstallGuide();});
+installSheet.addEventListener('click',e=>{if(e.target===installSheet)closeInstallGuide();});
+if(!localStorage.getItem('socceredge_install_guide_seen')) setTimeout(openInstallGuide,700);
+
+applyStaticTranslations();
 });
 
 function clearMessages() {
