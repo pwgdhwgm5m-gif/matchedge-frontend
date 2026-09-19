@@ -221,6 +221,7 @@
     'XP kalıcı rank puanıdır; Coin ise kuponlarda harcanır.':'XP is permanent rank progress; Coins are spent on coupons.',
     'Coin satın alınamaz, devredilemez, nakde veya gerçek ödüle çevrilemez.':'Coins cannot be purchased, transferred, redeemed for cash or converted into real prizes.',
     'GENEL SIRALAMA':'LEADERBOARD','SEÇİM YAP':'MAKE PICKS','Profil yükleniyor…':'Loading profile…','Sıralama yükleniyor…':'Loading leaderboard…',
+    'Çaylak':'Rookie','Acemi':'Beginner','Amatör':'Amateur','Yükselen':'Rising Star','Usta':'Expert','Uzman':'Expert','Profesyonel':'Pro','Şampiyon':'Champion','Efsane':'Legend','Elit':'Elite',
     'Genel sıralama #':'Leaderboard #','BUGÜN ALINDI':'CLAIMED TODAY','GÜNLÜK COIN TOPLA':'CLAIM DAILY COINS',
     'Ödül alınamadı':'Reward could not be claimed','Yüklenemedi':'Could not load',
     'Kupon':'Coupon','İsabet':'Accuracy','isabet':'accuracy',
