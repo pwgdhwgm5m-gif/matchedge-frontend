@@ -394,15 +394,20 @@
   .source-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
   .source-chip { font-size:9px; color:var(--text-muted); padding:5px 7px; border:1px solid var(--border-subtle); border-radius:999px; }
   .source-chip.ok { color:var(--teal); border-color:rgba(45,212,191,.25); background:rgba(45,212,191,.06); }
-  .coupon-market-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
-  .coupon-market { border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--text-primary); border-radius:12px; padding:11px; text-align:left; cursor:pointer; }
+  .coupon-market-grid { display:flex; flex-direction:column; gap:10px; }
+  .coupon-group { border:1px solid var(--border-subtle); background:var(--bg-card-inner); border-radius:13px; padding:10px; }
+  .coupon-group-title { color:var(--text-muted); font-size:9px; font-weight:800; letter-spacing:.8px; margin-bottom:7px; }
+  .coupon-options { display:grid; gap:6px; }
+  .coupon-options.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .coupon-options.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .coupon-market { min-width:0; border:1px solid var(--border-subtle); background:#090e18; color:var(--text-primary); border-radius:10px; padding:9px 7px; text-align:center; cursor:pointer; display:flex; flex-direction:column; gap:5px; align-items:center; }
   .edge-cell[role="button"] { cursor:pointer; border-radius:10px; }
   .edge-cell[role="button"]:focus-visible { outline:2px solid var(--teal); }
   .edge-cell.selected { box-shadow: inset 0 0 0 2px var(--teal); background:rgba(45,212,191,.1); }
   .coupon-market.selected { border-color:var(--teal); background:rgba(45,212,191,.12); box-shadow:0 0 0 2px rgba(45,212,191,.08); }
-  .coupon-market span { display:block; color:var(--text-secondary); font-size:9px; margin-bottom:5px; }
-  .coupon-market strong { font-size:13px; }
-  .coupon-market em { float:right; color:var(--amber); font-style:normal; font-weight:800; }
+  .coupon-market span { display:none; }
+  .coupon-market strong { font-size:11px; line-height:1.2; }
+  .coupon-market em { color:var(--amber); font-style:normal; font-weight:900; font-size:13px; }
   .coupon-add { width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px; background:var(--teal); color:#05201c; font-weight:900; font-size:13px; cursor:pointer; }
   .coupon-add:disabled { opacity:.4; }
   .slip-drawer{position:fixed;left:12px;right:12px;bottom:84px;max-width:456px;margin:auto;background:#101827;border:1px solid #2dd4bf66;border-radius:16px;padding:12px;z-index:40;display:none;box-shadow:0 12px 35px #0009}.slip-drawer.show{display:block}.slip-top{display:flex;justify-content:space-between;align-items:center}.slip-count{background:var(--teal);color:#05201c;border-radius:20px;padding:3px 8px;font-weight:900}.slip-list{max-height:180px;overflow:auto;margin:8px 0}.slip-leg{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--border-subtle);padding:7px 0;font-size:10px}.slip-leg small{color:var(--text-secondary)}.slip-remove{border:0;background:transparent;color:#f0556b}.stake-row{display:flex;gap:6px}.stake-row button{flex:1;background:var(--bg-card-inner);border:1px solid var(--border-subtle);color:var(--text-primary);padding:8px;border-radius:8px}.stake-row button.active{border-color:var(--teal);color:var(--teal)}.slip-summary{display:flex;justify-content:space-between;margin:9px 0;font-size:11px}.play-slip{width:100%;border:0;border-radius:10px;padding:11px;background:var(--teal);font-weight:900;color:#05201c}
@@ -1167,19 +1172,41 @@ function renderCouponMarkets(data) {
   const markets = data?.marketBoard?.allMarkets || [];
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
-  grid.innerHTML = markets.map(item => `<button type="button" class="coupon-market" data-key="${item.key}"><span>${item.market}</span><strong>${item.label}</strong><em>%${item.probability}</em></button>`).join('');
+
+  const order = ['1X2','GOL','KG','KORNER','İLK YARI','İKİNCİ YARI','EN GOLLÜ YARI'];
+  const grouped = new Map();
+  markets.forEach(item => {
+    if (!grouped.has(item.market)) grouped.set(item.market, []);
+    grouped.get(item.market).push(item);
+  });
+
+  grid.innerHTML = order.filter(name => grouped.has(name)).map(name => {
+    const items = grouped.get(name);
+    const cls = items.length >= 3 ? 'three' : 'two';
+    return `<div class="coupon-group">
+      <div class="coupon-group-title">${name}</div>
+      <div class="coupon-options ${cls}">
+        ${items.map(item => `<button type="button" class="coupon-market" data-key="${item.key}">
+          <strong>${item.label}</strong><em>%${item.probability}</em>
+        </button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
   grid.querySelectorAll('.coupon-market').forEach(button => {
     button.addEventListener('click', () => {
       const item = markets.find(market => market.key === button.dataset.key);
       if (!item) return;
-      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key); else if (selectedCouponMarkets.size < 3) selectedCouponMarkets.set(item.key, item);
-      button.classList.toggle('selected', selectedCouponMarkets.has(item.key));
+      const wasSelected = selectedCouponMarkets.has(item.key);
+      // Bir maç kuponda tek seçimdir. Yeni seçim önceki seçimin yerini alır.
+      selectedCouponMarkets.clear();
+      if (!wasSelected) selectedCouponMarkets.set(item.key, item);
+      grid.querySelectorAll('.coupon-market').forEach(el => el.classList.toggle('selected', selectedCouponMarkets.has(el.dataset.key)));
       syncFeaturedPicks();
       document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
     });
   });
 }
-
 function syncFeaturedPicks() {
   document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => cell.classList.toggle('selected', selectedCouponMarkets.has(cell.dataset.marketKey)));
 }
