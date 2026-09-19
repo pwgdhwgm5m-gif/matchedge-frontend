@@ -751,6 +751,35 @@ const matchRoomParams = new URLSearchParams({
 });
 document.getElementById('match-room-link').href = 'mac-odasi.html?' + matchRoomParams.toString();
 
+function leagueAnalysisUrl(m) {
+  const params = new URLSearchParams({
+    fixtureId:m.fixtureId||'', homeTeamName:m.homeTeam||'', awayTeamName:m.awayTeam||'',
+    leagueName:m.league||CONTEXT.leagueName||'', kickoff:m.kickoff||'',
+    tsdbLeagueId:m.leagueId||CONTEXT.tsdbLeagueId||'', homeBadge:m.homeBadge||'', awayBadge:m.awayBadge||'',
+    home:m.homeId||'', away:m.awayId||''
+  });
+  return 'analiz-ekrani.html?' + params.toString();
+}
+function setupLeagueMatchNavigation() {
+  let matches = [];
+  try { matches = JSON.parse(sessionStorage.getItem('socceredge_league_matches') || '[]'); } catch (_) {}
+  matches = Array.isArray(matches) ? matches : [];
+  const index = matches.findIndex(m => String(m.fixtureId) === String(FIXTURE_ID));
+  const prev = document.getElementById('previousMatch');
+  const next = document.getElementById('nextMatch');
+  const position = document.getElementById('matchPosition');
+  if (index < 0 || !matches.length) {
+    position.textContent = '—';
+    prev.disabled = true; next.disabled = true; return;
+  }
+  position.textContent = (index + 1) + ' / ' + matches.length;
+  prev.disabled = index === 0;
+  next.disabled = index === matches.length - 1;
+  prev.onclick = () => { if (index > 0) window.location.href = leagueAnalysisUrl(matches[index - 1]); };
+  next.onclick = () => { if (index < matches.length - 1) window.location.href = leagueAnalysisUrl(matches[index + 1]); };
+}
+setupLeagueMatchNavigation();
+
 document.getElementById('backButton').addEventListener('click', () => {
   const backParams = new URLSearchParams();
   if (CONTEXT.tsdbLeagueId) backParams.set('leagueId', CONTEXT.tsdbLeagueId);
