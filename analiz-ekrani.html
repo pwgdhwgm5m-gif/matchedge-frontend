@@ -394,20 +394,15 @@
   .source-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
   .source-chip { font-size:9px; color:var(--text-muted); padding:5px 7px; border:1px solid var(--border-subtle); border-radius:999px; }
   .source-chip.ok { color:var(--teal); border-color:rgba(45,212,191,.25); background:rgba(45,212,191,.06); }
-  .coupon-market-grid { display:flex; flex-direction:column; gap:10px; }
-  .coupon-group { border:1px solid var(--border-subtle); background:var(--bg-card-inner); border-radius:13px; padding:10px; }
-  .coupon-group-title { color:var(--text-muted); font-size:9px; font-weight:800; letter-spacing:.8px; margin-bottom:7px; }
-  .coupon-options { display:grid; gap:6px; }
-  .coupon-options.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .coupon-options.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
-  .coupon-market { min-width:0; border:1px solid var(--border-subtle); background:#090e18; color:var(--text-primary); border-radius:10px; padding:9px 7px; text-align:center; cursor:pointer; display:flex; flex-direction:column; gap:5px; align-items:center; }
+  .coupon-market-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  .coupon-market { border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--text-primary); border-radius:12px; padding:11px; text-align:left; cursor:pointer; }
   .edge-cell[role="button"] { cursor:pointer; border-radius:10px; }
   .edge-cell[role="button"]:focus-visible { outline:2px solid var(--teal); }
   .edge-cell.selected { box-shadow: inset 0 0 0 2px var(--teal); background:rgba(45,212,191,.1); }
   .coupon-market.selected { border-color:var(--teal); background:rgba(45,212,191,.12); box-shadow:0 0 0 2px rgba(45,212,191,.08); }
-  .coupon-market span { display:none; }
-  .coupon-market strong { font-size:11px; line-height:1.2; }
-  .coupon-market em { color:var(--amber); font-style:normal; font-weight:900; font-size:13px; }
+  .coupon-market span { display:block; color:var(--text-secondary); font-size:9px; margin-bottom:5px; }
+  .coupon-market strong { font-size:13px; }
+  .coupon-market em { float:right; color:var(--amber); font-style:normal; font-weight:800; }
   .coupon-add { width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px; background:var(--teal); color:#05201c; font-weight:900; font-size:13px; cursor:pointer; }
   .coupon-add:disabled { opacity:.4; }
   .slip-drawer{position:fixed;left:12px;right:12px;bottom:84px;max-width:456px;margin:auto;background:#101827;border:1px solid #2dd4bf66;border-radius:16px;padding:12px;z-index:40;display:none;box-shadow:0 12px 35px #0009}.slip-drawer.show{display:block}.slip-top{display:flex;justify-content:space-between;align-items:center}.slip-count{background:var(--teal);color:#05201c;border-radius:20px;padding:3px 8px;font-weight:900}.slip-list{max-height:180px;overflow:auto;margin:8px 0}.slip-leg{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--border-subtle);padding:7px 0;font-size:10px}.slip-leg small{color:var(--text-secondary)}.slip-remove{border:0;background:transparent;color:#f0556b}.stake-row{display:flex;gap:6px}.stake-row button{flex:1;background:var(--bg-card-inner);border:1px solid var(--border-subtle);color:var(--text-primary);padding:8px;border-radius:8px}.stake-row button.active{border-color:var(--teal);color:var(--teal)}.slip-summary{display:flex;justify-content:space-between;margin:9px 0;font-size:11px}.play-slip{width:100%;border:0;border-radius:10px;padding:11px;background:var(--teal);font-weight:900;color:#05201c}
@@ -545,7 +540,7 @@
       </div>
       <div class="reading-card">
         <div class="reading-icon">🚩</div>
-        <div class="reading-label" data-i18n="cornerOver">OVER 9.5 CORNERS</div>
+        <div class="reading-label" data-i18n="cornerOver">OVER 8.5 CORNERS</div>
         <div class="reading-value" id="corner-value">–</div>
         <div class="mini-bar"><div class="mini-bar-fill" id="corner-bar" style="width:0%"></div></div>
       </div>
@@ -701,7 +696,7 @@
         <div class="reading-value" id="corner-min-value" style="font-size:22px;">–</div>
       </div>
       <div class="reading-card" style="flex:1;">
-        <div class="reading-label" data-i18n="over85Prob">OVER 9.5 PROBABILITY</div>
+        <div class="reading-label" data-i18n="over85Prob">OVER 8.5 PROBABILITY</div>
         <div class="reading-value" id="corner-over85-value" style="font-size:22px;">–</div>
         <div class="mini-bar"><div class="mini-bar-fill" id="corner-over85-bar" style="width:0%"></div></div>
       </div>
@@ -762,7 +757,7 @@ const TRANSLATIONS = {
     valueSub: 'The model price is meaningfully above the market price and the data threshold is met.',
     pickSub: 'The three strongest options across result, goals, BTTS and corners.',
     over25Pick: 'OVER 2.5', under25Pick: 'UNDER 2.5', bttsYesPick: 'BTTS YES', bttsNoPick: 'BTTS NO',
-    cornerOverPick: 'OVER 9.5 CORNERS', cornerUnderPick: 'UNDER 9.5 CORNERS',
+    cornerOverPick: 'OVER 8.5 CORNERS', cornerUnderPick: 'UNDER 8.5 CORNERS',
     noBetSub: 'A valid model selection could not be produced for this match.',
     sourceOdds: 'Market odds', sourceTable: 'Standings', sourceInjuries: 'Squad data', sourceH2h: 'H2H', sourceSample: '5-match sample',
     reasonSmallSample: 'Fewer than 5 relevant home/away matches — early-sample protection is active.',
@@ -776,7 +771,7 @@ const TRANSLATIONS = {
     matchProbTitle: 'MATCH RESULT PROBABILITIES', home: 'Home', draw: 'Draw', away: 'Away',
     modelPrediction: 'Model prediction',
     matchReadingTitle: 'MATCH ANALYSIS', over25: 'OVER 2.5 GOALS', bttsYes: 'BTTS YES',
-    cornerOver: 'OVER 9.5 CORNERS', mostGoalsHalf: 'HIGHEST-SCORING HALF', secondHalf: 'Second Half',
+    cornerOver: 'OVER 8.5 CORNERS', mostGoalsHalf: 'HIGHEST-SCORING HALF', secondHalf: 'Second Half',
     expectedGoals: 'EXPECTED GOALS (xG)', dataQuality: 'DATA QUALITY', strongestSignal: 'STRONGEST SIGNAL',
     confidenceScore: 'Confidence Score', confidencePrefix: 'Confidence: ',
     veryHigh: 'Very High', high: 'High', medium: 'Medium', low: 'Low',
@@ -789,7 +784,7 @@ const TRANSLATIONS = {
     firstHalfTitle: 'FIRST-HALF GOAL - WHO SCORES?',
     fhOwnH2h: 'Based on own past matches + last {n} head-to-head meetings',
     fhOwnOnly: 'Based on own past matches (not enough head-to-head data)',
-    cornerPredictionTitle: 'CORNER PREDICTION', expectedMinCorner: 'EXPECTED MIN. CORNERS', over85Prob: 'OVER 9.5 PROBABILITY',
+    cornerPredictionTitle: 'CORNER PREDICTION', expectedMinCorner: 'EXPECTED MIN. CORNERS', over85Prob: 'OVER 8.5 PROBABILITY',
     cornerDisclaimer: 'Estimated from expected goal tempo (not real corner statistics)',
     standingsTitle: 'LEAGUE STANDINGS', standingsSub: 'Full table',
     standingsTeam: 'Team', standingsPlayed: 'P', standingsGoalDiff: 'GD', standingsPoints: 'Pts',
@@ -813,7 +808,7 @@ const TRANSLATIONS = {
     valueSub: 'Model olasılığı piyasa fiyatından anlamlı biçimde yüksek ve veri eşiği karşılanıyor.',
     pickSub: 'Taraf, gol, karşılıklı gol ve korner marketlerinden en güçlü üç seçenek.',
     over25Pick: '2.5 ÜST', under25Pick: '2.5 ALT', bttsYesPick: 'KG VAR', bttsNoPick: 'KG YOK',
-    cornerOverPick: '9.5 ÜST KORNER', cornerUnderPick: '9.5 ALT KORNER',
+    cornerOverPick: '8.5 ÜST KORNER', cornerUnderPick: '8.5 ALT KORNER',
     noBetSub: 'Bu maç için geçerli bir model seçimi üretilemedi.',
     sourceOdds: 'Piyasa oranı', sourceTable: 'Puan durumu', sourceInjuries: 'Kadro verisi', sourceH2h: 'H2H', sourceSample: '5 maç örneklemi',
     reasonSmallSample: '5’ten az ilgili ev/deplasman maçı var — erken sezon koruması aktif.',
@@ -827,7 +822,7 @@ const TRANSLATIONS = {
     matchProbTitle: 'MAÇ SONUCU OLASILIKLARI', home: 'Ev Sahibi', draw: 'Beraberlik', away: 'Deplasman',
     modelPrediction: 'Model tahmini',
     matchReadingTitle: 'MAÇ ANALİZİ', over25: '2.5 ÜST GOL', bttsYes: 'KG VAR',
-    cornerOver: '9.5 ÜST KORNER', mostGoalsHalf: 'EN GOLLÜ YARI', secondHalf: 'İkinci Yarı',
+    cornerOver: '8.5 ÜST KORNER', mostGoalsHalf: 'EN GOLLÜ YARI', secondHalf: 'İkinci Yarı',
     expectedGoals: 'BEKLENEN GOL (xG)', dataQuality: 'VERİ KALİTESİ', strongestSignal: 'EN GÜÇLÜ SİNYAL',
     confidenceScore: 'Güven Skoru', confidencePrefix: 'Güven: ',
     veryHigh: 'Çok Yüksek', high: 'Yüksek', medium: 'Orta', low: 'Düşük',
@@ -840,7 +835,7 @@ const TRANSLATIONS = {
     firstHalfTitle: 'İLK YARI GOLÜ - KİM ATAR?',
     fhOwnH2h: 'Kendi geçmiş maçları + son {n} aralarındaki maça göre',
     fhOwnOnly: 'Kendi geçmiş maçlarına göre (yeterli aralarındaki maç verisi yok)',
-    cornerPredictionTitle: 'KORNER TAHMİNİ', expectedMinCorner: 'BEKLENEN MİN. KORNER', over85Prob: '9.5 ÜST OLASILIK',
+    cornerPredictionTitle: 'KORNER TAHMİNİ', expectedMinCorner: 'BEKLENEN MİN. KORNER', over85Prob: '8.5 ÜST OLASILIK',
     cornerDisclaimer: 'Beklenen gol temposundan türetilmiş tahmini değer (gerçek korner istatistiği değil)',
     standingsTitle: 'PUAN DURUMU', standingsSub: 'Tam tablo',
     standingsTeam: 'Takım', standingsPlayed: 'O', standingsGoalDiff: 'Av', standingsPoints: 'P',
@@ -924,17 +919,11 @@ async function loadAnalysis() {
     const timer = setTimeout(() => controller.abort(), 18000);
     let res;
     try {
-      params.set('_ts', Date.now().toString());
-      res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`, {
-        signal: controller.signal,
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
-      });
+      res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`, { signal: controller.signal });
     } finally { clearTimeout(timer); }
     if (!res.ok) throw new Error('http_' + res.status);
     const data = await res.json();
     renderAnalysis(data);
-    currentAnalysis = data;
     document.getElementById('errorBanner').innerHTML = '';
   } catch (err) {
     console.warn('Analiz alınamadı:', err.message);
@@ -943,6 +932,7 @@ async function loadAnalysis() {
 }
 
 function renderAnalysis(data) {
+  currentAnalysis = data;
   document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
   document.getElementById('home-name').textContent = data.homeTeam || CONTEXT.homeTeamName || '—';
   document.getElementById('away-name').textContent = data.awayTeam || CONTEXT.awayTeamName || '—';
@@ -981,7 +971,7 @@ function renderAnalysis(data) {
   const mkt = data.marketProbabilities || {};
   setReading('over25', mkt.over25GoalsPercent);
   setReading('btts', mkt.bttsPercent);
-  setReading('corner', data.cornerMetrics?.over95Percent);
+  setReading('corner', data.cornerMetrics?.over85Percent);
   const mostGoalsHalf = data.halfMarkets?.mostGoalsHalf || {};
   const halfChoices = [
     { label: t('firstHalf'), value: Number(mostGoalsHalf.first) },
@@ -1041,10 +1031,10 @@ function renderAnalysis(data) {
 
   const cm = data.cornerMetrics || {};
   document.getElementById('corner-min-value').textContent = cm.minExpected ?? '–';
-  document.getElementById('corner-over85-value').textContent = (cm.over95Percent ?? '–') + '%';
-  document.getElementById('corner-over85-bar').style.width = (cm.over95Percent || 0) + '%';
+  document.getElementById('corner-over85-value').textContent = (cm.over85Percent ?? '–') + '%';
+  document.getElementById('corner-over85-bar').style.width = (cm.over85Percent || 0) + '%';
 
-  try { renderStandings(data.standings); } catch (err) { console.warn('Puan durumu render hatasi:', err.message); }
+  renderStandings(data.standings);
 
   // Optional premium/coupon widgets must never prevent the core analysis from rendering.
   try { renderPremiumIntelligence(data.premium, data); } catch (err) { console.warn('Premium kart render hatasi:', err.message); }
@@ -1113,7 +1103,7 @@ function renderPremiumIntelligence(premium, data) {
     strongestPicks.push({
       label: value >= 50 ? positiveLabel : negativeLabel,
       probability: +(value >= 50 ? value : 100 - value).toFixed(1),
-      key: positiveLabel === t('over25Pick') ? (value >= 50 ? 'over25' : 'under25') : positiveLabel === t('bttsYesPick') ? (value >= 50 ? 'bttsYes' : 'bttsNo') : (value >= 50 ? 'cornersOver95' : 'cornersUnder95'),
+      key: positiveLabel === t('over25Pick') ? (value >= 50 ? 'over25' : 'under25') : positiveLabel === t('bttsYesPick') ? (value >= 50 ? 'bttsYes' : 'bttsNo') : (value >= 50 ? 'cornersOver85' : 'cornersUnder85'),
     });
   };
 
@@ -1126,7 +1116,7 @@ function renderPremiumIntelligence(premium, data) {
   }
   addDirectionalPick(data?.marketProbabilities?.over25GoalsPercent, t('over25Pick'), t('under25Pick'));
   addDirectionalPick(data?.marketProbabilities?.bttsPercent, t('bttsYesPick'), t('bttsNoPick'));
-  addDirectionalPick(data?.cornerMetrics?.over95Percent, t('cornerOverPick'), t('cornerUnderPick'));
+  addDirectionalPick(data?.cornerMetrics?.over85Percent, t('cornerOverPick'), t('cornerUnderPick'));
   strongestPicks.sort((a, b) => b.probability - a.probability);
 
   for (let index = 0; index < 3; index += 1) {
@@ -1177,41 +1167,19 @@ function renderCouponMarkets(data) {
   const markets = data?.marketBoard?.allMarkets || [];
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
-
-  const order = ['1X2','GOL','KG','KORNER','İLK YARI','İKİNCİ YARI','EN GOLLÜ YARI'];
-  const grouped = new Map();
-  markets.forEach(item => {
-    if (!grouped.has(item.market)) grouped.set(item.market, []);
-    grouped.get(item.market).push(item);
-  });
-
-  grid.innerHTML = order.filter(name => grouped.has(name)).map(name => {
-    const items = grouped.get(name);
-    const cls = items.length >= 3 ? 'three' : 'two';
-    return `<div class="coupon-group">
-      <div class="coupon-group-title">${name}</div>
-      <div class="coupon-options ${cls}">
-        ${items.map(item => `<button type="button" class="coupon-market" data-key="${item.key}">
-          <strong>${item.label}</strong><em>%${item.probability}</em>
-        </button>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
-
+  grid.innerHTML = markets.map(item => `<button type="button" class="coupon-market" data-key="${item.key}"><span>${item.market}</span><strong>${item.label}</strong><em>%${item.probability}</em></button>`).join('');
   grid.querySelectorAll('.coupon-market').forEach(button => {
     button.addEventListener('click', () => {
       const item = markets.find(market => market.key === button.dataset.key);
       if (!item) return;
-      const wasSelected = selectedCouponMarkets.has(item.key);
-      // Bir maç kuponda tek seçimdir. Yeni seçim önceki seçimin yerini alır.
-      selectedCouponMarkets.clear();
-      if (!wasSelected) selectedCouponMarkets.set(item.key, item);
-      grid.querySelectorAll('.coupon-market').forEach(el => el.classList.toggle('selected', selectedCouponMarkets.has(el.dataset.key)));
+      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.delete(item.key); else if (selectedCouponMarkets.size < 3) selectedCouponMarkets.set(item.key, item);
+      button.classList.toggle('selected', selectedCouponMarkets.has(item.key));
       syncFeaturedPicks();
       document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
     });
   });
 }
+
 function syncFeaturedPicks() {
   document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => cell.classList.toggle('selected', selectedCouponMarkets.has(cell.dataset.marketKey)));
 }
