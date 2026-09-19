@@ -443,7 +443,7 @@
   <div id="errorBanner"></div>
 
   <div class="card">
-    <div class="match-shortcuts"><button class="card-back-button" id="backButton" type="button" aria-label="Back">←</button><a class="match-home-button" href="ana-sayfa.html" data-i18n="navHome" aria-label="Home">Home</a></div>
+    <div class="match-shortcuts"><span></span><a class="match-home-button" href="maclar.html" data-i18n="navHome" aria-label="Home">Home</a></div>
     <div class="match-meta">
       <span id="league-flag">🏴</span>
       <span id="league-name">—</span>
@@ -780,13 +780,7 @@ function setupLeagueMatchNavigation() {
 }
 setupLeagueMatchNavigation();
 
-document.getElementById('backButton').addEventListener('click', () => {
-  const backParams = new URLSearchParams();
-  if (CONTEXT.tsdbLeagueId) backParams.set('leagueId', CONTEXT.tsdbLeagueId);
-  if (CONTEXT.leagueName) backParams.set('leagueName', CONTEXT.leagueName);
-  if (CONTEXT.kickoff) backParams.set('date', CONTEXT.kickoff.slice(0, 10));
-  window.location.href = 'maclar.html' + (backParams.toString() ? '?' + backParams.toString() : '');
-});
+
 
 const TRANSLATIONS = {
   en: {
