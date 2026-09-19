@@ -436,7 +436,7 @@ const TRANSLATIONS = {
     navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Coupon', navFav: 'Favorites', navArena: 'Arena',
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load matches - pull to refresh",
-    live: 'LIVE',
+    live: 'LIVE', finished: 'Finished',
     matchCount: (n) => n === 1 ? '1 match' : `${n} matches`,
     dowNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
@@ -446,7 +446,7 @@ const TRANSLATIONS = {
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Kuponum', navFav: 'Favoriler', navArena: 'Arena',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Maçlar yüklenemedi - yenilemek için tekrar dene',
-    live: 'CANLI',
+    live: 'CANLI', finished: 'Bitti',
     matchCount: (n) => n === 1 ? '1 maç' : `${n} maç`,
     dowNames: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
     legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan SoccerEdge Pro sorumlu tutulamaz.<br><br>SoccerEdge Pro © 2026 — Eddas tarafından geliştirildi.',
@@ -574,11 +574,15 @@ function renderMatches() {
     const isReturnLeague = (returnLeagueId && String(g.leagueId) === String(returnLeagueId))
       || (!returnLeagueId && returnLeagueName && g.league === returnLeagueName);
     const rows = g.matches.map(m => {
-      const timeLabel = m.isLive
-        ? (m.minute != null ? `${m.minute}'` : t('live'))
-        : (m.kickoff
-          ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
-          : '--:--');
+      const isFinished = String(m.statusShort || '').toUpperCase() === 'FT';
+      const scoreKnown = Number.isFinite(Number(m.homeScore)) && Number.isFinite(Number(m.awayScore));
+      const timeLabel = isFinished
+        ? (scoreKnown ? `${m.homeScore} - ${m.awayScore} · ${t('finished')}` : t('finished'))
+        : (m.isLive
+          ? (m.minute != null ? `${m.homeScore} - ${m.awayScore} · ${m.minute}'` : `${m.homeScore} - ${m.awayScore} · ${t('live')}`)
+          : (m.kickoff
+            ? new Date(m.kickoff).toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+            : '--:--'));
       const isFav = favorites.has(String(m.fixtureId));
       return `
         <div class="match-row" data-link="${matchLink(m)}" style="text-decoration:none; color:inherit;">
