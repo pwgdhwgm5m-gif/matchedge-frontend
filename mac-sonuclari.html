@@ -298,6 +298,13 @@ button,.button,.btn{border-radius:8px!important}
 input,textarea,select{background:#09244b!important;border-color:#315781!important;color:#fff!important}
 .score,.result-score{color:#f2c94c!important;font-weight:900!important}
 </style>
+<style id="se-global-bottom-nav">
+body{padding-bottom:82px!important}
+.se-bottom-nav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(480px,100%)!important;height:68px!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important;background:rgba(4,21,46,.98)!important;border-top:1px solid #244b79!important;z-index:9999!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
+.se-bottom-nav a{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#91a7c7!important;text-decoration:none!important;font-size:10px!important;font-weight:800!important;min-width:0!important}
+.se-bottom-nav a b{font-size:20px!important;line-height:20px!important;font-weight:700!important}
+.se-bottom-nav a.active{color:#f2c94c!important}
+</style>
 </head>
 <body>
 
@@ -343,14 +350,12 @@ input,textarea,select{background:#09244b!important;border-color:#315781!importan
 
 </div>
 
-<div class="bottom-nav">
-  <a class="nav-item" href="ana-sayfa.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></div><span data-i18n="navHome">Home</span></a>
-  <a class="nav-item" href="maclar.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2"/></svg></div><span data-i18n="navMatches">Matches</span></a>
-  <a class="nav-item active" href="mac-sonuclari.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg></div><span data-i18n="navResults">Results</span></a>
-  <a class="nav-item" href="kuponum.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6"/></svg></div><span data-i18n="navNotes">Coupon</span></a>
-  <a class="nav-item" href="edge-arena.html"><div class="nav-icon-box"><svg viewBox="0 0 24 24"><path d="M8 4h8v3h4v3c0 3-2 5-5 5-1 2-2 3-3 3s-2-1-3-3c-3 0-5-2-5-5V7h4V4Z"/><path d="M9 21h6M12 18v3"/></svg></div><span data-i18n="navArena">Arena</span></a>
-</div>
-
+<nav class="se-bottom-nav" aria-label="Ana menü">
+<a class="" href="ana-sayfa.html"><b>⌂</b><span>Ana Ekran</span></a>
+<a class="" href="kuponum.html"><b>▤</b><span>Kuponum</span></a>
+<a class="" href="maclar.html"><b>⚽</b><span>Maçlar</span></a>
+<a class="active" href="mac-sonuclari.html"><b>▣</b><span>Skor</span></a>
+</nav>
 <script>
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
