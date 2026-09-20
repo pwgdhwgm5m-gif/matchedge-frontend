@@ -609,41 +609,5 @@ setInterval(refreshAll, POLL_INTERVAL_MS);
   window.addEventListener('resize',lockNav);
 })();
 </script></bo
-<script id="se-ios-viewport-nav-lock-v2">
-(function(){
-  var nav=document.querySelector('.se-bottom-nav');
-  if(!nav)return;
-  if(nav.parentElement!==document.body)document.body.appendChild(nav);
-  var vv=window.visualViewport;
-  function pin(){
-    var h=82;
-    var keyboardOpen=vv && (window.innerHeight-vv.height>140);
-    // iOS Safari may lay fixed elements out against the larger layout viewport.
-    // Translate the BODY-level nav to the currently visible viewport bottom.
-    var y=0;
-    if(vv) y=Math.max(0,vv.offsetTop+vv.height-window.innerHeight);
-    nav.style.setProperty('position','fixed','important');
-    nav.style.setProperty('left','0','important');
-    nav.style.setProperty('right','0','important');
-    nav.style.setProperty('top','auto','important');
-    nav.style.setProperty('bottom','0','important');
-    nav.style.setProperty('width','100%','important');
-    nav.style.setProperty('max-width','none','important');
-    nav.style.setProperty('height','calc('+h+'px + env(safe-area-inset-bottom, 0px))','important');
-    nav.style.setProperty('margin','0','important');
-    nav.style.setProperty('transform','translate3d(0,'+y+'px,0)','important');
-    nav.style.setProperty('z-index','2147483647','important');
-    nav.style.setProperty('display',keyboardOpen?'none':'grid','important');
-  }
-  pin();
-  requestAnimationFrame(pin);
-  setTimeout(pin,50);setTimeout(pin,250);setTimeout(pin,700);
-  window.addEventListener('scroll',pin,{passive:true});
-  window.addEventListener('resize',pin,{passive:true});
-  window.addEventListener('orientationchange',function(){setTimeout(pin,100)});
-  window.addEventListener('pageshow',pin);
-  if(vv){vv.addEventListener('resize',pin,{passive:true});vv.addEventListener('scroll',pin,{passive:true});}
-})();
-</script>
 dy>
 </html>
