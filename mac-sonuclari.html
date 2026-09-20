@@ -358,6 +358,12 @@ body.search-keyboard-open .se-bottom-nav{display:none!important}
 html,body{transform:none!important;filter:none!important;perspective:none!important}
 .se-bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;translate:none!important;width:100vw!important;max-width:100vw!important;margin:0!important;z-index:2147483646!important;contain:layout paint!important}
 @media(max-width:600px){.se-bottom-nav{position:fixed!important;bottom:0!important}}
+</style><style id="scores-live-section-style">
+.scores-live-now{margin:10px 0 18px;border:1px solid rgba(45,212,191,.35);border-radius:16px;overflow:hidden;background:rgba(5,27,57,.7)}
+.scores-live-title{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:12px 14px;font-size:12px;font-weight:900;letter-spacing:.7px;color:#fff;background:#0a2448}
+.scores-live-title b{margin-left:auto;color:#2dd4bf}.scores-live-dot{width:8px;height:8px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 0 4px rgba(45,212,191,.12)}
+.scores-live-league{padding:9px 14px 5px;color:#8fa9cc;font-size:10px;font-weight:900;letter-spacing:.35px;border-top:1px solid rgba(143,169,204,.1)}
+.scores-live-list .match-card{margin:5px 9px 9px}
 </style></head>
 <body>
 
@@ -642,6 +648,20 @@ async function loadResults() {
       merged.set(key,{...base,...m});
     });
     allMatchesForDay = [...merged.values()];
+    // Scores always shows every currently live match, even when the selected
+    // date/fixture feed does not include it.
+    try {
+      const liveRes = await fetch(`${API_BASE}/api/live`);
+      if (liveRes.ok) {
+        const liveJson = await liveRes.json();
+        const liveMap = new Map(allMatchesForDay.map(m => [String(m.fixtureId), m]));
+        (liveJson.matches || []).forEach(m => {
+          const key=String(m.fixtureId), base=liveMap.get(key)||{};
+          liveMap.set(key,{...base,...m,isLive:true});
+        });
+        allMatchesForDay=[...liveMap.values()];
+      }
+    } catch (_) {}
   } catch (err) {
     console.warn('Sonuçlar alınamadı:', err.message);
     allMatchesForDay = [];
@@ -677,10 +697,16 @@ function renderResults() {
     container.innerHTML = `<div class="empty-state">${t(showFavoriteScoresOnly ? 'noFavorites' : 'noMatchesDate')}</div>`;
     return;
   }
+  const liveNow = shown.filter(m=>m.isLive).sort((a,b)=>String(a.league||'').localeCompare(String(b.league||'')) || String(a.homeTeam||'').localeCompare(String(b.homeTeam||'')));
+  const regularShown = shown.filter(m=>!m.isLive);
+  const liveSection = liveNow.length ? `<section class="scores-live-now">
+    <div class="scores-live-title"><span class="scores-live-dot"></span>${t('liveMatches')} <b>${liveNow.length}</b></div>
+    <div class="scores-live-list">${liveNow.map(m=>`<div class="scores-live-league">${leagueCountry(m.league||'').flag} ${m.league||'Other'}</div>${renderMatchCard(m, favorites.has(String(m.fixtureId))) }`).join('')}</div>
+  </section>` : '';
   const groups = new Map();
-  shown.forEach(m => { const k=m.league||'Other'; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
+  regularShown.forEach(m => { const k=m.league||'Other'; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
   if (groups.size === 1 && openLeagues.size === 0) openLeagues.add([...groups.keys()][0]);
-  container.innerHTML=[...groups.entries()].map(([league,matches]) => {
+  container.innerHTML=liveSection + [...groups.entries()].map(([league,matches]) => {
     const open=openLeagues.has(league);
     const country=leagueCountry(league);
     return `<section class="league-group ${open?'open':''}" data-league-group="${escapeAttr(league)}">
