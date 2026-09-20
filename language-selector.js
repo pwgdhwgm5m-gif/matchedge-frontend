@@ -400,6 +400,21 @@
     return true;
   }
   window.SoccerEdgePush={setEnabled:setPushEnabled};
+  if(!document.querySelector('link[rel="manifest"]')){
+    const manifest=document.createElement('link');manifest.rel='manifest';manifest.href='/manifest.json';document.head.appendChild(manifest);
+  }
+  const matchBell=document.getElementById('notificationBtn');
+  if(matchBell){
+    const pushBell=matchBell.cloneNode(true);matchBell.replaceWith(pushBell);
+    const paint=()=>{const on=localStorage.getItem('socceredge_match_notifications')==='on';pushBell.textContent=on?'🔔':'🔕';pushBell.classList.toggle('notification-on',on);pushBell.setAttribute('aria-pressed',String(on))};
+    pushBell.addEventListener('click',async()=>{
+      const on=localStorage.getItem('socceredge_match_notifications')==='on';pushBell.disabled=true;
+      try{const ok=await setPushEnabled(!on);if(ok)localStorage.setItem('socceredge_match_notifications',on?'off':'on')}catch(e){console.warn('Push setup failed',e.message)}
+      pushBell.disabled=false;paint();
+    });
+    paint();
+  }
+
 
   function installGoalNotifications(){
     const token=localStorage.getItem('matchedge_token');
