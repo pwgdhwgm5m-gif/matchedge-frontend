@@ -503,7 +503,8 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 
     localStorage.setItem('matchedge_token', data.token);
     localStorage.setItem('matchedge_username', data.username);
-    window.location.href = 'ana-sayfa.html';
+    const next=new URLSearchParams(location.search).get('next');
+    window.location.href = next || 'ana-sayfa.html';
   } catch (err) {
     showError(t('networkError'));
   } finally {
