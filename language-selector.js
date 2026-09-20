@@ -235,7 +235,7 @@
     const nodes = [];
     while (walker.nextNode()) {
       const parent = walker.currentNode.parentElement;
-      if (parent && !/^(SCRIPT|STYLE|TEXTAREA|OPTION)$/.test(parent.tagName)) nodes.push(walker.currentNode);
+      if (parent && !parent.closest('.se-bottom-nav') && !/^(SCRIPT|STYLE|TEXTAREA|OPTION)$/.test(parent.tagName)) nodes.push(walker.currentNode);
     }
     nodes.forEach(function(node) {
       const raw = node.nodeValue;
