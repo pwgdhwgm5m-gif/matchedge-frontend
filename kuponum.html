@@ -184,7 +184,16 @@ async function removeLeg(id,fixtureId){
  const r=await fetch(API+'/api/coupons/'+id+'/legs/'+fixtureId,{method:'DELETE',headers:headers()});
  if(!r.ok){const d=await r.json().catch(()=>({}));alert(d.error||'Maç silinemedi.');return}load();
 }
-load();setInterval(load,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+let couponRefreshInFlight=false;
+async function refreshCoupons(){
+ if(couponRefreshInFlight)return;
+ couponRefreshInFlight=true;
+ try{await load()}finally{couponRefreshInFlight=false}
+}
+refreshCoupons();
+setInterval(refreshCoupons,20000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshCoupons()});
+window.addEventListener('focus',refreshCoupons);
 const rules=document.getElementById('rules');function openRules(){rules.classList.add('open')}function closeRules(){rules.classList.remove('open');localStorage.setItem('coinedge_rules_seen','1')}document.getElementById('rulesBtn').onclick=openRules;document.getElementById('rulesClose').onclick=closeRules;document.getElementById('rulesOk').onclick=closeRules;rules.onclick=e=>{if(e.target===rules)closeRules()};if(!localStorage.getItem('coinedge_rules_seen'))setTimeout(openRules,500);
 </script><script src="language-selector.js"></script>
 
