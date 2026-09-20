@@ -791,12 +791,27 @@ async function loadHomeAnalyses(matches) {
   // for the day so a few slow/failed analyses do not leave only 2-3 cards.
   const candidates = priority;
   if (!candidates.length) return;
-  const settled = await Promise.allSettled(candidates.map(async m => {
-    const response = await fetch(homeAnalysisUrl(m));
-    if (!response.ok) throw new Error('analysis');
-    matchAnalyses.set(String(m.fixtureId), await response.json());
-  }));
-  if (settled.some(result => result.status === 'fulfilled')) renderFeaturedSection();
+  // Do not wait for the slowest SportMonks analysis before updating the UI.
+  // Run a small worker pool and repaint each card as soon as its analysis arrives.
+  let nextIndex = 0;
+  const workerCount = Math.min(6, candidates.length);
+  async function worker() {
+    while (nextIndex < candidates.length) {
+      const m = candidates[nextIndex++];
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 26000);
+        const response = await fetch(homeAnalysisUrl(m), { signal: controller.signal });
+        clearTimeout(timer);
+        if (!response.ok) throw new Error('analysis');
+        matchAnalyses.set(String(m.fixtureId), await response.json());
+        renderFeaturedSection();
+      } catch (err) {
+        console.warn('Ana sayfa analizi alınamadı:', m.fixtureId, err.message);
+      }
+    }
+  }
+  await Promise.allSettled(Array.from({ length: workerCount }, () => worker()));
 }
 
 const SPORTMONKS_PRIORITY_LEAGUES = new Set(['39','78','61','135','140','203']);
