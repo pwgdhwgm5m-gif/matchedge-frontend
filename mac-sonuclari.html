@@ -362,7 +362,8 @@ html,body{transform:none!important;filter:none!important;perspective:none!import
 .scores-live-now{margin:10px 0 18px;border:1px solid rgba(45,212,191,.35);border-radius:16px;overflow:hidden;background:rgba(5,27,57,.7)}
 .scores-live-title{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:12px 14px;font-size:12px;font-weight:900;letter-spacing:.7px;color:#fff;background:#0a2448}
 .scores-live-title b{margin-left:auto;color:#2dd4bf}.scores-live-dot{width:8px;height:8px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 0 4px rgba(45,212,191,.12)}
-.scores-live-league{padding:9px 14px 5px;color:#8fa9cc;font-size:10px;font-weight:900;letter-spacing:.35px;border-top:1px solid rgba(143,169,204,.1)}
+.scores-live-league{width:100%;padding:11px 14px;color:#d9e6f7;font-size:11px;font-weight:900;letter-spacing:.35px;border:0;border-top:1px solid rgba(143,169,204,.1);background:transparent;display:flex;align-items:center;justify-content:space-between;text-align:left}
+.scores-live-league b{color:#2dd4bf}.scores-live-group-body{display:none;padding-bottom:2px}.scores-live-group.open .scores-live-group-body{display:block}.scores-live-group.open .live-chevron{display:inline-block;transform:rotate(180deg)}.live-chevron{display:inline-block;transition:transform .15s ease}
 .scores-live-list .match-card{margin:5px 9px 9px}
 </style></head>
 <body>
@@ -699,9 +700,18 @@ function renderResults() {
   }
   const liveNow = shown.filter(m=>m.isLive).sort((a,b)=>String(a.league||'').localeCompare(String(b.league||'')) || String(a.homeTeam||'').localeCompare(String(b.homeTeam||'')));
   const regularShown = shown.filter(m=>!m.isLive);
+  const liveGroups = new Map();
+  liveNow.forEach(m=>{const k=m.league||'Other';if(!liveGroups.has(k))liveGroups.set(k,[]);liveGroups.get(k).push(m);});
   const liveSection = liveNow.length ? `<section class="scores-live-now">
     <div class="scores-live-title"><span class="scores-live-dot"></span>${t('liveMatches')} <b>${liveNow.length}</b></div>
-    <div class="scores-live-list">${liveNow.map(m=>`<div class="scores-live-league">${leagueCountry(m.league||'').flag} ${m.league||'Other'}</div>${renderMatchCard(m, favorites.has(String(m.fixtureId))) }`).join('')}</div>
+    <div class="scores-live-list">${[...liveGroups.entries()].map(([league,matches])=>`
+      <section class="scores-live-group" data-live-group="${escapeAttr(league)}">
+        <button type="button" class="scores-live-league" data-toggle-live="${escapeAttr(league)}">
+          <span>${leagueCountry(league).flag} ${league}</span>
+          <span><b>${matches.length}</b> <span class="live-chevron">⌄</span></span>
+        </button>
+        <div class="scores-live-group-body">${matches.map(m=>renderMatchCard(m, favorites.has(String(m.fixtureId)))).join('')}</div>
+      </section>`).join('')}</div>
   </section>` : '';
   const groups = new Map();
   regularShown.forEach(m => { const k=m.league||'Other'; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
@@ -716,6 +726,10 @@ function renderResults() {
       <div class="league-body">${matches.map(m=>renderMatchCard(m, favorites.has(String(m.fixtureId)))).join('')}</div>
     </section>`;
   }).join('');
+  container.querySelectorAll('[data-toggle-live]').forEach(btn=>btn.addEventListener('click',()=>{
+    const group=btn.closest('.scores-live-group');
+    group.classList.toggle('open');
+  }));
   container.querySelectorAll('[data-toggle-league]').forEach(btn=>btn.addEventListener('click',()=>{
     const league=btn.dataset.toggleLeague;
     openLeagues.has(league)?openLeagues.delete(league):openLeagues.add(league);
