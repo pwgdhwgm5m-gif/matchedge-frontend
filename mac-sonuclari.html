@@ -633,8 +633,18 @@ function leagueCountry(league, leagueId) {
 function canonicalLeague(m) {
   const id=String(m?.leagueId||'');
   const name=String(m?.league||m?.leagueName||'').trim();
-  if(id==='600' || id==='4339' || /^(turkey|türkiye)$/i.test(name) || /süper lig|super lig/i.test(name)) return 'Süper Lig';
-  return name || (leagueCountry(name,id)?.name || 'League');
+  const n=name.toLowerCase().replace(/[._-]+/g,' ').replace(/\s+/g,' ').trim();
+
+  // Provider/country aliases must resolve to the competition, never to a
+  // separate country bucket.
+  if(id==='600' || id==='4339' || /^(turkey|türkiye)$/.test(n) || /süper lig|super lig/.test(n)) return 'Süper Lig';
+  if(id==='8' || id==='4328' || /^(england|english)$/.test(n) || /english premier|premier league/.test(n)) return 'English Premier League';
+  if(id==='82' || id==='4331' || /^(germany|german|almanya)$/.test(n) || /german bundesliga|bundesliga(?! 2)/.test(n)) return 'German Bundesliga';
+  if(id==='301' || id==='4334' || /^(france|french|fransa)$/.test(n) || /french league( 1)?|ligue 1/.test(n)) return 'French Ligue 1';
+  if(id==='384' || id==='4332' || /^(italy|italian|italya)$/.test(n) || /italian serie a|serie a/.test(n)) return 'Italian Serie A';
+  if(id==='564' || id==='4335' || /^(spain|spanish|ispanya)$/.test(n) || /spanish la liga|la liga/.test(n)) return 'Spanish La Liga';
+
+  return name || 'League';
 }
 
 function filteredRelevantMatches() {
