@@ -1093,9 +1093,19 @@ function renderTodayList(matches, loadFailed) {
     groups.get(key).matches.push(match);
   });
 
-  const sortedGroups = Array.from(groups.values()).sort((a, b) =>
-    String(a.league || '').localeCompare(String(b.league || ''), currentLang === 'tr' ? 'tr' : 'en', { sensitivity: 'base' })
-  );
+  const sortedGroups = Array.from(groups.values()).sort((a, b) => {
+    const aPriority = a.matches.some(isSportmonksPriorityMatch);
+    const bPriority = b.matches.some(isSportmonksPriorityMatch);
+    if (aPriority !== bPriority) return Number(bPriority) - Number(aPriority);
+    const aKickoff = Math.min(...a.matches.map(m => new Date(m.kickoff || 0).getTime()).filter(Number.isFinite));
+    const bKickoff = Math.min(...b.matches.map(m => new Date(m.kickoff || 0).getTime()).filter(Number.isFinite));
+    if (aKickoff !== bKickoff) return aKickoff - bKickoff;
+    return String(a.league || '').localeCompare(String(b.league || ''), currentLang === 'tr' ? 'tr' : 'en', { sensitivity: 'base' });
+  });
+  sortedGroups.forEach(group => group.matches.sort((a,b) => {
+    if (a.isLive !== b.isLive) return Number(b.isLive) - Number(a.isLive);
+    return new Date(a.kickoff || 0) - new Date(b.kickoff || 0);
+  }));
 
   container.innerHTML = sortedGroups.map((group, groupIndex) => {
     const rows = group.matches.map(m => {
