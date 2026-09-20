@@ -567,6 +567,11 @@ const POLL_INTERVAL_MS = 20000;
 let allMatches = [];
 let featuredViewMode = 'featured'; // 'featured' | 'live'
 let matchAnalyses = new Map();
+const featuredScrollByMode = { featured: 0, top: 0, live: 0, value: 0 };
+function rememberFeaturedScroll() {
+  const carousel = document.querySelector('#featuredContent .featured-carousel');
+  if (carousel) featuredScrollByMode[featuredViewMode] = carousel.scrollLeft;
+}
 
 const TRANSLATIONS = {
   en: {
@@ -893,7 +898,8 @@ function renderFeaturedSection() {
 function renderFeaturedContent() {
   const el = document.getElementById('featuredContent');
   const previousCarousel = el?.querySelector('.featured-carousel');
-  const previousScrollLeft = previousCarousel ? previousCarousel.scrollLeft : 0;
+  if (previousCarousel) featuredScrollByMode[featuredViewMode] = previousCarousel.scrollLeft;
+  const previousScrollLeft = featuredScrollByMode[featuredViewMode] || 0;
   if (!el) return;
 
   if (featuredViewMode === 'live') {
@@ -904,7 +910,10 @@ function renderFeaturedContent() {
     }
     el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,20).map(featuredCardHtml).join('')+'</div></div>';
     const carousel = el.querySelector('.live-carousel');
-    if (carousel && previousScrollLeft) requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
+    if (carousel) {
+      requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
+      carousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = carousel.scrollLeft; }, { passive:true });
+    }
     el.querySelectorAll('.live-fav-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
@@ -920,6 +929,8 @@ function renderFeaturedContent() {
     el.innerHTML = ranked.length
       ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${ranked.slice(0,10).map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('')}</div>`
       : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
+    const topCarousel = el.querySelector('.featured-carousel');
+    if (topCarousel) { requestAnimationFrame(() => { topCarousel.scrollLeft = previousScrollLeft; }); topCarousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = topCarousel.scrollLeft; }, {passive:true}); }
     return;
   }
 
@@ -963,6 +974,10 @@ function renderFeaturedContent() {
   }
   el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+picks.map(item=>featuredCardHtml(item.match,item.analysis,item.best)).join('')+'</div></div>';
   const carousel = el.querySelector('.featured-carousel');
+  if (carousel) {
+    requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
+    carousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = carousel.scrollLeft; }, { passive:true });
+  }
 }
 
 function renderTodayList(matches, loadFailed) {
