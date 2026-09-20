@@ -476,8 +476,17 @@ const WHITELISTED_LEAGUE_IDS = new Set([
 // listenin basinda gostermek icin kullaniliyor (kucuk ligleri gizlemiyor -
 // onlar zaten yukaridaki beyaz listede yoklar).
 const PRIORITY_LEAGUE_IDS = new Set([
-  '4339', '4328', '4335', '4332', '4331', '4334', '4480', '4481',
-  '4629', '4691', '4510', '206',
+  // Same core SportsMonks-first order used on the home screen.
+  '4339', '4328', '4335', '4332', '4331', '4334',
+  '4480', '4481', '4629', '4691', '4510', '206',
+]);
+const PRIORITY_LEAGUE_ORDER = new Map([
+  ['4328',0], // Premier League
+  ['4331',1], // Bundesliga
+  ['4334',2], // Ligue 1
+  ['4332',3], // Serie A
+  ['4335',4], // La Liga
+  ['4339',5], // Super Lig
 ]);
 
 const TRANSLATIONS = {
@@ -595,11 +604,22 @@ function groupByLeague(matches) {
     }
     groups.get(key).matches.push(m);
   });
-  return Array.from(groups.values()).sort((a, b) => {
+  return Array.from(groups.values()).map(group => {
+    group.matches.sort((a,b) => {
+      if (a.isLive !== b.isLive) return Number(b.isLive) - Number(a.isLive);
+      return new Date(a.kickoff || 0) - new Date(b.kickoff || 0);
+    });
+    return group;
+  }).sort((a, b) => {
+    const ao = PRIORITY_LEAGUE_ORDER.has(a.leagueId) ? PRIORITY_LEAGUE_ORDER.get(a.leagueId) : 999;
+    const bo = PRIORITY_LEAGUE_ORDER.has(b.leagueId) ? PRIORITY_LEAGUE_ORDER.get(b.leagueId) : 999;
+    if (ao !== bo) return ao - bo;
     const aPriority = PRIORITY_LEAGUE_IDS.has(a.leagueId);
     const bPriority = PRIORITY_LEAGUE_IDS.has(b.leagueId);
-    if (aPriority && !bPriority) return -1;
-    if (!aPriority && bPriority) return 1;
+    if (aPriority !== bPriority) return Number(bPriority) - Number(aPriority);
+    const at = Math.min(...a.matches.map(m=>new Date(m.kickoff||0).getTime()).filter(Number.isFinite));
+    const bt = Math.min(...b.matches.map(m=>new Date(m.kickoff||0).getTime()).filter(Number.isFinite));
+    if (at !== bt) return at - bt;
     return a.league.localeCompare(b.league);
   });
 }
