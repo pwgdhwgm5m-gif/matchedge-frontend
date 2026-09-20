@@ -1076,10 +1076,19 @@ function renderFeaturedContent() {
       .filter(m => !m.isLive)
       .map(match => {
         const analysis=matchAnalyses.get(String(match.fixtureId));
-        const best=analysis?.marketBoard?.best;
-        if(!analysis || !best) return null;
-        const probability=Number(best?.probability ?? best?.confidence ?? 0);
-        const health=Number(best?.dataHealth ?? analysis?.dataHealth?.score ?? 0);
+        if(!analysis) return null;
+        // marketBoard.best can legitimately be null when data-health is below
+        // its publication threshold. En Güçlü must still rank a completed model
+        // analysis, so fall back to the strongest valid market candidate.
+        const candidates=[
+          analysis?.marketBoard?.best,
+          ...(analysis?.marketBoard?.topPredictions || []),
+          ...(analysis?.marketBoard?.allMarkets || [])
+        ].filter(p=>p && p.market && p.label && Number.isFinite(Number(p.probability)));
+        const best=candidates.sort((a,b)=>Number(b.probability)-Number(a.probability))[0];
+        if(!best) return null;
+        const probability=Number(best.probability ?? best.confidence ?? 0);
+        const health=Number(best?.dataHealth ?? analysis?.dataHealth?.score ?? analysis?.premium?.dataHealth?.score ?? 0);
         const value=analysis?.marketBoard?.valuePicks?.[0];
         const edge=Number(value?.edgePoints || 0);
         let strength=probability*0.72 + health*0.28;
