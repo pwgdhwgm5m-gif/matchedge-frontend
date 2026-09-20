@@ -759,7 +759,7 @@ function renderMatchCard(m, favoriteSection = false) {
       data-fixture-id="${m.fixtureId}">
       <div class="compact-score-head">
         <span class="match-status-pill ${statusClass(m)}">${statusLabel(m)}</span>
-        <span>${t('htColumn')}</span><span>${t('ftColumn')}</span>
+        <span>${t('htColumn')}</span><span>${m.isLive ? (currentLang==='tr'?'SKOR':'SCORE') : t('ftColumn')}</span>
       </div>
       <div class="compact-team-row">
         <span class="compact-team-name">${m.homeTeam}</span>
