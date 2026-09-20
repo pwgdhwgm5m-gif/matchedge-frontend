@@ -596,7 +596,11 @@ function relevantMatches(matches) {
   return matches;
 }
 
-function leagueCountry(league) {
+function leagueCountry(league, leagueId) {
+  if (String(leagueId || '') === '600') {
+    const lang=currentLang==='tr'?'tr':'en';
+    return { key:'turkey', name:lang==='tr'?'Türkiye':'Turkey', flag:'🇹🇷' };
+  }
   const s = String(league || '').toLowerCase();
   const rules = [
     ['turkey','🇹🇷',/turk|süper lig|super lig/],['england','🇬🇧',/premier|championship|league one|league two|fa cup|efl/],
@@ -617,7 +621,7 @@ function leagueCountry(league) {
 
 function filteredRelevantMatches() {
   return relevantMatches(allMatchesForDay).filter(m => {
-    if (selectedCountry && leagueCountry(m.league).key !== selectedCountry) return false;
+    if (selectedCountry && leagueCountry(m.league,m.leagueId).key !== selectedCountry) return false;
     if (selectedLeague && m.league !== selectedLeague) return false;
     return true;
   });
@@ -626,7 +630,7 @@ function filteredRelevantMatches() {
 function renderCountryFilters() {
   const el = document.getElementById('countryFilters');
   const countries = [...new Map(relevantMatches(allMatchesForDay).map(m => {
-    const c = leagueCountry(m.league); return [c.key, c];
+    const c = leagueCountry(m.league,m.leagueId); return [c.key, c];
   })).values()];
   if (countries.length <= 1) { el.innerHTML=''; return; }
   const chips = [`<button class="league-chip ${!selectedCountry?'active':''}" data-country="">${t('allCountries')}</button>`]
@@ -640,7 +644,7 @@ function renderCountryFilters() {
 
 function renderLeagueFilters() {
   const filtersEl=document.getElementById('leagueFilters');
-  const source=relevantMatches(allMatchesForDay).filter(m => !selectedCountry || leagueCountry(m.league).key===selectedCountry);
+  const source=relevantMatches(allMatchesForDay).filter(m => !selectedCountry || leagueCountry(m.league,m.leagueId).key===selectedCountry);
   const leagues=[...new Set(source.map(m=>m.league).filter(Boolean))].sort();
   if(leagues.length<=1){filtersEl.innerHTML='';return;}
   filtersEl.innerHTML=[`<button class="league-chip ${!selectedLeague?'active':''}" data-league="">${t('allLeagues')}</button>`]
@@ -668,12 +672,25 @@ async function loadResults() {
     const normTeam = v => String(v || '').toLowerCase().normalize('NFD')
       .replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/[^a-z0-9]+/g,'');
     const matchKey = m => [String(m.kickoff || m.date || selectedDate).slice(0,10), normTeam(m.homeTeam), normTeam(m.awayTeam)].join('|');
+    const isSportMonks = m => String(m.dataSource||'').toLowerCase()==='sportmonks' || !!m.sportmonksId || String(m.leagueId||'')==='600';
     const merged = new Map();
     (fixturesJson.matches || []).forEach(m => merged.set(matchKey(m), m));
     (resultsJson.matches || []).forEach(m => {
       const key=matchKey(m), base=merged.get(key)||{};
       merged.set(key,{...base,...m});
     });
+    // For subscribed Turkish Super Lig, /api/results SportMonks rows are
+    // canonical. Remove legacy duplicates for the same teams even when one
+    // provider's kickoff/date representation differs.
+    const smTurkey=(resultsJson.matches||[]).filter(m=>String(m.leagueId||'')==='600');
+    if(smTurkey.length){
+      const smPairs=new Set(smTurkey.map(m=>normTeam(m.homeTeam)+'|'+normTeam(m.awayTeam)));
+      for(const [key,m] of [...merged.entries()]){
+        const pair=normTeam(m.homeTeam)+'|'+normTeam(m.awayTeam);
+        if(smPairs.has(pair) && !isSportMonks(m)) merged.delete(key);
+      }
+      smTurkey.forEach(m=>merged.set(matchKey(m),m));
+    }
     allMatchesForDay = [...merged.values()];
     // Overlay genuinely-live rows by match identity. Never key this merge by
     // provider fixture id: SportMonks and legacy providers use different ids.
