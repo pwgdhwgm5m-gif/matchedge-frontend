@@ -630,10 +630,17 @@ function leagueCountry(league, leagueId) {
   return {key:'league:'+id+':'+clean,name:clean||t('allLeagues'),flag:'⚽'};
 }
 
+function canonicalLeague(m) {
+  const id=String(m?.leagueId||'');
+  const name=String(m?.league||m?.leagueName||'').trim();
+  if(id==='600' || id==='4339' || /^(turkey|türkiye)$/i.test(name) || /süper lig|super lig/i.test(name)) return 'Süper Lig';
+  return name || (leagueCountry(name,id)?.name || 'League');
+}
+
 function filteredRelevantMatches() {
   return relevantMatches(allMatchesForDay).filter(m => {
     if (selectedCountry && leagueCountry(m.league,m.leagueId).key !== selectedCountry) return false;
-    if (selectedLeague && m.league !== selectedLeague) return false;
+    if (selectedLeague && canonicalLeague(m) !== selectedLeague) return false;
     return true;
   });
 }
@@ -656,7 +663,7 @@ function renderCountryFilters() {
 function renderLeagueFilters() {
   const filtersEl=document.getElementById('leagueFilters');
   const source=relevantMatches(allMatchesForDay).filter(m => !selectedCountry || leagueCountry(m.league,m.leagueId).key===selectedCountry);
-  const leagues=[...new Set(source.map(m=>m.league).filter(Boolean))].sort();
+  const leagues=[...new Set(source.map(m=>canonicalLeague(m)).filter(Boolean))].sort();
   if(leagues.length<=1){filtersEl.innerHTML='';return;}
   filtersEl.innerHTML=[`<button class="league-chip ${!selectedLeague?'active':''}" data-league="">${t('allLeagues')}</button>`]
     .concat(leagues.map(l=>`<button class="league-chip ${selectedLeague===l?'active':''}" data-league="${escapeAttr(l)}">${l}</button>`)).join('');
@@ -716,7 +723,7 @@ function renderResults() {
   const liveNow = shown.filter(m=>m.isLive).sort((a,b)=>String(a.league||'').localeCompare(String(b.league||'')) || String(a.homeTeam||'').localeCompare(String(b.homeTeam||'')));
   const regularShown = shown;
   const liveGroups = new Map();
-  liveNow.forEach(m=>{const k=m.league||((leagueCountry(m.league,m.leagueId)||{}).name||'League');if(!liveGroups.has(k))liveGroups.set(k,[]);liveGroups.get(k).push(m);});
+  liveNow.forEach(m=>{const k=canonicalLeague(m);if(!liveGroups.has(k))liveGroups.set(k,[]);liveGroups.get(k).push(m);});
   const liveSection = liveNow.length ? `<section class="scores-live-now">
     <div class="scores-live-title"><span class="scores-live-dot"></span>${t('liveMatches')} <b>${liveNow.length}</b></div>
     <div class="scores-live-list">${[...liveGroups.entries()].map(([league,matches])=>`
@@ -729,7 +736,7 @@ function renderResults() {
       </section>`).join('')}</div>
   </section>` : '';
   const groups = new Map();
-  regularShown.forEach(m => { const k=m.league||((leagueCountry(m.league,m.leagueId)||{}).name||'League'); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
+  regularShown.forEach(m => { const k=canonicalLeague(m); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
   if (groups.size === 1 && openLeagues.size === 0) openLeagues.add([...groups.keys()][0]);
   container.innerHTML=liveSection + [...groups.entries()].map(([league,matches]) => {
     const open=openLeagues.has(league);
