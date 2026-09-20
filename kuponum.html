@@ -151,7 +151,9 @@ async function playDraft(){
   if(button){button.disabled=false;button.textContent='SAVE'}
  }
 }
+let recomputeDone=false;
 async function load(){
+ if(!recomputeDone){recomputeDone=true;try{await fetch(API+'/api/coupons/recompute',{method:'POST',headers:headers()})}catch(_){}}
  document.getElementById('pageSlipTitle').textContent=isEN()?'MY SLIP':'KUPONUM';
  document.getElementById('tabPendingLabel').textContent=isEN()?'PENDING':'BEKLEYEN';
  document.getElementById('tabFinishedLabel').textContent=isEN()?'FINISHED':'BİTEN';
