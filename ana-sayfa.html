@@ -777,6 +777,17 @@ async function loadHomeAnalyses(matches) {
   if (settled.some(result => result.status === 'fulfilled')) renderFeaturedSection();
 }
 
+const SPORTMONKS_PRIORITY_LEAGUES = new Set(['39','78','61','135','203']);
+function isSportmonksPriorityMatch(m) {
+  const id = String(m?.leagueId ?? '');
+  const name = String(m?.league || '').toLowerCase();
+  return SPORTMONKS_PRIORITY_LEAGUES.has(id) ||
+    /premier league|bundesliga|ligue 1|serie a|süper lig|super lig/.test(name);
+}
+function sportmonksFirst(items, getMatch = x => x?.match || x) {
+  return [...items].sort((a,b) => Number(isSportmonksPriorityMatch(getMatch(b))) - Number(isSportmonksPriorityMatch(getMatch(a))));
+}
+
 function rankedMatches(valueOnly = false) {
   return allMatches.map(match => {
     const analysis = matchAnalyses.get(String(match.fixtureId));
@@ -796,9 +807,11 @@ function rankedMatches(valueOnly = false) {
 
     return { match, analysis, best, value, featuredScore: +marketScore.toFixed(2) };
   }).filter(item => item.analysis && item.best && (!valueOnly || item.value))
-    .sort((a, b) => valueOnly
-      ? (b.value.edgePoints || 0) - (a.value.edgePoints || 0)
-      : b.featuredScore - a.featuredScore);
+    .sort((a, b) => {
+      const sm = Number(isSportmonksPriorityMatch(b.match)) - Number(isSportmonksPriorityMatch(a.match));
+      if (sm) return sm;
+      return valueOnly ? (b.value.edgePoints || 0) - (a.value.edgePoints || 0) : b.featuredScore - a.featuredScore;
+    });
 }
 
 // Tek bir mac icin "featured-card" markup'i - hem tekil "Ozne Cikan" gorunumunde
@@ -916,7 +929,7 @@ function renderFeaturedContent() {
   if (!el) return;
 
   if (featuredViewMode === 'live') {
-    const liveMatches = allMatches.filter(m => m.isLive);
+    const liveMatches = sportmonksFirst(allMatches.filter(m => m.isLive));
     if (liveMatches.length === 0) {
       el.innerHTML = `<div class="empty-state">${t('noLiveNow')}</div>`;
       return;
@@ -959,12 +972,12 @@ function renderFeaturedContent() {
     // UEFA / major European cups first, then major domestic leagues.
     if (/champions league|uefa champions|europa league|uefa europa|conference league|uefa conference|super cup|uefa süper|uefa super/.test(name)) return 0;
     if (/fa cup|copa del rey|coppa italia|dfb.?pokal|coupe de france|knvb cup|knvb beker|türkiye kupası|turkiye kupasi|supercopa|supercoppa|community shield/.test(name)) return 1;
-    if (id === 78 || /bundesliga|germany|almanya/.test(name)) return 2;
-    if (id === 61 || /ligue 1|france|fransa/.test(name)) return 3;
-    if (id === 135 || /serie a|italy|italya/.test(name)) return 4;
+    if (id === 39 || /premier league|england|ingiltere/.test(name)) return 2;
+    if (id === 78 || /bundesliga|germany|almanya/.test(name)) return 3;
+    if (id === 61 || /ligue 1|france|fransa/.test(name)) return 4;
+    if (id === 135 || /serie a|italy|italya/.test(name)) return 5;
     if (id === 140 || /la liga|laliga|spain|ispanya/.test(name)) return 5;
     if (id === 203 || /süper lig|super lig|turkey|türkiye/.test(name)) return 6;
-    if (id === 39 || /premier league|england|ingiltere/.test(name)) return 7;
     if (id === 88 || /eredivisie|netherlands|holland|hollanda/.test(name)) return 8;
     return 99;
   };
