@@ -1031,19 +1031,22 @@ function renderFeaturedContent() {
   }
 
   if (featuredViewMode === 'top') {
-    const priorityRanked = rankedMatches().filter(item => isSportmonksPriorityMatch(item.match));
-    const ranked = priorityRanked.slice(0, 10);
-    const used = new Set(ranked.map(item => String(item.match.fixtureId)));
-    const fillers = allMatches
-      .filter(m => !m.isLive && isSportmonksPriorityMatch(m) && !used.has(String(m.fixtureId)))
-      .slice(0, Math.max(0, 10 - ranked.length));
-    const cards = [
-      ...ranked.map(item => featuredCardHtml(item.match, item.analysis, item.best)),
-      ...fillers.map(m => featuredCardHtml(m))
-    ];
+    // "En Güçlü" is model-driven and independent from "Öne Çıkan".
+    // Do not restrict it to the editorial/SportsMonks featured pool and do not
+    // pad it with unanalysed featured fixtures.
+    const strongest = rankedMatches()
+      .filter(item => item && item.match && item.analysis && item.best)
+      .sort((a,b) => {
+        const aConfidence = Number(a.best?.probability ?? a.best?.confidence ?? a.featuredScore ?? 0);
+        const bConfidence = Number(b.best?.probability ?? b.best?.confidence ?? b.featuredScore ?? 0);
+        return bConfidence - aConfidence || Number(b.featuredScore||0) - Number(a.featuredScore||0);
+      })
+      .slice(0,10);
+    const cards = strongest.map(item => featuredCardHtml(item.match, item.analysis, item.best));
     el.innerHTML = cards.length
       ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${cards.join('')}</div>`
       : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
+    bindFeaturedFavoriteButtons(el);
     const topCarousel = el.querySelector('.featured-carousel');
     if (topCarousel) { requestAnimationFrame(() => { topCarousel.scrollLeft = previousScrollLeft; }); topCarousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = topCarousel.scrollLeft; }, {passive:true}); }
     return;
