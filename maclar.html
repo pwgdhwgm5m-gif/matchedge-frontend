@@ -584,10 +584,14 @@ function groupByLeague(matches) {
   });
 }
 
-function renderMatches() {
+function renderMatches(preserveView = false) {
+  const container = document.getElementById('matchesContainer');
+  const viewState = preserveView ? {
+    scrollY: window.scrollY,
+    expanded: new Set([...container.querySelectorAll('.league-group.expanded')].map(el => el.dataset.leagueId).filter(Boolean))
+  } : null;
   const q=(document.getElementById('matchSearch')?.value||'').trim().toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US');
   const visibleMatches=q?lastMatches.filter(m=>[m.homeTeam,m.awayTeam,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q))):lastMatches;
-  const container = document.getElementById('matchesContainer');
 
   if (lastLoadFailed) {
     container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
@@ -636,8 +640,13 @@ function renderMatches() {
       </div>`;
   }).join('');
 
-  const returnGroup = container.querySelector('.league-group.return-league');
-  if (returnGroup) setTimeout(() => returnGroup.scrollIntoView({ block: 'start', behavior: 'smooth' }), 0);
+  if (viewState) {
+    container.querySelectorAll('.league-group').forEach(el => { if (viewState.expanded.has(el.dataset.leagueId)) el.classList.add('expanded'); });
+    requestAnimationFrame(() => window.scrollTo(0, viewState.scrollY));
+  } else {
+    const returnGroup = container.querySelector('.league-group.return-league');
+    if (returnGroup) setTimeout(() => returnGroup.scrollIntoView({ block: 'start', behavior: 'smooth' }), 0);
+  }
 
   container.querySelectorAll('.league-group').forEach(el => {
     el.querySelector('.league-header').addEventListener('click', () => {
@@ -689,11 +698,8 @@ async function loadMatches({silent=false} = {}) {
 
   lastMatches = matches;
   lastLoadFailed = loadFailed;
-  renderMatches();
-  if (silent) {
-    container.querySelectorAll('.league-group').forEach(el => { if (expandedLeagueIds.has(el.dataset.leagueId)) el.classList.add('expanded'); });
-    requestAnimationFrame(() => window.scrollTo(0, savedScrollY));
-  }
+  renderMatches(silent);
+  if (silent) requestAnimationFrame(() => window.scrollTo(0, savedScrollY));
 }
 
 document.getElementById('langToggle').addEventListener('click', () => {
