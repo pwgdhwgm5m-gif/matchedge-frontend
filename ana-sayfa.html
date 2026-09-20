@@ -1104,5 +1104,20 @@ setInterval(loadHome, POLL_INTERVAL_MS);
  if(window.visualViewport) window.visualViewport.addEventListener('resize',syncKeyboard);
 })();
 </script>
+<script>
+(function(){
+ const nav=document.querySelector('.se-bottom-nav'); if(!nav)return;
+ function pinNav(){
+   if(document.body.classList.contains('search-keyboard-open')) return;
+   const vv=window.visualViewport;
+   const offset=vv ? Math.max(0, window.innerHeight-(vv.height+vv.offsetTop)) : 0;
+   nav.style.setProperty('bottom', offset+'px','important');
+ }
+ pinNav();
+ window.addEventListener('scroll',pinNav,{passive:true});
+ window.addEventListener('resize',pinNav,{passive:true});
+ if(window.visualViewport){visualViewport.addEventListener('scroll',pinNav,{passive:true});visualViewport.addEventListener('resize',pinNav,{passive:true});}
+})();
+</script>
 </body>
 </html>
