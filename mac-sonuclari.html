@@ -710,8 +710,11 @@ function renderResults() {
     container.innerHTML = `<div class="empty-state">${t(showFavoriteScoresOnly ? 'noFavorites' : 'noMatchesDate')}</div>`;
     return;
   }
+  // Live is an additional view, not a place where matches are moved.
+  // A live fixture remains inside its normal league group and is also
+  // duplicated in the Live Now section above.
   const liveNow = shown.filter(m=>m.isLive).sort((a,b)=>String(a.league||'').localeCompare(String(b.league||'')) || String(a.homeTeam||'').localeCompare(String(b.homeTeam||'')));
-  const regularShown = shown.filter(m=>!m.isLive);
+  const regularShown = shown;
   const liveGroups = new Map();
   liveNow.forEach(m=>{const k=m.league||((leagueCountry(m.league,m.leagueId)||{}).name||'League');if(!liveGroups.has(k))liveGroups.set(k,[]);liveGroups.get(k).push(m);});
   const liveSection = liveNow.length ? `<section class="scores-live-now">
