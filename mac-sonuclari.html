@@ -655,18 +655,9 @@ function filteredRelevantMatches() {
 }
 
 function renderCountryFilters() {
-  const el = document.getElementById('countryFilters');
-  const countries = [...new Map(relevantMatches(allMatchesForDay).map(m => {
-    const c = leagueCountry(m.league,m.leagueId); return [c.key, c];
-  })).values()];
-  if (countries.length <= 1) { el.innerHTML=''; return; }
-  const chips = [`<button class="league-chip ${!selectedCountry?'active':''}" data-country="">${t('allCountries')}</button>`]
-    .concat(countries.map(c => `<button class="league-chip ${selectedCountry===c.key?'active':''}" data-country="${c.key}">${c.flag} ${c.name}</button>`));
-  el.innerHTML=chips.join('');
-  el.querySelectorAll('[data-country]').forEach(btn => btn.addEventListener('click', () => {
-    selectedCountry=btn.dataset.country||null; selectedLeague=null; openLeagues.clear();
-    renderCountryFilters(); renderLeagueFilters(); renderResults();
-  }));
+  const el=document.getElementById('countryFilters');
+  if(el) el.innerHTML='';
+  selectedCountry=null;
 }
 
 function renderLeagueFilters() {
@@ -750,10 +741,9 @@ function renderResults() {
   if (groups.size === 1 && openLeagues.size === 0) openLeagues.add([...groups.keys()][0]);
   container.innerHTML=liveSection + [...groups.entries()].map(([league,matches]) => {
     const open=openLeagues.has(league);
-    const country=leagueCountry(league);
     return `<section class="league-group ${open?'open':''}" data-league-group="${escapeAttr(league)}">
       <button type="button" class="league-toggle" data-toggle-league="${escapeAttr(league)}">
-        <span>${country.flag} ${league}</span><span><span class="league-count">${matches.length} maç</span> <span class="chevron">⌄</span></span>
+        <span>⚽ ${league}</span><span><span class="league-count">${matches.length} maç</span> <span class="chevron">⌄</span></span>
       </button>
       <div class="league-body">${matches.map(m=>renderMatchCard(m, favorites.has(String(m.fixtureId)))).join('')}</div>
     </section>`;
