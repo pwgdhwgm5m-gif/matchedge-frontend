@@ -663,7 +663,12 @@ function renderCountryFilters() {
 function renderLeagueFilters() {
   const filtersEl=document.getElementById('leagueFilters');
   const source=relevantMatches(allMatchesForDay);
-  const leagues=[...new Set(source.map(m=>canonicalLeague(m)).filter(Boolean))].sort();
+  const leagueOrder=['Süper Lig','English Premier League','Spanish La Liga','German Bundesliga','Italian Serie A','French Ligue 1'];
+  const leagues=[...new Set(source.map(m=>canonicalLeague(m)).filter(Boolean))].sort((a,b)=>{
+    const ai=leagueOrder.indexOf(a), bi=leagueOrder.indexOf(b);
+    if(ai>=0 || bi>=0) return (ai<0?999:ai)-(bi<0?999:bi);
+    return a.localeCompare(b);
+  });
   if(leagues.length<=1){filtersEl.innerHTML='';return;}
   filtersEl.innerHTML=[`<button class="league-chip ${!selectedLeague?'active':''}" data-league="">${t('allLeagues')}</button>`]
     .concat(leagues.map(l=>`<button class="league-chip ${selectedLeague===l?'active':''}" data-league="${escapeAttr(l)}">${l}</button>`)).join('');
@@ -739,7 +744,13 @@ function renderResults() {
   const groups = new Map();
   regularShown.forEach(m => { const k=canonicalLeague(m); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
   if (groups.size === 1 && openLeagues.size === 0) openLeagues.add([...groups.keys()][0]);
-  container.innerHTML=liveSection + [...groups.entries()].map(([league,matches]) => {
+  const leagueOrder=['Süper Lig','English Premier League','Spanish La Liga','German Bundesliga','Italian Serie A','French Ligue 1'];
+  const orderedGroups=[...groups.entries()].sort(([a],[b])=>{
+    const ai=leagueOrder.indexOf(a), bi=leagueOrder.indexOf(b);
+    if(ai>=0 || bi>=0) return (ai<0?999:ai)-(bi<0?999:bi);
+    return a.localeCompare(b);
+  });
+  container.innerHTML=liveSection + orderedGroups.map(([league,matches]) => {
     const open=openLeagues.has(league);
     return `<section class="league-group ${open?'open':''}" data-league-group="${escapeAttr(league)}">
       <button type="button" class="league-toggle" data-toggle-league="${escapeAttr(league)}">
