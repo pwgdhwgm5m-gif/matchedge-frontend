@@ -904,9 +904,9 @@ function renderFeaturedContent() {
   }
 
   if (featuredViewMode === 'top') {
-    const ranked = rankedMatches().slice(0, 12);
+    const ranked = rankedMatches().slice(0, 10);
     el.innerHTML = ranked.length
-      ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${ranked.slice(0,8).map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('')}</div>`
+      ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${ranked.slice(0,10).map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('')}</div>`
       : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
     return;
   }
@@ -943,9 +943,9 @@ function renderFeaturedContent() {
   const others = ranked
     .filter(item => majorLeaguePriority(item.match) === 99)
     .sort((a,b) => kickoffTime(a.match) - kickoffTime(b.match));
-  const picks = [...preferred, ...others].slice(0,8);
+  const picks = [...preferred, ...others].slice(0,10);
   if (!picks.length) {
-    const fallback = [...allMatches].sort((a,b) => majorLeaguePriority(a) - majorLeaguePriority(b) || kickoffTime(a) - kickoffTime(b)).slice(0,8);
+    const fallback = [...allMatches].sort((a,b) => majorLeaguePriority(a) - majorLeaguePriority(b) || kickoffTime(a) - kickoffTime(b)).slice(0,10);
     el.innerHTML = fallback.length ? '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+fallback.map(m=>featuredCardHtml(m)).join('')+'</div></div>' : '';
     return;
   }
