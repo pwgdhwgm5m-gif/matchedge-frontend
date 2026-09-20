@@ -412,6 +412,33 @@ async function loadTodayMatches() {
   }
 }
 
+function finishedMoreThanOneHourAgo(m) {
+  if (!m || String(m.statusShort || '').toUpperCase() !== 'FT') return false;
+  // Prefer an explicit provider finish timestamp when available.
+  const explicit = m.finishedAt || m.endTime || m.endedAt;
+  if (explicit) {
+    const ended = new Date(explicit).getTime();
+    if (Number.isFinite(ended)) return Date.now() - ended >= 60 * 60 * 1000;
+  }
+  // Football normally finishes about 105 minutes after kickoff including HT.
+  // This fallback keeps an FT favorite for one additional hour (~165 min total).
+  const kickoff = new Date(m.kickoff || '').getTime();
+  return Number.isFinite(kickoff) && Date.now() - kickoff >= 165 * 60 * 1000;
+}
+
+async function pruneExpiredFinishedFavorites() {
+  const expired = rawFavorites.filter(f => {
+    const known = todayMatchesById.get(String(f.fixtureId));
+    return finishedMoreThanOneHourAgo(known);
+  });
+  if (!expired.length) return;
+  const expiredIds = new Set(expired.map(f => String(f.fixtureId)));
+  rawFavorites = rawFavorites.filter(f => !expiredIds.has(String(f.fixtureId)));
+  await Promise.allSettled(expired.map(f =>
+    fetch(`${API_BASE}/api/favorites/${f.fixtureId}`, { method: 'DELETE', headers: authHeaders() })
+  ));
+}
+
 function statusLabel(m) {
   if (m.isLive) return m.minute != null ? `${t('live')} ${m.minute}'` : t('live');
   if (m.statusShort === 'FT') return t('ft');
@@ -546,6 +573,7 @@ async function refreshAll() {
   }
   if (rawFavorites.length > 0) {
     await loadTodayMatches();
+    await pruneExpiredFinishedFavorites();
   }
   renderFavorites();
 }
