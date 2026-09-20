@@ -121,7 +121,7 @@ const marketEN={
 function marketLabel(v){const s=String(v||'');return isEN()?(marketEN[s]||s):s}
 function statusLabel(v){const tr={pending:'⏳ Bekliyor',won:'✓ Tuttu',lost:'✕ Tutmadı',void:'↩ İade'},en={pending:'⏳ Pending',won:'✓ Won',lost:'✕ Lost',void:'↩ Void'};return (isEN()?en:tr)[v]||(isEN()?'⏳ Pending':'⏳ Bekliyor')}
 
-let couponTab='pending',draftStake=10,walletCoins=0;
+let couponTab='pending',draftStake=Number(localStorage.getItem('socceredge_coupon_stake'))||10,walletCoins=0;if(![10,20,50].includes(draftStake))draftStake=10;
 function setCouponTab(tab){couponTab=tab;document.getElementById('tabPending').classList.toggle('active',tab==='pending');document.getElementById('tabFinished').classList.toggle('active',tab==='finished');load()}
 document.getElementById('tabPending').onclick=()=>setCouponTab('pending');document.getElementById('tabFinished').onclick=()=>setCouponTab('finished');
 const SLIP_KEY='coinedge_draft_v1';
@@ -134,7 +134,14 @@ function draftHtml(){
  const body=legs.map((l,i)=>'<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(l.homeTeam||'Takım')+' – '+safe(l.awayTeam||'Takım')+'</strong><small class="leg-selection">'+safe(marketLabel(l.selection?.label)||'Seçim')+' · '+gameX(l.selection?.probability).toFixed(2)+'x'+(l.selection?.probability?' · %'+l.selection.probability:'')+'</small></div><button class="leg-delete" onclick="removeDraftLeg('+i+')">×</button></div>').join('');
  const potential=Math.floor(draftStake*x);const opts=[10,20,50].map(v=>'<button type="button" class="stake-btn '+(draftStake===v?'selected':'')+'" '+(walletCoins<v?'disabled':'')+' onclick="setDraftStake('+v+')">🪙 '+v+'</button>').join('');return '<article class="coupon" style="border-color:#f5b942"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY SLIP · ':'KUPONUM · ')+legs.length+(isEN()?' MATCHES':' MAÇ')+'</div></div><div class="score">'+x.toFixed(2)+'x</div></div>'+body+'<div class="stake-box"><div class="stake-title">'+(isEN()?'EDGE COIN TO USE':'KULLANILACAK EDGE COIN')+' · '+(isEN()?'BALANCE':'BAKİYE')+' 🪙 '+walletCoins+'</div><div class="stake-options">'+opts+'</div><div class="stake-payout"><span>'+(isEN()?'Potential payout':'Olası kazanç')+'</span><strong>🪙 '+potential+'</strong></div></div><button class="draft-save" type="button" onclick="playDraft()">'+(isEN()?'PLAY SLIP':'KUPONU OYNA')+'</button></article>'; 
 }
-function setDraftStake(v){if(walletCoins<v)return;draftStake=v;load()}
+function setDraftStake(v){
+ v=Number(v);if(![10,20,50].includes(v)||walletCoins<v)return;
+ draftStake=v;
+ try{localStorage.setItem('socceredge_coupon_stake',String(v))}catch(_){ }
+ document.querySelectorAll('.stake-btn').forEach(b=>b.classList.toggle('selected',Number((b.textContent||'').replace(/[^0-9]/g,''))===v));
+ const legs=getDraft(),x=Math.min(50,Math.max(1.15,legs.reduce((n,l)=>n*gameX(l.selection?.probability),1)));
+ const payout=document.querySelector('.stake-payout strong');if(payout)payout.textContent='🪙 '+Math.floor(v*x);
+}
 function removeDraftLeg(i){const a=getDraft();a.splice(i,1);localStorage.setItem(SLIP_KEY,JSON.stringify(a));load()}
 async function playDraft(){
  const button=document.querySelector('.draft-save');
