@@ -412,8 +412,6 @@ body.search-keyboard-open .se-bottom-nav{display:none!important}
 .se-bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;width:100%!important;margin:0!important;z-index:99999!important}
 body.search-active .se-bottom-nav,body.search-keyboard-open .se-bottom-nav{display:grid!important}
 
-/* Search only: prevent iPhone focus zoom without changing page layout */
-.match-search input,#matchSearch{font-size:16px!important;min-height:46px!important;height:46px!important;padding-top:0!important;padding-bottom:0!important}
 </style>
 </head>
 <body>
@@ -435,8 +433,7 @@ body.search-active .se-bottom-nav,body.search-keyboard-open .se-bottom-nav{displ
   </div>
 
   <div style="font-size:11px; color:var(--text-muted); margin-bottom:16px;" id="welcomeLine"></div>
-  <div class="match-search"><input id="matchSearch" type="search" autocomplete="off" placeholder="Search team or league…" aria-label="Search team or league"><span class="search-icon">⌕</span></div>
-  <div class="coin-panel" style="margin-bottom:16px; border-color:var(--teal);"><div><strong data-i18n="betaTitle">BETA</strong><small data-i18n="betaText">All features are free during beta. Predictions are recorded to measure model performance.</small></div></div>
+<div class="coin-panel" style="margin-bottom:16px; border-color:var(--teal);"><div><strong data-i18n="betaTitle">BETA</strong><small data-i18n="betaText">All features are free during beta. Predictions are recorded to measure model performance.</small></div></div>
 
   <div id="featuredSection"></div>
 
@@ -1029,18 +1026,6 @@ function renderTodayList(matches, loadFailed) {
 
 applyStaticTranslations();
 renderWelcome();
-document.getElementById('matchSearch').addEventListener('input',async e=>{
-  const q=e.target.value.trim();
-  if(!q){ renderTodayList(allMatches||[],false); return; }
-  try{
-    const dates=[]; const base=new Date();
-    for(let d=-1;d<=7;d++){const x=new Date(base);x.setDate(base.getDate()+d);dates.push(x.toISOString().slice(0,10));}
-    const batches=await Promise.all(dates.map(date=>fetch(`${API_BASE}/api/matches?date=${date}`).then(r=>r.ok?r.json():{matches:[]}).catch(()=>({matches:[]}))));
-    const all=batches.flatMap(x=>x.matches||[]); const seen=new Set();
-    const unique=all.filter(m=>{const k=String(m.fixtureId||[m.homeTeam,m.awayTeam,m.kickoff].join('|'));if(seen.has(k))return false;seen.add(k);return true});
-    renderTodayList(unique,false);
-  }catch(_){renderTodayList(allMatches||[],false)}
-});
 async function loadCommunityPanel() {
   const button = document.getElementById('claimDailyBtn');
   try {
