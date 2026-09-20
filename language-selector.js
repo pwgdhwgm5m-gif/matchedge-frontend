@@ -334,6 +334,18 @@
     });
     document.body.appendChild(menu);
 
+    // Paint the shared bottom navigation directly from the persisted language
+    // before the generic document translator runs. This prevents Android page
+    // transitions from briefly showing the page's hard-coded language.
+    const navLabels = selected === 'tr'
+      ? { 'ana-sayfa.html':'Ana Ekran', 'maclar.html':'Fikstür', 'mac-sonuclari.html':'Skor', 'favoriler.html':'Favoriler', 'edge-arena.html':'Arena', 'kuponum.html':'Kuponum' }
+      : { 'ana-sayfa.html':'Home', 'maclar.html':'Fixtures', 'mac-sonuclari.html':'Scores', 'favoriler.html':'Favorites', 'edge-arena.html':'Arena', 'kuponum.html':'Coupon' };
+    document.querySelectorAll('.se-bottom-nav a').forEach(function(a){
+      const href=(a.getAttribute('href')||'').split('?')[0].split('#')[0];
+      const label=navLabels[href];
+      const span=a.querySelector(':scope > span');
+      if(label && span) span.textContent=label;
+    });
     if (typeof applyStaticTranslations === 'function') applyStaticTranslations();
     translateDocument(selected);
     const meta = languages[selected];
