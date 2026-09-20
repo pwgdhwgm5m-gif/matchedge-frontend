@@ -1217,5 +1217,25 @@ setInterval(() => loadHome({silent:true}), POLL_INTERVAL_MS);
 })();
 </script>
 
-</body>
+<script id="se-bottom-nav-body-lock">
+(function(){
+  function lockNav(){
+    var nav=document.querySelector('.se-bottom-nav');
+    if(!nav)return;
+    // iOS can treat fixed descendants of transformed/contained ancestors as
+    // content-positioned. Move the nav directly under BODY and set critical
+    // geometry inline so older competing CSS cannot move it.
+    if(nav.parentElement!==document.body) document.body.appendChild(nav);
+    Object.assign(nav.style,{
+      position:'fixed',left:'0px',right:'0px',bottom:'0px',top:'auto',
+      width:'100vw',maxWidth:'100vw',margin:'0',transform:'none',
+      zIndex:'2147483647',boxSizing:'border-box'
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',lockNav);
+  else lockNav();
+  window.addEventListener('pageshow',lockNav);
+  window.addEventListener('resize',lockNav);
+})();
+</script></body>
 </html>
