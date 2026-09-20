@@ -771,8 +771,10 @@ async function loadHomeAnalyses(matches) {
   // Featured and Top Picks with at least 10 real analysed fixtures.
   const upcoming = matches.filter(m => !m.isLive);
   const priority = upcoming.filter(isSportmonksPriorityMatch);
-  const others = upcoming.filter(m => !isSportmonksPriorityMatch(m));
-  const candidates = [...priority, ...others].slice(0, 30);
+  // Home recommendation tabs are intentionally built from the six
+  // SportMonks core leagues. Analyse every available core-league fixture
+  // for the day so a few slow/failed analyses do not leave only 2-3 cards.
+  const candidates = priority;
   if (!candidates.length) return;
   const settled = await Promise.allSettled(candidates.map(async m => {
     const response = await fetch(homeAnalysisUrl(m));
@@ -958,8 +960,16 @@ function renderFeaturedContent() {
   if (featuredViewMode === 'top') {
     const priorityRanked = rankedMatches().filter(item => isSportmonksPriorityMatch(item.match));
     const ranked = priorityRanked.slice(0, 10);
-    el.innerHTML = ranked.length
-      ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${ranked.slice(0,10).map(item => featuredCardHtml(item.match, item.analysis, item.best)).join('')}</div>`
+    const used = new Set(ranked.map(item => String(item.match.fixtureId)));
+    const fillers = allMatches
+      .filter(m => !m.isLive && isSportmonksPriorityMatch(m) && !used.has(String(m.fixtureId)))
+      .slice(0, Math.max(0, 10 - ranked.length));
+    const cards = [
+      ...ranked.map(item => featuredCardHtml(item.match, item.analysis, item.best)),
+      ...fillers.map(m => featuredCardHtml(m))
+    ];
+    el.innerHTML = cards.length
+      ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${cards.join('')}</div>`
       : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
     const topCarousel = el.querySelector('.featured-carousel');
     if (topCarousel) { requestAnimationFrame(() => { topCarousel.scrollLeft = previousScrollLeft; }); topCarousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = topCarousel.scrollLeft; }, {passive:true}); }
@@ -995,12 +1005,16 @@ function renderFeaturedContent() {
   const picks = ranked
     .sort((a,b) => b.featuredScore - a.featuredScore || kickoffTime(a.match) - kickoffTime(b.match))
     .slice(0,10);
-  if (!picks.length) {
-    const fallback = [...allMatches].filter(isSportmonksPriorityMatch).sort((a,b) => majorLeaguePriority(a) - majorLeaguePriority(b) || kickoffTime(a) - kickoffTime(b)).slice(0,10);
-    el.innerHTML = fallback.length ? '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+fallback.map(m=>featuredCardHtml(m)).join('')+'</div></div>' : '';
-    return;
-  }
-  el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+picks.map(item=>featuredCardHtml(item.match,item.analysis,item.best)).join('')+'</div></div>';
+  const usedFeatured = new Set(picks.map(item => String(item.match.fixtureId)));
+  const fallback = [...allMatches]
+    .filter(m => !m.isLive && isSportmonksPriorityMatch(m) && !usedFeatured.has(String(m.fixtureId)))
+    .sort((a,b) => majorLeaguePriority(a) - majorLeaguePriority(b) || kickoffTime(a) - kickoffTime(b))
+    .slice(0, Math.max(0, 10 - picks.length));
+  const featuredCards = [
+    ...picks.map(item => featuredCardHtml(item.match,item.analysis,item.best)),
+    ...fallback.map(m => featuredCardHtml(m))
+  ];
+  el.innerHTML = featuredCards.length ? '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+featuredCards.join('')+'</div></div>' : '';
   const carousel = el.querySelector('.featured-carousel');
   if (carousel) {
     requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
