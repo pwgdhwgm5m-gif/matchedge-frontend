@@ -8,9 +8,9 @@
   "theme_color": "#0a0e17",
   "icons": [
     {
-      "src": "/socceredge-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/socceredge-512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
