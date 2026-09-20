@@ -892,6 +892,8 @@ function renderFeaturedSection() {
 
 function renderFeaturedContent() {
   const el = document.getElementById('featuredContent');
+  const previousCarousel = el?.querySelector('.featured-carousel');
+  const previousScrollLeft = previousCarousel ? previousCarousel.scrollLeft : 0;
   if (!el) return;
 
   if (featuredViewMode === 'live') {
@@ -902,6 +904,7 @@ function renderFeaturedContent() {
     }
     el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,20).map(featuredCardHtml).join('')+'</div></div>';
     const carousel = el.querySelector('.live-carousel');
+    if (carousel && previousScrollLeft) requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
     el.querySelectorAll('.live-fav-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
