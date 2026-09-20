@@ -452,7 +452,7 @@ body.search-active .se-bottom-nav,body.search-keyboard-open .se-bottom-nav{displ
     <button class="claim-btn" id="claimDailyBtn" type="button">GÜNLÜK COIN</button>
   </div>
   <div class="community-grid">
-    <a class="community-card" href="edge-arena.html"><div>🏆</div><strong>Edge Arena</strong><span>Fixture</span></a>
+    <a class="community-card" href="edge-arena.html"><div>🏆</div><strong>Edge Arena</strong><span><span class="fixture-nav-label">Fixtures</span></span></a>
     <a class="community-card" href="kuponum.html"><div>🎟️</div><strong>Kuponum</strong><span>Seçimlerini ve sonuçlarını takip et</span></a>
     <a class="community-card" href="edge-arena.html"><div>📊</div><strong>Tribünden Analiz</strong><span>Topluluk seçimleri ve popüler tercihler</span></a>
   </div>
@@ -467,7 +467,7 @@ body.search-active .se-bottom-nav,body.search-keyboard-open .se-bottom-nav{displ
 
 <nav class="se-bottom-nav" aria-label="Ana menü">
 <a class="active" href="ana-sayfa.html"><b>⌂</b><span>Ana Ekran</span></a>
-<a class="" href="maclar.html"><b>⚽</b><span>Fixture</span></a>
+<a class="" href="maclar.html"><b>⚽</b><span><span class="fixture-nav-label">Fixtures</span></span></a>
 <a class="" href="mac-sonuclari.html"><b>▣</b><span>Skor</span></a>
 <a class="" href="favoriler.html"><b>★</b><span>Favoriler</span></a>
 <a class="" href="edge-arena.html"><b>◆</b><span>Arena</span></a>
@@ -1098,5 +1098,6 @@ setInterval(loadHome, POLL_INTERVAL_MS);
  if(window.visualViewport) window.visualViewport.addEventListener('resize',syncKeyboard);
 })();
 </script>
+<script>(function(){function setFixtureNav(){document.querySelectorAll('.fixture-nav-label').forEach(e=>e.textContent=(localStorage.getItem('socceredge_lang')||localStorage.getItem('language')||'en').toLowerCase().startsWith('tr')?'Fikstür':'Fixtures')}setFixtureNav();window.addEventListener('storage',setFixtureNav);setTimeout(setFixtureNav,100)})();</script>
 </body>
 </html>
