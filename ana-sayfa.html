@@ -232,6 +232,7 @@
     box-shadow: 0 0 0 4px rgba(245,185,66,0.10);
   }
   .fav-btn.active svg { stroke: var(--amber); fill: var(--amber); }
+  .featured-card .live-fav-btn{position:absolute;top:10px;right:10px;z-index:4;background:rgba(6,27,58,.88);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
 
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .quick-card {
@@ -823,8 +824,12 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
     signal = `<div><div class="featured-signal-text">${isLive ? 'Tap for Prediction' : t('preMatchReady')}</div><div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('loadingAnalysis')}</div></div>`;
   }
 
+  const isFav = favorites.has(String(m.fixtureId));
+  const liveFav = isLive ? `<button type="button" class="fav-btn live-fav-btn ${isFav ? 'active' : ''}" aria-label="Favorite" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>` : '';
+
   return `
-    <a class="featured-card" href="${link}" style="display:block; text-decoration:none; color:inherit;">
+    <a class="featured-card" href="${link}" style="display:block; text-decoration:none; color:inherit; position:relative;">
+      ${liveFav}
       <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? t('live') : t('today')}</div>
       <div class="featured-teams">${m.homeTeam} - ${m.awayTeam}${isLive ? ` &nbsp; <span style="color:var(--teal)">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</span>` : ''}</div>
       <div class="featured-meta">${m.league || ''} • ${timeLabel}</div>
@@ -884,6 +889,13 @@ function renderFeaturedContent() {
     }
     el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,8).map(featuredCardHtml).join('')+'</div></div>';
     const carousel = el.querySelector('.live-carousel');
+    el.querySelectorAll('.live-fav-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFavorite(btn.dataset.fixtureId, btn.dataset.home, btn.dataset.away, btn);
+      });
+    });
     return;
   }
 
