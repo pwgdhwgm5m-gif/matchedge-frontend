@@ -1068,29 +1068,31 @@ function renderFeaturedContent() {
     // "En Güçlü" is model-driven and independent from "Öne Çıkan".
     // Do not restrict it to the editorial/SportsMonks featured pool and do not
     // pad it with unanalysed featured fixtures.
-    const strongest = rankedMatches()
-      .filter(item => item && item.match && item.analysis && item.best)
-      .sort((a,b) => {
-        const ap=Number(isSportmonksPriorityMatch(a.match)), bp=Number(isSportmonksPriorityMatch(b.match));
-        if(ap!==bp) return bp-ap;
-        const aConfidence=Number(a.best?.probability ?? a.best?.confidence ?? a.featuredScore ?? 0);
-        const bConfidence=Number(b.best?.probability ?? b.best?.confidence ?? b.featuredScore ?? 0);
-        return bConfidence-aConfidence || Number(b.featuredScore||0)-Number(a.featuredScore||0);
+    // En Güçlü is strictly model-driven. Unlike Öne Çıkan it has no
+    // editorial/fixture fallback and no league-priority override inside ranking.
+    // The six SportsMonks leagues are analysed first upstream, but once an
+    // analysis exists every match competes only on model strength.
+    const strongest = allMatches
+      .filter(m => !m.isLive)
+      .map(match => {
+        const analysis=matchAnalyses.get(String(match.fixtureId));
+        const best=analysis?.marketBoard?.best;
+        if(!analysis || !best) return null;
+        const probability=Number(best?.probability ?? best?.confidence ?? 0);
+        const health=Number(best?.dataHealth ?? analysis?.dataHealth?.score ?? 0);
+        const value=analysis?.marketBoard?.valuePicks?.[0];
+        const edge=Number(value?.edgePoints || 0);
+        let strength=probability*0.72 + health*0.28;
+        if(value && Number.isFinite(edge) && edge>0) strength += Math.min(edge,10)*0.5;
+        return {match,analysis,best,strength};
       })
+      .filter(Boolean)
+      .sort((a,b)=>b.strength-a.strength || Number(b.best?.probability||0)-Number(a.best?.probability||0))
       .slice(0,10);
-    const usedStrongest=new Set(strongest.map(item=>String(item.match.fixtureId)));
-    // Never leave En Güçlü blank while background analysis is still arriving.
-    // Keep the six core leagues first, then other upcoming fixtures. Analysed
-    // cards replace these placeholders automatically as each request completes.
-    const strongestFallback=sportmonksFirst(allMatches.filter(m=>!m.isLive && !usedStrongest.has(String(m.fixtureId))))
-      .slice(0,Math.max(0,10-strongest.length));
-    const cards=[
-      ...strongest.map(item=>featuredCardHtml(item.match,item.analysis,item.best)),
-      ...strongestFallback.map(m=>featuredCardHtml(m))
-    ];
+    const cards=strongest.map(item=>featuredCardHtml(item.match,item.analysis,item.best));
     el.innerHTML = cards.length
       ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${cards.join('')}</div>`
-      : `<div class="empty-state">${t('noMatchesToday')}</div>`;
+      : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
     bindFeaturedFavoriteButtons(el);
     const topCarousel = el.querySelector('.featured-carousel');
     if (topCarousel) { requestAnimationFrame(() => { topCarousel.scrollLeft = previousScrollLeft; }); topCarousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = topCarousel.scrollLeft; }, {passive:true}); }
