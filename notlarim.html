@@ -315,7 +315,7 @@
     <div class="field-label" data-i18n="matchLabel">Match</div>
     <div class="field-input" id="matchPickerBtn" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; color:var(--text-muted);">
       <span id="matchPickerLabel" data-i18n="tapToPick">Tap to pick a match</span>
-      <span>Fixture</span>
+      <span><span class="fixture-nav-label">Fixtures</span></span>
     </div>
     <input type="hidden" id="matchInput">
     <input type="hidden" id="fixtureIdInput">
@@ -845,5 +845,6 @@ setInterval(async () => {
 </script>
 
 <script src="language-selector.js"></script>
+<script>(function(){function setFixtureNav(){document.querySelectorAll('.fixture-nav-label').forEach(e=>e.textContent=(localStorage.getItem('socceredge_lang')||localStorage.getItem('language')||'en').toLowerCase().startsWith('tr')?'Fikstür':'Fixtures')}setFixtureNav();window.addEventListener('storage',setFixtureNav);setTimeout(setFixtureNav,100)})();</script>
 </body>
 </html>
