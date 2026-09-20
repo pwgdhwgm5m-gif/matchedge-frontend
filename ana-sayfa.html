@@ -753,15 +753,24 @@ async function loadHome({silent=false} = {}) {
       const liveJson = await liveRes.json();
       const liveRows = Array.isArray(liveJson.matches) ? liveJson.matches : [];
       const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
-      const byFixture = new Map(liveRows.map(x => [String(x.fixtureId ?? x.id ?? x.sportmonksId ?? ''), x]));
+      const isActuallyLive = x => {
+        const status=String(x?.statusShort ?? x?.status ?? '').toUpperCase();
+        if (/^(FT|AET|PEN|CANCELLED|CANCELED|POSTPONED|ABD|AWARDED)$/.test(status)) return false;
+        if (x?.isLive === false) return false;
+        return x?.isLive === true || /^(LIVE|1H|2H|HT|ET|BT|INT|BREAK)$/.test(status);
+      };
+      const activeLiveRows=liveRows.filter(isActuallyLive);
+      const byFixture = new Map(activeLiveRows.map(x => [String(x.fixtureId ?? x.id ?? x.sportmonksId ?? ''), x]));
       matches = matches.map(m => {
         let live = byFixture.get(String(m.fixtureId ?? m.id ?? m.sportmonksId ?? ''));
-        if (!live) live = liveRows.find(x => norm(x.homeTeam) === norm(m.homeTeam) && norm(x.awayTeam) === norm(m.awayTeam));
-        return live ? { ...m, ...live, isLive:true } : m;
+        if (!live) live = activeLiveRows.find(x => norm(x.homeTeam) === norm(m.homeTeam) && norm(x.awayTeam) === norm(m.awayTeam));
+        const baseStatus=String(m?.statusShort ?? m?.status ?? '').toUpperCase();
+        if (/^(FT|AET|PEN|CANCELLED|CANCELED|POSTPONED|ABD|AWARDED)$/.test(baseStatus)) return {...m,isLive:false};
+        return live ? { ...m, ...live, isLive:true } : {...m,isLive:false};
       });
-      // Include a live SportMonks match even if the daily fixture backbone missed it.
+      // Include only genuinely live rows missing from the daily backbone.
       const known = new Set(matches.map(m => String(m.fixtureId ?? m.id ?? m.sportmonksId ?? '')));
-      liveRows.forEach(live => {
+      activeLiveRows.forEach(live => {
         const id = String(live.fixtureId ?? live.id ?? live.sportmonksId ?? '');
         if (!known.has(id)) matches.push({ ...live, isLive:true });
       });
@@ -816,10 +825,10 @@ async function loadHomeAnalyses(matches) {
   // Featured and Top Picks with at least 10 real analysed fixtures.
   const upcoming = matches.filter(m => !m.isLive);
   const priority = upcoming.filter(isSportmonksPriorityMatch);
-  // Home recommendation tabs are intentionally built from the six
-  // SportMonks core leagues. Analyse every available core-league fixture
-  // for the day so a few slow/failed analyses do not leave only 2-3 cards.
-  const candidates = priority;
+  const other = upcoming.filter(m => !isSportmonksPriorityMatch(m));
+  // Analyse the six core SportsMonks leagues first, then the remaining
+  // upcoming fixtures. This gives En Güçlü its own full analysed pool.
+  const candidates = [...priority, ...other];
   if (!candidates.length) return;
   // Do not wait for the slowest SportMonks analysis before updating the UI.
   // Run a small worker pool and repaint each card as soon as its analysis arrives.
