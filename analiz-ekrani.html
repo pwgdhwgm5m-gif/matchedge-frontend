@@ -540,6 +540,11 @@ button,input,select,textarea{font:inherit}
 .live-pill{background:rgba(242,201,76,.08)!important}
 .match-home-button,.match-step-button,.league-nav-arrow{background:transparent!important}
 </style>
+
+<style id="se-android-fixed-nav">
+.se-bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;max-width:none!important;margin:0!important;transform:none!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-flow:column!important;direction:ltr!important;z-index:99999!important}
+.se-bottom-nav>a{order:initial!important;min-width:0!important;width:auto!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important}
+</style>
 </head>
 <body>
 
@@ -846,11 +851,11 @@ button,input,select,textarea{font:inherit}
 
 <nav class="se-bottom-nav" aria-label="Ana menü">
 <a class="" href="ana-sayfa.html"><b>⌂</b><span>Ana Ekran</span></a>
-<a class="" href="kuponum.html"><b>▤</b><span>Kuponum</span></a>
 <a class="" href="maclar.html"><b>⚽</b><span><span class="fixture-nav-label">Fixtures</span></span></a>
 <a class="" href="mac-sonuclari.html"><b>▣</b><span>Skor</span></a>
 <a class="" href="favoriler.html"><b>★</b><span>Favoriler</span></a>
 <a class="" href="edge-arena.html"><b>◆</b><span>Arena</span></a>
+<a class="" href="kuponum.html"><b>▤</b><span>Kuponum</span></a>
 </nav>
 <script>
 (function() {
