@@ -413,15 +413,18 @@ async function loadTodayMatches() {
 }
 
 function finishedMoreThanOneHourAgo(m) {
-  if (!m || String(m.statusShort || '').toUpperCase() !== 'FT') return false;
+  if (!m) return false;
+  const status=String(m.statusShort ?? m.status ?? '').toUpperCase();
+  const finished=m.isFinished === true || /^(FT|AET|PEN|AWARDED)$/.test(status);
+  if (!finished) return false;
   // Prefer an explicit provider finish timestamp when available.
   const explicit = m.finishedAt || m.endTime || m.endedAt;
   if (explicit) {
     const ended = new Date(explicit).getTime();
     if (Number.isFinite(ended)) return Date.now() - ended >= 60 * 60 * 1000;
   }
-  // Football normally finishes about 105 minutes after kickoff including HT.
-  // This fallback keeps an FT favorite for one additional hour (~165 min total).
+  // If the provider only gives kickoff + finished status, use a conservative
+  // football duration estimate: 105 min match/HT/stoppage + 60 min grace.
   const kickoff = new Date(m.kickoff || '').getTime();
   return Number.isFinite(kickoff) && Date.now() - kickoff >= 165 * 60 * 1000;
 }
