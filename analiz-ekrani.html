@@ -1131,7 +1131,7 @@ async function loadAnalysis() {
     if (CONTEXT.tsdbLeagueId) params.set('tsdbLeagueId', CONTEXT.tsdbLeagueId);
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 18000);
+    const timer = setTimeout(() => controller.abort(), 30000);
     let res;
     try {
       res = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`, { signal: controller.signal });
@@ -1142,6 +1142,19 @@ async function loadAnalysis() {
     document.getElementById('errorBanner').innerHTML = '';
   } catch (err) {
     console.warn('Analiz alınamadı:', err.message);
+    if (err?.name === 'AbortError' && !currentAnalysis) {
+      // One controlled retry protects slower cold-cache SportMonks analyses.
+      try {
+        const retryRes = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`);
+        if (!retryRes.ok) throw new Error('http_' + retryRes.status);
+        const retryData = await retryRes.json();
+        renderAnalysis(retryData);
+        document.getElementById('errorBanner').innerHTML = '';
+        return;
+      } catch (retryErr) {
+        console.warn('Analiz tekrar alınamadı:', retryErr.message);
+      }
+    }
     if (!currentAnalysis) showErrorBanner(`${t('loadError')} — ${t('loadErrorSub')}`);
   }
 }
