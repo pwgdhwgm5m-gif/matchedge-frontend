@@ -639,7 +639,6 @@ function canonicalLeague(m) {
 
 function filteredRelevantMatches() {
   return relevantMatches(allMatchesForDay).filter(m => {
-    if (selectedCountry && leagueCountry(m.league,m.leagueId).key !== selectedCountry) return false;
     if (selectedLeague && canonicalLeague(m) !== selectedLeague) return false;
     return true;
   });
@@ -662,7 +661,7 @@ function renderCountryFilters() {
 
 function renderLeagueFilters() {
   const filtersEl=document.getElementById('leagueFilters');
-  const source=relevantMatches(allMatchesForDay).filter(m => !selectedCountry || leagueCountry(m.league,m.leagueId).key===selectedCountry);
+  const source=relevantMatches(allMatchesForDay);
   const leagues=[...new Set(source.map(m=>canonicalLeague(m)).filter(Boolean))].sort();
   if(leagues.length<=1){filtersEl.innerHTML='';return;}
   filtersEl.innerHTML=[`<button class="league-chip ${!selectedLeague?'active':''}" data-league="">${t('allLeagues')}</button>`]
@@ -691,7 +690,8 @@ async function loadResults() {
     container.innerHTML=`<div class="empty-state error">${t('loadError')}</div>`;
     return;
   }
-  renderCountryFilters();
+  document.getElementById('countryFilters').innerHTML='';
+  selectedCountry=null;
   renderLeagueFilters();
   renderResults();
 }
