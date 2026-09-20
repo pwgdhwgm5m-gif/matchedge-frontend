@@ -262,7 +262,7 @@ body{padding-bottom:82px!important}
 
 <nav class="se-bottom-nav" aria-label="Ana menü">
 <a class="" href="ana-sayfa.html"><b>⌂</b><span>Ana Ekran</span></a>
-<a class="" href="maclar.html"><b>⚽</b><span><span class="fixture-nav-label">Fixtures</span></span></a>
+<a class="" href="maclar.html"><b>⚽</b><span>Fixtures</span></a>
 <a class="" href="mac-sonuclari.html"><b>▣</b><span>Skor</span></a>
 <a class="active" href="favoriler.html"><b>★</b><span>Favoriler</span></a>
 <a class="" href="edge-arena.html"><b>◆</b><span>Arena</span></a>
@@ -532,6 +532,6 @@ setInterval(refreshAll, POLL_INTERVAL_MS);
 </script>
 
 <script src="language-selector.js"></script>
-<script>(function(){function setFixtureNav(){document.querySelectorAll('.fixture-nav-label').forEach(e=>e.textContent=(localStorage.getItem('socceredge_lang')||localStorage.getItem('language')||'en').toLowerCase().startsWith('tr')?'Fikstür':'Fixtures')}setFixtureNav();window.addEventListener('storage',setFixtureNav);setTimeout(setFixtureNav,100)})();</script>
+
 </body>
 </html>
