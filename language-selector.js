@@ -370,6 +370,37 @@
   }
 
 
+  function urlBase64ToUint8Array(base64String){
+    const padding='='.repeat((4-base64String.length%4)%4);
+    const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+    const raw=atob(base64);return Uint8Array.from([...raw].map(ch=>ch.charCodeAt(0)));
+  }
+  async function setPushEnabled(enabled){
+    const token=localStorage.getItem('matchedge_token');
+    if(!token||!('serviceWorker' in navigator)||!('PushManager' in window))return false;
+    const reg=await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    if(enabled){
+      const permission=await Notification.requestPermission();
+      if(permission!=='granted')return false;
+      let sub=await reg.pushManager.getSubscription();
+      if(!sub){
+        const kr=await fetch('https://matchedge-backend-kujb.onrender.com/api/push/public-key');
+        const kd=await kr.json(); if(!kd.publicKey)return false;
+        sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(kd.publicKey)});
+      }
+      await fetch('https://matchedge-backend-kujb.onrender.com/api/push/subscribe',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({subscription:sub.toJSON()})});
+      return true;
+    }
+    const sub=await reg.pushManager.getSubscription();
+    if(sub){
+      await fetch('https://matchedge-backend-kujb.onrender.com/api/push/unsubscribe',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint})}).catch(()=>{});
+      await sub.unsubscribe();
+    }
+    return true;
+  }
+  window.SoccerEdgePush={setEnabled:setPushEnabled};
+
   function installGoalNotifications(){
     const token=localStorage.getItem('matchedge_token');
     if(!token) return;
