@@ -365,7 +365,12 @@ html,body{transform:none!important;filter:none!important;perspective:none!import
 .scores-live-league{width:100%;padding:11px 14px;color:#d9e6f7;font-size:11px;font-weight:900;letter-spacing:.35px;border:0;border-top:1px solid rgba(143,169,204,.1);background:transparent;display:flex;align-items:center;justify-content:space-between;text-align:left}
 .scores-live-league b{color:#2dd4bf}.scores-live-group-body{display:none;padding-bottom:2px}.scores-live-group.open .scores-live-group-body{display:block}.scores-live-group.open .live-chevron{display:inline-block;transform:rotate(180deg)}.live-chevron{display:inline-block;transition:transform .15s ease}
 .scores-live-list .match-card{margin:5px 9px 9px}
-</style></head>
+</style><style id="se-ios-bottom-nav-hard-lock">
+html,body{transform:none!important;filter:none!important;perspective:none!important}
+body{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))!important}
+.se-bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;max-width:none!important;height:calc(76px + env(safe-area-inset-bottom,0px))!important;margin:0!important;transform:none!important;translate:none!important;z-index:2147483647!important;isolation:isolate!important;contain:none!important}
+</style>
+</head>
 <body>
 
 <div class="goal-toast-wrap">
