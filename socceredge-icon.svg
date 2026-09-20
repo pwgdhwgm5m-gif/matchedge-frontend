@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b9ff39"/><stop offset="1" stop-color="#62d800"/></linearGradient><radialGradient id="b"><stop stop-color="#172229"/><stop offset="1" stop-color="#05090c"/></radialGradient></defs>
+<rect width="512" height="512" rx="92" fill="url(#b)"/>
+<circle cx="256" cy="205" r="116" fill="#f5f7f8"/><path d="M256 132l48 35-18 56h-60l-18-56z" fill="#11181d"/><path d="M160 171l48-35 48-4-48 35-18 56-43 10zM304 167l48 4 31 62-61-10-18-56zM190 223l36 56-23 42-55-42-1-46zM286 223l36 56-13 42h-106l23-42z" fill="#11181d"/>
+<path d="M111 119c62-57 176-73 269-12l-34 42c-71-42-151-30-194 11-35 34-15 57 35 70l117 31c89 24 111 89 57 139-58 53-176 61-262 13l35-45c64 34 143 31 184-5 30-27 17-51-34-65l-117-31c-91-25-112-91-56-148z" fill="url(#g)"/>
+<path d="M111 119c62-57 176-73 269-12" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/>
+<text x="256" y="446" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="44" fill="#fff" letter-spacing="3">SOCCER<tspan fill="#8df21d">EDGE</tspan></text>
+<text x="256" y="481" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="20" fill="#d9dee1" letter-spacing="12">PRO</text>
+</svg>
