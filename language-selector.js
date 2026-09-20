@@ -478,7 +478,6 @@
         sessionStorage.setItem(scoreKey,JSON.stringify(previous));
       }catch(_){}
     }
-    document.addEventListener('click',()=>{if(localStorage.getItem('socceredge_match_notifications')==='on')sound()},{once:true});
     poll();setInterval(poll,20000);
   }
 
