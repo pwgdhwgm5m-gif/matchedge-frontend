@@ -290,6 +290,8 @@
 .se-bottom-nav a{min-width:0!important;padding:0 2px!important}.se-bottom-nav a span{display:block!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.se-bottom-nav a b{font-size:18px!important}@media(max-width:360px){.se-bottom-nav a{font-size:8px!important}.se-bottom-nav a b{font-size:17px!important}}
 /* six-nav-fit */
 .se-bottom-nav{padding-left:4px!important;padding-right:4px!important}.se-bottom-nav a{font-size:9px!important;gap:2px!important;padding:0 1px!important}.se-bottom-nav a b{font-size:17px!important}@media(max-width:390px){.se-bottom-nav a{font-size:7.5px!important}.se-bottom-nav a b{font-size:16px!important}}
+
+  .match-search{position:relative;margin:0 0 14px}.match-search input{width:100%;height:42px;padding:0 40px 0 14px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;color:var(--text-primary);font:inherit;font-size:13px;outline:none}.match-search input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(45,212,191,.08)}.match-search input::placeholder{color:var(--text-muted)}.match-search .search-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:15px;pointer-events:none}
 </style>
 
 <style id="socceredge-stadium-theme">
@@ -410,6 +412,7 @@ button,a{-webkit-touch-callout:none}
   </div>
 
   <div style="font-size:11px; color:var(--text-muted); margin-bottom:16px;" id="welcomeLine"></div>
+  <div class="match-search"><input id="matchSearch" type="search" autocomplete="off" placeholder="Search team or league…" aria-label="Search team or league"><span class="search-icon">⌕</span></div>
   <div class="coin-panel" style="margin-bottom:16px; border-color:var(--teal);"><div><strong data-i18n="betaTitle">BETA</strong><small data-i18n="betaText">All features are free during beta. Predictions are recorded to measure model performance.</small></div></div>
 
   <div id="featuredSection"></div>
@@ -912,6 +915,8 @@ function renderFeaturedContent() {
 }
 
 function renderTodayList(matches, loadFailed) {
+  const q=(document.getElementById('matchSearch')?.value||'').trim().toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US');
+  if(q) matches=matches.filter(m=>[m.homeTeam,m.awayTeam,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q)));
   const container = document.getElementById('todayMatchesList');
 
   if (loadFailed) {
@@ -1001,6 +1006,7 @@ function renderTodayList(matches, loadFailed) {
 
 applyStaticTranslations();
 renderWelcome();
+document.getElementById('matchSearch').addEventListener('input',()=>renderTodayList(lastHomeMatches||[],false));
 async function loadCommunityPanel() {
   const button = document.getElementById('claimDailyBtn');
   try {
