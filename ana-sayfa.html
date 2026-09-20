@@ -412,6 +412,9 @@ body.search-keyboard-open .se-bottom-nav{display:none!important}
 .se-bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;width:100%!important;margin:0!important;z-index:99999!important}
 body.search-active .se-bottom-nav,body.search-keyboard-open .se-bottom-nav{display:grid!important}
 
+
+/* Remove gold hairline artifact from beta panel */
+.beta-panel{border:0!important;outline:0!important;box-shadow:none!important}
 </style>
 </head>
 <body>
@@ -433,7 +436,7 @@ body.search-active .se-bottom-nav,body.search-keyboard-open .se-bottom-nav{displ
   </div>
 
   <div style="font-size:11px; color:var(--text-muted); margin-bottom:16px;" id="welcomeLine"></div>
-<div class="coin-panel" style="margin-bottom:16px; border-color:var(--teal);"><div><strong data-i18n="betaTitle">BETA</strong><small data-i18n="betaText">All features are free during beta. Predictions are recorded to measure model performance.</small></div></div>
+<div class="coin-panel beta-panel" style="margin-bottom:16px;"><div><strong data-i18n="betaTitle">BETA</strong><small data-i18n="betaText">All features are free during beta. Predictions are recorded to measure model performance.</small></div></div>
 
   <div id="featuredSection"></div>
 
