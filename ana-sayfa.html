@@ -861,7 +861,6 @@ function renderFeaturedSection() {
     <div class="toggle-bar">
       <button type="button" class="toggle-btn ${featuredViewMode === 'featured' ? 'active' : ''}" data-mode="featured">${t('featuredTab')}</button>
       <button type="button" class="toggle-btn ${featuredViewMode === 'top' ? 'active' : ''}" data-mode="top">${t('topTab')}</button>
-      <button type="button" class="toggle-btn ${featuredViewMode === 'value' ? 'active' : ''}" data-mode="value">${t('valueTab')}</button>
       <button type="button" class="toggle-btn ${featuredViewMode === 'live' ? 'active' : ''}" data-mode="live">${t('liveTab')}</button>
     </div>
     <div id="featuredContent"></div>
@@ -887,7 +886,7 @@ function renderFeaturedContent() {
       el.innerHTML = `<div class="empty-state">${t('noLiveNow')}</div>`;
       return;
     }
-    el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,8).map(featuredCardHtml).join('')+'</div></div>';
+    el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,20).map(featuredCardHtml).join('')+'</div></div>';
     const carousel = el.querySelector('.live-carousel');
     el.querySelectorAll('.live-fav-btn').forEach(btn => {
       btn.addEventListener('click', e => {
