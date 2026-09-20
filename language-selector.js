@@ -478,7 +478,7 @@
         sessionStorage.setItem(scoreKey,JSON.stringify(previous));
       }catch(_){}
     }
-    poll();setInterval(poll,20000);
+    poll();setInterval(poll,5000);
   }
 
   function installMessageNotifications(){
