@@ -295,6 +295,9 @@
 .se-bottom-nav{padding-left:4px!important;padding-right:4px!important}.se-bottom-nav a{font-size:9px!important;gap:2px!important;padding:0 1px!important}.se-bottom-nav a b{font-size:17px!important}@media(max-width:390px){.se-bottom-nav a{font-size:7.5px!important}.se-bottom-nav a b{font-size:16px!important}}
 
   .match-search{position:relative;margin:0 0 14px}.match-search input{width:100%;height:42px;padding:0 40px 0 14px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:12px;color:var(--text-primary);font:inherit;font-size:13px;outline:none}.match-search input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(45,212,191,.08)}.match-search input::placeholder{color:var(--text-muted)}.match-search .search-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:15px;pointer-events:none}
+
+  .live-tab-dot{display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:#20e67a;box-shadow:0 0 0 3px rgba(32,230,122,.14),0 0 8px rgba(32,230,122,.9);vertical-align:1px;animation:liveTabPulse 1.5s ease-in-out infinite}
+  @keyframes liveTabPulse{0%,100%{opacity:1}50%{opacity:.45}}
 </style>
 
 <style id="socceredge-stadium-theme">
@@ -863,7 +866,7 @@ function renderFeaturedSection() {
     <div class="toggle-bar">
       <button type="button" class="toggle-btn ${featuredViewMode === 'featured' ? 'active' : ''}" data-mode="featured">${t('featuredTab')}</button>
       <button type="button" class="toggle-btn ${featuredViewMode === 'top' ? 'active' : ''}" data-mode="top">${t('topTab')}</button>
-      <button type="button" class="toggle-btn ${featuredViewMode === 'live' ? 'active' : ''}" data-mode="live">${t('liveTab')}</button>
+      <button type="button" class="toggle-btn ${featuredViewMode === 'live' ? 'active' : ''}" data-mode="live"><span class="live-tab-dot" aria-hidden="true"></span>${t('liveTab')}</button>
     </div>
     <div id="featuredContent"></div>
   `;
