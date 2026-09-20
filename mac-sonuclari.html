@@ -597,26 +597,37 @@ function relevantMatches(matches) {
 }
 
 function leagueCountry(league, leagueId) {
-  if (String(leagueId || '') === '600') {
-    const lang=currentLang==='tr'?'tr':'en';
-    return { key:'turkey', name:lang==='tr'?'Türkiye':'Turkey', flag:'🇹🇷' };
-  }
-  const s = String(league || '').toLowerCase();
-  const rules = [
-    ['turkey','🇹🇷',/turk|süper lig|super lig/],['england','🇬🇧',/premier|championship|league one|league two|fa cup|efl/],
-    ['spain','🇪🇸',/la liga|copa del rey|segunda/],['italy','🇮🇹',/serie a|serie b|coppa/],
-    ['germany','🇩🇪',/bundesliga|dfb/],['france','🇫🇷',/ligue|coupe de france/],
-    ['netherlands','🇳🇱',/eredivisie/],['belgium','🇧🇪',/belg|pro league/],['portugal','🇵🇹',/portugal|primeira/],
+  const id=String(leagueId||'');
+  const lang=currentLang==='tr'?'tr':'en';
+  // Known provider IDs: SportsMonks first, then legacy TheSportsDB IDs.
+  const byId={
+    '600':['turkey','🇹🇷'], '4339':['turkey','🇹🇷'],
+    '8':['england','🇬🇧'], '4328':['england','🇬🇧'],
+    '564':['spain','🇪🇸'], '4335':['spain','🇪🇸'],
+    '384':['italy','🇮🇹'], '4332':['italy','🇮🇹'],
+    '82':['germany','🇩🇪'], '4331':['germany','🇩🇪'],
+    '301':['france','🇫🇷'], '4334':['france','🇫🇷']
+  };
+  const s=String(league||'').toLowerCase();
+  const rules=[
+    ['turkey','🇹🇷',/turk|süper lig|super lig/],['england','🇬🇧',/england|premier|championship|league one|league two|fa cup|efl/],
+    ['spain','🇪🇸',/spain|la liga|copa del rey|segunda/],['italy','🇮🇹',/italy|serie a|serie b|coppa/],
+    ['germany','🇩🇪',/germany|bundesliga|dfb/],['france','🇫🇷',/france|ligue|coupe de france/],
+    ['netherlands','🇳🇱',/netherlands|eredivisie/],['belgium','🇧🇪',/belg|pro league/],['portugal','🇵🇹',/portugal|primeira/],
     ['scotland','🏴',/scot/],['greece','🇬🇷',/greece|greek|super league greece/],
     ['europe','🏆',/champions|europa|conference|nations league/]
   ];
   const names={
-    en:{turkey:'Turkey',england:'England',spain:'Spain',italy:'Italy',germany:'Germany',france:'France',netherlands:'Netherlands',belgium:'Belgium',portugal:'Portugal',scotland:'Scotland',greece:'Greece',europe:'Europe',other:'Other'},
-    tr:{turkey:'Türkiye',england:'İngiltere',spain:'İspanya',italy:'İtalya',germany:'Almanya',france:'Fransa',netherlands:'Hollanda',belgium:'Belçika',portugal:'Portekiz',scotland:'İskoçya',greece:'Yunanistan',europe:'Avrupa',other:'Diğer'}
+    en:{turkey:'Turkey',england:'England',spain:'Spain',italy:'Italy',germany:'Germany',france:'France',netherlands:'Netherlands',belgium:'Belgium',portugal:'Portugal',scotland:'Scotland',greece:'Greece',europe:'Europe'},
+    tr:{turkey:'Türkiye',england:'İngiltere',spain:'İspanya',italy:'İtalya',germany:'Almanya',france:'Fransa',netherlands:'Hollanda',belgium:'Belçika',portugal:'Portekiz',scotland:'İskoçya',greece:'Yunanistan',europe:'Avrupa'}
   };
-  const hit = rules.find(r => r[2].test(s));
-  const key=hit?hit[0]:'other', lang=currentLang==='tr'?'tr':'en';
-  return { key, name:names[lang][key], flag:hit?hit[1]:'🌍' };
+  const mapped=byId[id];
+  const hit=mapped ? [mapped[0],mapped[1]] : rules.find(r=>r[2].test(s));
+  if(hit) return {key:hit[0],name:names[lang][hit[0]],flag:hit[1]};
+  // No "Other" bucket: unknown league names stay as their own visible group
+  // instead of swallowing unrelated matches into one category.
+  const clean=String(league||'').trim();
+  return {key:'league:'+id+':'+clean,name:clean||t('allLeagues'),flag:'⚽'};
 }
 
 function filteredRelevantMatches() {
@@ -702,7 +713,7 @@ function renderResults() {
   const liveNow = shown.filter(m=>m.isLive).sort((a,b)=>String(a.league||'').localeCompare(String(b.league||'')) || String(a.homeTeam||'').localeCompare(String(b.homeTeam||'')));
   const regularShown = shown.filter(m=>!m.isLive);
   const liveGroups = new Map();
-  liveNow.forEach(m=>{const k=m.league||'Other';if(!liveGroups.has(k))liveGroups.set(k,[]);liveGroups.get(k).push(m);});
+  liveNow.forEach(m=>{const k=m.league||((leagueCountry(m.league,m.leagueId)||{}).name||'League');if(!liveGroups.has(k))liveGroups.set(k,[]);liveGroups.get(k).push(m);});
   const liveSection = liveNow.length ? `<section class="scores-live-now">
     <div class="scores-live-title"><span class="scores-live-dot"></span>${t('liveMatches')} <b>${liveNow.length}</b></div>
     <div class="scores-live-list">${[...liveGroups.entries()].map(([league,matches])=>`
@@ -715,7 +726,7 @@ function renderResults() {
       </section>`).join('')}</div>
   </section>` : '';
   const groups = new Map();
-  regularShown.forEach(m => { const k=m.league||'Other'; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
+  regularShown.forEach(m => { const k=m.league||((leagueCountry(m.league,m.leagueId)||{}).name||'League'); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
   if (groups.size === 1 && openLeagues.size === 0) openLeagues.add([...groups.keys()][0]);
   container.innerHTML=liveSection + [...groups.entries()].map(([league,matches]) => {
     const open=openLeagues.has(league);
