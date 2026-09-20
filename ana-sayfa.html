@@ -395,6 +395,13 @@ button,a{-webkit-touch-callout:none}
 /* iOS keyboard-safe bottom navigation */
 @supports (height:100dvh){body{min-height:100dvh}}
 body.search-keyboard-open .se-bottom-nav{display:none!important}
+
+/* iPhone/PWA bottom-nav label visibility */
+.se-bottom-nav{height:calc(82px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important;overflow:visible!important;padding:6px 4px calc(10px + env(safe-area-inset-bottom,0px))!important;align-items:start!important}
+.se-bottom-nav a{height:56px!important;min-height:56px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;overflow:visible!important;line-height:1.15!important}
+.se-bottom-nav a b{height:28px!important;line-height:28px!important;flex:0 0 28px!important}
+.se-bottom-nav a span{height:auto!important;min-height:16px!important;line-height:16px!important;overflow:visible!important;text-overflow:clip!important;padding:0!important;margin:1px 0 0!important}
+.app{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}
 </style>
 </head>
 <body>
