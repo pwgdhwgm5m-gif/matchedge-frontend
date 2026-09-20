@@ -233,6 +233,8 @@
   }
   .fav-btn.active svg { stroke: var(--amber); fill: var(--amber); }
   .featured-card .live-fav-btn{position:absolute;top:10px;right:10px;z-index:4;background:rgba(6,27,58,.88);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+  .live-green-dot{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:#20e67a;box-shadow:0 0 0 3px rgba(32,230,122,.16),0 0 9px rgba(32,230,122,.85);vertical-align:1px;animation:livePulse 1.5s ease-in-out infinite}
+  @keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.82)}}
 
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .quick-card {
@@ -830,7 +832,7 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
   return `
     <a class="featured-card" href="${link}" style="display:block; text-decoration:none; color:inherit; position:relative;">
       ${liveFav}
-      <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? t('live') : t('today')}</div>
+      <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? '<span class="live-green-dot" aria-hidden="true"></span>'+t('live') : t('today')}</div>
       <div class="featured-teams">${m.homeTeam} - ${m.awayTeam}${isLive ? ` &nbsp; <span style="color:var(--teal)">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</span>` : ''}</div>
       <div class="featured-meta">${m.league || ''} • ${timeLabel}</div>
       <div class="featured-signal">
