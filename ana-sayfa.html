@@ -745,6 +745,31 @@ async function loadHome({silent=false} = {}) {
     loadFailed = true;
   }
 
+  // The live tab must use the dedicated live feed for current score/minute.
+  // /api/results remains the day's fixture backbone, but must not freeze a live card.
+  try {
+    const liveRes = await fetch(`${API_BASE}/api/live`);
+    if (liveRes.ok) {
+      const liveJson = await liveRes.json();
+      const liveRows = Array.isArray(liveJson.matches) ? liveJson.matches : [];
+      const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+      const byFixture = new Map(liveRows.map(x => [String(x.fixtureId ?? x.id ?? x.sportmonksId ?? ''), x]));
+      matches = matches.map(m => {
+        let live = byFixture.get(String(m.fixtureId ?? m.id ?? m.sportmonksId ?? ''));
+        if (!live) live = liveRows.find(x => norm(x.homeTeam) === norm(m.homeTeam) && norm(x.awayTeam) === norm(m.awayTeam));
+        return live ? { ...m, ...live, isLive:true } : m;
+      });
+      // Include a live SportMonks match even if the daily fixture backbone missed it.
+      const known = new Set(matches.map(m => String(m.fixtureId ?? m.id ?? m.sportmonksId ?? '')));
+      liveRows.forEach(live => {
+        const id = String(live.fixtureId ?? live.id ?? live.sportmonksId ?? '');
+        if (!known.has(id)) matches.push({ ...live, isLive:true });
+      });
+    }
+  } catch (err) {
+    console.warn('Canlı skor overlay alınamadı:', err.message);
+  }
+
   const now = Date.now();
   matches = matches.filter(match => isUpcomingMatch(match, now));
   matches.sort((a, b) => {
