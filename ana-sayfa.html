@@ -1337,23 +1337,33 @@ setInterval(() => loadHome({silent:true}), POLL_INTERVAL_MS);
 
 <script id="se-bottom-nav-body-lock">
 (function(){
+  var nav;
   function lockNav(){
-    var nav=document.querySelector('.se-bottom-nav');
+    nav=nav||document.querySelector('.se-bottom-nav');
     if(!nav)return;
-    // iOS can treat fixed descendants of transformed/contained ancestors as
-    // content-positioned. Move the nav directly under BODY and set critical
-    // geometry inline so older competing CSS cannot move it.
-    if(nav.parentElement!==document.body) document.body.appendChild(nav);
+    if(nav.parentElement!==document.body)document.body.appendChild(nav);
+    var vv=window.visualViewport;
+    var keyboardOpen=vv && vv.height < window.innerHeight*0.75;
+    // Safari's visual viewport can slide over the layout viewport while its
+    // toolbar expands/collapses. Counter that offset only when the keyboard
+    // is not open so the nav stays on the physical bottom edge.
+    var y=(!keyboardOpen&&vv)?Math.max(0,Math.round(vv.offsetTop+vv.height-window.innerHeight)):0;
     Object.assign(nav.style,{
       position:'fixed',left:'0px',right:'0px',bottom:'0px',top:'auto',
-      width:'100vw',maxWidth:'100vw',margin:'0',transform:'none',
-      zIndex:'2147483647',boxSizing:'border-box'
+      width:'100%',maxWidth:'none',margin:'0',zIndex:'2147483647',
+      boxSizing:'border-box',transform:'translate3d(0,'+y+'px,0)',
+      willChange:'transform'
     });
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',lockNav);
-  else lockNav();
-  window.addEventListener('pageshow',lockNav);
-  window.addEventListener('resize',lockNav);
+  function sync(){requestAnimationFrame(lockNav)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',lockNav);else lockNav();
+  window.addEventListener('pageshow',sync,{passive:true});
+  window.addEventListener('resize',sync,{passive:true});
+  window.addEventListener('scroll',sync,{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',sync,{passive:true});
+    window.visualViewport.addEventListener('scroll',sync,{passive:true});
+  }
 })();
 </script></body>
 </htm
