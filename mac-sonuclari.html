@@ -675,16 +675,18 @@ async function loadResults() {
       merged.set(key,{...base,...m});
     });
     allMatchesForDay = [...merged.values()];
-    // Scores always shows every currently live match, even when the selected
-    // date/fixture feed does not include it.
+    // Overlay genuinely-live rows by match identity. Never key this merge by
+    // provider fixture id: SportMonks and legacy providers use different ids.
+    // Also never force isLive=true; stale legacy live rows previously turned
+    // finished Turkish matches into a second/incorrect scoreboard set.
     try {
       const liveRes = await fetch(`${API_BASE}/api/live`);
       if (liveRes.ok) {
         const liveJson = await liveRes.json();
-        const liveMap = new Map(allMatchesForDay.map(m => [String(m.fixtureId), m]));
-        (liveJson.matches || []).forEach(m => {
-          const key=String(m.fixtureId), base=liveMap.get(key)||{};
-          liveMap.set(key,{...base,...m,isLive:true});
+        const liveMap = new Map(allMatchesForDay.map(m => [matchKey(m), m]));
+        (liveJson.matches || []).filter(m => m.isLive === true && m.statusShort !== 'FT').forEach(m => {
+          const key=matchKey(m), base=liveMap.get(key)||{};
+          liveMap.set(key,{...base,...m});
         });
         allMatchesForDay=[...liveMap.values()];
       }
