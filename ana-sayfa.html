@@ -451,6 +451,11 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
 .se-bottom-nav a{min-width:0!important;width:auto!important;max-width:none!important;padding:4px 1px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;overflow:hidden!important}
 .se-bottom-nav a b{font-size:25px!important;line-height:28px!important;flex:0 0 auto!important}
 .se-bottom-nav a span{display:block;max-width:100%!important;font-size:10px!important;line-height:14px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;text-align:center!important}
+</style><style id="se-featured-favorite-star">
+.featured-card .featured-fav-btn{position:absolute!important;top:14px!important;right:14px!important;z-index:8!important;width:34px!important;height:34px!important;border-radius:50%!important;background:rgba(4,21,46,.72)!important;border:1px solid rgba(242,201,76,.55)!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:7px!important}
+.featured-card .featured-fav-btn svg{width:20px!important;height:20px!important;fill:transparent!important;stroke:#f2c94c!important;stroke-width:1.8!important}
+.featured-card .featured-fav-btn.active svg{fill:#f2c94c!important;stroke:#f2c94c!important}
+.featured-card .featured-teams{padding-right:38px}
 </style></head>
 <body>
 
@@ -907,11 +912,11 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
   }
 
   const isFav = favorites.has(String(m.fixtureId));
-  const liveFav = isLive ? `<button type="button" class="fav-btn live-fav-btn ${isFav ? 'active' : ''}" aria-label="Favorite" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>` : '';
+  const cardFav = `<button type="button" class="fav-btn featured-fav-btn ${isFav ? 'active' : ''}" aria-label="Favorite" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>`;
 
   return `
     <a class="featured-card" href="${link}" style="display:block; text-decoration:none; color:inherit; position:relative;">
-      ${liveFav}
+      ${cardFav}
       <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? '<span class="live-green-dot" aria-hidden="true"></span>'+t('live') : t('today')}</div>
       <div class="featured-teams">${m.homeTeam} - ${m.awayTeam}${isLive ? ` &nbsp; <span style="color:var(--teal)">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</span>` : ''}</div>
       <div class="featured-meta">${m.league || ''} • ${timeLabel}</div>
@@ -958,6 +963,19 @@ function renderFeaturedSection() {
   renderFeaturedContent();
 }
 
+function bindFeaturedFavoriteButtons(root) {
+  if (!root) return;
+  root.querySelectorAll('.featured-fav-btn').forEach(btn => {
+    if (btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleFavorite(btn.dataset.fixtureId, btn.dataset.home, btn.dataset.away, btn);
+    });
+  });
+}
+
 function renderFeaturedContent() {
   const el = document.getElementById('featuredContent');
   const previousCarousel = el?.querySelector('.featured-carousel');
@@ -977,7 +995,7 @@ function renderFeaturedContent() {
       requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
       carousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = carousel.scrollLeft; }, { passive:true });
     }
-    el.querySelectorAll('.live-fav-btn').forEach(btn => {
+    el.querySelectorAll('.featured-fav-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
@@ -1045,6 +1063,7 @@ function renderFeaturedContent() {
     ...fallback.map(m => featuredCardHtml(m))
   ];
   el.innerHTML = featuredCards.length ? '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+featuredCards.join('')+'</div></div>' : '';
+  bindFeaturedFavoriteButtons(el);
   const carousel = el.querySelector('.featured-carousel');
   if (carousel) {
     requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
