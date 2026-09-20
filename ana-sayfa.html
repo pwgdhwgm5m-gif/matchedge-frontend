@@ -406,8 +406,11 @@ body.search-keyboard-open .se-bottom-nav{display:none!important}
 /* Lock bottom navigation to viewport */
 .se-bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;margin:0!important;width:100%!important;max-width:none!important;z-index:99999!important;will-change:auto!important}
 
-/* Search focus: never let bottom nav float over Home content */
-body.search-active .se-bottom-nav{display:none!important}
+
+/* iOS: 16px prevents Safari focus zoom; bottom nav stays fixed at screen bottom */
+.match-search input{font-size:16px!important;-webkit-text-size-adjust:100%!important}
+.se-bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;width:100%!important;margin:0!important;z-index:99999!important}
+body.search-active .se-bottom-nav,body.search-keyboard-open .se-bottom-nav{display:grid!important}
 </style>
 </head>
 <body>
@@ -1105,29 +1108,6 @@ setInterval(loadHome, POLL_INTERVAL_MS);
  const syncKeyboard=()=>document.body.classList.toggle('search-keyboard-open',document.activeElement===search && window.visualViewport && window.visualViewport.height < window.innerHeight*0.82);
  search.addEventListener('focus',()=>setTimeout(syncKeyboard,80)); search.addEventListener('blur',()=>{document.body.classList.remove('search-keyboard-open')});
  if(window.visualViewport) window.visualViewport.addEventListener('resize',syncKeyboard);
-})();
-</script>
-<script>
-(function(){
- const nav=document.querySelector('.se-bottom-nav'); if(!nav)return;
- function pinNav(){
-   if(document.body.classList.contains('search-keyboard-open')) return;
-   const vv=window.visualViewport;
-   const offset=vv ? Math.max(0, window.innerHeight-(vv.height+vv.offsetTop)) : 0;
-   nav.style.setProperty('bottom', offset+'px','important');
- }
- pinNav();
- window.addEventListener('scroll',pinNav,{passive:true});
- window.addEventListener('resize',pinNav,{passive:true});
- if(window.visualViewport){visualViewport.addEventListener('scroll',pinNav,{passive:true});visualViewport.addEventListener('resize',pinNav,{passive:true});}
-})();
-</script>
-<script>
-(function(){
- const q=document.getElementById('matchSearch'); if(!q)return;
- const set=()=>document.body.classList.toggle('search-active',document.activeElement===q || q.value.trim().length>0);
- q.addEventListener('focus',set); q.addEventListener('input',set);
- q.addEventListener('blur',()=>setTimeout(()=>{ if(!q.value.trim()) document.body.classList.remove('search-active'); },120));
 })();
 </script>
 </body>
