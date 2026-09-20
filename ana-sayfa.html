@@ -844,15 +844,37 @@ async function loadHomeAnalyses(matches) {
   await Promise.allSettled(Array.from({ length: workerCount }, () => worker()));
 }
 
-const SPORTMONKS_PRIORITY_LEAGUES = new Set(['39','78','61','135','140','203']);
+// Core leagues covered by the SportsMonks-first home experience.
+// Accept both SportsMonks IDs and legacy provider IDs because merged fixtures
+// can retain either identity.
+const SPORTMONKS_PRIORITY_LEAGUES = new Set([
+  '8','39',       // English Premier League
+  '82','78',      // German Bundesliga
+  '301','61',     // French Ligue 1
+  '384','135',    // Italian Serie A
+  '564','140',    // Spanish La Liga
+  '600','203'     // Turkish Süper Lig
+]);
+function sportmonksPriorityRank(m) {
+  const id=String(m?.leagueId??'');
+  const name=String(m?.league||'').toLowerCase();
+  if(id==='8'||id==='39'||/premier league/.test(name)) return 0;
+  if(id==='82'||id==='78'||/bundesliga/.test(name)) return 1;
+  if(id==='301'||id==='61'||/ligue 1|french league/.test(name)) return 2;
+  if(id==='384'||id==='135'||/serie a|italian/.test(name)) return 3;
+  if(id==='564'||id==='140'||/la liga|laliga|spanish/.test(name)) return 4;
+  if(id==='600'||id==='203'||/süper lig|super lig/.test(name)) return 5;
+  return 99;
+}
 function isSportmonksPriorityMatch(m) {
-  const id = String(m?.leagueId ?? '');
-  const name = String(m?.league || '').toLowerCase();
-  return SPORTMONKS_PRIORITY_LEAGUES.has(id) ||
-    /premier league|bundesliga|ligue 1|serie a|la liga|laliga|süper lig|super lig/.test(name);
+  return SPORTMONKS_PRIORITY_LEAGUES.has(String(m?.leagueId??'')) || sportmonksPriorityRank(m)<99;
 }
 function sportmonksFirst(items, getMatch = x => x?.match || x) {
-  return [...items].sort((a,b) => Number(isSportmonksPriorityMatch(getMatch(b))) - Number(isSportmonksPriorityMatch(getMatch(a))));
+  return [...items].sort((a,b) => {
+    const ar=sportmonksPriorityRank(getMatch(a)), br=sportmonksPriorityRank(getMatch(b));
+    if(ar!==br) return ar-br;
+    return 0;
+  });
 }
 
 function rankedMatches(valueOnly = false) {
@@ -1037,9 +1059,11 @@ function renderFeaturedContent() {
     const strongest = rankedMatches()
       .filter(item => item && item.match && item.analysis && item.best)
       .sort((a,b) => {
-        const aConfidence = Number(a.best?.probability ?? a.best?.confidence ?? a.featuredScore ?? 0);
-        const bConfidence = Number(b.best?.probability ?? b.best?.confidence ?? b.featuredScore ?? 0);
-        return bConfidence - aConfidence || Number(b.featuredScore||0) - Number(a.featuredScore||0);
+        const ap=Number(isSportmonksPriorityMatch(a.match)), bp=Number(isSportmonksPriorityMatch(b.match));
+        if(ap!==bp) return bp-ap;
+        const aConfidence=Number(a.best?.probability ?? a.best?.confidence ?? a.featuredScore ?? 0);
+        const bConfidence=Number(b.best?.probability ?? b.best?.confidence ?? b.featuredScore ?? 0);
+        return bConfidence-aConfidence || Number(b.featuredScore||0)-Number(a.featuredScore||0);
       })
       .slice(0,10);
     const cards = strongest.map(item => featuredCardHtml(item.match, item.analysis, item.best));
