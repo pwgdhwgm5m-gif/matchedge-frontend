@@ -635,6 +635,12 @@ function canonicalLeague(m) {
   const name=String(m?.league||m?.leagueName||'').trim();
   const n=name.toLowerCase().replace(/[._-]+/g,' ').replace(/\s+/g,' ').trim();
 
+  // Guard against provider rows whose league label/ID is misleading.
+  // Brazilian clubs must never be classified as Italian Serie A.
+  const teams=(String(m?.homeTeam||'')+' '+String(m?.awayTeam||'')).toLowerCase();
+  const brazilClubs=/\b(gr[eê]mio|gremio|s[aã]o paulo|sao paulo|corinthians|athletico paranaense|atl[eé]tico paranaense|atletico paranaense|flamengo|fluminense|palmeiras|botafogo|vasco|cruzeiro|internacional|bahia|santos|fortaleza|bragantino|vit[oó]ria|vitoria|cear[aá]|sport recife|juventude|mirassol)\b/i;
+  if(brazilClubs.test(teams)) return 'Brazilian Serie A';
+
   // Provider/country aliases must resolve to the competition, never to a
   // separate country bucket.
   if(id==='600' || id==='4339' || /^(turkey|türkiye)$/.test(n) || /süper lig|super lig/.test(n)) return 'Süper Lig';
