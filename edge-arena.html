@@ -59,6 +59,11 @@ body{padding-bottom:82px!important}
 .se-bottom-nav a b{height:28px!important;line-height:28px!important;flex:0 0 28px!important}
 .se-bottom-nav a span{display:block!important;height:auto!important;min-height:16px!important;line-height:16px!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;margin:1px 0 0!important;padding:0!important}
 </style>
+
+<style id="se-android-fixed-nav">
+.se-bottom-nav{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;max-width:none!important;margin:0!important;transform:none!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-flow:column!important;direction:ltr!important;z-index:99999!important}
+.se-bottom-nav>a{order:initial!important;min-width:0!important;width:auto!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important}
+</style>
 </head>
 <body><main class="app"><header class="top"><button class="back" onclick="history.length>1?history.back():location.href='ana-sayfa.html'">←</button><div><div class="title">EDGE ARENA</div><div class="sub">Kupon yap · Kazan · Rank yükselt</div></div></header>
 <button class="arena-chat-hero" id="arenaHero">💬 ARENA CHAT</button><button class="ranking-hero" id="leaderToggle" type="button">🏆 GENEL SIRALAMA</button><section class="profile" id="profile"><div class="empty">Profil yükleniyor…</div></section><div class="missions"><div class="mission"><strong>🎯 Günlük Görev · 3 maçlık Slip</strong><p>Farklı maçlardan en az 3 seçimle kupon oluştur.</p><div class="mission-bar"><i id="mission1" style="width:0"></i></div></div><div class="mission"><strong>🔥 Seri Avcısı</strong><p>Doğru seçim serini büyüt ve Arena rankını yükselt.</p><div class="mission-bar"><i id="mission2" style="width:0"></i></div></div><div class="mission"><strong>🏆 Perfect Slip</strong><p>5+ maçlık bir kuponun tamamını doğru bil.</p><div class="mission-bar"><i id="mission3" style="width:0"></i></div></div></div>
