@@ -662,10 +662,16 @@ async function loadResults() {
     if (!resultsRes.ok && !fixturesRes.ok) throw new Error('results_and_matches_unavailable');
     const resultsJson = resultsRes.ok ? await resultsRes.json() : { matches: [] };
     const fixturesJson = fixturesRes.ok ? await fixturesRes.json() : { matches: [] };
+    // Provider IDs differ. Merge scoreboard rows by teams/date, not only
+    // fixtureId, otherwise the same match appears twice and provider-specific
+    // rows can hide the complete Turkish fixture set.
+    const normTeam = v => String(v || '').toLowerCase().normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/[^a-z0-9]+/g,'');
+    const matchKey = m => [String(m.kickoff || m.date || selectedDate).slice(0,10), normTeam(m.homeTeam), normTeam(m.awayTeam)].join('|');
     const merged = new Map();
-    (fixturesJson.matches || []).forEach(m => merged.set(String(m.fixtureId), m));
+    (fixturesJson.matches || []).forEach(m => merged.set(matchKey(m), m));
     (resultsJson.matches || []).forEach(m => {
-      const key=String(m.fixtureId), base=merged.get(key)||{};
+      const key=matchKey(m), base=merged.get(key)||{};
       merged.set(key,{...base,...m});
     });
     allMatchesForDay = [...merged.values()];
