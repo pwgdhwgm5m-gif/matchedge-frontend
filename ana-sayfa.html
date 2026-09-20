@@ -826,9 +826,9 @@ async function loadHomeAnalyses(matches) {
   const upcoming = matches.filter(m => !m.isLive);
   const priority = upcoming.filter(isSportmonksPriorityMatch);
   const other = upcoming.filter(m => !isSportmonksPriorityMatch(m));
-  // Analyse the six core SportsMonks leagues first, then the remaining
-  // upcoming fixtures. This gives En Güçlü its own full analysed pool.
-  const candidates = [...priority, ...other];
+  // If none of the six core leagues plays today, skip that tier immediately.
+  // Otherwise process core leagues first, then the rest of the day's fixtures.
+  const candidates = priority.length ? [...priority, ...other] : other;
   if (!candidates.length) return;
   // Do not wait for the slowest SportMonks analysis before updating the UI.
   // Run a small worker pool and repaint each card as soon as its analysis arrives.
