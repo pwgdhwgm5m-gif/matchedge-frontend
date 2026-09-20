@@ -655,68 +655,24 @@ function renderLeagueFilters() {
 }
 
 async function loadResults() {
-  const container = document.getElementById('resultsContainer');
-  container.innerHTML = `<div class="empty-state">${t('loading')}</div>`;
-
+  const container=document.getElementById('resultsContainer');
+  container.innerHTML=`<div class="empty-state">${t('loading')}</div>`;
   try {
-    const [resultsRes, fixturesRes] = await Promise.all([
-      fetch(`${API_BASE}/api/results?date=${selectedDate}`),
-      fetch(`${API_BASE}/api/matches?date=${selectedDate}`)
-    ]);
-    if (!resultsRes.ok && !fixturesRes.ok) throw new Error('results_and_matches_unavailable');
-    const resultsJson = resultsRes.ok ? await resultsRes.json() : { matches: [] };
-    const fixturesJson = fixturesRes.ok ? await fixturesRes.json() : { matches: [] };
-    // Provider IDs differ. Merge scoreboard rows by teams/date, not only
-    // fixtureId, otherwise the same match appears twice and provider-specific
-    // rows can hide the complete Turkish fixture set.
-    const normTeam = v => String(v || '').toLowerCase().normalize('NFD')
-      .replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/[^a-z0-9]+/g,'');
-    const matchKey = m => [String(m.kickoff || m.date || selectedDate).slice(0,10), normTeam(m.homeTeam), normTeam(m.awayTeam)].join('|');
-    const isSportMonks = m => String(m.dataSource||'').toLowerCase()==='sportmonks' || !!m.sportmonksId || String(m.leagueId||'')==='600';
-    const merged = new Map();
-    (fixturesJson.matches || []).forEach(m => merged.set(matchKey(m), m));
-    (resultsJson.matches || []).forEach(m => {
-      const key=matchKey(m), base=merged.get(key)||{};
-      merged.set(key,{...base,...m});
-    });
-    // For subscribed Turkish Super Lig, /api/results SportMonks rows are
-    // canonical. Remove legacy duplicates for the same teams even when one
-    // provider's kickoff/date representation differs.
-    const smTurkey=(resultsJson.matches||[]).filter(m=>String(m.leagueId||'')==='600');
-    if(smTurkey.length){
-      const smPairs=new Set(smTurkey.map(m=>normTeam(m.homeTeam)+'|'+normTeam(m.awayTeam)));
-      for(const [key,m] of [...merged.entries()]){
-        const pair=normTeam(m.homeTeam)+'|'+normTeam(m.awayTeam);
-        if(smPairs.has(pair) && !isSportMonks(m)) merged.delete(key);
-      }
-      smTurkey.forEach(m=>merged.set(matchKey(m),m));
-    }
-    allMatchesForDay = [...merged.values()];
-    // Overlay genuinely-live rows by match identity. Never key this merge by
-    // provider fixture id: SportMonks and legacy providers use different ids.
-    // Also never force isLive=true; stale legacy live rows previously turned
-    // finished Turkish matches into a second/incorrect scoreboard set.
-    try {
-      const liveRes = await fetch(`${API_BASE}/api/live`);
-      if (liveRes.ok) {
-        const liveJson = await liveRes.json();
-        const liveMap = new Map(allMatchesForDay.map(m => [matchKey(m), m]));
-        (liveJson.matches || []).filter(m => m.isLive === true && m.statusShort !== 'FT').forEach(m => {
-          const key=matchKey(m), base=liveMap.get(key)||{};
-          liveMap.set(key,{...base,...m});
-        });
-        allMatchesForDay=[...liveMap.values()];
-      }
-    } catch (_) {}
-  } catch (err) {
-    console.warn('Sonuçlar alınamadı:', err.message);
-    allMatchesForDay = [];
-    document.getElementById('countryFilters').innerHTML = '';
-    document.getElementById('leagueFilters').innerHTML = '';
-    container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
+    // Scores has one authority: /api/results. Provider priority and fallback
+    // are backend responsibilities. Do not re-merge /api/matches or /api/live
+    // here; that was the source of missing/duplicated SportMonks rows.
+    const response=await fetch(`${API_BASE}/api/results?date=${selectedDate}&_=${Date.now()}`,{cache:'no-store'});
+    if(!response.ok) throw new Error('results_unavailable');
+    const json=await response.json();
+    allMatchesForDay=Array.isArray(json.matches)?json.matches:[];
+  } catch(err) {
+    console.warn('Scores load failed:',err.message);
+    allMatchesForDay=[];
+    document.getElementById('countryFilters').innerHTML='';
+    document.getElementById('leagueFilters').innerHTML='';
+    container.innerHTML=`<div class="empty-state error">${t('loadError')}</div>`;
     return;
   }
-
   renderCountryFilters();
   renderLeagueFilters();
   renderResults();
