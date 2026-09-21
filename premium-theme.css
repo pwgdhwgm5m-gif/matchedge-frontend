@@ -356,3 +356,25 @@ input,select,textarea,.search,.search-box,.search-input{background:#fff!importan
   background:var(--se-teal)!important;
   color:#fff!important;
 }
+
+/* Improve SoccerEdge Verdict readability above Strongest Picks */
+#premium-verdict .eyebrow,
+.premium-verdict .eyebrow{
+  display:inline-flex!important;
+  align-items:center!important;
+  width:auto!important;
+  background:transparent!important;
+  border:0!important;
+  border-left:3px solid var(--se-teal)!important;
+  padding:2px 0 2px 9px!important;
+  color:var(--se-ink)!important;
+  font-size:11px!important;
+  line-height:1.25!important;
+  font-weight:850!important;
+  letter-spacing:.08em!important;
+  opacity:1!important;
+}
+#premium-verdict .verdict-head,
+.premium-verdict .verdict-head{
+  align-items:center!important;
+}
