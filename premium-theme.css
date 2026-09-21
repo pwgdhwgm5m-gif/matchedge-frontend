@@ -318,3 +318,41 @@ input,select,textarea,.search,.search-box,.search-input{background:#fff!importan
 .se-bottom-nav a.active svg,.nav-item.active svg{
   stroke:var(--se-teal)!important;fill:none!important;
 }
+
+/* Refine analysis bars + CTA for light premium palette */
+.mini-bar,.prob-bars,.health-track,
+.progress,.bar,.track,[class*="progress-track"],[class*="bar-track"]{
+  background:#e7efee!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.mini-bar{height:5px!important}
+.mini-bar-fill{
+  background:var(--se-teal)!important;
+  background-image:none!important;
+}
+#bar-home,#fh-bar-home{background:var(--se-teal)!important}
+#bar-draw{background:#c8b7e8!important}
+#bar-away,#fh-bar-away{background:var(--se-accent)!important}
+.prob-value.home{color:var(--se-teal-dark)!important}
+.prob-value.draw{color:#7f69ae!important}
+.prob-value.away{color:var(--se-accent)!important}
+.prob-bars{gap:4px!important}
+.prob-bar-fill{border-radius:999px!important}
+.reading-label,.prob-label,.signal-tag,.stat-label{
+  color:#73878d!important;
+}
+.reading-value,.xg-value,.quality-num{
+  color:var(--se-teal-dark)!important;
+}
+.coupon-add:disabled{
+  opacity:1!important;
+  background:#d7ece9!important;
+  color:#6f8589!important;
+  border:1px solid #c5dfdc!important;
+}
+.coupon-add:not(:disabled){
+  background:var(--se-teal)!important;
+  color:#fff!important;
+}
