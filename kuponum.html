@@ -156,9 +156,9 @@ async function playDraft(){
   if(button){button.disabled=false;button.textContent='SAVE'}
  }
 }
-let recomputeDone=false;
+let lastRecomputeAt=0;
 async function load(){
- if(!recomputeDone){recomputeDone=true;try{await fetch(API+'/api/coupons/recompute',{method:'POST',headers:headers()})}catch(_){}}
+ if(Date.now()-lastRecomputeAt>60000){lastRecomputeAt=Date.now();try{await fetch(API+'/api/coupons/recompute',{method:'POST',headers:headers()})}catch(_){}}
  document.getElementById('pageSlipTitle').textContent=isEN()?'MY SLIP':'KUPONUM';
  document.getElementById('tabPendingLabel').textContent=isEN()?'PENDING':'BEKLEYEN';
  document.getElementById('tabFinishedLabel').textContent=isEN()?'FINISHED':'BİTEN';
@@ -173,7 +173,7 @@ async function load(){
  document.getElementById('list').innerHTML=draft+(coupons.length?coupons.map(c=>{
   const legs=c.legs||[],settled=legs.filter(l=>l.selection?.result&&l.selection.result!=='pending').length,won=legs.filter(l=>l.selection?.result==='won').length,pct=legs.length?Math.round(settled/legs.length*100):0;
   const line=(home,away,s,result,kickoff,fixtureId)=>{
-   const probability=Number(s?.probability)||0,mult=probability?Math.max(1.15,Math.min(5.5,100/probability)).toFixed(2)+'x':'';
+   const probability=Number(s?.probability)||0,mult=probability?Math.max(1.15,Math.min(4,+(100/probability).toFixed(2))).toFixed(2)+'x':'';
    const canDelete=c.status==='pending'&&fixtureId&&kickoff&&new Date(kickoff).getTime()>Date.now();
    return '<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(home||(isEN()?'Team':'Takım'))+' – '+safe(away||(isEN()?'Team':'Takım'))+'</strong><small class="leg-selection">'+safe(marketLabel(s?.label)||(isEN()?'Pick':'Seçim'))+(mult?' · '+mult:'')+(probability?' · %'+probability:'')+'</small></div><div class="leg-actions">'+(result==='void'?'':('<span class="badge '+(result||'pending')+'">'+statusLabel(result)+'</span>'))+(canDelete?'<button class="leg-delete" onclick="removeLeg(\''+c._id+'\',\''+fixtureId+'\')">×</button>':'')+'</div></div>';
   };
