@@ -6,16 +6,16 @@
 <title>SoccerEdge Pro - Maç Analizi</title>
 <style>
   :root {
-    --bg-base: #0a0e17;
-    --bg-card: #121826;
-    --bg-card-inner: #0d1220;
-    --border-subtle: #1e2636;
-    --teal: #2dd4bf;
+    --bg-base: #0f1415;
+    --bg-card: #171d1e;
+    --bg-card-inner: #202728;
+    --border-subtle: #364142;
+    --teal: #39c7c1;
     --teal-dim: #1a4d47;
-    --purple: #9d7cf0;
-    --amber: #f5b942;
-    --red: #f0556b;
-    --text-primary: #f2f4f8;
+    --purple: #aa91df;
+    --amber: #d9ad58;
+    --red: #e66b64;
+    --text-primary: #f4f7f6;
     --text-secondary: #e2e6ee;
     --text-muted: #bdc5d3;
     --radius: 16px;
@@ -407,11 +407,11 @@
   .model-report{margin-top:14px;padding-top:13px;border-top:1px solid var(--border-subtle)}.model-report-head{display:flex;justify-content:space-between;gap:8px;font-size:9px;font-weight:900;color:var(--text-muted)}.model-report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:8px}.model-report-cell{padding:8px;border:1px solid var(--border-subtle);border-radius:9px;background:rgba(7,11,19,.45)}.model-report-cell b{display:block;font-size:12px}.model-report-cell span{font-size:8px;color:var(--text-muted)}.edge-id{font-family:monospace;font-size:8px;color:var(--text-muted);margin-top:7px;word-break:break-all}.data-health { margin-top:15px; padding-top:14px; border-top:1px solid var(--border-subtle); }
   .data-health-line { display:flex; align-items:center; justify-content:space-between; font-size:10px; color:var(--text-secondary); margin-bottom:8px; }
   .health-track { height:6px; border-radius:99px; overflow:hidden; background:#090d16; }
-  .health-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--amber),var(--teal)); width:0; transition:width .35s ease; }
+  .health-fill { height:100%; border-radius:inherit; background:#0f1415; width:0; transition:width .35s ease; }
   .source-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
   .source-chip { font-size:9px; color:var(--text-muted); padding:5px 7px; border:1px solid var(--border-subtle); border-radius:999px; }
   .source-chip.ok { color:var(--teal); border-color:rgba(45,212,191,.25); background:rgba(45,212,191,.06); }
-  .verify-pick{width:100%;margin-top:7px;padding:7px 5px;border:1px solid rgba(242,201,76,.55);border-radius:7px;background:rgba(242,201,76,.08);color:#f2c94c;font-size:8px;font-weight:950}.verify-pick:disabled{opacity:.55}.verify-pick.locked{border-color:#35c878;color:#35c878;background:rgba(53,200,120,.08)}.coupon-feedback{min-height:22px;margin-top:10px;text-align:center;font-size:11px;font-weight:800}.coupon-feedback.coupon-success{color:#35c878}.coupon-market-grid { display:grid; grid-template-columns:1fr; gap:10px; }
+  .verify-pick{width:100%;margin-top:7px;padding:7px 5px;border:1px solid rgba(242,201,76,.55);border-radius:7px;background:rgba(242,201,76,.08);color:#d9ad58;font-size:8px;font-weight:950}.verify-pick:disabled{opacity:.55}.verify-pick.locked{border-color:#35c878;color:#35c878;background:rgba(53,200,120,.08)}.coupon-feedback{min-height:22px;margin-top:10px;text-align:center;font-size:11px;font-weight:800}.coupon-feedback.coupon-success{color:#35c878}.coupon-market-grid { display:grid; grid-template-columns:1fr; gap:10px; }
   .coupon-group { border:1px solid var(--border-subtle); background:var(--bg-card-inner); border-radius:13px; padding:10px; }
   .coupon-group-title { color:var(--text-secondary); font-size:10px; font-weight:800; margin-bottom:8px; letter-spacing:.04em; }
   .coupon-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
@@ -426,7 +426,7 @@
   .coupon-market em { display:block; margin-top:5px; color:var(--amber); font-style:normal; font-weight:800; font-size:12px; }
   .coupon-add { width:100%; margin-top:12px; padding:13px; border:0; border-radius:12px; background:var(--teal); color:#05201c; font-weight:900; font-size:13px; cursor:pointer; }
   .coupon-add:disabled { opacity:.4; }
-  .slip-drawer{position:fixed;left:12px;right:12px;bottom:84px;max-width:456px;margin:auto;background:#101827;border:1px solid #2dd4bf66;border-radius:16px;padding:12px;z-index:40;display:none;box-shadow:0 12px 35px #0009}.slip-drawer.show{display:block}.slip-top{display:flex;justify-content:space-between;align-items:center}.slip-count{background:var(--teal);color:#05201c;border-radius:20px;padding:3px 8px;font-weight:900}.slip-list{max-height:180px;overflow:auto;margin:8px 0}.slip-leg{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--border-subtle);padding:7px 0;font-size:10px}.slip-leg small{color:var(--text-secondary)}.slip-remove{border:0;background:transparent;color:#f0556b}.stake-row{display:flex;gap:6px}.stake-row button{flex:1;background:var(--bg-card-inner);border:1px solid var(--border-subtle);color:var(--text-primary);padding:8px;border-radius:8px}.stake-row button.active{border-color:var(--teal);color:var(--teal)}.slip-summary{display:flex;justify-content:space-between;margin:9px 0;font-size:11px}.play-slip{width:100%;border:0;border-radius:10px;padding:11px;background:var(--teal);font-weight:900;color:#05201c}
+  .slip-drawer{position:fixed;left:12px;right:12px;bottom:84px;max-width:456px;margin:auto;background:#101827;border:1px solid #39c7c166;border-radius:16px;padding:12px;z-index:40;display:none;box-shadow:0 12px 35px #0009}.slip-drawer.show{display:block}.slip-top{display:flex;justify-content:space-between;align-items:center}.slip-count{background:var(--teal);color:#05201c;border-radius:20px;padding:3px 8px;font-weight:900}.slip-list{max-height:180px;overflow:auto;margin:8px 0}.slip-leg{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--border-subtle);padding:7px 0;font-size:10px}.slip-leg small{color:var(--text-secondary)}.slip-remove{border:0;background:transparent;color:#e66b64}.stake-row{display:flex;gap:6px}.stake-row button{flex:1;background:var(--bg-card-inner);border:1px solid var(--border-subtle);color:var(--text-primary);padding:8px;border-radius:8px}.stake-row button.active{border-color:var(--teal);color:var(--teal)}.slip-summary{display:flex;justify-content:space-between;margin:9px 0;font-size:11px}.play-slip{width:100%;border:0;border-radius:10px;padding:11px;background:var(--teal);font-weight:900;color:#05201c}
   .coupon-feedback { min-height:18px; text-align:center; font-size:10px; color:var(--teal); margin-top:8px; }
 .match-shortcuts{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.match-home-button{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border:1px solid var(--teal);border-radius:11px;color:var(--teal);background:rgba(45,212,191,.1);font-size:12px;font-weight:800;text-decoration:none}
 .brand-home-link{color:inherit!important;text-decoration:none!important;cursor:pointer;display:inline-block}
@@ -437,23 +437,23 @@
 <style>
 /* Soccer Edge stadium-blue visual refresh — presentation only */
 :root{
-  --bg-base:#061b3a;--bg-card:#0b2b59;--bg-card-inner:#09244b;--border-subtle:#244b79;
-  --teal:#f2c94c;--teal-dim:#745f19;--purple:#ef5350;--amber:#f2c94c;--red:#ef5350;
-  --text-primary:#f7f9fd;--text-secondary:#d7e1f1;--text-muted:#91a7c7;--radius:10px;
+  --bg-base:#0f1415;--bg-card:#171d1e;--bg-card-inner:#09244b;--border-subtle:#364142;
+  --teal:#d9ad58;--teal-dim:#745f19;--purple:#ef5350;--amber:#d9ad58;--red:#ef5350;
+  --text-primary:#f7f9fd;--text-secondary:#d7e1f1;--text-muted:#899794;--radius:10px;
 }
 body{
   background:
     radial-gradient(circle at 50% -10%,rgba(38,105,190,.38),transparent 34%),
-    linear-gradient(180deg,#092957 0%,#061a38 46%,#04152e 100%);
+    linear-gradient(180deg,#171d1e 0%,#061a38 46%,#04152e 100%);
   background-attachment:fixed;
 }
 .app{max-width:520px;padding:12px 14px 24px}
 .top-bar{padding:8px 6px 18px;border-bottom:3px solid #d6ad2d;margin-bottom:12px}
-.brand-name{font-size:20px;letter-spacing:.6px}.brand-name .premium{color:#f2c94c}
-.brand-sub{color:#a9bbd6;font-weight:700}.live-pill{color:#f2c94c;background:rgba(242,201,76,.08);border-color:rgba(242,201,76,.35)}
-.live-dot{background:#f2c94c;animation:none;box-shadow:none}
+.brand-name{font-size:20px;letter-spacing:.6px}.brand-name .premium{color:#d9ad58}
+.brand-sub{color:#a9bbd6;font-weight:700}.live-pill{color:#d9ad58;background:rgba(242,201,76,.08);border-color:rgba(242,201,76,.35)}
+.live-dot{background:#d9ad58;animation:none;box-shadow:none}
 .card{
-  background:linear-gradient(180deg,rgba(15,54,105,.96),rgba(7,34,72,.98));
+  background:#0f1415;
   border:1px solid rgba(105,145,194,.38);border-radius:10px;padding:16px;margin-bottom:12px;
   box-shadow:none;
 }
@@ -461,8 +461,8 @@ body{
   border-top:1px solid rgba(255,255,255,.58);padding-top:10px;margin-bottom:14px;
   color:#fff;font-size:12px;font-weight:900;
 }
-.card-title::before{content:"";width:4px;height:20px;background:#f2c94c;margin-right:8px;display:inline-block}
-.match-shortcuts{align-items:center}.match-home-button{border-color:#f2c94c;color:#f2c94c;background:rgba(242,201,76,.08);border-radius:8px}
+.card-title::before{content:"";width:4px;height:20px;background:#d9ad58;margin-right:8px;display:inline-block}
+.match-shortcuts{align-items:center}.match-home-button{border-color:#d9ad58;color:#d9ad58;background:rgba(242,201,76,.08);border-radius:8px}
 .match-meta{font-weight:900;color:#fff;font-size:14px}.match-date{color:#b7c7df;font-weight:700}
 .league-match-nav{grid-template-columns:54px 1fr 54px;margin:0 0 -2px;position:relative;z-index:4}
 .league-nav-arrow,.match-step-button{
@@ -470,31 +470,31 @@ body{
 }
 .league-nav-arrow{width:48px;height:48px;font-size:32px;box-shadow:0 0 0 3px rgba(242,201,76,.08)}
 .match-step-button:disabled{opacity:.45}
-.league-match-nav .match-position{color:#f2c94c;font-weight:900}
+.league-match-nav .match-position{color:#d9ad58;font-weight:900}
 .team-crest{width:64px;height:64px;background:#113b73;border:1px solid #41689a}
-.team-name{font-size:15px;color:#fff}.vs-dash{color:#f2c94c}.match-status{color:#f2c94c;font-weight:900}
+.team-name{font-size:15px;color:#fff}.vs-dash{color:#d9ad58}.match-status{color:#d9ad58;font-weight:900}
 .match-room-btn{border-color:#4775aa;background:#0b3265;color:#fff;border-radius:7px}
 .premium-verdict{
-  background:linear-gradient(180deg,#103b76,#082a59);border-color:#315d91;box-shadow:none;
+  background:#0f1415;border-color:#315d91;box-shadow:none;
 }
-.premium-verdict::before{width:4px;background:#f2c94c}
-.eyebrow{color:#fff;border-left:4px solid #f2c94c;padding-left:8px}.method-badge{color:#dbe6f5;border-color:#426994}
-.decision-icon{background:#123f7a;color:#f2c94c;border-radius:50%}.verdict-watch .decision-title,.verdict-value .decision-title{color:#f2c94c}
-.edge-cell{background:#0b2b58;border-color:#315986;border-radius:8px}.edge-cell:first-child{border-color:#f2c94c;background:#123d74}
-.edge-cell strong{color:#f2c94c}.reason-dot{background:#f2c94c}
-.health-track,.mini-bar{background:#061a37}.health-fill,.mini-bar-fill{background:linear-gradient(90deg,#7da9ed,#f2c94c)}
+.premium-verdict::before{width:4px;background:#d9ad58}
+.eyebrow{color:#fff;border-left:4px solid #d9ad58;padding-left:8px}.method-badge{color:#dbe6f5;border-color:#426994}
+.decision-icon{background:#123f7a;color:#d9ad58;border-radius:50%}.verdict-watch .decision-title,.verdict-value .decision-title{color:#d9ad58}
+.edge-cell{background:#0b2b58;border-color:#315986;border-radius:8px}.edge-cell:first-child{border-color:#d9ad58;background:#123d74}
+.edge-cell strong{color:#d9ad58}.reason-dot{background:#d9ad58}
+.health-track,.mini-bar{background:#061a37}.health-fill,.mini-bar-fill{background:#0f1415}
 .prob-bars{height:12px;border-radius:3px;background:#071a36;gap:2px}
-.prob-value.home{color:#9ec4ff}.prob-value.draw{color:#f2c94c}.prob-value.away{color:#ef5350}
+.prob-value.home{color:#9ec4ff}.prob-value.draw{color:#d9ad58}.prob-value.away{color:#ef5350}
 .reading-card,.stat-box,.coupon-group{background:#09264f;border-color:#315781;border-radius:8px}
-.reading-value,.quality-num,.quality-tag{color:#f2c94c}.quality-shield{border-color:#f2c94c}
-.signal-badge{background:rgba(242,201,76,.08);border-color:#f2c94c;color:#f2c94c}
-.coupon-group-title{color:#f2c94c;border-left:3px solid #f2c94c;padding-left:7px}
+.reading-value,.quality-num,.quality-tag{color:#d9ad58}.quality-shield{border-color:#d9ad58}
+.signal-badge{background:rgba(242,201,76,.08);border-color:#d9ad58;color:#d9ad58}
+.coupon-group-title{color:#d9ad58;border-left:3px solid #d9ad58;padding-left:7px}
 .coupon-market{background:#0c3061;border-color:#315c8d;border-radius:7px}
-.coupon-market.selected{border-color:#f2c94c!important;background:rgba(242,201,76,.13)!important}
-.coupon-market em{color:#f2c94c}.add-coupon-button{background:#1d6fe8!important;color:#fff!important;border-color:#4c91f0!important}
-.source-chip.ok{color:#f2c94c;border-color:rgba(242,201,76,.35);background:rgba(242,201,76,.07)}
+.coupon-market.selected{border-color:#d9ad58!important;background:rgba(242,201,76,.13)!important}
+.coupon-market em{color:#d9ad58}.add-coupon-button{background:#1d6fe8!important;color:#fff!important;border-color:#4c91f0!important}
+.source-chip.ok{color:#d9ad58;border-color:rgba(242,201,76,.35);background:rgba(242,201,76,.07)}
 @media(max-width:380px){.team-crest{width:56px;height:56px}.league-nav-arrow{width:44px;height:44px}}
-.premium-gate{position:relative;overflow:hidden}.premium-gate .premium-blur{filter:blur(5px);opacity:.48;pointer-events:none;user-select:none}.premium-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:linear-gradient(180deg,rgba(6,27,58,.18),rgba(6,27,58,.9));z-index:4}.premium-lock-box{text-align:center;max-width:310px;padding:16px;border:1px solid rgba(242,201,76,.5);border-radius:12px;background:rgba(7,34,72,.94)}.premium-lock-box b{display:block;color:#f2c94c;font-size:14px}.premium-lock-box span{display:block;color:#d7e1f1;font-size:10px;line-height:1.45;margin:7px 0 10px}.premium-unlock{border:0;border-radius:9px;padding:9px 13px;background:#f2c94c;color:#061b3a;font-weight:950;font-size:10px}.beta-ribbon{margin:0 0 12px;padding:10px 12px;border:1px solid rgba(242,201,76,.3);border-radius:9px;background:rgba(242,201,76,.07);font-size:10px;color:#d7e1f1;line-height:1.4}.beta-ribbon b{color:#f2c94c}
+.premium-gate{position:relative;overflow:hidden}.premium-gate .premium-blur{filter:blur(5px);opacity:.48;pointer-events:none;user-select:none}.premium-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:#0f1415;z-index:4}.premium-lock-box{text-align:center;max-width:310px;padding:16px;border:1px solid rgba(242,201,76,.5);border-radius:12px;background:rgba(7,34,72,.94)}.premium-lock-box b{display:block;color:#d9ad58;font-size:14px}.premium-lock-box span{display:block;color:#d7e1f1;font-size:10px;line-height:1.45;margin:7px 0 10px}.premium-unlock{border:0;border-radius:9px;padding:9px 13px;background:#d9ad58;color:#0f1415;font-weight:950;font-size:10px}.beta-ribbon{margin:0 0 12px;padding:10px 12px;border:1px solid rgba(242,201,76,.3);border-radius:9px;background:rgba(242,201,76,.07);font-size:10px;color:#d7e1f1;line-height:1.4}.beta-ribbon b{color:#d9ad58}
 </style>
 
 <style id="coupon-segmented-redesign">
@@ -507,15 +507,15 @@ body{
 .coupon-options>div+div .coupon-market{border-left:1px solid #315c8d!important}
 .coupon-market strong{font-size:12px!important;white-space:normal!important;text-align:center!important}
 .coupon-market em{font-size:13px!important;margin-top:6px!important}
-.coupon-market.selected{background:rgba(242,201,76,.16)!important;box-shadow:inset 0 -3px 0 #f2c94c!important;color:#fff!important}
-.coupon-market.selected em{color:#f2c94c!important}
+.coupon-market.selected{background:rgba(242,201,76,.16)!important;box-shadow:inset 0 -3px 0 #d9ad58!important;color:#fff!important}
+.coupon-market.selected em{color:#d9ad58!important}
 </style>
 <style id="se-global-bottom-nav">
 body{padding-bottom:82px!important}
-.se-bottom-nav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(480px,100%)!important;height:68px!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;background:rgba(4,21,46,.98)!important;border-top:1px solid #244b79!important;z-index:9999!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
-.se-bottom-nav a{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#91a7c7!important;text-decoration:none!important;font-size:10px!important;font-weight:800!important;min-width:0!important}
+.se-bottom-nav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(480px,100%)!important;height:68px!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;background:rgba(4,21,46,.98)!important;border-top:1px solid #364142!important;z-index:9999!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
+.se-bottom-nav a{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#899794!important;text-decoration:none!important;font-size:10px!important;font-weight:800!important;min-width:0!important}
 .se-bottom-nav a b{font-size:20px!important;line-height:20px!important;font-weight:700!important}
-.se-bottom-nav a.active{color:#f2c94c!important}
+.se-bottom-nav a.active{color:#d9ad58!important}
 </style>
 <style id="se-browser-responsive">
 *,*::before,*::after{box-sizing:border-box}
@@ -537,17 +537,17 @@ button,input,select,textarea{font:inherit}
 .live-pill{
   min-width:auto!important;height:36px!important;padding:0 11px!important;gap:7px!important;
   border:1px solid rgba(242,201,76,.55)!important;border-radius:999px!important;
-  background:linear-gradient(180deg,rgba(242,201,76,.12),rgba(242,201,76,.05))!important;
+  background:#0f1415!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
-  color:#f2c94c!important;font-size:10px!important;font-weight:900!important;letter-spacing:1.1px!important;
+  color:#d9ad58!important;font-size:10px!important;font-weight:900!important;letter-spacing:1.1px!important;
 }
-.live-pill .live-dot{width:7px!important;height:7px!important;background:#f2c94c!important;box-shadow:0 0 0 4px rgba(242,201,76,.10)!important}
+.live-pill .live-dot{width:7px!important;height:7px!important;background:#d9ad58!important;box-shadow:0 0 0 4px rgba(242,201,76,.10)!important}
 .match-home-button{
   width:42px!important;height:42px!important;padding:0!important;display:inline-flex!important;
   align-items:center!important;justify-content:center!important;border-radius:14px!important;
   border:1px solid rgba(242,201,76,.55)!important;
-  background:linear-gradient(180deg,rgba(18,61,115,.92),rgba(8,37,77,.96))!important;
-  color:#f2c94c!important;box-shadow:0 7px 18px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.06)!important;
+  background:#0f1415!important;
+  color:#d9ad58!important;box-shadow:0 7px 18px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.06)!important;
   text-decoration:none!important;
 }
 .match-home-button svg{width:20px!important;height:20px!important;stroke:currentColor!important;fill:none!important;stroke-width:2!important;stroke-linecap:round!important;stroke-linejoin:round!important}
@@ -582,7 +582,7 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
 .se-bottom-nav a{min-width:0!important;width:auto!important;max-width:none!important;padding:4px 1px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;overflow:hidden!important}
 .se-bottom-nav a b{font-size:25px!important;line-height:28px!important;flex:0 0 auto!important}
 .se-bottom-nav a span{display:block;max-width:100%!important;font-size:10px!important;line-height:14px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;text-align:center!important}
-</style><link rel="stylesheet" href="premium-theme.css?v=20260921a"><style id="analysis-match-header-readability-20260921">
+</style><style id="analysis-match-header-readability-20260921">
 /* Match header readability + zero-yellow cleanup */
 .match-meta{
  color:#556d73!important;
