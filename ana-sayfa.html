@@ -1346,13 +1346,28 @@ notificationBtn.addEventListener('click',async()=>{
   const currentlyOn=localStorage.getItem('socceredge_match_notifications')==='on';
   if(currentlyOn){
     localStorage.setItem('socceredge_match_notifications','off');
-  }else{
-    if('Notification' in window && Notification.permission==='default'){
-      try{await Notification.requestPermission()}catch(_){}
-    }
-    localStorage.setItem('socceredge_match_notifications','on');
+    renderNotificationButton();
+    return;
   }
+  if(!('Notification' in window)){
+    localStorage.setItem('socceredge_match_notifications','off');
+    renderNotificationButton();
+    alert('Notifications are not supported in this browser. On iPhone, add SoccerEdge Pro to the Home Screen and enable notifications there.');
+    return;
+  }
+  let permission=Notification.permission;
+  if(permission==='default'){
+    try{permission=await Notification.requestPermission();}catch(e){permission='denied';}
+  }
+  if(permission!=='granted'){
+    localStorage.setItem('socceredge_match_notifications','off');
+    renderNotificationButton();
+    alert('Notification permission is off. Please allow notifications for SoccerEdge Pro in your browser/device settings.');
+    return;
+  }
+  localStorage.setItem('socceredge_match_notifications','on');
   renderNotificationButton();
+  try{new Notification('SoccerEdge Pro',{body:'Match notifications are now enabled.'});}catch(e){}
 });
 renderNotificationButton();
 
