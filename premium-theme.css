@@ -147,3 +147,39 @@ input,select,textarea,.search,.search-box,.search-input{background:#fff!importan
 .se-bottom-nav a.active,.se-bottom-nav a.active span,.se-bottom-nav a.active b{color:var(--se-teal)!important}
 .se-bottom-nav a.active .nav-icon-box,.nav-item.active .nav-icon-box{background:rgba(25,199,190,.10)!important}
 .se-bottom-nav a.active svg,.nav-item.active svg{stroke:var(--se-teal)!important;color:var(--se-teal)!important}
+
+/* Analysis screen — full light-theme reconciliation */
+#premium-verdict,.premium-verdict,.reading-card,.stat-box,.edge-cell,.team-crest,
+#section-stats .reading-card,#section-form .reading-card,#section-motivation .reading-card{
+ background:#f7faf9!important;background-image:none!important;color:var(--se-text)!important;
+ border:1px solid rgba(16,42,52,.11)!important;box-shadow:none!important;
+}
+.card-title{color:var(--se-text)!important;border-color:rgba(16,42,52,.10)!important}
+.card-title::before,.eyebrow{background:var(--se-teal)!important;border-color:var(--se-teal)!important}
+.reading-label,.stat-label,.signal-tag,.quality-max,.eyebrow,.quick-proof-head,.reason-list,
+#section-standings th{color:var(--se-muted)!important}
+.reading-value,.stat-value,.quality-num,.signal-conf,.team-name,.decision-title,
+#section-standings td{color:var(--se-text)!important}
+.prob-value,.edge-cell strong,.featured-probability{color:var(--se-teal-dark)!important}
+.edge-cell:first-child{background:rgba(25,199,190,.09)!important;border-color:rgba(25,199,190,.35)!important}
+.edge-cell:first-child strong{color:var(--se-teal-dark)!important}
+.premium-verdict::before{background:var(--se-teal)!important}
+.decision-icon{background:rgba(25,199,190,.12)!important;color:var(--se-teal-dark)!important}
+.method-badge{color:var(--se-soft)!important;border-color:rgba(16,42,52,.16)!important;background:#fff!important}
+.verdict-risky .method-badge,.method-badge.risky{color:var(--se-coral)!important;border-color:rgba(255,102,95,.35)!important;background:rgba(255,102,95,.06)!important}
+.signal-badge{background:rgba(25,199,190,.08)!important;color:var(--se-teal-dark)!important;border-color:rgba(25,199,190,.42)!important}
+.quality-ring{border-color:var(--se-teal)!important;color:var(--se-teal-dark)!important}
+.health-track{background:#dfe9e8!important}
+.health-fill{background:var(--se-teal)!important;background-image:none!important}
+.source-chip{background:#fff!important;color:var(--se-soft)!important;border-color:rgba(16,42,52,.13)!important}
+.match-room-btn{background:var(--se-teal)!important;color:#073239!important;border-color:var(--se-teal)!important;border-radius:12px!important}
+.team-crest{background:#fff!important;border-color:rgba(16,42,52,.12)!important}
+.vs-dash,.match-status{color:var(--se-soft)!important}
+.ai-one-line{background:rgba(25,199,190,.07)!important;color:var(--se-soft)!important;border-color:rgba(25,199,190,.22)!important}
+.ai-one-line b{color:var(--se-teal-dark)!important}
+.reason-dot{background:var(--se-teal)!important}.reason-dot.risk,.reason-risk .reason-dot{background:var(--se-coral)!important}
+.coupon-group-title{color:var(--se-soft)!important}
+.coupon-market strong{color:var(--se-text)!important}.coupon-market em{color:var(--se-soft)!important}
+.coupon-market.selected strong,.coupon-market.selected em{color:var(--se-teal-dark)!important}
+#premium-verdict .edge-strip,.edge-strip{gap:10px!important}
+#premium-verdict .edge-cell,.edge-cell{border-radius:14px!important}
