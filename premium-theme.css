@@ -720,3 +720,39 @@ html[data-theme="dark"] .standings-table td,
 html[data-theme="dark"] table td{color:#dbe5e2!important}
 html[data-theme="dark"] .standings-table tr.highlight,
 html[data-theme="dark"] table tr.highlight{background:#24403d!important}
+
+/* Dark Mode v5 — exact analysis selectors */
+html[data-theme="dark"] #section-form .reading-card{
+ background:#282e2f!important;background-image:none!important;
+ border:1px solid #414b4c!important;color:#f2f6f5!important;box-shadow:none!important;
+}
+html[data-theme="dark"] #section-form .reading-label{
+ color:#c3cfcc!important;
+}
+html[data-theme="dark"] #section-form .reading-value{
+ color:#68d0ca!important;
+}
+html[data-theme="dark"] #section-form #home-form-goals,
+html[data-theme="dark"] #section-form #away-form-goals,
+html[data-theme="dark"] #section-form #rest-home-value,
+html[data-theme="dark"] #section-form #rest-away-value{
+ color:#aebdb9!important;
+}
+html[data-theme="dark"] #motivation-home-badge,
+html[data-theme="dark"] #motivation-away-badge{
+ background:#282e2f!important;background-image:none!important;
+ border:1px solid #465253!important;color:#dbe5e2!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] #section-form .card-title{
+ color:#f2f6f5!important;
+}
+html[data-theme="dark"] #section-standings tbody td{
+ color:#dbe5e2!important;
+}
+html[data-theme="dark"] #section-standings thead th{
+ color:#aebdb9!important;
+}
+html[data-theme="dark"] #section-standings tbody tr[style*="background"]{
+ background:#24403d!important;
+}
