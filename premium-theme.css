@@ -183,3 +183,138 @@ input,select,textarea,.search,.search-box,.search-input{background:#fff!importan
 .coupon-market.selected strong,.coupon-market.selected em{color:var(--se-teal-dark)!important}
 #premium-verdict .edge-strip,.edge-strip{gap:10px!important}
 #premium-verdict .edge-cell,.edge-cell{border-radius:14px!important}
+
+/* FINAL LIGHT PREMIUM OVERRIDES — remove remaining navy/yellow legacy blocks */
+:root{
+  --se-accent:#ef6a63;
+  --se-accent-soft:#fff1ef;
+  --se-teal:#28bdb6;
+  --se-teal-dark:#12877f;
+  --se-mint:#eaf8f6;
+  --se-sky:#eef5f8;
+  --se-lilac:#f3effb;
+  --se-ink:#17313a;
+  --se-soft:#667d84;
+  --se-muted:#8fa0a5;
+}
+
+/* Fixtures / Scores league headers */
+.league-card,.league-group,.league-toggle,.scores-live-now,.scores-live-group,
+.scores-live-league,.scores-live-group-body,.league-body,
+.fixture-league,.fixture-group,.league-header,.accordion-header{
+  background:#fff!important;
+  background-image:none!important;
+  color:var(--se-ink)!important;
+  border-color:rgba(23,49,58,.10)!important;
+  box-shadow:0 8px 24px rgba(23,49,58,.06)!important;
+}
+.league-toggle,.scores-live-league,.league-header,.accordion-header{
+  color:var(--se-ink)!important;
+}
+.league-count,.scores-live-league b,.scores-live-title b,.live-chevron,.chevron{
+  color:var(--se-teal-dark)!important;
+}
+.scores-live-now{
+  border:1px solid rgba(40,189,182,.24)!important;
+  background:var(--se-mint)!important;
+}
+.scores-live-title{
+  color:var(--se-ink)!important;
+  background:transparent!important;
+}
+.scores-live-dot{background:var(--se-teal)!important;box-shadow:0 0 0 6px rgba(40,189,182,.12)!important}
+
+/* Score match rows */
+.match-card,.score-card,.score-row,.fixture-row,.match-row-card{
+  background:#fff!important;
+  color:var(--se-ink)!important;
+  border-color:rgba(23,49,58,.10)!important;
+}
+.match-status-pill.ft,.match-status-pill.ns{
+  background:var(--se-sky)!important;color:var(--se-soft)!important;
+}
+.match-status-pill.live{
+  background:var(--se-accent-soft)!important;color:var(--se-accent)!important;
+}
+.team-line,.team-line .tname,.team-line .tscore{color:var(--se-ink)!important}
+
+/* Analysis: kill every remaining stadium/navy block */
+#premium-verdict,.premium-verdict,.edge-cell,.reading-card,.stat-box,.team-crest,
+.signal-badge,.quality-circle,.quality-ring,.quality-wrap,
+.analysis-metric,.analysis-stat,.metric-box,.metric-card,.prob-card,.pick-tile,
+.quick-pick,.strongest-pick,.strongest-pick-card,.strong-pick-card,
+.form-card,.streak-card,.rest-card,.xg-card,.data-quality-card,
+#section-form .reading-card,#section-stats .reading-card,#section-motivation .reading-card{
+  background:#fff!important;
+  background-image:none!important;
+  color:var(--se-ink)!important;
+  border-color:rgba(23,49,58,.11)!important;
+  box-shadow:0 6px 18px rgba(23,49,58,.05)!important;
+}
+#premium-verdict,.premium-verdict{
+  border-left:4px solid var(--se-teal)!important;
+}
+.edge-cell:first-child,.pick-tile:first-child,.strongest-pick:first-child{
+  background:var(--se-mint)!important;
+  border-color:rgba(40,189,182,.35)!important;
+}
+
+/* legacy navy selectors used by analysis page */
+.premium-verdict .edge-cell,
+.premium-verdict .decision-icon,
+.premium-verdict .signal-badge,
+.reading-card,.stat-box{
+  background:#fff!important;
+  background-image:none!important;
+}
+
+/* Convert old yellow/gold typography to coral/teal */
+[style*="#f2c94c"],[style*="#F2C94C"],
+[style*="#d6ad2d"],[style*="#D6AD2D"]{
+  color:var(--se-accent)!important;
+  border-color:var(--se-accent)!important;
+}
+.card-title::before,.premium-verdict::before,.eyebrow{
+  background:var(--se-teal)!important;
+}
+.decision-title,.quality-num,.signal-conf,.reading-value,.stat-value,
+.edge-cell strong,.prob-value,.featured-probability{
+  color:var(--se-teal-dark)!important;
+}
+.strongest-title,.strongest-picks-title,.pick-title,
+#decision-title{
+  color:var(--se-ink)!important;
+}
+.reason-dot{background:var(--se-teal)!important}
+.reason-risk .reason-dot,.reason-dot.risk{background:var(--se-accent)!important}
+
+/* Match Room CTA: premium flat */
+.match-room-btn{
+  background:var(--se-teal)!important;
+  color:#fff!important;
+  border-color:var(--se-teal)!important;
+  box-shadow:none!important;
+}
+
+/* Data quality / health */
+.health-track,.progress,.bar,.track,[class*="progress-track"],[class*="bar-track"]{
+  background:#e5eeed!important;
+}
+.health-fill,.progress-fill,.bar-fill,[class*="progress-fill"],[class*="bar-fill"]{
+  background:var(--se-teal)!important;
+}
+.quality-ring,.quality-circle{
+  border-color:var(--se-teal)!important;
+}
+.quality-tag,.signal-tag,.reading-label,.stat-label{
+  color:var(--se-muted)!important;
+}
+
+/* remove old amber nav/accent remnants */
+.se-bottom-nav a.active,.se-bottom-nav a.active span,.se-bottom-nav a.active b,
+.nav-item.active,.nav-item.active span,.nav-item.active b{
+  color:var(--se-teal)!important;
+}
+.se-bottom-nav a.active svg,.nav-item.active svg{
+  stroke:var(--se-teal)!important;fill:none!important;
+}
