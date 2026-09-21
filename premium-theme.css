@@ -565,3 +565,56 @@ html[data-theme="dark"] .tag,
 html[data-theme="dark"] .chip{
  background:#173431!important;color:#66d8d1!important;border-color:#315b57!important;
 }
+
+/* Home dark-mode hard override: no white cards, readable typography */
+html[data-theme="dark"] .featured-card,
+html[data-theme="dark"] .home-league-group,
+html[data-theme="dark"] .date-header,
+html[data-theme="dark"] #todayMatchesList .home-league-group,
+html[data-theme="dark"] #featuredSection .featured-card{
+ background:#222728!important;background-image:none!important;
+ border-color:#3d4748!important;color:#f2f6f5!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] .home-league-header,
+html[data-theme="dark"] .home-league-matches,
+html[data-theme="dark"] .home-league-group .match-row-card{
+ background:#222728!important;background-image:none!important;
+ color:#f2f6f5!important;border-color:#3d4748!important;
+}
+html[data-theme="dark"] .featured-teams,
+html[data-theme="dark"] .featured-signal-text,
+html[data-theme="dark"] .home-league-title,
+html[data-theme="dark"] .match-row-teams,
+html[data-theme="dark"] .match-row-score,
+html[data-theme="dark"] .section-label-left{
+ color:#f2f6f5!important;opacity:1!important;
+}
+html[data-theme="dark"] .featured-meta,
+html[data-theme="dark"] .featured-signal-sub,
+html[data-theme="dark"] .featured-health,
+html[data-theme="dark"] .home-league-count,
+html[data-theme="dark"] .match-row-league,
+html[data-theme="dark"] .match-row-time,
+html[data-theme="dark"] .match-row-halves,
+html[data-theme="dark"] .date-header{
+ color:#b8c6c3!important;opacity:1!important;
+}
+html[data-theme="dark"] .featured-signal{
+ background:#293334!important;color:#f2f6f5!important;
+}
+html[data-theme="dark"] .for-you-home{
+ background:#1d2223!important;color:#f2f6f5!important;
+}
+html[data-theme="dark"] .for-you-head b{color:#f2f6f5!important}
+html[data-theme="dark"] .fy-card{
+ background:#222728!important;color:#f2f6f5!important;border-color:#3d4748!important;
+}
+html[data-theme="dark"] .fy-card .fy-title{color:#f2f6f5!important}
+html[data-theme="dark"] .fy-card .fy-meta{color:#b8c6c3!important}
+html[data-theme="dark"] .fy-card .fy-pick{color:#b6a4dd!important}
+html[data-theme="dark"] .fav-btn,
+html[data-theme="dark"] .favorite-btn{
+ background:#2d2937!important;border-color:#5a506d!important;color:#b6a4dd!important;
+}
+html[data-theme="dark"] .section-label-left{font-size:13px!important;letter-spacing:.08em!important}
