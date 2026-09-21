@@ -970,3 +970,8 @@ input::placeholder,textarea::placeholder{color:#91a09d!important}
 .se-bottom-nav,.bottom-nav,.nav-bar,.bottom-bar{background:#1a1f20!important;border-top-color:#3b4445!important}
 .se-bottom-nav a,.bottom-nav a{color:#aebdb9!important}
 .se-bottom-nav a.active,.bottom-nav a.active{color:#35c7bf!important}
+
+/* DARK ONLY — light mode removed */
+:root{color-scheme:dark!important}
+html,body{background:#121718!important;color:#f3f6f5!important}
+@media (prefers-color-scheme:light){html,body{background:#121718!important;color:#f3f6f5!important}}
