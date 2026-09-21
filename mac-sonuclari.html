@@ -704,6 +704,26 @@ async function loadResults() {
     if(!response.ok) throw new Error('results_unavailable');
     const json=await response.json();
     allMatchesForDay=Array.isArray(json.matches)?json.matches:[];
+    // /api/results remains the score-page authority. For today's page only,
+    // enrich matching live rows with provider-reported clock/status; never
+    // create extra fixtures from /api/live and never infer a minute locally.
+    if(selectedDate===formatDateKey(new Date())){
+      try{
+        const liveRes=await fetch(`${API_BASE}/api/live?date=${selectedDate}&_=${Date.now()}`,{cache:'no-store'});
+        if(liveRes.ok){
+          const liveJson=await liveRes.json();
+          const liveRows=Array.isArray(liveJson.matches)?liveJson.matches:(Array.isArray(liveJson)?liveJson:[]);
+          const byId=new Map(liveRows.filter(x=>x?.fixtureId!=null).map(x=>[String(x.fixtureId),x]));
+          allMatchesForDay=allMatchesForDay.map(m=>{
+            const live=byId.get(String(m.fixtureId));
+            if(!live)return m;
+            const rawMinute=live.minute ?? live.elapsed ?? live.time?.elapsed ?? null;
+            const minute=rawMinute!=null && Number.isFinite(Number(rawMinute)) ? Number(rawMinute) : m.minute;
+            return {...m,isLive:live.isLive===true || m.isLive,minute,statusShort:live.statusShort||live.status||m.statusShort};
+          });
+        }
+      }catch(e){console.warn('Live clock enrichment unavailable:',e.message)}
+    }
   } catch(err) {
     console.warn('Scores load failed:',err.message);
     allMatchesForDay=[];
@@ -719,8 +739,13 @@ async function loadResults() {
 }
 
 function statusLabel(m) {
-  if (m.isLive) return m.minute != null ? `${t('live')} ${m.minute}'` : t('live');
-  if (m.statusShort === 'FT') return t('ft');
+  const status=String(m.statusShort||'').toUpperCase();
+  if (m.isLive) {
+    if(status==='HT') return 'HT';
+    const minute=Number(m.minute);
+    return Number.isFinite(minute) && minute>0 ? `${t('live')} · ${Math.round(minute)}'` : t('live');
+  }
+  if (status === 'FT') return t('ft');
   if (m.statusShort === 'NS') return t('notStarted');
   return m.statusShort || '';
 }
