@@ -713,9 +713,12 @@ async function loadResults() {
         if(liveRes.ok){
           const liveJson=await liveRes.json();
           const liveRows=Array.isArray(liveJson.matches)?liveJson.matches:(Array.isArray(liveJson)?liveJson:[]);
+          const norm=s=>String(s||'').toLocaleLowerCase('en-US').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+          const teamKey=m=>norm(m.homeTeam)+'|'+norm(m.awayTeam);
           const byId=new Map(liveRows.filter(x=>x?.fixtureId!=null).map(x=>[String(x.fixtureId),x]));
+          const byTeams=new Map(liveRows.filter(x=>x?.homeTeam&&x?.awayTeam).map(x=>[teamKey(x),x]));
           allMatchesForDay=allMatchesForDay.map(m=>{
-            const live=byId.get(String(m.fixtureId));
+            const live=byId.get(String(m.fixtureId)) || byTeams.get(teamKey(m));
             if(!live)return m;
             const rawMinute=live.minute ?? live.elapsed ?? live.time?.elapsed ?? null;
             const minute=rawMinute!=null && Number.isFinite(Number(rawMinute)) ? Number(rawMinute) : m.minute;
