@@ -1590,7 +1590,11 @@ async function verifyAnalysisPick(item,button){
  try{const r=await fetch(API_BASE+'/api/community/verified-picks',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(body)}),d=await r.json();if(!r.ok)throw new Error(d.error||'Pick could not be verified');button.textContent='✓ VERIFIED · LOCKED';button.classList.add('locked');button.disabled=true}
  catch(e){button.textContent=old;button.disabled=false;const f=document.getElementById('couponFeedback');if(f)f.textContent=e.message}
 }
-function bindVerifyButtons(markets){document.querySelectorAll('[data-verify-key]').forEach(b=>b.onclick=e=>{e.stopPropagation();const item=markets.find(x=>String(x.key)===String(b.dataset.verifyKey));verifyAnalysisPick(item,b)})}
+async function markMyVerifiedPicks(){
+ const token=localStorage.getItem('matchedge_token');if(!token||!FIXTURE_ID)return;
+ try{const r=await fetch(API_BASE+'/api/community/verified-picks/'+encodeURIComponent(FIXTURE_ID)+'/mine',{headers:{Authorization:'Bearer '+token}});if(!r.ok)return;const d=await r.json(),keys=new Set((d.picks||[]).map(x=>String(x.key)));document.querySelectorAll('[data-verify-key]').forEach(b=>{if(keys.has(String(b.dataset.verifyKey))){b.textContent='✓ VERIFIED · LOCKED';b.classList.add('locked');b.disabled=true}})}catch(_){}
+}
+function bindVerifyButtons(markets){document.querySelectorAll('[data-verify-key]').forEach(b=>b.onclick=e=>{e.stopPropagation();const item=markets.find(x=>String(x.key)===String(b.dataset.verifyKey));verifyAnalysisPick(item,b)});markMyVerifiedPicks()}
 function syncFeaturedPicks() {
   document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => cell.classList.toggle('selected', selectedCouponMarkets.has(cell.dataset.marketKey)));
 }
