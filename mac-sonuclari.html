@@ -6,17 +6,17 @@
 <title>SoccerEdge Pro - Maç Sonuçları</title>
 <style>
   :root {
-    --bg-base: #0a0e17;
-    --bg-card: #121826;
-    --bg-card-inner: #0d1220;
-    --border-subtle: #1e2636;
-    --teal: #2dd4bf;
-    --purple: #9d7cf0;
-    --amber: #f5b942;
-    --red: #f0556b;
-    --text-primary: #f2f4f8;
-    --text-secondary: #a8b0c2;
-    --text-muted: #6b7386;
+    --bg-base: #0f1415;
+    --bg-card: #171d1e;
+    --bg-card-inner: #202728;
+    --border-subtle: #364142;
+    --teal: #39c7c1;
+    --purple: #aa91df;
+    --amber: #d9ad58;
+    --red: #e66b64;
+    --text-primary: #f4f7f6;
+    --text-secondary: #c5cfcc;
+    --text-muted: #899794;
     --radius: 16px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -199,7 +199,7 @@
     pointer-events: none;
   }
   .goal-toast {
-    background: linear-gradient(135deg, #1a2332, #121826);
+    background:#0f1415;
     border: 1px solid var(--teal);
     border-radius: 14px;
     padding: 12px 18px;
@@ -290,30 +290,30 @@
 
 <style id="socceredge-stadium-theme">
 :root{
- --bg-base:#061b3a;--bg-card:#0b2b59;--bg-card-inner:#09244b;--border-subtle:#244b79;
- --bg:#061b3a;--card:#0b2b59;--inner:#09244b;--line:#244b79;
- --teal:#f2c94c;--amber:#f2c94c;--purple:#ef5350;--red:#ef5350;--green:#35c878;
- --text-primary:#f7f9fd;--text-secondary:#d7e1f1;--text-muted:#91a7c7;
- --text:#f7f9fd;--soft:#d7e1f1;--muted:#91a7c7;--radius:10px;
+ --bg-base:#0f1415;--bg-card:#171d1e;--bg-card-inner:#09244b;--border-subtle:#364142;
+ --bg:#0f1415;--card:#171d1e;--inner:#09244b;--line:#364142;
+ --teal:#d9ad58;--amber:#d9ad58;--purple:#ef5350;--red:#ef5350;--green:#35c878;
+ --text-primary:#f7f9fd;--text-secondary:#d7e1f1;--text-muted:#899794;
+ --text:#f7f9fd;--soft:#d7e1f1;--muted:#899794;--radius:10px;
 }
-html,body{background:#061b3a!important}
-body{background:radial-gradient(circle at 50% -10%,rgba(38,105,190,.40),transparent 34%),linear-gradient(180deg,#092957 0%,#061a38 48%,#04152e 100%)!important;background-attachment:fixed!important;color:#f7f9fd;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+html,body{background:#0f1415!important}
+body{background:radial-gradient(circle at 50% -10%,rgba(38,105,190,.40),transparent 34%),linear-gradient(180deg,#171d1e 0%,#061a38 48%,#04152e 100%)!important;background-attachment:fixed!important;color:#f7f9fd;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
 .top-bar,.header,.app-header,.top{border-bottom-color:#d6ad2d!important}
-.card,.match-card,.league-group,.panel,.section,.result-card,.date-card{background:linear-gradient(180deg,rgba(15,54,105,.97),rgba(7,34,72,.98))!important;border-color:rgba(105,145,194,.42)!important;border-radius:10px!important;box-shadow:none!important}
+.card,.match-card,.league-group,.panel,.section,.result-card,.date-card{background:#0f1415!important;border-color:rgba(105,145,194,.42)!important;border-radius:10px!important;box-shadow:none!important}
 .card-title,.section-title,.league-name,.panel-title{color:#fff!important;font-weight:900!important}
 button,.button,.btn{border-radius:8px!important}
-.active,.selected{border-color:#f2c94c!important;color:#f2c94c!important}
-.bottom-nav,.nav-bar,.bottom-bar,.bottom{background:#061a38!important;border-color:#244b79!important}
-.bottom-nav .active,.nav-item.active,.bottom a.active{color:#f2c94c!important}
+.active,.selected{border-color:#d9ad58!important;color:#d9ad58!important}
+.bottom-nav,.nav-bar,.bottom-bar,.bottom{background:#061a38!important;border-color:#364142!important}
+.bottom-nav .active,.nav-item.active,.bottom a.active{color:#d9ad58!important}
 input,textarea,select{background:#09244b!important;border-color:#315781!important;color:#fff!important}
-.score,.result-score{color:#f2c94c!important;font-weight:900!important}
+.score,.result-score{color:#d9ad58!important;font-weight:900!important}
 </style>
 <style id="se-global-bottom-nav">
 body{padding-bottom:82px!important}
-.se-bottom-nav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(480px,100%)!important;height:68px!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;background:rgba(4,21,46,.98)!important;border-top:1px solid #244b79!important;z-index:9999!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
-.se-bottom-nav a{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#91a7c7!important;text-decoration:none!important;font-size:10px!important;font-weight:800!important;min-width:0!important}
+.se-bottom-nav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(480px,100%)!important;height:68px!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;background:rgba(4,21,46,.98)!important;border-top:1px solid #364142!important;z-index:9999!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
+.se-bottom-nav a{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#899794!important;text-decoration:none!important;font-size:10px!important;font-weight:800!important;min-width:0!important}
 .se-bottom-nav a b{font-size:20px!important;line-height:20px!important;font-weight:700!important}
-.se-bottom-nav a.active{color:#f2c94c!important}
+.se-bottom-nav a.active{color:#d9ad58!important}
 </style>
 <style id="se-browser-responsive">
 *,*::before,*::after{box-sizing:border-box}
@@ -441,11 +441,11 @@ html,body{overflow-x:hidden!important}
  position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;
  transform:none!important;width:100%!important;max-width:none!important;height:calc(72px + env(safe-area-inset-bottom,0px))!important;
  margin:0!important;padding:5px 4px calc(7px + env(safe-area-inset-bottom,0px))!important;
- background:#04152e!important;border-top:1px solid #244b79!important;z-index:2147483647!important;
+ background:#04152e!important;border-top:1px solid #364142!important;z-index:2147483647!important;
  contain:none!important;filter:none!important;perspective:none!important;
 }
 body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
-</style><style id="remove-goal-toast-ui">.goal-toast-wrap,.goal-toast{display:none!important}</style><link rel="stylesheet" href="premium-theme.css?v=20260921a"><style id="global-dark-only-no-theme-toggle">:root{color-scheme:dark!important}.theme-toggle,.theme-switch,.theme-mode,.appearance-toggle,#themeToggle,#theme-toggle,#lightMode,#light-mode,[data-theme-toggle],[data-action="toggle-theme"],[data-action="theme"]{display:none!important}</style><script>(function(){try{localStorage.setItem('theme','dark');localStorage.setItem('socceredge_theme','dark')}catch(e){}document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.remove('light','light-mode');document.documentElement.classList.add('dark','dark-mode');document.addEventListener('DOMContentLoaded',()=>document.querySelectorAll('.top-actions .icon-btn').forEach(el=>{if(/☀|🌞|🌙/.test(el.textContent||''))el.remove()}))})();</script><link rel="stylesheet" href="dark-ui-v2.css?v=20260922-1">
+</style><style id="remove-goal-toast-ui">.goal-toast-wrap,.goal-toast{display:none!important}</style><style id="global-dark-only-no-theme-toggle">:root{color-scheme:dark!important}.theme-toggle,.theme-switch,.theme-mode,.appearance-toggle,#themeToggle,#theme-toggle,#lightMode,#light-mode,[data-theme-toggle],[data-action="toggle-theme"],[data-action="theme"]{display:none!important}</style><script>(function(){try{localStorage.setItem('theme','dark');localStorage.setItem('socceredge_theme','dark')}catch(e){}document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.remove('light','light-mode');document.documentElement.classList.add('dark','dark-mode');document.addEventListener('DOMContentLoaded',()=>document.querySelectorAll('.top-actions .icon-btn').forEach(el=>{if(/☀|🌞|🌙/.test(el.textContent||''))el.remove()}))})();</script><link rel="stylesheet" href="dark-ui-v2.css?v=20260922-1">
 </head>
 <body>
 
