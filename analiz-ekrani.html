@@ -626,7 +626,7 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
   <div class="card premium-verdict verdict-watch" id="premium-verdict">
     <div class="verdict-head">
       <div class="eyebrow" data-i18n="edgeVerdict">SOCCEREDGE VERDICT</div>
-      <div class="method-badge">MODEL × MARKET</div>
+      <div class="method-badge" id="edgeClassBadge">WATCH</div>
     </div>
     <div class="decision-line">
       <div class="decision-icon" id="decision-icon">◌</div>
@@ -634,7 +634,7 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
         <div class="decision-title" id="decision-title" data-i18n="analysing">ANALYSING</div>
       </div>
     </div>
-    <div class="edge-strip">
+    <div class="edge-strip" id="decisionMetrics">
       <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-1">—</span><strong id="pick-prob-1">—</strong></div>
       <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-2">—</span><strong id="pick-prob-2">—</strong></div>
       <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-3">—</span><strong id="pick-prob-3">—</strong></div>
@@ -1495,34 +1495,41 @@ function renderPremiumIntelligence(premium, data) {
     document.getElementById(`pick-prob-${index + 1}`).textContent = pick ? `${pick.probability}%` : '—';
   }
 
-  // 3–1–1: three concise supporting signals, one risk, one AI sentence.
+  // Evidence only: probabilities are outputs, not reasons. Never manufacture support/risk copy.
   const supports = [];
   if (Number.isFinite(best?.edgePoints)) supports.push(t('reasonEdge').replace('{v}', best.edgePoints >= 0 ? `+${best.edgePoints}` : best.edgePoints));
-  (premium.drivers || []).forEach(d => { if (supports.length < 3) supports.push(premiumReasonText(d.code, d.strength)); });
-  strongestPicks.slice(0,3).forEach(p => { if (supports.length < 3 && p?.label) supports.push(`${p.label} · ${p.probability}%`); });
-  const riskCode=(premium.blockers||[])[0];
-  const risk=riskCode?premiumReasonText(riskCode):(currentLang==='tr'?'Ek risk sinyali mevcut veride gösterilmiyor.':'No additional risk signal is available in the current data.');
+  (premium.drivers || []).forEach(d => { if (supports.length < 3 && d?.code) supports.push(premiumReasonText(d.code, d.strength)); });
+  const riskCodes=(premium.blockers||[]).filter(Boolean).slice(0,2);
   const reasonList = document.getElementById('premium-reasons');
   const whyHead = document.getElementById('whyPickHead');
   const rows=supports.slice(0,3).filter(Boolean).map(reason=>({reason,type:'support'}));
-  if(risk) rows.push({reason:risk,type:'risk'});
-  if(whyHead) whyHead.style.display=rows.length?'':'none';
-  reasonList.style.display=rows.length?'':'none';
-  reasonList.replaceChildren(...rows.map(item => {
-    const row = document.createElement('div');row.className = 'reason-row '+item.type;
-    const dot = document.createElement('span');dot.className = 'reason-dot';
-    const copy = document.createElement('span');copy.textContent = (item.type==='risk'?(currentLang==='tr'?'Risk: ':'Risk: '):'')+item.reason;
-    row.append(dot, copy);return row;
-  }));
+  riskCodes.forEach(code=>rows.push({reason:premiumReasonText(code),type:'risk'}));
+  if(whyHead) whyHead.style.display='';
+  reasonList.style.display='';
+  if(!rows.length){
+    const empty=document.createElement('div');empty.className='reason-row';
+    const dot=document.createElement('span');dot.className='reason-dot';
+    const copy=document.createElement('span');copy.textContent=currentLang==='tr'?'Bu seçim için doğrulanmış açıklayıcı kanıt hâlâ toplanıyor.':'Verified explanatory evidence for this pick is still collecting.';
+    empty.append(dot,copy);reasonList.replaceChildren(empty);
+  }else{
+    reasonList.replaceChildren(...rows.map(item => {
+      const row = document.createElement('div');row.className = 'reason-row '+item.type;
+      const dot = document.createElement('span');dot.className = 'reason-dot';
+      const copy = document.createElement('span');copy.textContent = (item.type==='risk'?'Risk: ':'')+item.reason;
+      row.append(dot, copy);return row;
+    }));
+  }
   document.getElementById('why-pick-label').textContent=currentLang==='tr'?'NEDEN BU SEÇİM?':'WHY THIS PICK?';
   const top=strongestPicks[0];
   document.querySelector('#ai-one-line span').textContent=top
-    ? (currentLang==='tr'
-      ? `${supports.length} destekleyici sinyal ${top.label} seçimini öne çıkarıyor; risk satırını da kontrol et.`
-      : `${supports.length} supporting signals put ${top.label} forward; check the risk line as well.`)
-    : (currentLang==='tr'?'Yeterli güçlü seçim oluşmadı; ayrıntılı istatistikleri kontrol et.':'No strong pick is available; review the detailed statistics.');
+    ? (rows.length
+      ? (currentLang==='tr'?`${top.label} · %${top.probability}. Aşağıdaki nedenler yalnız mevcut doğrulanmış sinyallerdir.`:`${top.label} · ${top.probability}%. Reasons below use available verified signals only.`)
+      : (currentLang==='tr'?`${top.label} · %${top.probability}. Açıklayıcı kanıt toplanıyor.`:`${top.label} · ${top.probability}%. Explanatory evidence is still collecting.`))
+    : (currentLang==='tr'?'Yeterli güçlü seçim oluşmadı.':'No strong pick is available.');
 
   const health = premium.dataHealth || {};
+  const badge=document.getElementById('edgeClassBadge');
+  if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':premium.status==='NO_BET'?'NO EDGE':(Number(health.score||0)<45?'RISKY':'WATCH');
   document.getElementById('health-score').textContent = `${health.score ?? '—'}/100`;
   document.getElementById('health-fill').style.width = `${health.score || 0}%`;
   const checks = health.checks || {};
