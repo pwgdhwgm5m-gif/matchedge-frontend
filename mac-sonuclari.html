@@ -395,18 +395,8 @@ html,body{overflow-x:hidden!important}
  contain:none!important;filter:none!important;perspective:none!important;
 }
 body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
-</style></head>
+</style><style id="remove-goal-toast-ui">.goal-toast-wrap,.goal-toast{display:none!important}</style></head>
 <body>
-
-<div class="goal-toast-wrap">
-  <div class="goal-toast" id="goalToast">
-    <div class="goal-toast-icon">⚽</div>
-    <div>
-      <div class="goal-toast-text" id="goalToastText">GOL!</div>
-      <div class="goal-toast-sub" id="goalToastSub">—</div>
-    </div>
-  </div>
-</div>
 
 <div class="app">
 
@@ -906,7 +896,6 @@ async function pollLiveForGoals() {
 
     if (previousScore && previousScore !== currentScore) {
       if (favorites.has(key)) {
-        showGoalToast(m);
         playGoalSound();
         showSystemGoalNotification(m);
         loadResults();
@@ -955,15 +944,6 @@ document.getElementById('soundToggle').addEventListener('click', async () => {
   renderSoundSettings();
 });
 
-function showGoalToast(m) {
-  const toast = document.getElementById('goalToast');
-  document.getElementById('goalToastText').textContent =
-    `${t('goal')} ${m.homeTeam} ${m.homeScore} - ${m.awayScore} ${m.awayTeam}`;
-  document.getElementById('goalToastSub').textContent = m.minute != null ? `${m.minute}${t('minuteSuffix')}` : '';
-
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 4500);
-}
 
 document.getElementById('allScores').addEventListener('click', () => setScoreFilter(false));
 document.getElementById('favoriteScores').addEventListener('click', () => setScoreFilter(true));
