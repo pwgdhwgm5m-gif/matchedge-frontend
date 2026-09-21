@@ -1334,19 +1334,7 @@ document.getElementById('claimDailyBtn').addEventListener('click', async () => {
 
 loadCommunityPanel();
 
-const notificationBtn=document.getElementById('notificationBtn');
-function renderNotificationButton(){
-  const enabled=localStorage.getItem('socceredge_match_notifications')==='on';
-  notificationBtn.textContent=enabled?'🔔':'🔕';
-  notificationBtn.classList.toggle('notification-on',enabled);
-  notificationBtn.setAttribute('aria-pressed',String(enabled));
-  notificationBtn.title=enabled?'Maç bildirimleri açık':'Maç bildirimleri kapalı';
-}
-notificationBtn.addEventListener('click',async()=>{
-  const currentlyOn=localStorage.getItem('socceredge_match_notifications')==='on';
-  if(currentlyOn){
-    localStorage.setItem('socceredge_match_notifications','off');
-    renderNotificationButton();
+// Notification bell is managed by language-selector.js via the existing PWA Web Push subscription system.
     return;
   }
   if(!('Notification' in window)){
