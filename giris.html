@@ -276,6 +276,7 @@ body{display:block!important;min-height:100svh!important;padding:0!important}
     </div>
 
     <button class="submit-btn" id="submitBtn" data-i18n="loginBtn">Log In</button>
+    <button class="install-entry" id="adminPasskeyBtn" type="button" style="margin-top:10px;border-color:#f2c94c;color:#f2c94c">🔐 AdminXYZ · Face ID / Passkey</button>
 
     <div class="forgot-link" id="forgotLink" data-i18n="forgotLink">Forgot password?</div>
     <div class="back-link" id="backLink" style="display:none;" data-i18n="backToLogin">Back to log in</div>
@@ -447,6 +448,24 @@ function showSuccess(msg) {
   el.textContent = msg;
   el.classList.add('show');
 }
+
+const b64=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0))};
+const passkeyOptions=c=>{if(c.publicKey?.challenge)c.publicKey.challenge=b64(c.publicKey.challenge);if(c.publicKey?.allowCredentials)c.publicKey.allowCredentials=c.publicKey.allowCredentials.map(x=>({...x,id:b64(x.id)}));return c};
+const enc=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+function credentialJSON(c){return {id:c.id,rawId:enc(c.rawId),type:c.type,clientExtensionResults:c.getClientExtensionResults(),response:{authenticatorData:enc(c.response.authenticatorData),clientDataJSON:enc(c.response.clientDataJSON),signature:enc(c.response.signature),userHandle:c.response.userHandle?enc(c.response.userHandle):null}}}
+async function adminPasskeyLogin(){
+ const btn=document.getElementById('adminPasskeyBtn');btn.disabled=true;
+ try{
+  let r=await fetch(API_BASE+'/api/admin-passkey/login/options',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'AdminXYZ'})}),j=await r.json();
+  if(!r.ok)throw Error(j.error||'Passkey unavailable');
+  const cred=await navigator.credentials.get(passkeyOptions({publicKey:j.options}));
+  r=await fetch(API_BASE+'/api/admin-passkey/login/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:j.key,response:credentialJSON(cred)})});j=await r.json();
+  if(!r.ok)throw Error(j.error||'Passkey login failed');
+  localStorage.setItem('matchedge_token',j.token);localStorage.setItem('matchedge_admin_token',j.token);localStorage.setItem('matchedge_username',j.username);
+  const next=new URLSearchParams(location.search).get('next');location.href=next||'ana-sayfa.html';
+ }catch(e){showError(e.message)}finally{btn.disabled=false}
+}
+document.getElementById('adminPasskeyBtn').addEventListener('click',adminPasskeyLogin);
 
 document.getElementById('submitBtn').addEventListener('click', async () => {
   if (!API_BASE) {
