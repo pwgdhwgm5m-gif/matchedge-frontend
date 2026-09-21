@@ -618,3 +618,56 @@ html[data-theme="dark"] .favorite-btn{
  background:#2d2937!important;border-color:#5a506d!important;color:#b6a4dd!important;
 }
 html[data-theme="dark"] .section-label-left{font-size:13px!important;letter-spacing:.08em!important}
+
+/* Dark Mode v3 — complete surface/contrast cleanup across Home + Analysis */
+html[data-theme="dark"] .home-league-group,
+html[data-theme="dark"] #todayMatchesList > *,
+html[data-theme="dark"] .coupon-group,
+html[data-theme="dark"] .coupon-options,
+html[data-theme="dark"] .coupon-options.three,
+html[data-theme="dark"] .coupon-market{
+ background:#222728!important;background-image:none!important;
+ color:#f2f6f5!important;border-color:#3d4748!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] .coupon-options>div+div .coupon-market{
+ border-left-color:#465152!important;
+}
+html[data-theme="dark"] .coupon-group-title,
+html[data-theme="dark"] .coupon-market strong{
+ color:#f2f6f5!important;opacity:1!important;
+}
+html[data-theme="dark"] .coupon-market em{
+ color:#b8c6c3!important;opacity:1!important;
+}
+html[data-theme="dark"] .coupon-market.selected{
+ background:#173431!important;
+ box-shadow:inset 0 -3px 0 #35c7bf!important;
+ color:#f2f6f5!important;
+}
+html[data-theme="dark"] .coupon-market.selected em{color:#66d8d1!important}
+html[data-theme="dark"] .coupon-group-title::before,
+html[data-theme="dark"] .coupon-group>h3::before{
+ background:#35c7bf!important;
+}
+html[data-theme="dark"] .data-pill,
+html[data-theme="dark"] .missing-pill,
+html[data-theme="dark"] .data-chip,
+html[data-theme="dark"] .source-chip{
+ background:#282e2f!important;color:#b8c6c3!important;border-color:#465152!important;
+}
+html[data-theme="dark"] .strongest-picks .star,
+html[data-theme="dark"] .strongest-title .star,
+html[data-theme="dark"] .favorite-btn,
+html[data-theme="dark"] .fav-btn{
+ color:#b6a4dd!important;
+}
+html[data-theme="dark"] .favorite-btn svg,
+html[data-theme="dark"] .fav-btn svg{stroke:#b6a4dd!important}
+html[data-theme="dark"] .date-header,
+html[data-theme="dark"] #dateHeader{
+ background:#222728!important;color:#b8c6c3!important;border-color:#3d4748!important;
+}
+html[data-theme="dark"] .home-league-title{color:#f2f6f5!important}
+html[data-theme="dark"] .home-league-count{color:#b8c6c3!important}
+html[data-theme="dark"] .home-league-chevron{color:#66d8d1!important}
