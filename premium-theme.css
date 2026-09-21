@@ -932,3 +932,29 @@ html[data-theme="dark"] .toggle-bar .toggle-btn.active{
  background:#35c7bf!important;
  color:#102122!important;
 }
+
+/* Dark Mode v9 — analysis residual light surfaces */
+html[data-theme="dark"] .signal-badge,
+html[data-theme="dark"] #signal-label,
+html[data-theme="dark"] #motivation-home-badge,
+html[data-theme="dark"] #motivation-away-badge{
+ background:#282e2f!important;
+ background-image:none!important;
+ color:#dce7e4!important;
+ border:1px solid #4a5657!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] #signal-label{
+ color:#71d9d3!important;
+ border-color:#3e716f!important;
+}
+html[data-theme="dark"] .decision-icon{
+ background:#282e2f!important;
+ color:#71d9d3!important;
+ border:1px solid #4a5657!important;
+}
+html[data-theme="dark"] .method-badge{
+ background:#282e2f!important;
+ color:#dce7e4!important;
+ border-color:#4a5657!important;
+}
