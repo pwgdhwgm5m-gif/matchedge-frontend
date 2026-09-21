@@ -1573,7 +1573,7 @@ function renderCouponMarkets(data) {
       <div class="${optionClass}">
         ${items.map(item => `<div><button type="button" class="coupon-market" data-key="${item.key}" data-market="${item.market}">
           <strong>${couponPickLabel(item.label)}</strong><em>%${item.probability}</em>
-        </button><button type="button" class="verify-pick" data-verify-key="${item.key}">CHOOSE · MY PICK</button></div>`).join('')}
+        </button><button type="button" class="verify-pick" data-verify-key="${item.key}">MY PICK</button></div>`).join('')}
       </div>
     </div>`;
   }).join('');
