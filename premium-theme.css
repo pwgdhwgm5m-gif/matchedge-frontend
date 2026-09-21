@@ -958,3 +958,15 @@ html[data-theme="dark"] .method-badge{
  color:#dce7e4!important;
  border-color:#4a5657!important;
 }
+
+/* 2026-09-21 GLOBAL CHARCOAL DARK SYSTEM */
+html,body{background:#121718!important;color:#f3f6f5!important}
+:root{--bg:#121718;--bg-base:#121718;--card:#202526;--bg-card:#202526;--inner:#1a2021;--bg-card-inner:#1a2021;--line:#414b4c;--border-subtle:#414b4c;--text:#f3f6f5;--text-primary:#f3f6f5;--soft:#d5dddb;--text-secondary:#d5dddb;--muted:#aebdb9;--text-muted:#aebdb9;--teal:#35c7bf;--coral:#ef6a63}
+.app,.wrap,.container,main{background-color:#121718}
+.card,.panel,.section,.room-card,.arena-card,.coupon-card,.match-card,.league-group{background:#202526!important;border-color:#414b4c!important;box-shadow:none!important}
+input,textarea,select{background:#202526!important;border-color:#465253!important;color:#f3f6f5!important}
+input::placeholder,textarea::placeholder{color:#91a09d!important}
+.back{background:#202526!important;border-color:#465253!important}
+.se-bottom-nav,.bottom-nav,.nav-bar,.bottom-bar{background:#1a1f20!important;border-top-color:#3b4445!important}
+.se-bottom-nav a,.bottom-nav a{color:#aebdb9!important}
+.se-bottom-nav a.active,.bottom-nav a.active{color:#35c7bf!important}
