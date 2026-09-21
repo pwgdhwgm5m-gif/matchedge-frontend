@@ -460,14 +460,14 @@ async function pruneExpiredFinishedFavorites() {
 
 function statusLabel(m) {
   if (m.isLive) return m.minute != null ? `${t('live')} ${m.minute}'` : t('live');
-  if (m.statusShort === 'FT') return t('ft');
-  if (m.statusShort === 'NS') return t('notStarted');
+  if (m.isFinished===true || /^(FT|AET|PEN|AWARDED)$/.test(String(m.statusShort||m.status||'').toUpperCase())) return t('ft');
+  if (String(m.statusShort||m.status||'').toUpperCase() === 'NS') return t('notStarted');
   return m.statusShort || '';
 }
 
 function statusClass(m) {
   if (m.isLive) return 'live';
-  if (m.statusShort === 'NS') return 'ns';
+  if (String(m.statusShort||m.status||'').toUpperCase() === 'NS') return 'ns';
   return 'ft';
 }
 
