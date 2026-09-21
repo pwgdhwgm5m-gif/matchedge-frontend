@@ -316,6 +316,15 @@ html,body{overflow-x:hidden!important}
 }
 body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
 </style><style id="global-dark-only-no-theme-toggle">:root{color-scheme:dark!important}.theme-toggle,.theme-switch,.theme-mode,.appearance-toggle,#themeToggle,#theme-toggle,#lightMode,#light-mode,[data-theme-toggle],[data-action="toggle-theme"],[data-action="theme"]{display:none!important}</style><script>(function(){try{localStorage.setItem('theme','dark');localStorage.setItem('socceredge_theme','dark')}catch(e){}document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.remove('light','light-mode');document.documentElement.classList.add('dark','dark-mode');document.addEventListener('DOMContentLoaded',()=>document.querySelectorAll('.top-actions .icon-btn').forEach(el=>{if(/☀|🌞|🌙/.test(el.textContent||''))el.remove()}))})();</script><link rel="stylesheet" href="dark-ui-v2.css?v=20260922-1">
+<style id="fixtures-nav-structure">
+html,body{max-width:100%;overflow-x:hidden}
+body{padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))}
+.se-bottom-nav{position:fixed;left:0;right:0;bottom:0;width:100%;height:calc(82px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:#171d1e;border-top:1px solid #364142;z-index:2147483647;padding:6px 4px env(safe-area-inset-bottom,0px);margin:0}
+.se-bottom-nav a{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:4px 1px;color:#899794;text-decoration:none;font-size:10px;font-weight:800;overflow:hidden}
+.se-bottom-nav a b{font-size:25px;line-height:28px;font-weight:700}.se-bottom-nav a span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}.se-bottom-nav a.active{color:#39c7c1}
+html[data-se-lang="en"] .se-bottom-nav .nav-tr,html[data-se-lang="tr"] .se-bottom-nav .nav-en{display:none}
+@media(max-width:390px){.se-bottom-nav a{font-size:8px}.se-bottom-nav a b{font-size:22px}}
+</style><script>(function(){var l=localStorage.getItem('matchedge_lang')||'en';document.documentElement.setAttribute('data-se-lang',l==='tr'?'tr':'en')})();</script>
 </head>
 <body>
 
