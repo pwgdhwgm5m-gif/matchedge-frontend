@@ -124,3 +124,26 @@ input,select,textarea,.search,.search-box,.search-input{background:#fff!importan
 .bottom-nav .active svg,.bottom-nav .active i,.bottom-nav .active span,.nav-item.active svg,.nav-item.active i,.nav-item.active span{
  color:var(--se-teal)!important;fill:currentColor;
 }
+
+/* Light home intelligence surfaces */
+.featured-card,.top-pick-card,.top-picks-card,.live-card,.live-match-card,
+#featuredContent .featured-card,#topPicksContent .featured-card,#liveContent .featured-card{
+ background:#fff!important;background-image:none!important;color:var(--se-text)!important;
+ border:1px solid rgba(16,42,52,.11)!important;box-shadow:var(--se-shadow)!important;
+}
+.featured-teams,.featured-signal-text,.match-row-teams,.match-row-team,.team-name{
+ color:var(--se-text)!important;
+}
+.featured-meta,.featured-signal-sub,.featured-health{color:var(--se-soft)!important}
+.featured-signal{background:var(--se-mist)!important;color:var(--se-text)!important}
+.featured-probability{color:var(--se-coral)!important}
+.featured-tag{color:var(--se-teal-dark)!important;border-color:var(--se-teal)!important;background:rgba(25,199,190,.07)!important}
+.featured-tag.live{color:var(--se-coral)!important;border-color:var(--se-coral)!important;background:rgba(255,102,95,.08)!important}
+.toggle-bar{background:#fff!important;border-color:rgba(16,42,52,.11)!important}
+.toggle-btn{color:var(--se-muted)!important;background:transparent!important}
+.toggle-btn.active{background:var(--se-teal)!important;color:#063239!important}
+.se-bottom-nav{background:#fff!important;border-top:1px solid rgba(16,42,52,.10)!important;box-shadow:0 -8px 24px rgba(16,42,52,.08)!important}
+.se-bottom-nav a,.se-bottom-nav a span,.se-bottom-nav a b{color:#8da2b8!important}
+.se-bottom-nav a.active,.se-bottom-nav a.active span,.se-bottom-nav a.active b{color:var(--se-teal)!important}
+.se-bottom-nav a.active .nav-icon-box,.nav-item.active .nav-icon-box{background:rgba(25,199,190,.10)!important}
+.se-bottom-nav a.active svg,.nav-item.active svg{stroke:var(--se-teal)!important;color:var(--se-teal)!important}
