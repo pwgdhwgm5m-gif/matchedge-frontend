@@ -1576,12 +1576,10 @@ function renderCouponMarkets(data) {
       <div class="${optionClass}">
         ${items.map(item => `<div><button type="button" class="coupon-market" data-key="${item.key}" data-market="${item.market}">
           <strong>${couponPickLabel(item.label)}</strong><em>%${item.probability}</em>
-        </button><button type="button" class="verify-pick" data-verify-key="${item.key}">MY PICK</button></div>`).join('')}
+        </button></div>`).join('')}
       </div>
     </div>`;
   }).join('');
-
-  bindVerifyButtons(markets);
   grid.querySelectorAll('.coupon-market').forEach(button => {
     button.addEventListener('click', () => {
       const item = markets.find(market => market.key === button.dataset.key);
@@ -1603,19 +1601,6 @@ function renderCouponMarkets(data) {
   });
 }
 
-async function verifyAnalysisPick(item,button){
- if(!item||!FIXTURE_ID||!currentAnalysis)return;
- const token=localStorage.getItem('matchedge_token');if(!token){location.href='giris.html';return}
- button.disabled=true;const old=button.textContent;button.textContent='LOCKING…';
- const body={fixtureId:String(FIXTURE_ID),key:String(item.key),market:String(item.market),label:String(item.label),homeTeam:currentAnalysis.homeTeam||CONTEXT.homeTeamName,awayTeam:currentAnalysis.awayTeam||CONTEXT.awayTeamName,league:currentAnalysis.league||CONTEXT.leagueName,kickoff:currentAnalysis.kickoff||CONTEXT.kickoff||null};
- try{const r=await fetch(API_BASE+'/api/community/verified-picks',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(body)}),d=await r.json();if(!r.ok)throw new Error(d.error||'Pick could not be saved');button.textContent='✓ MY PICK · LOCKED';button.classList.add('locked');button.disabled=true}
- catch(e){button.textContent=old;button.disabled=false;const f=document.getElementById('couponFeedback');if(f)f.textContent=e.message}
-}
-async function markMyVerifiedPicks(){
- const token=localStorage.getItem('matchedge_token');if(!token||!FIXTURE_ID)return;
- try{const r=await fetch(API_BASE+'/api/community/verified-picks/'+encodeURIComponent(FIXTURE_ID)+'/mine',{headers:{Authorization:'Bearer '+token}});if(!r.ok)return;const d=await r.json(),picks=d.picks||[],locked=picks[0];if(!locked)return;document.querySelectorAll('[data-verify-key]').forEach(b=>{const mine=String(b.dataset.verifyKey)===String(locked.key);b.textContent=mine?'✓ MY PICK · LOCKED':'MY PICK · LOCKED';b.classList.add('locked');b.disabled=true;b.title=mine?(currentLang==='en'?'Your locked MY PICK':'Kilitli MY PICK seçimin'):(currentLang==='en'?'One MY PICK is already locked for this match':'Bu maç için bir MY PICK zaten kilitli')})}catch(_){}
-}
-function bindVerifyButtons(markets){document.querySelectorAll('[data-verify-key]').forEach(b=>b.onclick=e=>{e.stopPropagation();const item=markets.find(x=>String(x.key)===String(b.dataset.verifyKey));verifyAnalysisPick(item,b)});markMyVerifiedPicks()}
 function syncFeaturedPicks() {
   document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => cell.classList.toggle('selected', selectedCouponMarkets.has(cell.dataset.marketKey)));
 }
