@@ -494,6 +494,7 @@ body{
 .coupon-market em{color:#f2c94c}.add-coupon-button{background:#1d6fe8!important;color:#fff!important;border-color:#4c91f0!important}
 .source-chip.ok{color:#f2c94c;border-color:rgba(242,201,76,.35);background:rgba(242,201,76,.07)}
 @media(max-width:380px){.team-crest{width:56px;height:56px}.league-nav-arrow{width:44px;height:44px}}
+.premium-gate{position:relative;overflow:hidden}.premium-gate .premium-blur{filter:blur(5px);opacity:.48;pointer-events:none;user-select:none}.premium-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:linear-gradient(180deg,rgba(6,27,58,.18),rgba(6,27,58,.9));z-index:4}.premium-lock-box{text-align:center;max-width:310px;padding:16px;border:1px solid rgba(242,201,76,.5);border-radius:12px;background:rgba(7,34,72,.94)}.premium-lock-box b{display:block;color:#f2c94c;font-size:14px}.premium-lock-box span{display:block;color:#d7e1f1;font-size:10px;line-height:1.45;margin:7px 0 10px}.premium-unlock{border:0;border-radius:9px;padding:9px 13px;background:#f2c94c;color:#061b3a;font-weight:950;font-size:10px}.beta-ribbon{margin:0 0 12px;padding:10px 12px;border:1px solid rgba(242,201,76,.3);border-radius:9px;background:rgba(242,201,76,.07);font-size:10px;color:#d7e1f1;line-height:1.4}.beta-ribbon b{color:#f2c94c}
 </style>
 
 <style id="se-global-bottom-nav">
@@ -588,6 +589,7 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
   </div>
 
   <div id="errorBanner"></div>
+  <div class="beta-ribbon" id="betaAccessBanner"><b>EARLY ACCESS</b> · Premium intelligence is being introduced gradually. New users can preview the full SoccerEdge experience before paid access begins.</div>
 
   <div class="card">
     <div class="match-shortcuts">
@@ -646,6 +648,14 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
       <div class="health-track"><div class="health-fill" id="health-fill"></div></div>
       <div class="source-chips" id="source-chips"></div>
     </div>
+  </div>
+
+  <div class="card premium-gate" id="premiumIntelligenceCard">
+    <div class="premium-blur" id="premiumPreviewContent">
+      <div class="card-title">PREMIUM INTELLIGENCE</div>
+      <div class="reading-grid"><div class="reading-card"><div class="reading-label">VALUE FINDER</div><div class="reading-value">+8.4%</div></div><div class="reading-card"><div class="reading-label">PATTERN FINDER</div><div class="reading-value">74%</div></div><div class="reading-card"><div class="reading-label">SIMILAR MATCHES</div><div class="reading-value">12</div></div><div class="reading-card"><div class="reading-label">COUPON BUILDER</div><div class="reading-value">AI</div></div></div>
+    </div>
+    <div class="premium-lock" id="premiumLock"><div class="premium-lock-box"><b>🔒 SOCCEREDGE PREMIUM</b><span id="premiumLockText">Advanced model tools are part of Premium. During Early Access, unlock a free preview on this device.</span><button class="premium-unlock" id="premiumUnlockButton" type="button">UNLOCK FREE BETA PREVIEW</button></div></div>
   </div>
 
   <div class="card" id="coupon-market-card">
@@ -891,6 +901,9 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
   }
 })();
 
+const PREMIUM_BETA_KEY='socceredge_premium_beta_preview';
+function initPremiumBeta(){const lock=document.getElementById('premiumLock'),btn=document.getElementById('premiumUnlockButton');if(!lock||!btn)return;const open=localStorage.getItem(PREMIUM_BETA_KEY)==='1';if(open){lock.style.display='none';document.getElementById('premiumPreviewContent')?.classList.remove('premium-blur')}btn.onclick=()=>{localStorage.setItem(PREMIUM_BETA_KEY,'1');lock.style.display='none';document.getElementById('premiumPreviewContent')?.classList.remove('premium-blur')}}
+document.addEventListener('DOMContentLoaded',initPremiumBeta);
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const qs = new URLSearchParams(window.location.search);
 const FIXTURE_ID = qs.get('fixtureId');
