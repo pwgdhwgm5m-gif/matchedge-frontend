@@ -440,3 +440,47 @@ body{font-size:15px!important}
 .se-bottom-nav a.active svg,.nav-item.active svg{
   stroke:var(--se-teal)!important;
 }
+
+/* Global user-selectable Dark Mode — charcoal, never legacy navy/yellow */
+html[data-theme="dark"]{
+ --se-accent:#ef6a63!important;--se-accent-soft:#352426!important;
+ --se-teal:#35c7bf!important;--se-teal-dark:#66d8d1!important;
+ --se-mint:#173431!important;--se-sky:#20292c!important;
+ --se-lilac:#b6a4dd!important;--se-lilac-soft:#2d2937!important;
+ --se-ink:#f2f6f5!important;--se-soft:#c0cdca!important;--se-muted:#9eaeaa!important;
+ color-scheme:dark;
+}
+html[data-theme="dark"],html[data-theme="dark"] body{
+ background:#171b1c!important;background-image:none!important;color:#f2f6f5!important;
+}
+html[data-theme="dark"] .card,html[data-theme="dark"] .match-card,html[data-theme="dark"] .score-card,
+html[data-theme="dark"] .league-card,html[data-theme="dark"] .league-group,html[data-theme="dark"] .panel,
+html[data-theme="dark"] section,html[data-theme="dark"] .premium-verdict,html[data-theme="dark"] #premium-verdict,
+html[data-theme="dark"] .reading-card,html[data-theme="dark"] .stat-box,html[data-theme="dark"] .metric-card,
+html[data-theme="dark"] .prob-card,html[data-theme="dark"] .pick-tile,html[data-theme="dark"] .strongest-pick,
+html[data-theme="dark"] .form-card,html[data-theme="dark"] .xg-card{
+ background:#222728!important;background-image:none!important;color:#f2f6f5!important;
+ border-color:#394243!important;box-shadow:0 8px 24px rgba(0,0,0,.18)!important;
+}
+html[data-theme="dark"] .league-toggle,html[data-theme="dark"] .scores-live-league,
+html[data-theme="dark"] .league-header,html[data-theme="dark"] .accordion-header,
+html[data-theme="dark"] .scores-live-title,html[data-theme="dark"] .scores-live-group,
+html[data-theme="dark"] .scores-live-group-body{background:#222728!important;color:#f2f6f5!important;border-color:#394243!important}
+html[data-theme="dark"] .scores-live-now{background:#1c2d2b!important;border-color:#315b57!important}
+html[data-theme="dark"] .team-name,html[data-theme="dark"] .card-title,html[data-theme="dark"] .section-title,
+html[data-theme="dark"] .decision-title,html[data-theme="dark"] .strongest-title,
+html[data-theme="dark"] .strongest-picks-title,html[data-theme="dark"] .pick-title,
+html[data-theme="dark"] .match-meta,html[data-theme="dark"] #league-name{color:#f2f6f5!important}
+html[data-theme="dark"] .brand-sub,html[data-theme="dark"] .sub,html[data-theme="dark"] .meta,
+html[data-theme="dark"] .reading-label,html[data-theme="dark"] .stat-label,
+html[data-theme="dark"] .match-date,html[data-theme="dark"] [class*="muted"],
+html[data-theme="dark"] [class*="secondary"]{color:#b7c5c2!important}
+html[data-theme="dark"] input,html[data-theme="dark"] textarea,html[data-theme="dark"] select{
+ background:#1b2021!important;color:#f2f6f5!important;border-color:#414b4c!important;
+}
+html[data-theme="dark"] .se-bottom-nav{background:#1c2021!important;border-top-color:#394243!important;box-shadow:0 -8px 24px rgba(0,0,0,.24)!important}
+html[data-theme="dark"] .se-bottom-nav a,html[data-theme="dark"] .se-bottom-nav a span,html[data-theme="dark"] .se-bottom-nav a b{color:#9eaeaa!important}
+html[data-theme="dark"] .se-bottom-nav a.active,html[data-theme="dark"] .se-bottom-nav a.active span,html[data-theme="dark"] .se-bottom-nav a.active b{color:#35c7bf!important}
+html[data-theme="dark"] .health-track,html[data-theme="dark"] .mini-bar,html[data-theme="dark"] .prob-bars,
+html[data-theme="dark"] .progress,html[data-theme="dark"] .bar,html[data-theme="dark"] .track{background:#343d3e!important}
+html[data-theme="dark"] .theme-toggle{background:#2d2937!important;color:#b6a4dd!important;border-color:#4c455c!important}
