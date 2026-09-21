@@ -98,7 +98,27 @@ html,body{overflow-x:hidden!important}
  contain:none!important;filter:none!important;perspective:none!important;
 }
 body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
-</style><link rel="stylesheet" href="premium-theme.css?v=20260921a"></head>
+</style><link rel="stylesheet" href="premium-theme.css?v=20260921a"><style id="arena-premium-coral-teal">
+/* Arena-specific palette: legacy yellow -> teal, legacy navy -> coral */
+.arena-chat-hero{
+ background:#28bdb6!important;
+ border-color:#28bdb6!important;
+ color:#ffffff!important;
+ box-shadow:0 8px 20px rgba(40,189,182,.16)!important;
+}
+.social-hero,.ranking-hero{
+ background:#ef6a63!important;
+ border-color:#ef6a63!important;
+ color:#ffffff!important;
+ box-shadow:none!important;
+}
+.vpick.pending{color:#12877f!important}
+details.rules-box summary{color:#12877f!important}
+.live-pill,.active,.selected{border-color:#28bdb6!important}
+.top-bar,.header,.app-header{border-bottom-color:#28bdb6!important}
+.se-bottom-nav{background:#fff!important;border-top-color:rgba(23,49,58,.10)!important}
+.se-bottom-nav a.active,.se-bottom-nav a.active span,.se-bottom-nav a.active b{color:#28bdb6!important}
+</style></head>
 <body><main class="app"><header class="top"><button class="back" onclick="history.length>1?history.back():location.href='ana-sayfa.html'">←</button><div><div class="title">EDGE ARENA</div><div class="sub">Kupon yap · Kazan · Rank yükselt</div></div></header>
 <a class="arena-chat-hero" href="arena-chat.html">💬 ARENA CHAT</a><a class="arena-chat-hero" style="margin-top:8px" href="for-you.html">⭐ FOR YOU · FOLLOWING PICKS</a><div class="social-grid"><a class="social-hero" href="social-profile.html">👤 PROFILE</a><a class="social-hero" href="friends.html">👥 FRIENDS</a><a class="social-hero" href="find-analysts.html">🔎 FIND</a></div><a class="ranking-hero" href="genel-siralama.html">🏆 GENEL SIRALAMA</a><section class="profile" id="profile"><div class="empty">Profil yükleniyor…</div></section><div class="missions"><div class="mission"><strong>🎯 Günlük Görev · 3 maçlık Slip</strong><p>Farklı maçlardan en az 3 seçimle kupon oluştur.</p><div class="mission-bar"><i id="mission1" style="width:0"></i></div></div><div class="mission"><strong>🔥 Seri Avcısı</strong><p>Doğru seçim serini büyüt ve Arena rankını yükselt.</p><div class="mission-bar"><i id="mission2" style="width:0"></i></div></div><div class="mission"><strong>🏆 Perfect Slip</strong><p>3 maçlık bir kuponun tamamını doğru bil.</p><div class="mission-bar"><i id="mission3" style="width:0"></i></div></div></div>
 <section class="verified-stream"><h3>MY PICKS · ARENA</h3><div id="verifiedArena"><div class="empty">Loading…</div></div></section><section class="dna"><h3>🏁 HAFTALIK CHALLENGE</h3><div id="challengeBody">Yükleniyor…</div></section><details class="rules-box"><summary>ⓘ Edge Coin kuralları</summary><ul><li>Her kullanıcı 100 Coin ile başlar.</li><li>Kuponlarda 10, 20 veya 50 Coin kullanılabilir ve farklı maçlardan en fazla 3 seçim eklenebilir.</li><li>Tutan kupon model olasılıklarından oluşan oyun çarpanına göre Edge Coin kazandırır.</li><li>Başlayan maçlara kupon yapılamaz; aktif kupon silinemez.</li><li>Günlük giriş ödülü yalnızca günde bir kez toplanır: 1. gün 20, 2. gün 25, 3. gün 30, 4. gün 35, 5. gün 40, 6. gün 45, 7. gün 55 Coin. 7 günlük kesintisiz seride toplam 250 Coin kazanılır. Bir gün kaçırılırsa seri yeniden 1. günden başlar.</li><li>XP kalıcı rank puanıdır; Coin ise kuponlarda harcanır.</li><li>Coin satın alınamaz, devredilemez, nakde veya gerçek ödüle çevrilemez.</li></ul></details>
