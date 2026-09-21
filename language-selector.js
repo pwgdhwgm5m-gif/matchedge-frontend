@@ -377,7 +377,7 @@ document.documentElement.setAttribute('data-theme','dark');
       '</div><div class="global-legal-copy">SoccerEdge Pro © 2026 · ' +
       (isTr ? 'Tüm hakları saklıdır.' : 'All rights reserved.') + '</div>';
     const style = document.createElement('style');
-    style.textContent = '.global-legal-footer{max-width:480px;margin:24px auto 92px;padding:14px 16px;text-align:center;color:#667d84;font-size:11px}.global-legal-links{display:flex;justify-content:center;gap:9px;margin-bottom:10px}.global-legal-links a{display:inline-flex;padding:10px 14px;border:1px solid rgba(40,189,182,.28);border-radius:11px;background:#fff;color:#12877f;text-decoration:none;font-weight:850;font-size:12px;box-shadow:0 5px 16px rgba(23,49,58,.05)}.global-legal-links a:last-child{border-color:rgba(239,106,99,.28);color:#d95751}.global-legal-copy{line-height:1.5;color:#667d84}';
+    style.textContent = '.global-legal-footer{max-width:480px;margin:24px auto 92px;padding:14px 16px;text-align:center;color:#667d84;font-size:11px}.global-legal-links{display:flex;justify-content:center;gap:9px;margin-bottom:10px}.global-legal-links a{display:inline-flex;padding:10px 14px;border:1px solid rgba(40,189,182,.28);border-radius:11px;background:#171d1e;color:#39c7c1;text-decoration:none;font-weight:850;font-size:12px;box-shadow:none}.global-legal-links a:last-child{border-color:#364142;color:#c5cfcc}.global-legal-copy{line-height:1.5;color:#667d84}';
     document.head.appendChild(style);
     document.body.appendChild(footer);
   }
