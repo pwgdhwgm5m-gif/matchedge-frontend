@@ -16,6 +16,16 @@ html,body,.app{background:#121718!important;color:#f3f6f5!important}
 .pickactions a{background:#1a2021!important;border-color:#465253!important;color:#f3f6f5!important}
 .pending{color:#c6a8ef!important}.won{color:#35c878!important}.lost{color:#ef6a63!important}
 .back{background:#202526!important;border-color:#465253!important;color:#c6a8ef!important}
+</style><style id="analyst-profile-mobile-fix">
+.search{background:#202526!important}
+.search input{border-radius:10px 0 0 10px!important;border-right:0!important}
+.search button{margin-left:0!important;border-radius:0 10px 10px 0!important;background:#ef6a63!important;border:1px solid #ef6a63!important;color:#fff!important}
+.picktop{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important;align-items:start!important}
+.picktop>div{min-width:0!important;overflow:hidden!important}
+.picktop b{display:block!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;line-height:1.28!important;padding-right:2px!important}
+.picktop small{display:block!important;white-space:normal!important;overflow-wrap:anywhere!important;line-height:1.45!important;margin-top:5px!important}
+.picktop .result{white-space:nowrap!important;min-width:max-content!important;text-align:right!important}
+@media(max-width:420px){.picktop{grid-template-columns:minmax(0,1fr) 82px!important;gap:8px!important}.picktop .result{font-size:13px!important}}
 </style></head><body><main class="app"><div class="top"><button class="back" onclick="history.back()">‹</button><div><div class="title">ANALYST PROFILE</div><div class="sub">Picks · friends · performance</div></div></div><section class="card"><div class="section-title">FIND ANALYSTS</div><div class="search"><input id="search" placeholder="Search username"><button onclick="findUsers()">Search</button></div><div class="people" id="people"></div></section><div id="profile"><div class="card">Loading profile…</div></div><div id="friendsPanel"></div></main><script>
 const API='https://matchedge-backend-kujb.onrender.com',token=localStorage.getItem('matchedge_token');if(!token)location.href='giris.html';const H={Authorization:'Bearer '+token,'Content-Type':'application/json'};const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let current=null;
 function initials(n){return String(n||'?').slice(0,2).toUpperCase()}function followButton(d){if(d.relationship==='self')return '';return '<button class="btn secondary" onclick="toggleFollow()">'+(d.isFollowing?'Following ✓':'+ Follow')+'</button>'}
