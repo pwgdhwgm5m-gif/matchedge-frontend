@@ -811,3 +811,105 @@ html[data-theme="dark"] .rules-btn{
 html[data-theme="dark"] .empty-state,
 html[data-theme="dark"] .loading,
 html[data-theme="dark"] .loading-state{color:#aebdb9!important}
+
+/* Dark Mode v7 — exhaustive menus/submenus/cards contrast pass */
+html[data-theme="dark"]{
+ --dark-bg:#15191a;--dark-surface:#202526;--dark-surface-2:#282e2f;--dark-border:#414b4c;
+ --dark-text:#f3f6f5;--dark-soft:#b7c4c1;--dark-muted:#91a19d;
+}
+html[data-theme="dark"] body{background:#15191a!important;color:#f3f6f5!important}
+html[data-theme="dark"] .day-tabs,
+html[data-theme="dark"] .country-filters,
+html[data-theme="dark"] .league-filters,
+html[data-theme="dark"] .sound-panel,
+html[data-theme="dark"] .rules-panel,
+html[data-theme="dark"] .stats,
+html[data-theme="dark"] .coupon-toggle,
+html[data-theme="dark"] .community-grid{
+ background:transparent!important;background-image:none!important;color:#f3f6f5!important;
+}
+html[data-theme="dark"] .day-tab,
+html[data-theme="dark"] .league-chip,
+html[data-theme="dark"] .filter-chip,
+html[data-theme="dark"] .country-chip,
+html[data-theme="dark"] .toggle-btn{
+ background:#202526!important;background-image:none!important;color:#b7c4c1!important;
+ border-color:#414b4c!important;box-shadow:none!important;
+}
+html[data-theme="dark"] .day-tab.active,
+html[data-theme="dark"] .league-chip.active,
+html[data-theme="dark"] .filter-chip.active,
+html[data-theme="dark"] .country-chip.active,
+html[data-theme="dark"] .toggle-btn.active{
+ background:#35c7bf!important;color:#102122!important;border-color:#35c7bf!important;
+}
+html[data-theme="dark"] .league-group,
+html[data-theme="dark"] .league-header,
+html[data-theme="dark"] .league-matches,
+html[data-theme="dark"] .league-toggle,
+html[data-theme="dark"] .league-body,
+html[data-theme="dark"] .scores-live-group,
+html[data-theme="dark"] .scores-live-league,
+html[data-theme="dark"] .scores-live-group-body,
+html[data-theme="dark"] .match-card,
+html[data-theme="dark"] .match-row,
+html[data-theme="dark"] .match-row-card,
+html[data-theme="dark"] .coupon,
+html[data-theme="dark"] .coupon-leg,
+html[data-theme="dark"] .coupon-head,
+html[data-theme="dark"] .stake-box,
+html[data-theme="dark"] .rules-box,
+html[data-theme="dark"] .vcard,
+html[data-theme="dark"] .card{
+ background:#202526!important;background-image:none!important;color:#f3f6f5!important;
+ border-color:#414b4c!important;box-shadow:none!important;
+}
+html[data-theme="dark"] .league-name,
+html[data-theme="dark"] .league-header,
+html[data-theme="dark"] .league-toggle,
+html[data-theme="dark"] .match-row-teams,
+html[data-theme="dark"] .match-card strong,
+html[data-theme="dark"] .coupon-head,
+html[data-theme="dark"] .coupon-leg strong,
+html[data-theme="dark"] .vcard strong,
+html[data-theme="dark"] .card strong{color:#f3f6f5!important;opacity:1!important}
+html[data-theme="dark"] .league-meta,
+html[data-theme="dark"] .league-count,
+html[data-theme="dark"] .match-row-time,
+html[data-theme="dark"] .match-league,
+html[data-theme="dark"] .coupon-status,
+html[data-theme="dark"] .coupon-leg span,
+html[data-theme="dark"] .vcard span{color:#b7c4c1!important;opacity:1!important}
+html[data-theme="dark"] .stat{
+ background:#202526!important;background-image:none!important;color:#f3f6f5!important;
+ border-color:#414b4c!important;box-shadow:none!important;
+}
+html[data-theme="dark"] .stat b,
+html[data-theme="dark"] .stat strong{color:#f3f6f5!important}
+html[data-theme="dark"] .stat span,
+html[data-theme="dark"] .stat small{color:#aebdb9!important}
+html[data-theme="dark"] .coupon-toggle{
+ background:#202526!important;border:1px solid #414b4c!important;border-radius:16px!important;
+}
+html[data-theme="dark"] .coupon-toggle button{background:transparent!important;color:#aebdb9!important}
+html[data-theme="dark"] .coupon-toggle button.active{background:#35c7bf!important;color:#102122!important}
+html[data-theme="dark"] .rules-panel,
+html[data-theme="dark"] .rules-box{color:#dbe5e2!important}
+html[data-theme="dark"] .rules-panel *,
+html[data-theme="dark"] .rules-box *{opacity:1}
+html[data-theme="dark"] .se-bottom-nav{
+ background:#1a1f20!important;background-image:none!important;border-top-color:#3b4445!important;
+}
+html[data-theme="dark"] .se-bottom-nav a,
+html[data-theme="dark"] .se-bottom-nav span,
+html[data-theme="dark"] .se-bottom-nav b{color:#aebdb9!important}
+html[data-theme="dark"] .se-bottom-nav a.active,
+html[data-theme="dark"] .se-bottom-nav a.active span,
+html[data-theme="dark"] .se-bottom-nav a.active b{color:#35c7bf!important}
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{
+ background:#202526!important;color:#f3f6f5!important;border-color:#414b4c!important;
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder{color:#91a19d!important;opacity:1!important}
