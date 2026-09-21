@@ -1,127 +1,20 @@
-/* SoccerEdge Pro — Dark UI v2
-   Visual layer only. No application logic, data, analysis, API or settings. */
-:root{
- color-scheme:dark;
- --ui-bg:#0f1415;--ui-surface:#171d1e;--ui-surface-2:#202728;--ui-surface-3:#283031;
- --ui-border:#3b4647;--ui-border-soft:#2c3536;
- --ui-text:#f4f7f6;--ui-text-2:#c7d0ce;--ui-muted:#8e9b98;
- --ui-teal:#38c7c1;--ui-teal-soft:#173d3c;--ui-coral:#ef6b63;--ui-purple:#b79ae8;
- --ui-success:#2bd184;--ui-warning:#e7b85c;--ui-danger:#ef6b63;
- --ui-radius:18px;--ui-radius-sm:12px;
- --bg:#0f1415;--bg-base:#0f1415;--card:#171d1e;--bg-card:#171d1e;--inner:#202728;--bg-card-inner:#202728;
- --line:#3b4647;--border-subtle:#3b4647;--text:#f4f7f6;--text-primary:#f4f7f6;--soft:#c7d0ce;--text-secondary:#c7d0ce;
- --muted:#8e9b98;--text-muted:#8e9b98;--teal:#38c7c1;--coral:#ef6b63;--purple:#b79ae8;
-}
-*{box-sizing:border-box}
-html,body{background:#0f1415!important;color:#f4f7f6!important}
-body{background-image:none!important}
-body:before,body:after{background-image:none!important}
-.app,.wrap,.container,main,.page,.page-wrap,.content,.content-wrap{background:transparent!important;color:#f4f7f6!important}
-h1,h2,h3,h4,h5,h6,.title,.page-title,.section-title,.brand,.brand-name{color:#f4f7f6!important}
-p,.subtitle,.sub-title,.description,.helper,.meta,.hint{color:#c7d0ce!important}
-small,.muted,.secondary{color:#8e9b98!important}
-.brand span,.brand-name span,.logo span,.accent{color:#ef6b63!important}
-
-/* surfaces */
-.card,.panel,.section,.box,.tile,.widget,.match-card,.fixture-card,.score-card,.league-card,.league-group,
-.coupon,.coupon-card,.pick-card,.analysis-card,.analysis-section,.analysis-block,.model-card,.community-card,
-.profile-card,.room-card,.arena-card,.mission-card,.empty-state,.stats-card,.stat,.sound-card,.filter-box,
-.live-section,.league-section,.market-board,.quick-picks,.coupon-group,.rules-box,.modal-content,.popup-card,
-.chat-panel,.chat-card,.message-card,.conversation-card,.user-card,.leaderboard-card{
- background:#171d1e!important;background-image:none!important;color:#f4f7f6!important;
- border-color:#3b4647!important;box-shadow:none!important;
-}
-.card .card,.panel .panel,.section .section,.inner,.card-inner,.stat-inner,.match-inner{
- background:#202728!important;border-color:#3b4647!important;
-}
-
-/* controls */
-button,.btn,.button,.action-btn,.icon-btn,.back,.lang-btn,.lang-toggle,.sound-btn,.market-btn,.coupon-market,
-.tab,.pill,.seg,.chip,.filter-chip,.league-chip,.date-btn,.toggle-btn{
- background:#202728!important;background-image:none!important;color:#d9e0de!important;border-color:#3b4647!important;
- box-shadow:none!important;
-}
-button:hover,.btn:hover,.button:hover{filter:brightness(1.05)}
-button:active,.btn:active,.button:active,.icon-btn:active{transform:scale(.98)}
-.active,.selected,.tab.active,.pill.active,.seg.active,.chip.active,.filter-chip.active,.league-chip.active,
-.date-btn.active,.toggle-btn.active,.coupon-market.selected,.nav-item.active{
- background:#38c7c1!important;color:#092021!important;border-color:#38c7c1!important;
-}
-.active *,.selected *,.tab.active *,.chip.active *,.filter-chip.active *,.date-btn.active *,.toggle-btn.active *{color:#092021!important}
-.btn-primary,.primary,.cta,.submit-btn,[type="submit"]{background:#38c7c1!important;color:#092021!important;border-color:#38c7c1!important}
-.btn-danger,.danger,.logout{background:#2a2020!important;color:#ffaaa4!important;border-color:#5d3532!important}
-
-/* forms */
-input,textarea,select,.search,.search-box,.search-input,.field-input{
- background:#202728!important;background-image:none!important;color:#f4f7f6!important;border-color:#465253!important;box-shadow:none!important;
-}
-input::placeholder,textarea::placeholder{color:#81908d!important;opacity:1!important}
-label,.field-label{color:#dce3e1!important}
-
-/* menus / submenus */
-.topbar,.top-bar,.header,.page-header,.toolbar,.subnav,.sub-nav,.submenu,.tabs,.tab-bar,.toggle-bar,.segmented,
-.filters,.filter-row,.league-filters,.date-strip,.date-row{
- background:#171d1e!important;background-image:none!important;border-color:#3b4647!important;box-shadow:none!important;
-}
-.tabs .tab,.tab-bar .tab,.toggle-bar .toggle-btn,.segmented>*{background:transparent!important;color:#aebbb8!important}
-.tabs .tab.active,.tab-bar .tab.active,.toggle-bar .toggle-btn.active,.segmented>.active{background:#38c7c1!important;color:#092021!important}
-
-/* bottom navigation */
-.se-bottom-nav,.bottom-nav,.bottom-bar,.nav-bottom,.nav-bar,[class*="bottom-nav"]{
- background:#171d1e!important;background-image:none!important;border-top:1px solid #3b4647!important;box-shadow:none!important;
-}
-.se-bottom-nav a,.bottom-nav a,.bottom-bar a,.nav-item,[class*="bottom-nav"] a{
- background:transparent!important;color:#9eaaa7!important;
-}
-.se-bottom-nav a span,.bottom-nav a span,.bottom-bar a span,.nav-item span{color:inherit!important}
-.se-bottom-nav a.active,.bottom-nav a.active,.bottom-bar a.active,.nav-item.active,[class*="bottom-nav"] a.active{
- background:transparent!important;color:#38c7c1!important;
-}
-
-/* league / accordion rows: never white */
-.league-header,.league-title,.league-toggle,.accordion-header,.accordion-title,.group-header,.score-league-header{
- background:#202728!important;background-image:none!important;color:#f4f7f6!important;border-color:#3b4647!important;box-shadow:none!important;
-}
-.league-header *,.league-title *,.league-toggle *,.accordion-header *,.group-header *,.score-league-header *{color:inherit!important}
-
-/* chat */
-.chat,.chat-wrap,.chat-container,.messages,.message-list,.chat-messages{background:#0f1415!important}
-.message,.bubble,.chat-bubble{background:#202728!important;color:#f4f7f6!important;border-color:#3b4647!important}
-.message.mine,.bubble.mine,.chat-bubble.mine,.message.own{background:#173d3c!important;color:#f4f7f6!important}
-.chat-input,.composer,.message-composer{background:#171d1e!important;border-color:#3b4647!important}
-
-/* Arena */
-.arena-header,.arena-menu,.arena-section,.arena-content{background:#0f1415!important;color:#f4f7f6!important}
-.arena-card{background:#171d1e!important}
-.arena-menu button,.arena-menu a{background:#202728!important;color:#f4f7f6!important;border-color:#3b4647!important}
-.arena-menu button.active,.arena-menu a.active{background:#38c7c1!important;color:#092021!important}
-.leaderboard,.leaderboard-row,.ranking-row{background:#171d1e!important;color:#f4f7f6!important;border-color:#3b4647!important}
-
-/* status */
-.live,.live-badge,.status-live,[class*="live-badge"],[class*="status-live"]{background:#ef6b63!important;color:#fff!important;border-color:#ef6b63!important}
-.badge,.tag,.confidence,.confidence-badge,.status-badge{background:#202728!important;color:#c7d0ce!important;border-color:#3b4647!important}
-.success,.status-win,.won{color:#65dfa2!important}.loss,.status-loss,.lost{color:#ff8b84!important}.pending,.status-pending{color:#e7c47c!important}
-.progress,.bar,.track,[class*="progress-track"],[class*="bar-track"]{background:#283031!important}
-.progress-fill,.bar-fill,[class*="progress-fill"],[class*="bar-fill"]{background:#38c7c1!important}
-
-/* tables */
-table{background:#171d1e!important;color:#f4f7f6!important;border-color:#3b4647!important}
-thead,th{background:#202728!important;color:#c7d0ce!important;border-color:#3b4647!important}
-td,tr{border-color:#2c3536!important;color:#f4f7f6!important}
-
-/* legal/footer */
-footer,.footer,.legal-footer,.global-legal-links{background:transparent!important;color:#788683!important}
-.global-legal-links a,.legal-footer a,.login-legal-links button{background:#202728!important;color:#c7d0ce!important;border-color:#3b4647!important}
-
-/* overlays */
-.modal,.overlay,.popup,.dialog{color:#f4f7f6!important}
-.modal-backdrop,.overlay-backdrop{background:rgba(0,0,0,.72)!important}
-.modal-content,.popup-card,.dialog-content{background:#171d1e!important;border-color:#3b4647!important}
-
-/* keep informational accent hierarchy restrained */
-.purple,.purple-text{color:#b79ae8!important}.coral,.coral-text{color:#ef6b63!important}.teal,.teal-text{color:#38c7c1!important}
-
-/* prevent legacy light-mode remnants */
-html[data-theme="light"],html.light,html.light-mode{color-scheme:dark!important}
-html[data-theme="light"] body,html.light body,html.light-mode body{background:#0f1415!important;color:#f4f7f6!important}
-@media(prefers-color-scheme:light){html,body{background:#0f1415!important;color:#f4f7f6!important}}
+/* SoccerEdge Pro — canonical dark interface */
+:root{color-scheme:dark;--bg:#0f1415;--bg-base:#0f1415;--card:#171d1e;--bg-card:#171d1e;--inner:#202728;--bg-card-inner:#202728;--line:#364142;--border-subtle:#364142;--text:#f4f7f6;--text-primary:#f4f7f6;--soft:#c5cfcc;--text-secondary:#c5cfcc;--muted:#899794;--text-muted:#899794;--teal:#39c7c1;--purple:#aa91df;--amber:#d9ad58;--red:#e66b64;--green:#4bd493;--radius:16px}
+html,body{background:#0f1415;color:#f4f7f6}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+.card,.panel,.section,.match-card,.league-card,.coupon-card,.profile-card,.room-card,.arena-card,.mission-card{background:#171d1e;border-color:#364142;color:#f4f7f6}
+input,select,textarea{background:#202728;color:#f4f7f6;border-color:#465253}
+input::placeholder,textarea::placeholder{color:#899794}
+.top-bar,.topbar,.toolbar,.tabs,.toggle-bar,.subnav,.sub-nav,.submenu{border-color:#364142}
+button,.btn,.icon-btn,.back,.tab,.chip,.pill,.filter-chip,.date-btn,.league-chip,.market-btn{background:#202728;color:#c5cfcc;border-color:#364142}
+button.active,.btn.active,.tab.active,.chip.active,.pill.active,.filter-chip.active,.date-btn.active,.league-chip.active,.market-btn.active,.selected{background:#39c7c1;color:#0a2020;border-color:#39c7c1}
+.se-bottom-nav,.bottom-nav,.bottom-bar,.nav-bar{background:#171d1e;border-color:#364142}
+.se-bottom-nav a,.bottom-nav a,.bottom-bar a,.nav-item{color:#899794}
+.se-bottom-nav a.active,.bottom-nav a.active,.bottom-bar a.active,.nav-item.active{color:#39c7c1}
+.league-header,.league-title,.league-toggle,.accordion-header,.group-header{background:#202728;color:#f4f7f6;border-color:#364142}
+.chat,.chat-container,.messages,.message-list,.feed{background:#0f1415}
+.message,.bubble,.chat-bubble{background:#202728;color:#f4f7f6;border-color:#364142}
+.message.mine,.bubble.mine,.chat-bubble.mine,.message.own{background:#173d3c}
+.live,.live-badge,.status-live{background:#e66b64;color:#fff}
+a{color:#39c7c1}
