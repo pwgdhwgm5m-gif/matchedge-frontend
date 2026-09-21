@@ -1221,7 +1221,7 @@ function renderTodayList(matches, loadFailed) {
 
   container.innerHTML = sortedGroups.map((group, groupIndex) => {
     const rows = group.matches.map(m => {
-    const isFinished = !m.isLive && String(m.statusShort || '').toUpperCase() === 'FT';
+    const isFinished = !m.isLive && (m.isFinished===true || /^(FT|AET|PEN|AWARDED)$/.test(String(m.statusShort||m.status||'').toUpperCase()));
     const timeLabel = m.isLive
       ? (m.minute != null ? `${t('live')} ${m.minute}'` : t('live'))
       : isFinished
