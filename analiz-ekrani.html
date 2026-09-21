@@ -618,6 +618,7 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
         <div class="team-name" id="away-name">—</div>
       </div>
     </div>
+    <a class="match-room-btn" id="openMatchRoom" href="match-room.html">💬 MATCH ROOM · AI + COMMUNITY + EXPERTS</a>
   </div>
 
   <div class="card premium-verdict verdict-watch" id="premium-verdict">
@@ -1188,6 +1189,8 @@ function setReading(id, value) {
   if (barEl) barEl.style.width = Number.isFinite(numeric) ? Math.max(0, Math.min(100, numeric)) + '%' : '0%';
 }
 
+function updateMatchRoomLink(){const a=document.getElementById('openMatchRoom');if(!a)return;const p=new URLSearchParams(location.search),id=p.get('fixtureId')||p.get('id')||p.get('matchId')||'';const home=document.getElementById('home-name')?.textContent||'',away=document.getElementById('away-name')?.textContent||'',league=document.getElementById('league-name')?.textContent||'';a.href='match-room.html?fixtureId='+encodeURIComponent(id)+'&home='+encodeURIComponent(home)+'&away='+encodeURIComponent(away)+'&league='+encodeURIComponent(league)}
+setTimeout(updateMatchRoomLink,1200);
 function renderAnalysis(data) {
   currentAnalysis = data;
   document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
