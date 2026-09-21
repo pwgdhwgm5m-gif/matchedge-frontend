@@ -735,7 +735,7 @@ function isUpcomingMatch(match, now = Date.now()) {
   return Number.isFinite(kickoff) && kickoff > now;
 }
 
-const escapeHtml=s=>String(s??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[ch]));
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 let followingPicks=[];let v4HomeDecisions=new Map();
 async function loadFollowingPicks(){try{const r=await fetch(API_BASE+'/api/community/feed/following',{headers:authHeaders()});if(r.ok){const d=await r.json();followingPicks=d.items||[];renderHomeForYou()}}catch(e){console.warn('For You feed unavailable:',e.message)}}
 function strongestHomeItems(){return allMatches.filter(m=>!m.isLive&&isUpcomingMatch(m)).map(m=>{const a=matchAnalyses.get(String(m.fixtureId));const candidates=[a?.marketBoard?.best,...(a?.marketBoard?.topPredictions||[]),...(a?.marketBoard?.allMarkets||[])].filter(x=>x&&x.label&&Number.isFinite(Number(x.probability)));const p=candidates.sort((x,y)=>Number(y.probability)-Number(x.probability))[0];const health=Number(p?.dataHealth??a?.dataHealth?.score??0);return p&&Number(p.probability)>=55&&health>=45?{m,p}:null}).filter(Boolean).sort((a,b)=>Number(b.p.probability)-Number(a.p.probability))}
