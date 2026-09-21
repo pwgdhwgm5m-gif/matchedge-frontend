@@ -466,7 +466,10 @@ html,body{overflow-x:hidden!important}
  contain:none!important;filter:none!important;perspective:none!important;
 }
 body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
-</style><link rel="stylesheet" href="premium-theme.css?v=20260921a"></head>
+</style><link rel="stylesheet" href="premium-theme.css?v=20260921a"><style id="home-dark-only-no-theme-toggle">
+:root{color-scheme:dark!important}
+#themeToggle,#theme-toggle,.theme-toggle,.theme-switch,.theme-mode,.appearance-toggle,[data-theme-toggle],[data-action="toggle-theme"],[data-action="theme"]{display:none!important}
+</style></head>
 <body>
 
 <div class="app">
@@ -1402,5 +1405,17 @@ setInterval(() => loadHome({silent:true}), POLL_INTERVAL_MS);
     window.visualViewport.addEventListener('scroll',sync,{passive:true});
   }
 })();
-</script><script src="global-slip.js"></script></body>
+</script><script src="global-slip.js"></script><script id="home-dark-only-lock">
+(function(){
+ try{localStorage.setItem('socceredge_theme','dark');localStorage.setItem('theme','dark');}catch(e){}
+ function lock(){
+  document.documentElement.setAttribute('data-theme','dark');
+  document.documentElement.classList.remove('light','light-mode');
+  document.documentElement.classList.add('dark','dark-mode');
+  document.querySelectorAll('#themeToggle,#theme-toggle,.theme-toggle,.theme-switch,.theme-mode,.appearance-toggle,[data-theme-toggle],[data-action="toggle-theme"],[data-action="theme"]').forEach(el=>el.remove());
+  document.querySelectorAll('.top-actions .icon-btn').forEach(el=>{if(/☀|🌞|🌙/.test(el.textContent||''))el.remove();});
+ }
+ lock();document.addEventListener('DOMContentLoaded',lock);
+})();
+</script></body>
 </html>
