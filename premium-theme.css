@@ -484,3 +484,84 @@ html[data-theme="dark"] .se-bottom-nav a.active,html[data-theme="dark"] .se-bott
 html[data-theme="dark"] .health-track,html[data-theme="dark"] .mini-bar,html[data-theme="dark"] .prob-bars,
 html[data-theme="dark"] .progress,html[data-theme="dark"] .bar,html[data-theme="dark"] .track{background:#343d3e!important}
 html[data-theme="dark"] .theme-toggle{background:#2d2937!important;color:#b6a4dd!important;border-color:#4c455c!important}
+
+/* Dark Mode v2 — eliminate harsh white surfaces */
+html[data-theme="dark"]{
+ --dark-bg:#15191a;
+ --dark-surface:#202526;
+ --dark-surface-2:#282e2f;
+ --dark-border:#3b4445;
+ --dark-text:#f0f4f3;
+ --dark-sub:#b6c3c0;
+}
+html[data-theme="dark"] .featured-card,
+html[data-theme="dark"] .fy-card,
+html[data-theme="dark"] .for-you-card,
+html[data-theme="dark"] .match-card,
+html[data-theme="dark"] .score-card,
+html[data-theme="dark"] .fixture-card,
+html[data-theme="dark"] .coupon-card,
+html[data-theme="dark"] .edge-cell,
+html[data-theme="dark"] .quick-pick,
+html[data-theme="dark"] .strong-pick-card,
+html[data-theme="dark"] .team-crest,
+html[data-theme="dark"] .lang-toggle,
+html[data-theme="dark"] .icon-btn,
+html[data-theme="dark"] .tabs,
+html[data-theme="dark"] .tab,
+html[data-theme="dark"] .global-legal-links a,
+html[data-theme="dark"] .login-legal-links button{
+ background:var(--dark-surface)!important;
+ background-image:none!important;
+ color:var(--dark-text)!important;
+ border-color:var(--dark-border)!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] .featured-card *,
+html[data-theme="dark"] .fy-card *,
+html[data-theme="dark"] .for-you-card *,
+html[data-theme="dark"] .match-card *,
+html[data-theme="dark"] .fixture-card *{text-shadow:none!important}
+html[data-theme="dark"] .featured-title,
+html[data-theme="dark"] .fy-title,
+html[data-theme="dark"] .match-name,
+html[data-theme="dark"] .team-name{color:var(--dark-text)!important}
+html[data-theme="dark"] .featured-meta,
+html[data-theme="dark"] .fy-meta,
+html[data-theme="dark"] .featured-health,
+html[data-theme="dark"] .analysis-sub,
+html[data-theme="dark"] .match-row-meta{color:var(--dark-sub)!important}
+html[data-theme="dark"] .featured-analysis,
+html[data-theme="dark"] .analysis-ready,
+html[data-theme="dark"] .analysis-box,
+html[data-theme="dark"] .inner-card{
+ background:var(--dark-surface-2)!important;
+ color:var(--dark-text)!important;
+ border-color:var(--dark-border)!important;
+}
+html[data-theme="dark"] .home-tabs,
+html[data-theme="dark"] .segmented-control{
+ background:#202526!important;
+ border-color:#3b4445!important;
+}
+html[data-theme="dark"] .home-tabs button,
+html[data-theme="dark"] .segmented-control button{
+ background:transparent!important;color:#b6c3c0!important;
+}
+html[data-theme="dark"] .home-tabs button.active,
+html[data-theme="dark"] .segmented-control button.active{
+ background:#35c7bf!important;color:#102122!important;
+}
+html[data-theme="dark"] .favorite-btn,
+html[data-theme="dark"] .star-btn{
+ background:#2d2937!important;
+ border-color:#5a506d!important;
+ color:#b6a4dd!important;
+}
+html[data-theme="dark"] .favorite-btn.active,
+html[data-theme="dark"] .star-btn.active{color:#b6a4dd!important}
+html[data-theme="dark"] .today-chip,
+html[data-theme="dark"] .tag,
+html[data-theme="dark"] .chip{
+ background:#173431!important;color:#66d8d1!important;border-color:#315b57!important;
+}
