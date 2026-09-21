@@ -3,8 +3,8 @@
   const API='https://matchedge-backend-kujb.onrender.com';
   const lang=()=>((localStorage.getItem('matchedge_lang')||localStorage.getItem('socceredge_language')||'en')==='tr'?'tr':'en');
   const tr=(a,b)=>lang()==='tr'?b:a;
-  const get=()=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}};
-  const save=v=>{localStorage.setItem(KEY,JSON.stringify(v));window.dispatchEvent(new Event('socceredge-slip-change'));};
+  const get=()=>{try{const raw=localStorage.getItem(KEY);const v=JSON.parse(raw||'[]');if(Array.isArray(v))return v;if(v&&Array.isArray(v.legs))return v.legs;return[]}catch(_){return[]}};
+  const save=v=>{const clean=Array.isArray(v)?v:[];localStorage.setItem(KEY,JSON.stringify(clean));window.dispatchEvent(new Event('socceredge-slip-change'));};
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const MARKET_X={home:1.8,draw:2.8,away:2.1,over25:1.7,under25:1.8,bttsYes:1.7,bttsNo:1.9,cornersOver85:1.8,cornersUnder85:1.8,cornersOver95:1.8,cornersUnder95:1.8,fhHome:2.2,fhDraw:2.6,fhAway:2.4,shHome:2.1,shDraw:2.5,shAway:2.3,mostGoalsFirst:2.2,mostGoalsEqual:2.8,mostGoalsSecond:1.9};
   const gx=(p,key)=>{p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(100/p).toFixed(2))):(MARKET_X[key]||1.5)};
