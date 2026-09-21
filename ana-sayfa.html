@@ -1343,8 +1343,8 @@ renderNotificationButton();
 
 (async () => {
   await loadFavoritesFromServer();
-  await loadFollowingPicks();
   loadHome();
+  loadFollowingPicks();
 })();
 setInterval(() => loadHome({silent:true}), POLL_INTERVAL_MS);
 </script>
@@ -1391,5 +1391,4 @@ setInterval(() => loadHome({silent:true}), POLL_INTERVAL_MS);
   }
 })();
 </script><script src="global-slip.js"></script></body>
-</htm
-l>
+</html>
