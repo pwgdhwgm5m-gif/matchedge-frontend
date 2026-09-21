@@ -913,3 +913,22 @@ html[data-theme="dark"] textarea{
 }
 html[data-theme="dark"] input::placeholder,
 html[data-theme="dark"] textarea::placeholder{color:#91a19d!important;opacity:1!important}
+
+/* Dark Mode v8 — Home Featured / Top Predictions / Live segmented container */
+html[data-theme="dark"] .toggle-bar{
+ background:#202526!important;
+ background-image:none!important;
+ border:1px solid #414b4c!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] .toggle-bar .toggle-btn{
+ background:#202526!important;
+ background-image:none!important;
+ color:#b7c4c1!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+html[data-theme="dark"] .toggle-bar .toggle-btn.active{
+ background:#35c7bf!important;
+ color:#102122!important;
+}
