@@ -378,3 +378,65 @@ input,select,textarea,.search,.search-box,.search-input{background:#fff!importan
 .premium-verdict .verdict-head{
   align-items:center!important;
 }
+
+/* Accessibility/readability pass — darker text, larger small type, zero yellow */
+:root{
+  --se-soft:#556d73!important;
+  --se-muted:#6e8388!important;
+  --se-lilac:#9b86c9!important;
+  --se-lilac-soft:#f0ebf8!important;
+  --se-gold:var(--se-lilac)!important;
+  --amber:var(--se-lilac)!important;
+  --gold:var(--se-lilac)!important;
+}
+
+/* globally improve small-text readability */
+body{font-size:15px!important}
+.brand-sub,.sub,.meta,.featured-meta,.featured-health,.signal-tag,.reading-label,.stat-label,
+.quality-max,.quality-tag,.source-chip,.coupon-group-title,.match-row-league,.match-row-meta,
+.momentum-caption,.momentum-labels,.legal-footer,.auto,.fy-sub,.fy-user,
+[class*="muted"],[class*="secondary"]{
+  color:var(--se-muted)!important;
+}
+.brand-sub,.featured-meta,.featured-health,.signal-tag,.reading-label,.stat-label,.quality-tag,
+.source-chip,.coupon-group-title,.match-row-league,.match-row-meta,.momentum-caption,.momentum-labels{
+  font-size:max(11px,1em)!important;
+  line-height:1.45!important;
+}
+
+/* key labels a bit stronger */
+.card-title,.section-title,.league-name,.panel-title,.eyebrow,.quick-proof-head{
+  color:var(--se-ink)!important;
+  font-weight:800!important;
+}
+
+/* remove yellow/amber semantics completely */
+[style*="#f2c94c"],[style*="#F2C94C"],
+[style*="#f5b942"],[style*="#F5B942"],
+[style*="#d6ad2d"],[style*="#D6AD2D"],
+[style*="rgb(242, 201, 76)"],[style*="rgb(245, 185, 66)"]{
+  color:var(--se-lilac)!important;
+  border-color:var(--se-lilac)!important;
+  background-color:transparent!important;
+}
+.favorite.active,.star.active,[class*="favorite"].active{
+  color:var(--se-lilac)!important;
+}
+.prob-value.draw,#bar-draw{
+  color:var(--se-lilac)!important;
+}
+#bar-draw{background:var(--se-lilac)!important}
+.badge.watch,.watch,.status-watch{
+  color:var(--se-lilac)!important;
+  border-color:rgba(155,134,201,.30)!important;
+  background:var(--se-lilac-soft)!important;
+}
+
+/* nav and controls: never yellow */
+.se-bottom-nav a.active,.se-bottom-nav a.active span,.se-bottom-nav a.active b,
+.nav-item.active,.nav-item.active span,.nav-item.active b{
+  color:var(--se-teal)!important;
+}
+.se-bottom-nav a.active svg,.nav-item.active svg{
+  stroke:var(--se-teal)!important;
+}
