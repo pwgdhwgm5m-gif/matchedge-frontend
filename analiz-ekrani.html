@@ -1568,7 +1568,7 @@ function renderCouponMarkets(data) {
       <div class="${optionClass}">
         ${items.map(item => `<div><button type="button" class="coupon-market" data-key="${item.key}" data-market="${item.market}">
           <strong>${couponPickLabel(item.label)}</strong><em>%${item.probability}</em>
-        </button><button type="button" class="verify-pick" data-verify-key="${item.key}">✓ VERIFY MY PICK</button></div>`).join('')}
+        </button><button type="button" class="verify-pick" data-verify-key="${item.key}">CHOOSE · MY PICK</button></div>`).join('')}
       </div>
     </div>`;
   }).join('');
@@ -1606,12 +1606,12 @@ async function verifyAnalysisPick(item,button){
  const token=localStorage.getItem('matchedge_token');if(!token){location.href='giris.html';return}
  button.disabled=true;const old=button.textContent;button.textContent='LOCKING…';
  const body={fixtureId:String(FIXTURE_ID),key:String(item.key),market:String(item.market),label:String(item.label),homeTeam:currentAnalysis.homeTeam||CONTEXT.homeTeamName,awayTeam:currentAnalysis.awayTeam||CONTEXT.awayTeamName,league:currentAnalysis.league||CONTEXT.leagueName,kickoff:currentAnalysis.kickoff||CONTEXT.kickoff||null};
- try{const r=await fetch(API_BASE+'/api/community/verified-picks',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(body)}),d=await r.json();if(!r.ok)throw new Error(d.error||'Pick could not be verified');button.textContent='✓ VERIFIED · LOCKED';button.classList.add('locked');button.disabled=true}
+ try{const r=await fetch(API_BASE+'/api/community/verified-picks',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(body)}),d=await r.json();if(!r.ok)throw new Error(d.error||'Pick could not be saved');button.textContent='✓ MY PICK · LOCKED';button.classList.add('locked');button.disabled=true}
  catch(e){button.textContent=old;button.disabled=false;const f=document.getElementById('couponFeedback');if(f)f.textContent=e.message}
 }
 async function markMyVerifiedPicks(){
  const token=localStorage.getItem('matchedge_token');if(!token||!FIXTURE_ID)return;
- try{const r=await fetch(API_BASE+'/api/community/verified-picks/'+encodeURIComponent(FIXTURE_ID)+'/mine',{headers:{Authorization:'Bearer '+token}});if(!r.ok)return;const d=await r.json(),keys=new Set((d.picks||[]).map(x=>String(x.key)));document.querySelectorAll('[data-verify-key]').forEach(b=>{if(keys.has(String(b.dataset.verifyKey))){b.textContent='✓ VERIFIED · LOCKED';b.classList.add('locked');b.disabled=true}})}catch(_){}
+ try{const r=await fetch(API_BASE+'/api/community/verified-picks/'+encodeURIComponent(FIXTURE_ID)+'/mine',{headers:{Authorization:'Bearer '+token}});if(!r.ok)return;const d=await r.json(),keys=new Set((d.picks||[]).map(x=>String(x.key)));document.querySelectorAll('[data-verify-key]').forEach(b=>{if(keys.has(String(b.dataset.verifyKey))){b.textContent='✓ MY PICK · LOCKED';b.classList.add('locked');b.disabled=true}})}catch(_){}
 }
 function bindVerifyButtons(markets){document.querySelectorAll('[data-verify-key]').forEach(b=>b.onclick=e=>{e.stopPropagation();const item=markets.find(x=>String(x.key)===String(b.dataset.verifyKey));verifyAnalysisPick(item,b)});markMyVerifiedPicks()}
 function syncFeaturedPicks() {
