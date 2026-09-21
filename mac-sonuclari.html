@@ -608,6 +608,7 @@ function relevantMatches(matches) {
 
 function leagueCountry(league, leagueId) {
   const id=String(leagueId||'');
+  if(/oman fa cup|oman federation cup/i.test(String(league||''))) return {key:'oman',name:currentLang==='tr'?'Umman':'Oman',flag:'🇴🇲'};
   const lang=currentLang==='tr'?'tr':'en';
   // Known provider IDs: SportsMonks first, then legacy TheSportsDB IDs.
   const byId={
@@ -650,6 +651,11 @@ function canonicalLeague(m) {
   const teams=(String(m?.homeTeam||'')+' '+String(m?.awayTeam||'')).toLowerCase();
   const brazilClubs=/\b(gr[eê]mio|gremio|s[aã]o paulo|sao paulo|corinthians|athletico paranaense|atl[eé]tico paranaense|atletico paranaense|flamengo|fluminense|palmeiras|botafogo|vasco|cruzeiro|internacional|bahia|santos|fortaleza|bragantino|vit[oó]ria|vitoria|cear[aá]|sport recife|juventude|mirassol)\b/i;
   if(brazilClubs.test(teams)) return 'Brazilian Serie A';
+
+  // Generic "FA Cup" is used by providers for domestic cups in multiple countries.
+  // Disambiguate the Omani competition instead of treating every FA Cup as England.
+  const omanCupClubs=/\b(al[- ]?nahda|saham|al[- ]?seeb|sohar|ibri|al[- ]?musannah|al[- ]?msnaa|bahla|al[- ]?rustaq|dhofar|al[- ]?nasr salalah)\b/i;
+  if(/\bfa cup\b/i.test(name) && omanCupClubs.test(teams)) return 'Oman FA Cup';
 
   // Provider/country aliases must resolve to the competition, never to a
   // separate country bucket.
