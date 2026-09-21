@@ -350,6 +350,16 @@ a[href*="legal"],.legal-btn,#legalBtn{
  color:#ff746e!important;border-color:#9e4946!important;
  box-shadow:none!important;
 }
+</style><script id="force-dark-default">
+(function(){
+ try{localStorage.setItem('socceredge_theme','dark');localStorage.setItem('theme','dark');}catch(e){}
+ document.documentElement.setAttribute('data-theme','dark');
+ document.documentElement.classList.remove('light','light-mode');
+ document.documentElement.classList.add('dark','dark-mode');
+})();
+</script>
+<style id="remove-theme-switch-ui">
+.theme-toggle,.theme-switch,.theme-mode,.appearance-toggle,#themeToggle,#theme-toggle,#lightMode,#light-mode,[data-theme-toggle],[data-action="toggle-theme"],[data-action="theme"],button[aria-label*="light" i],button[title*="light" i],button[aria-label*="theme" i],button[title*="theme" i]{display:none!important}
 </style></head>
 <body>
 
@@ -639,5 +649,15 @@ applyStaticTranslations();
 </script>
 
 <script src="language-selector.js"></script>
-</body>
+<script id="dark-theme-lock">
+(function(){
+ function lock(){
+  document.documentElement.setAttribute('data-theme','dark');
+  document.documentElement.classList.remove('light','light-mode');
+  document.documentElement.classList.add('dark','dark-mode');
+  document.querySelectorAll('.theme-toggle,.theme-switch,.theme-mode,.appearance-toggle,#themeToggle,#theme-toggle,#lightMode,#light-mode,[data-theme-toggle],[data-action="toggle-theme"],[data-action="theme"]').forEach(el=>el.remove());
+ }
+ lock();document.addEventListener('DOMContentLoaded',lock);
+})();
+</script></body>
 </html>
