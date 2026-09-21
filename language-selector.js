@@ -1,4 +1,34 @@
 (function () {
+  const THEME_KEY='socceredge_theme_v1';
+  function getTheme(){
+    try{return localStorage.getItem(THEME_KEY)==='dark'?'dark':'light';}catch(e){return 'light';}
+  }
+  function applyTheme(theme){
+    const next=theme==='dark'?'dark':'light';
+    document.documentElement.setAttribute('data-theme',next);
+    try{localStorage.setItem(THEME_KEY,next);}catch(e){}
+    document.querySelectorAll('.theme-toggle').forEach(btn=>{
+      btn.textContent=next==='dark'?'☀️':'🌙';
+      btn.setAttribute('aria-label',next==='dark'?'Use light theme':'Use dark theme');
+      btn.title=next==='dark'?'Light mode':'Dark mode';
+    });
+  }
+  applyTheme(getTheme());
+  function installThemeToggle(){
+    if(document.querySelector('.theme-toggle')) return;
+    const lang=document.querySelector('#langToggle,.lang-toggle');
+    if(!lang) return;
+    const btn=document.createElement('button');
+    btn.type='button';btn.className='theme-toggle';
+    btn.style.cssText='width:42px;height:42px;border-radius:12px;border:1px solid rgba(23,49,58,.12);background:#fff;color:#17313a;font-size:18px;display:inline-flex;align-items:center;justify-content:center;padding:0;box-shadow:0 4px 14px rgba(23,49,58,.05);';
+    btn.addEventListener('click',()=>applyTheme(getTheme()==='dark'?'light':'dark'));
+    lang.insertAdjacentElement('afterend',btn);
+    applyTheme(getTheme());
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',installThemeToggle);
+  else installThemeToggle();
+})();
+(function () {
   const languages = {
     en: { code: 'EN', flag: '🇬🇧', name: 'English', locale: 'en-GB' },
     tr: { code: 'TR', flag: '🇹🇷', name: 'Türkçe', locale: 'tr-TR' },
