@@ -1614,7 +1614,7 @@ async function verifyAnalysisPick(item,button){
 }
 async function markMyVerifiedPicks(){
  const token=localStorage.getItem('matchedge_token');if(!token||!FIXTURE_ID)return;
- try{const r=await fetch(API_BASE+'/api/community/verified-picks/'+encodeURIComponent(FIXTURE_ID)+'/mine',{headers:{Authorization:'Bearer '+token}});if(!r.ok)return;const d=await r.json(),keys=new Set((d.picks||[]).map(x=>String(x.key)));document.querySelectorAll('[data-verify-key]').forEach(b=>{if(keys.has(String(b.dataset.verifyKey))){b.textContent='✓ MY PICK · LOCKED';b.classList.add('locked');b.disabled=true}})}catch(_){}
+ try{const r=await fetch(API_BASE+'/api/community/verified-picks/'+encodeURIComponent(FIXTURE_ID)+'/mine',{headers:{Authorization:'Bearer '+token}});if(!r.ok)return;const d=await r.json(),picks=d.picks||[],locked=picks[0];if(!locked)return;document.querySelectorAll('[data-verify-key]').forEach(b=>{const mine=String(b.dataset.verifyKey)===String(locked.key);b.textContent=mine?'✓ MY PICK · LOCKED':'MY PICK · LOCKED';b.classList.add('locked');b.disabled=true;b.title=mine?(currentLang==='en'?'Your locked MY PICK':'Kilitli MY PICK seçimin'):(currentLang==='en'?'One MY PICK is already locked for this match':'Bu maç için bir MY PICK zaten kilitli')})}catch(_){}
 }
 function bindVerifyButtons(markets){document.querySelectorAll('[data-verify-key]').forEach(b=>b.onclick=e=>{e.stopPropagation();const item=markets.find(x=>String(x.key)===String(b.dataset.verifyKey));verifyAnalysisPick(item,b)});markMyVerifiedPicks()}
 function syncFeaturedPicks() {
