@@ -671,3 +671,52 @@ html[data-theme="dark"] #dateHeader{
 html[data-theme="dark"] .home-league-title{color:#f2f6f5!important}
 html[data-theme="dark"] .home-league-count{color:#b8c6c3!important}
 html[data-theme="dark"] .home-league-chevron{color:#66d8d1!important}
+
+/* Dark Mode v4 — community + analysis detail completion */
+html[data-theme="dark"] .community-card{
+ background:#222728!important;background-image:none!important;
+ border:1px solid #3d4748!important;color:#f2f6f5!important;box-shadow:none!important;
+}
+html[data-theme="dark"] .community-card strong{color:#f2f6f5!important}
+html[data-theme="dark"] .community-card span{color:#b8c6c3!important}
+html[data-theme="dark"] #coinPanel{
+ background:#222728!important;background-image:none!important;
+ border-color:#5a506d!important;box-shadow:none!important;
+}
+html[data-theme="dark"] #coinPanel #coinBalance{color:#b6a4dd!important}
+html[data-theme="dark"] #coinPanel #coinRank{color:#c1cdca!important}
+html[data-theme="dark"] #coinPanel .claim-btn{
+ background:#315f5b!important;color:#eaf8f6!important;border-color:#467a75!important;
+}
+html[data-theme="dark"] .form-team,
+html[data-theme="dark"] .form-box,
+html[data-theme="dark"] .streak-box,
+html[data-theme="dark"] .rest-box,
+html[data-theme="dark"] .motivation-box,
+html[data-theme="dark"] .motivation-item,
+html[data-theme="dark"] .team-form-card{
+ background:#282e2f!important;background-image:none!important;
+ color:#f2f6f5!important;border-color:#414b4c!important;box-shadow:none!important;
+}
+html[data-theme="dark"] .form-team *,
+html[data-theme="dark"] .form-box *,
+html[data-theme="dark"] .streak-box *,
+html[data-theme="dark"] .rest-box *,
+html[data-theme="dark"] .motivation-box *,
+html[data-theme="dark"] .motivation-item *,
+html[data-theme="dark"] .team-form-card *{opacity:1}
+html[data-theme="dark"] .form-team-name,
+html[data-theme="dark"] .form-title,
+html[data-theme="dark"] .streak-team,
+html[data-theme="dark"] .motivation-item strong{color:#e8efed!important}
+html[data-theme="dark"] .form-detail,
+html[data-theme="dark"] .rest-days,
+html[data-theme="dark"] .motivation-item span{color:#b8c6c3!important}
+html[data-theme="dark"] table,
+html[data-theme="dark"] .standings-table{color:#dbe5e2!important}
+html[data-theme="dark"] .standings-table th,
+html[data-theme="dark"] table th{color:#aebebb!important}
+html[data-theme="dark"] .standings-table td,
+html[data-theme="dark"] table td{color:#dbe5e2!important}
+html[data-theme="dark"] .standings-table tr.highlight,
+html[data-theme="dark"] table tr.highlight{background:#24403d!important}
