@@ -131,11 +131,11 @@ function setCouponTab(tab){couponTab=tab;document.getElementById('tabPending').c
 document.getElementById('tabPending').onclick=()=>setCouponTab('pending');document.getElementById('tabFinished').onclick=()=>setCouponTab('finished');
 const SLIP_KEY='coinedge_draft_v1';
 const LEGACY_SLIP_KEY='coinedge_draft_v1';
-function getDraft(){try{const v=JSON.parse(localStorage.getItem(SLIP_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return[]}}
-function gameX(p){p=Number(p)||0;return p?Math.max(1.15,Math.min(5.5,100/p)):1.15}
+function getDraft(){try{const v=JSON.parse(localStorage.getItem(SLIP_KEY)||'[]');return Array.isArray(v)?v.slice(0,3):[]}catch{return[]}}
+function gameX(p){p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(100/p).toFixed(2))):1.5}
 function draftHtml(){
  const legs=getDraft(); if(couponTab!=='pending'||!legs.length)return '';
- const x=Math.min(50,Math.max(1.15,legs.reduce((n,l)=>n*gameX(l.selection?.probability),1)));
+ const x=Number(Math.min(50,Math.max(1.15,legs.reduce((n,l)=>n*gameX(l.selection?.probability),1))).toFixed(2));
  const body=legs.map((l,i)=>'<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(l.homeTeam||'Takım')+' – '+safe(l.awayTeam||'Takım')+'</strong><small class="leg-selection">'+safe(marketLabel(l.selection?.label)||'Seçim')+' · '+gameX(l.selection?.probability).toFixed(2)+'x'+(l.selection?.probability?' · %'+l.selection.probability:'')+'</small></div><button class="leg-delete" onclick="removeDraftLeg('+i+')">×</button></div>').join('');
  const potential=Math.floor(10*x);return '<article class="coupon" style="border-color:#f5b942"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY SLIP · ':'KUPONUM · ')+legs.length+(isEN()?' MATCHES':' MAÇ')+'</div></div><div class="score">'+x.toFixed(2)+'x</div></div>'+body+'<div class="stake-box"><div class="stake-title">'+(isEN()?'EDGE COIN TO USE':'KULLANILACAK EDGE COIN')+' · '+(isEN()?'BALANCE':'BAKİYE')+' 🪙 '+walletCoins+'</div><div class="stake-payout"><span>'+(isEN()?'Stake':'Bahis')+' 🪙 10 · '+(isEN()?'Potential payout':'Olası kazanç')+'</span><strong>🪙 '+potential+'</strong></div></div><button class="draft-save" type="button" onclick="playDraft()">'+(isEN()?'PLAY SLIP':'KUPONU OYNA')+'</button></article>'; 
 }
