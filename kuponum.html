@@ -132,7 +132,7 @@ document.getElementById('tabPending').onclick=()=>setCouponTab('pending');docume
 const SLIP_KEY='coinedge_draft_v1';
 const LEGACY_SLIP_KEY='coinedge_draft_v1';
 function getDraft(){try{const v=JSON.parse(localStorage.getItem(SLIP_KEY)||'[]');return Array.isArray(v)?v.slice(0,3):[]}catch{return[]}}
-function gameX(p){p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(100/p).toFixed(2))):1.5}
+const MARKET_X={home:1.8,draw:2.8,away:2.1,over25:1.7,under25:1.8,bttsYes:1.7,bttsNo:1.9,cornersOver85:1.8,cornersUnder85:1.8,cornersOver95:1.8,cornersUnder95:1.8,fhHome:2.2,fhDraw:2.6,fhAway:2.4,shHome:2.1,shDraw:2.5,shAway:2.3,mostGoalsFirst:2.2,mostGoalsEqual:2.8,mostGoalsSecond:1.9};\nfunction gameX(p,key){p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(100/p).toFixed(2))):(MARKET_X[key]||1.5)}
 function draftHtml(){
  const legs=getDraft(); if(couponTab!=='pending'||!legs.length)return '';
  const x=Number(Math.min(50,Math.max(1.15,legs.reduce((n,l)=>n*gameX(l.selection?.probability),1))).toFixed(2));
@@ -173,7 +173,7 @@ async function load(){
  document.getElementById('list').innerHTML=draft+(coupons.length?coupons.map(c=>{
   const legs=c.legs||[],settled=legs.filter(l=>l.selection?.result&&l.selection.result!=='pending').length,won=legs.filter(l=>l.selection?.result==='won').length,pct=legs.length?Math.round(settled/legs.length*100):0;
   const line=(home,away,s,result,kickoff,fixtureId)=>{
-   const probability=Number(s?.probability)||0,mult=probability?Math.max(1.15,Math.min(4,+(100/probability).toFixed(2))).toFixed(2)+'x':'';
+   const probability=Number(s?.probability)||0,mult=gameX(s?.probability,s?.key).toFixed(2)+'x';
    const canDelete=c.status==='pending'&&fixtureId&&kickoff&&new Date(kickoff).getTime()>Date.now();
    return '<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(home||(isEN()?'Team':'Takım'))+' – '+safe(away||(isEN()?'Team':'Takım'))+'</strong><small class="leg-selection">'+safe(marketLabel(s?.label)||(isEN()?'Pick':'Seçim'))+(mult?' · '+mult:'')+(probability?' · %'+probability:'')+'</small></div><div class="leg-actions">'+(result==='void'?'':('<span class="badge '+(result||'pending')+'">'+statusLabel(result)+'</span>'))+(canDelete?'<button class="leg-delete" onclick="removeLeg(\''+c._id+'\',\''+fixtureId+'\')">×</button>':'')+'</div></div>';
   };
