@@ -1579,15 +1579,9 @@ function renderCouponMarkets(data) {
       const item = markets.find(market => market.key === button.dataset.key);
       if (!item) return;
 
-      // One choice per market group: e.g. 2.5 Üst OR 2.5 Alt.
-      for (const [key, selected] of selectedCouponMarkets) {
-        if (selected.market === item.market && key !== item.key) selectedCouponMarkets.delete(key);
-      }
-      if (selectedCouponMarkets.has(item.key)) {
-        selectedCouponMarkets.delete(item.key);
-      } else {
-        selectedCouponMarkets.set(item.key, item);
-      }
+      // A coupon leg represents one match + one selection. Keep exactly one active pick per fixture.
+      if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.clear();
+      else { selectedCouponMarkets.clear(); selectedCouponMarkets.set(item.key, item); }
 
       grid.querySelectorAll('.coupon-market').forEach(option => {
         option.classList.toggle('selected', selectedCouponMarkets.has(option.dataset.key));
@@ -1595,7 +1589,7 @@ function renderCouponMarkets(data) {
       syncFeaturedPicks();
       document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
       document.getElementById('couponFeedback').textContent = selectedCouponMarkets.size
-        ? selectedCouponMarkets.size + (currentLang === 'en' ? ' picks ready' : ' seçim hazır')
+        ? (currentLang === 'en' ? '1 pick ready' : '1 seçim hazır')
         : '';
     });
   });
@@ -1624,11 +1618,8 @@ document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => {
     if (!item || !item.key || !Number.isFinite(Number(item.probability))) return;
     // Featured analysis cards only select/deselect a market.
     // Never create a coupon until the user explicitly presses "Kupona Ekle".
-    if (selectedCouponMarkets.has(item.key)) {
-      selectedCouponMarkets.delete(item.key);
-    } else if (selectedCouponMarkets.size < 3) {
-      selectedCouponMarkets.set(item.key, item);
-    }
+    if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.clear();
+    else { selectedCouponMarkets.clear(); selectedCouponMarkets.set(item.key, item); }
     syncFeaturedPicks();
     document.querySelectorAll('.coupon-market').forEach(button => {
       button.classList.toggle('selected', selectedCouponMarkets.has(button.dataset.key));
