@@ -471,15 +471,17 @@ body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
 #themeToggle,#theme-toggle,.theme-toggle,.theme-switch,.theme-mode,.appearance-toggle,[data-theme-toggle],[data-action="toggle-theme"],[data-action="theme"]{display:none!important}
 </style>
 <style id="home-pwa-notice-style">
-.se-pwa-notice{position:fixed;inset:0;z-index:2147483646;background:rgba(4,9,11,.78);display:flex;align-items:center;justify-content:center;padding:22px}.se-pwa-notice-card{width:min(420px,100%);background:#182126;border:1px solid #414b4c;border-radius:20px;padding:22px;box-shadow:0 22px 70px #000b;color:#f3f6f5}.se-pwa-notice-title{font-size:20px;font-weight:900;margin-bottom:10px}.se-pwa-notice-text{font-size:14px;line-height:1.55;color:#d5dddb}.se-pwa-notice-steps{margin:14px 0 18px;padding-left:20px;color:#f3f6f5;font-size:14px;line-height:1.7}.se-pwa-notice-ok{width:100%;border:0;border-radius:13px;padding:13px;background:#35c7bf;color:#081314;font-size:15px;font-weight:900;cursor:pointer}.se-pwa-notice[hidden]{display:none!important}
+.se-pwa-notice{position:fixed;inset:0;z-index:2147483646;background:rgba(4,9,11,.78);display:flex;align-items:center;justify-content:center;padding:22px}.se-pwa-notice-card{width:min(420px,100%);max-height:min(78vh,620px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:#182126;border:1px solid #414b4c;border-radius:20px;padding:22px;box-shadow:0 22px 70px #000b;color:#f3f6f5}.se-pwa-notice-title{font-size:20px;font-weight:900;margin-bottom:10px}.se-pwa-notice-text{font-size:14px;line-height:1.55;color:#d5dddb}.se-pwa-notice-steps{margin:14px 0 18px;padding-left:20px;color:#f3f6f5;font-size:14px;line-height:1.7}.se-pwa-notice-ok{width:100%;border:0;border-radius:13px;padding:13px;background:#35c7bf;color:#081314;font-size:15px;font-weight:900;cursor:pointer}.se-pwa-notice[hidden]{display:none!important}
 </style>
 </head>
 <body>
 <div class="se-pwa-notice" id="homePwaNotice" hidden>
  <div class="se-pwa-notice-card" role="dialog" aria-modal="true" aria-labelledby="homePwaNoticeTitle">
   <div class="se-pwa-notice-title" id="homePwaNoticeTitle">🔔 Bildirimleri almak ister misin?</div>
-  <div class="se-pwa-notice-text">SoccerEdge Pro maç bildirimlerinin iPhone’da gelmesi için uygulamayı Ana Ekran’a ekle:</div>
+  <div class="se-pwa-notice-text"><b>iPhone / Safari</b> — SoccerEdge Pro maç bildirimlerinin gelmesi için:</div>
   <ol class="se-pwa-notice-steps"><li>Safari’de <b>Paylaş</b> düğmesine dokun.</li><li><b>Ana Ekrana Ekle</b> seçeneğini seç.</li><li>SoccerEdge Pro’yu ana ekrandaki ikonundan aç.</li><li>Üstteki 🔔 zile dokun ve bildirimlere izin ver.</li></ol>
+  <div class="se-pwa-notice-text"><b>Android / Chrome</b> — SoccerEdge Pro’yu uygulama gibi kullanmak ve bildirim almak için:</div>
+  <ol class="se-pwa-notice-steps"><li>Chrome’da sağ üstteki <b>⋮</b> menüsüne dokun.</li><li><b>Uygulamayı yükle</b> veya <b>Ana ekrana ekle</b> seçeneğini seç.</li><li>SoccerEdge Pro’yu ana ekrandaki ikonundan aç.</li><li>Üstteki 🔔 zile dokun ve bildirimlere izin ver.</li></ol>
   <button class="se-pwa-notice-ok" id="homePwaNoticeOk" type="button">Tamam</button>
  </div>
 </div>
