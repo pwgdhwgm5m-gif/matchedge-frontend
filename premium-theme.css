@@ -1,0 +1,92 @@
+/* SoccerEdge Pro — Premium Flat UI 2026
+   Flat ink / teal / coral system. No decorative gradients. */
+:root{
+ --se-ink:#071b24;--se-ink-2:#0b2832;--se-panel:#0d3039;--se-panel-2:#123b44;
+ --se-teal:#19c7be;--se-teal-dark:#0fa69f;--se-coral:#ff665f;--se-coral-dark:#e9524c;
+ --se-ivory:#f7f6f2;--se-mist:#eaf2f1;--se-white:#fff;--se-gold:#e8b84a;
+ --se-text:#f7fbfb;--se-soft:#bfd0d2;--se-muted:#81979d;--se-line:rgba(173,215,216,.18);
+ --se-shadow:0 12px 34px rgba(0,12,18,.22);--se-radius:18px;--se-radius-sm:12px;
+ --bg-base:var(--se-ink);--bg:var(--se-ink);--bg-card:var(--se-panel);--card:var(--se-panel);
+ --bg-card-inner:var(--se-ink-2);--inner:var(--se-ink-2);--border-subtle:var(--se-line);--line:var(--se-line);
+ --teal:var(--se-teal);--purple:var(--se-teal);--amber:var(--se-coral);--red:var(--se-coral);
+ --text-primary:var(--se-text);--text:var(--se-text);--text-secondary:var(--se-soft);--soft:var(--se-soft);
+ --text-muted:var(--se-muted);--muted:var(--se-muted);--radius:var(--se-radius);
+}
+html{background:var(--se-ink)!important}
+body{
+ background:var(--se-ink)!important;color:var(--se-text)!important;
+ font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif!important;
+ letter-spacing:-.012em;
+}
+body:before,body:after{background-image:none!important}
+.app{max-width:500px!important;padding-left:18px!important;padding-right:18px!important}
+h1,h2,h3,.title,.brand,.brand-name,.section-title,.league-name{letter-spacing:-.025em}
+.brand span,.brand-name span,.accent{color:var(--se-coral)!important}
+.card,.panel,.section,.match-card,.league-card,.coupon,.coupon-card,.stat,.stats-card,.pick-card,
+.analysis-card,.model-card,.community-card,.profile-card,.room-card,.fixture-card,.score-card,
+.live-section,.league-section,.filter-box,.sound-card{
+ background:var(--se-panel)!important;background-image:none!important;
+ border-color:var(--se-line)!important;border-radius:var(--se-radius)!important;
+ box-shadow:0 8px 24px rgba(0,10,15,.14)!important;
+}
+button,.btn,.chip,.filter-chip,.date-btn,.tab,.pill,.seg,.league-chip,.market-btn,.coupon-market,
+.back,.lang-btn,.sound-btn,.action-btn{
+ border-radius:12px!important;border-color:var(--se-line)!important;
+ box-shadow:none!important;background-image:none!important;
+}
+button:active,.btn:active,.chip:active,.filter-chip:active,.date-btn:active,.tab:active,
+.market-btn:active{transform:scale(.98)}
+.active,.selected,.chip.active,.filter-chip.active,.date-btn.active,.tab.active,.pill.active,
+.coupon-market.selected,.league-chip.active{
+ background:var(--se-teal)!important;background-image:none!important;color:#03252a!important;
+ border-color:var(--se-teal)!important;
+}
+.live,.live-badge,.status-live,[class*="live-badge"],[class*="status-live"]{
+ background:var(--se-coral)!important;background-image:none!important;color:#fff!important;
+ border-color:transparent!important;
+}
+.badge:not(.live-badge),.tag,.confidence,.confidence-badge{
+ background:rgba(25,199,190,.13)!important;color:#5ee0d8!important;border-color:rgba(25,199,190,.28)!important;
+}
+input,select,textarea,.search,.search-box,.search-input{
+ background:var(--se-ink-2)!important;color:var(--se-text)!important;border-color:var(--se-line)!important;
+ border-radius:14px!important;box-shadow:none!important;
+}
+input::placeholder,textarea::placeholder{color:var(--se-muted)!important}
+.progress,.bar,.track,[class*="progress-track"],[class*="bar-track"]{
+ background:#183d45!important;background-image:none!important;border-radius:999px!important;
+}
+.progress-fill,.bar-fill,[class*="progress-fill"],[class*="bar-fill"]{
+ background:var(--se-teal)!important;background-image:none!important;border-radius:999px!important;
+}
+.prob-away,.away-fill,.negative-fill{background:var(--se-coral)!important;background-image:none!important}
+hr,.divider{border-color:var(--se-line)!important;background:var(--se-line)!important}
+.bottom-nav,.bottom-bar,.nav-bottom,[class*="bottom-nav"]{
+ background:#061820!important;background-image:none!important;border-top:1px solid rgba(113,188,190,.2)!important;
+ box-shadow:0 -12px 30px rgba(0,8,12,.22)!important;backdrop-filter:blur(18px);
+}
+.bottom-nav a,.bottom-nav button,.nav-item{color:#8ea5aa!important;background:transparent!important}
+.bottom-nav .active,.nav-item.active{color:var(--se-teal)!important;background:transparent!important}
+a{color:var(--se-teal)}
+strong,b{font-weight:750}
+table{border-color:var(--se-line)!important}
+th{color:var(--se-muted)!important}
+.score,.score-value,.odds,.odd,.probability{font-variant-numeric:tabular-nums}
+.goal-toast-wrap,.goal-toast{display:none!important}
+/* analysis: flatter, clearer hierarchy */
+.analysis-section,.analysis-block,.market-board,.quick-picks,.coupon-group{
+ background:var(--se-panel)!important;background-image:none!important;border-color:var(--se-line)!important;
+ border-radius:18px!important;
+}
+.coupon-options,.coupon-options.three{border-color:rgba(25,199,190,.3)!important;background:var(--se-ink-2)!important}
+.coupon-market{background:transparent!important}
+.coupon-market.selected{background:rgba(25,199,190,.14)!important;box-shadow:inset 0 -3px 0 var(--se-teal)!important}
+.coupon-market.selected em{color:var(--se-teal)!important}
+/* premium CTA */
+.primary,.primary-btn,.submit-btn,.place-btn,.add-coupon,.save-btn,[class*="primary-btn"]{
+ background:var(--se-coral)!important;background-image:none!important;color:#fff!important;border-color:var(--se-coral)!important;
+ font-weight:800!important;
+}
+/* stars remain semantic gold */
+.favorite.active,.star.active,[class*="favorite"].active{color:var(--se-gold)!important}
+@media(max-width:380px){.app{padding-left:14px!important;padding-right:14px!important}}
