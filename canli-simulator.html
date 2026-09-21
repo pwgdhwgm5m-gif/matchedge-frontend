@@ -16,7 +16,7 @@
 .alert-card{background:#202728;border:1px solid #364142;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px}.alert-icon{font-size:20px}.alert-text{font-size:12px;color:#f4f7f6;font-weight:650;line-height:1.4}.alert-sub{font-size:10px;color:#899794;margin-top:2px}.premium-tag{font-size:9px;background:#263330;color:#39c7c1;border:1px solid #31504d;font-weight:800;padding:4px 8px;border-radius:8px}
 .live-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.live-stat-row{display:flex;align-items:center;justify-content:space-between;background:#202728;border:1px solid #364142;border-radius:12px;padding:12px 14px;grid-column:span 2}.live-stat-label{font-size:11.5px;color:#c5cfcc;flex:1;text-align:center}.live-stat-value{font-size:15px;font-weight:800;width:30px;text-align:center}.live-stat-value.home{color:#39c7c1}.live-stat-value.away{color:#aa91df}
 .error-state{text-align:center;padding:40px 20px;color:#899794;font-size:13px}.legal-footer{font-size:9px;line-height:1.6;color:#899794;text-align:center;padding:22px 8px 6px}
-.se-bottom-nav{position:fixed;left:0;right:0;bottom:0;width:100%;height:calc(82px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:#171d1e;border-top:1px solid #364142;z-index:9999;padding:6px 4px env(safe-area-inset-bottom,0px)}.se-bottom-nav a{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:4px 1px;color:#899794;text-decoration:none;font-size:10px;font-weight:800;overflow:hidden}.se-bottom-nav a b{font-size:25px;line-height:28px}.se-bottom-nav a span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.se-bottom-nav a.active{color:#39c7c1}
+.se-bottom-nav{position:fixed;left:0;right:0;bottom:0;width:100%;height:calc(82px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:#171d1e;border-top:1px solid #364142;z-index:9999;padding:6px 4px env(safe-area-inset-bottom,0px)}.se-bottom-nav a{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:4px 1px;color:#899794;text-decoration:none;font-size:10px;font-weight:800;overflow:hidden}.se-bottom-nav a b{font-size:25px;line-height:28px}.se-bottom-nav a span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.se-bottom-nav a.active{color:#39c7c1}html[data-se-lang="en"] .se-bottom-nav .nav-tr,html[data-se-lang="tr"] .se-bottom-nav .nav-en{display:none}
 @media(max-width:390px){.app{padding-left:12px;padding-right:12px}.se-bottom-nav a{font-size:8px}.se-bottom-nav a b{font-size:22px}}
 </style>
 
@@ -28,6 +28,7 @@
 
 
 
+<script>(function(){var l=localStorage.getItem('matchedge_lang')||'en';document.documentElement.setAttribute('data-se-lang',l==='tr'?'tr':'en')})();</script>
 </head>
 <body>
 
@@ -374,8 +375,8 @@ function drawXgChart() {
     ctx.beginPath(); ctx.arc(last.x,last.y,3.5,0,Math.PI*2); ctx.fill();
   }
 
-  drawSeries('home', '#f5c542');
-  drawSeries('away', '#ef5350');
+  drawSeries('home', '#39c7c1');
+  drawSeries('away', '#aa91df');
 }
 function crestHtml(badgeUrl, teamName) {
   if (badgeUrl) {
@@ -404,19 +405,25 @@ function renderTick(data) {
   document.getElementById('home-score').textContent = data.homeScore ?? 0;
   document.getElementById('away-score').textContent = data.awayScore ?? 0;
 
-  const m = data.momentum || { home: 50, away: 50 };
+  const rawMomentum = data.momentum || {};
+  const mh = Number(rawMomentum.home), ma = Number(rawMomentum.away);
+  const m = { home: Number.isFinite(mh) ? mh : 50, away: Number.isFinite(ma) ? ma : 50 };
   document.getElementById('momentum-home').style.width = m.home + '%';
   document.getElementById('momentum-away').style.width = m.away + '%';
   document.getElementById('momentum-home-label').textContent = `${t('homePrefix')} %${m.home}`;
   document.getElementById('momentum-away-label').textContent = `${t('awayPrefix')} %${m.away}`;
 
-  const poss = data.possession || { home: 50, away: 50 };
+  const rawPoss = data.possession || {};
+  const ph = Number(rawPoss.home), pa = Number(rawPoss.away);
+  const poss = { home: Number.isFinite(ph) ? ph : 50, away: Number.isFinite(pa) ? pa : 50 };
   document.getElementById('possession-home').style.width = poss.home + '%';
   document.getElementById('possession-away').style.width = poss.away + '%';
   document.getElementById('possession-home-label').textContent = `${t('homePrefix')} %${poss.home}`;
   document.getElementById('possession-away-label').textContent = `${t('awayPrefix')} %${poss.away}`;
 
-  const gp = data.goalProximity || { home: 50, away: 50 };
+  const rawGp = data.goalProximity || {};
+  const gh = Number(rawGp.home), ga = Number(rawGp.away);
+  const gp = { home: Number.isFinite(gh) ? gh : 50, away: Number.isFinite(ga) ? ga : 50 };
   document.getElementById('proximity-home').style.width = gp.home + '%';
   document.getElementById('proximity-away').style.width = gp.away + '%';
   document.getElementById('proximity-home-label').textContent = `${t('homePrefix')} %${gp.home}`;
