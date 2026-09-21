@@ -738,7 +738,7 @@ function isUpcomingMatch(match, now = Date.now()) {
 const escapeHtml=s=>String(s??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[ch]));
 let followingPicks=[];let v4HomeDecisions=new Map();
 async function loadFollowingPicks(){try{const r=await fetch(API_BASE+'/api/community/feed/following',{headers:authHeaders()});if(r.ok){const d=await r.json();followingPicks=d.items||[];renderHomeForYou()}}catch(e){console.warn('For You feed unavailable:',e.message)}}
-function strongestHomeItems(){return allMatches.filter(m=>!m.isLive).map(m=>{const a=matchAnalyses.get(String(m.fixtureId)),v=v4HomeDecisions.get(String(m.fixtureId)),c=v?.strongestPick||[a?.marketBoard?.best,...(a?.marketBoard?.topPredictions||[]),...(a?.marketBoard?.allMarkets||[])].filter(x=>x&&x.label&&Number.isFinite(Number(x.probability))).sort((x,y)=>Number(y.probability)-Number(x.probability))[0];return c?{m,p:c,v}:null}).filter(x=>x.v?.strongEdge).sort((a,b)=>Number(b.p.probability)-Number(a.p.probability))}
+function strongestHomeItems(){return allMatches.filter(m=>!m.isLive&&isUpcomingMatch(m)).map(m=>{const a=matchAnalyses.get(String(m.fixtureId));const candidates=[a?.marketBoard?.best,...(a?.marketBoard?.topPredictions||[]),...(a?.marketBoard?.allMarkets||[])].filter(x=>x&&x.label&&Number.isFinite(Number(x.probability)));const p=candidates.sort((x,y)=>Number(y.probability)-Number(x.probability))[0];const health=Number(p?.dataHealth??a?.dataHealth?.score??0);return p&&Number(p.probability)>=55&&health>=45?{m,p}:null}).filter(Boolean).sort((a,b)=>Number(b.p.probability)-Number(a.p.probability))}
 async function loadV4HomeDecisions(){try{const ids=allMatches.filter(m=>!m.isLive).map(m=>String(m.fixtureId)).filter(Boolean).slice(0,60);if(!ids.length)return;const r=await fetch(API_BASE+'/api/analysis/v4-decisions',{method:'POST',headers:authHeaders(),body:JSON.stringify({fixtureIds:ids})});if(r.ok){const d=await r.json();v4HomeDecisions=new Map((d.items||[]).map(x=>[String(x.fixtureId),x]));renderHomeForYou()}}catch(e){console.warn('V4 home decisions unavailable:',e.message)}}
 function renderHomeForYou(){const el=document.getElementById('homeForYou');if(!el)return;const lang=currentLang==='tr',cards=[];
  followingPicks.filter(x=>x.result==='pending').slice(0,4).forEach(x=>cards.push({score:300+Number(x.user?.accuracy||0),html:'<a class="fy-card" href="match-room.html?fixtureId='+encodeURIComponent(x.fixtureId)+'&home='+encodeURIComponent(x.homeTeam||'')+'&away='+encodeURIComponent(x.awayTeam||'')+'&league='+encodeURIComponent(x.league||'')+'&kickoff='+encodeURIComponent(x.kickoff||'')+'"><div class="fy-source">👤 '+(lang?'TAKİP ETTİĞİN ANALİST':'FOLLOWING ANALYST')+'</div><div class="fy-match">'+escapeHtml(x.homeTeam)+' – '+escapeHtml(x.awayTeam)+'</div><div class="fy-sub">'+escapeHtml(x.league)+' · '+escapeHtml(x.market)+'</div><div class="fy-pick">✓ '+escapeHtml(x.label)+'</div><div class="fy-user">@'+escapeHtml(x.user?.username||'')+' · '+Number(x.user?.accuracy||0)+'%</div></a>'}));
@@ -800,7 +800,8 @@ async function loadHome({silent=false} = {}) {
   }
 
   const now = Date.now();
-  matches = matches.filter(match => isUpcomingMatch(match, now));
+  // Keep the complete daily fixture backbone on Home. Finished matches remain in Today's Matches;
+  // only recommendation/analysis workers below restrict themselves to upcoming fixtures.
   matches.sort((a, b) => {
     if (a.isLive && !b.isLive) return -1;
     if (!a.isLive && b.isLive) return 1;
@@ -817,7 +818,7 @@ async function loadHome({silent=false} = {}) {
     requestAnimationFrame(() => { const root=document.scrollingElement||document.documentElement; root.scrollTop=savedScrollY; window.scrollTo(0,savedScrollY); });
   }
   renderHomeForYou();
-  loadHomeAnalyses(matches);
+  loadHomeAnalyses(matches.filter(m=>isUpcomingMatch(m,now)));
   loadLivePredictions(matches);
 }
 
