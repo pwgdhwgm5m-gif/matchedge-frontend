@@ -235,8 +235,8 @@
   .prob-bars {
     display: flex;
     gap: 6px;
-    height: 6px;
-    border-radius: 4px;
+    height: 10px;
+    border-radius: 999px;
     overflow: hidden;
     background: var(--bg-card-inner);
   }
@@ -268,12 +268,20 @@
     margin-bottom: 10px;
   }
   .mini-bar {
-    height: 4px;
-    background: var(--bg-base);
-    border-radius: 4px;
+    height: 7px;
+    background: #343b3b;
+    border-radius: 999px;
     overflow: hidden;
   }
-  .mini-bar-fill { height: 100%; background: var(--teal); }
+  .mini-bar-fill { height: 100%; background: var(--teal); transition: width .35s ease; }
+  #over25-bar { background: var(--teal); }
+  #btts-bar { background: var(--amber); }
+  #corner-bar { background: var(--purple); }
+  #half-bar { background: var(--amber); }
+  #over25-value { color: var(--teal); }
+  #btts-value { color: var(--amber); }
+  #corner-value { color: var(--purple); }
+  #half-value { color: var(--amber); }
 
   .stats-trio {
     display: grid;
@@ -306,14 +314,14 @@
 
   .quality-shield {
     width: 52px; height: 52px;
-    border: 2px solid var(--teal);
+    border: 2px solid var(--amber);
     border-radius: 50%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     margin: 0 auto 8px;
   }
-  .quality-num { font-size: 16px; font-weight: 800; color: var(--teal); line-height: 1; }
+  .quality-num { font-size: 16px; font-weight: 800; color: var(--amber); line-height: 1; }
   .quality-max { font-size: 8px; color: var(--text-muted); }
-  .quality-tag { font-size: 10px; color: var(--teal); font-weight: 600; }
+  .quality-tag { font-size: 10px; color: var(--amber); font-weight: 700; }
 
   .signal-badge {
     background: rgba(45,212,191,0.1);
