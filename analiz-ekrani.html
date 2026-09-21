@@ -1544,8 +1544,13 @@ function couponPickLabel(label) {
   return map[label] || label;
 }
 
+function cornerCouponSupported(){
+  const key=String(currentAnalysis?.league||CONTEXT.leagueName||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ü/g,'u').replace(/[^a-z0-9]+/g,' ').trim().replace(/^super lig$/,'turkish super lig');
+  return new Set(['premier league','la liga','bundesliga','serie a','ligue 1','turkish super lig']).has(key);
+}
 function renderCouponMarkets(data) {
-  const markets = data?.marketBoard?.allMarkets || [];
+  const allMarkets = data?.marketBoard?.allMarkets || [];
+  const markets = allMarkets.filter(item => !String(item.key||'').startsWith('corners') || cornerCouponSupported());
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
 
@@ -1616,6 +1621,7 @@ document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => {
     const marketItem = (currentAnalysis?.marketBoard?.allMarkets || []).find(m => m.key === cell.dataset.marketKey);
     const item = marketItem || cell._featuredPick;
     if (!item || !item.key || !Number.isFinite(Number(item.probability))) return;
+    if (String(item.key).startsWith('corners') && !cornerCouponSupported()) return;
     // Featured analysis cards only select/deselect a market.
     // Never create a coupon until the user explicitly presses "Kupona Ekle".
     if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.clear();
