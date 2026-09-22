@@ -991,7 +991,15 @@ function renderFeaturedContent() {
           ...(analysis?.marketBoard?.topPredictions || []),
           ...(analysis?.marketBoard?.allMarkets || [])
         ].filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label && Number.isFinite(Number(p.probability)));
-        const best=candidates.sort((a,b)=>Number(b.probability)-Number(a.probability))[0];
+        // Rank by the backend's evidence-aware market score first. Raw
+        // probability alone systematically favors high-base-rate totals such as
+        // Over 2.5 and makes every card look the same.
+        const best=candidates.sort((a,b)=>{
+          const as=Number(a.score), bs=Number(b.score);
+          if(Number.isFinite(as)||Number.isFinite(bs)) return (Number.isFinite(bs)?bs:-Infinity)-(Number.isFinite(as)?as:-Infinity) || Number(b.probability)-Number(a.probability);
+          const ar=Number(a.evidenceReliability||0), br=Number(b.evidenceReliability||0);
+          return (Number(b.probability)*(.65+.35*br))-(Number(a.probability)*(.65+.35*ar));
+        })[0];
         if(!best) return null;
         const probability=Number(best.probability ?? best.confidence ?? 0);
         const health=Number(best?.dataHealth ?? analysis?.dataHealth?.score ?? analysis?.premium?.dataHealth?.score ?? 0);
