@@ -1564,6 +1564,24 @@ function renderPremiumIntelligence(premium, data) {
   const whyHead = document.getElementById('whyPickHead');
   const rows=supports.slice(0,3).filter(Boolean).map(reason=>({reason,type:'support'}));
   riskCodes.forEach(code=>rows.push({reason:premiumReasonText(code),type:'risk'}));
+
+  // Explanation consistency guard: describe what the verified numbers actually mean.
+  // This changes explanatory copy only; prediction/model probabilities stay untouched.
+  const hForm=data?.modelDiagnostics?.form?.home||data?.homeAwayForm?.home||{};
+  const aForm=data?.modelDiagnostics?.form?.away||data?.homeAwayForm?.away||{};
+  const hGF=Number(hForm.avgGoalsFor),aGF=Number(aForm.avgGoalsFor);
+  const hGA=Number(hForm.avgGoalsAgainst),aGA=Number(aForm.avgGoalsAgainst);
+  const fmt=n=>Number(n).toFixed(2);
+  if(Number.isFinite(hGF)||Number.isFinite(aGF)){
+    rows.push({type:'support',reason:currentLang==='tr'
+      ? `Gol eğilimi: ev sahibi maç başına ${Number.isFinite(hGF)?fmt(hGF):'—'} · deplasman ${Number.isFinite(aGF)?fmt(aGF):'—'} gol atıyor.`
+      : `Scoring tendency: home ${Number.isFinite(hGF)?fmt(hGF):'—'} · away ${Number.isFinite(aGF)?fmt(aGF):'—'} goals per match.`});
+  }
+  if(Number.isFinite(hGA)||Number.isFinite(aGA)){
+    rows.push({type:'risk',reason:currentLang==='tr'
+      ? `Savunma eğilimi: ev sahibi maç başına ${Number.isFinite(hGA)?fmt(hGA):'—'} · deplasman ${Number.isFinite(aGA)?fmt(aGA):'—'} gol yiyor. Yüksek yenilen gol güçlü savunma olarak yorumlanmaz.`
+      : `Defensive tendency: home concedes ${Number.isFinite(hGA)?fmt(hGA):'—'} · away ${Number.isFinite(aGA)?fmt(aGA):'—'} per match. A high conceded rate is not labelled strong defence.`});
+  }
   const topForExplain=strongestPicks[0];
   if(topForExplain && ['bttsYes','bttsNo'].includes(topForExplain.key)){
     const hL=Number(data?.homeLambda),aL=Number(data?.awayLambda);
