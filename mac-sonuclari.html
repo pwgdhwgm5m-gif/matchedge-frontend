@@ -650,7 +650,9 @@ function canonicalLeague(m) {
   if(id==='384' || id==='4332' || /^(italy|italian|italya)$/.test(n) || /italian serie a|serie a/.test(n)) return 'Italian Serie A';
   if(id==='564' || id==='4335' || /^(spain|spanish|ispanya)$/.test(n) || /spanish la liga|la liga/.test(n)) return 'Spanish La Liga';
 
-  return name || 'League';
+  // Never create a synthetic catch-all League bucket. Unknown competition rows
+  // stay individually identifiable until the backend supplies their competition.
+  return name || ('Competition '+(id||String(m?.fixtureId||'').slice(0,8)));
 }
 
 function filteredRelevantMatches() {
