@@ -458,7 +458,19 @@ const TRANSLATIONS = {
   },
 };
 
-let currentLang = localStorage.getItem('matchedge_lang') || 'en';
+const savedLang=localStorage.getItem('matchedge_lang');
+let currentLang = savedLang || 'en';
+async function applyCountryDefaultLanguage(){
+  if(savedLang) return;
+  try{
+    const r=await fetch(API_BASE+'/api/auth/locale',{cache:'no-store'});
+    const d=await r.json();
+    currentLang=d?.countryCode==='TR'?'tr':'en';
+    localStorage.setItem('matchedge_lang',currentLang);
+    applyStaticTranslations();
+    if(document.getElementById('installSheet')?.classList.contains('open')) renderInstall();
+  }catch(_){}
+}
 let currentMode = 'login'; // login | register | forgot
 
 function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
@@ -652,6 +664,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 });
 
 applyStaticTranslations();
+applyCountryDefaultLanguage();
 </script>
 
 <script src="language-selector.js"></script>
