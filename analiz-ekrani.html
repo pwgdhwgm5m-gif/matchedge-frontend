@@ -1616,7 +1616,10 @@ function cornerCouponSupported(){
 }
 function renderCouponMarkets(data) {
   const allMarkets = data?.marketBoard?.allMarkets || [];
-  const markets = allMarkets.filter(item => !String(item.key||'').startsWith('corners') || cornerCouponSupported());
+  // Analysis markets are provider/data driven, not league-name driven. If the
+  // engine produced a corner market, keep its card visible here. Strongest Picks
+  // applies its own stricter real-corner-evidence gate separately.
+  const markets = allMarkets;
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
 
@@ -1672,7 +1675,7 @@ document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => {
     const marketItem = (currentAnalysis?.marketBoard?.allMarkets || []).find(m => m.key === cell.dataset.marketKey);
     const item = marketItem || cell._featuredPick;
     if (!item || !item.key || !Number.isFinite(Number(item.probability))) return;
-    if (String(item.key).startsWith('corners') && !cornerCouponSupported()) return;
+    // Corner analysis remains selectable whenever the engine exposed the market.
     // Featured analysis cards only select/deselect a market.
     // Never create a coupon until the user explicitly presses "Kupona Ekle".
     if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.clear();
