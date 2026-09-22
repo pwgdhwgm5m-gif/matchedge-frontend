@@ -648,7 +648,7 @@ async function loadHome({silent=false} = {}) {
   let loadFailed = false;
 
   try {
-    const res = await fetch(`${API_BASE}/api/results?date=${todayKey()}`);
+    const res = await fetch(`${API_BASE}/api/matches?date=${todayKey()}`);
     if (res.ok) {
       const json = await res.json();
       matches = json.matches || [];
@@ -661,7 +661,7 @@ async function loadHome({silent=false} = {}) {
   }
 
   // The live tab must use the dedicated live feed for current score/minute.
-  // /api/results remains the day's fixture backbone, but must not freeze a live card.
+  // /api/matches is the broad daily fixture backbone; /api/live overlays current score/minute.
   try {
     const liveRes = await fetch(`${API_BASE}/api/live`);
     if (liveRes.ok) {
