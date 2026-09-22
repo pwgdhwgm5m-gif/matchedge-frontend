@@ -655,8 +655,8 @@ function canonicalLeague(m) {
 
   // Never create a synthetic catch-all League bucket. Unknown competition rows
   // stay individually identifiable until the backend supplies their competition.
-  if(placeholder) return 'Competition '+(id||String(m?.fixtureId||'').slice(0,8));
-  return name || ('Competition '+(id||String(m?.fixtureId||'').slice(0,8)));
+  if(placeholder) return '';
+  return name || '';
 }
 
 function filteredRelevantMatches() {
@@ -782,7 +782,7 @@ function renderResults() {
       </section>`).join('')}</div>
   </section>` : '';
   const groups = new Map();
-  regularShown.forEach(m => { const k=canonicalLeague(m); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
+  regularShown.forEach(m => { const k=canonicalLeague(m); if(!k)return; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
   if (groups.size === 1 && openLeagues.size === 0) openLeagues.add([...groups.keys()][0]);
   const leagueOrder=['Süper Lig','English Premier League','Spanish La Liga','German Bundesliga','Italian Serie A','French Ligue 1'];
   const orderedGroups=[...groups.entries()].sort(([a],[b])=>{
