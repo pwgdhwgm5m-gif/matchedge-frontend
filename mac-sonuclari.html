@@ -626,37 +626,21 @@ function leagueCountry(league, leagueId) {
 }
 
 function canonicalLeague(m) {
-  const id=String(m?.leagueId||'');
   const name=String(m?.league||m?.leagueName||'').trim();
+  if(!name || /^(league|competition|unknown|other|others|all leagues?)$/i.test(name)) return '';
+  // BSD owns competition identity outside the six subscribed SportMonks
+  // leagues. Never reinterpret a BSD league by team-name heuristics or local
+  // numeric mappings; render the provider's canonical league registry name.
+  if(String(m?.canonicalProvider||'').toLowerCase()==='bsd') return name;
+  const id=String(m?.leagueId||'');
   const n=name.toLowerCase().replace(/[._-]+/g,' ').replace(/\s+/g,' ').trim();
-  // Provider placeholder labels are not real competitions and must never render
-  // as a catch-all League section.
-  const placeholder=/^(league|competition|unknown|other|others|all leagues?)$/i.test(name);
-
-  // Guard against provider rows whose league label/ID is misleading.
-  // Brazilian clubs must never be classified as Italian Serie A.
-  const teams=(String(m?.homeTeam||'')+' '+String(m?.awayTeam||'')).toLowerCase();
-  const brazilClubs=/\b(gr[eê]mio|gremio|s[aã]o paulo|sao paulo|corinthians|athletico paranaense|atl[eé]tico paranaense|atletico paranaense|flamengo|fluminense|palmeiras|botafogo|vasco|cruzeiro|internacional|bahia|santos|fortaleza|bragantino|vit[oó]ria|vitoria|cear[aá]|sport recife|juventude|mirassol)\b/i;
-  if(brazilClubs.test(teams)) return 'Brazilian Serie A';
-
-  // Generic "FA Cup" is used by providers for domestic cups in multiple countries.
-  // Disambiguate the Omani competition instead of treating every FA Cup as England.
-  const omanCupClubs=/\b(al[- ]?nahda|saham|al[- ]?seeb|sohar|ibri|al[- ]?musannah|al[- ]?msnaa|bahla|al[- ]?rustaq|dhofar|al[- ]?nasr salalah)\b/i;
-  if(/\bfa cup\b/i.test(name) && omanCupClubs.test(teams)) return 'Oman FA Cup';
-
-  // Provider/country aliases must resolve to the competition, never to a
-  // separate country bucket.
-  if(id==='600' || id==='4339' || /^(turkey|türkiye)$/.test(n) || /süper lig|super lig/.test(n)) return 'Süper Lig';
-  if(id==='8' || id==='4328' || /^(england|english)$/.test(n) || /english premier|premier league/.test(n)) return 'English Premier League';
-  if(id==='82' || id==='4331' || /^(germany|german|almanya)$/.test(n) || /german bundesliga|bundesliga(?! 2)/.test(n)) return 'German Bundesliga';
-  if(id==='301' || id==='4334' || /^(france|french|fransa)$/.test(n) || /french league( 1)?|ligue 1/.test(n)) return 'French Ligue 1';
-  if(id==='384' || id==='4332' || /^(italy|italian|italya)$/.test(n) || /italian serie a|serie a/.test(n)) return 'Italian Serie A';
-  if(id==='564' || id==='4335' || /^(spain|spanish|ispanya)$/.test(n) || /spanish la liga|la liga/.test(n)) return 'Spanish La Liga';
-
-  // Never create a synthetic catch-all League bucket. Unknown competition rows
-  // stay individually identifiable until the backend supplies their competition.
-  if(placeholder) return '';
-  return name || '';
+  if(id==='600' || /süper lig|super lig/.test(n)) return 'Süper Lig';
+  if(id==='8' || /english premier|premier league/.test(n)) return 'English Premier League';
+  if(id==='82' || /german bundesliga|^bundesliga$/.test(n)) return 'German Bundesliga';
+  if(id==='301' || /french league( 1)?|ligue 1/.test(n)) return 'French Ligue 1';
+  if(id==='384' || /italian serie a|^serie a$/.test(n)) return 'Italian Serie A';
+  if(id==='564' || /spanish la liga|la liga/.test(n)) return 'Spanish La Liga';
+  return name;
 }
 
 function filteredRelevantMatches() {
