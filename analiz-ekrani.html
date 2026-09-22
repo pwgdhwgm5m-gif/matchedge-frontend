@@ -1530,9 +1530,11 @@ function renderPremiumIntelligence(premium, data) {
     .filter(x => x && x.label && Number.isFinite(Number(x.probability)));
   const detailCoreKeys = new Set(['home','away','bttsYes','over25']);
   const cmStrong = data?.cornerMetrics || {};
-  const strongCornerEvidence = Number(cmStrong.sample) >= 8 &&
+  const strongCornerEvidence = cornerCouponSupported() || (
+    Number(cmStrong.sample) >= 8 &&
     cmStrong.lowEvidence !== true &&
-    ['sportmonks-history-pressure','historical-corners'].includes(String(cmStrong.source || ''));
+    ['sportmonks-history-pressure','historical-corners'].includes(String(cmStrong.source || ''))
+  );
   const detailCandidates = [
     ...publishedStrongest,
     ...(data?.marketBoard?.allMarkets || [])
