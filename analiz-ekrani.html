@@ -1526,8 +1526,25 @@ function renderPremiumIntelligence(premium, data) {
   // Strongest Picks must come from the backend's evidence-aware market board.
   // Do not reconstruct them in the browser from raw headline probabilities:
   // that bypasses low-data/corner exclusions and model-health guards.
-  const strongestPicks = (data?.marketBoard?.topPredictions || [])
-    .filter(x => x && x.label && Number.isFinite(Number(x.probability)))
+  const publishedStrongest = (data?.marketBoard?.topPredictions || [])
+    .filter(x => x && x.label && Number.isFinite(Number(x.probability)));
+  const detailCoreKeys = new Set(['home','away','bttsYes','over25']);
+  const cmStrong = data?.cornerMetrics || {};
+  const strongCornerEvidence = Number(cmStrong.sample) >= 8 &&
+    cmStrong.lowEvidence !== true &&
+    ['sportmonks-history-pressure','historical-corners'].includes(String(cmStrong.source || ''));
+  const detailCandidates = [
+    ...publishedStrongest,
+    ...(data?.marketBoard?.allMarkets || [])
+  ].filter(x => x && x.label && Number.isFinite(Number(x.probability)) &&
+    (detailCoreKeys.has(x.key) || (strongCornerEvidence && String(x.key || '').startsWith('corners'))));
+  const uniqueDetail = [...new Map(detailCandidates.map(x => [x.key, x])).values()];
+  const strongestPicks = uniqueDetail
+    .sort((a,b) => {
+      const as=Number(a.topPickScore ?? a.score), bs=Number(b.topPickScore ?? b.score);
+      if(Number.isFinite(as)||Number.isFinite(bs)) return (Number.isFinite(bs)?bs:-Infinity)-(Number.isFinite(as)?as:-Infinity) || Number(b.probability)-Number(a.probability);
+      return Number(b.probability)-Number(a.probability);
+    })
     .slice(0,3)
     .map(x => ({label:x.label, probability:+Number(x.probability).toFixed(1), key:x.key, market:x.market, isBettingValue:x.isBettingValue===true}));
 
