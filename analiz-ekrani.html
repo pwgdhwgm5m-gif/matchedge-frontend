@@ -1213,8 +1213,8 @@ async function loadAnalysis() {
 
   renderContextImmediately();
 
+  const params = new URLSearchParams();
   try {
-    const params = new URLSearchParams();
     if (CONTEXT.homeTeamName) params.set('homeTeamName', CONTEXT.homeTeamName);
     if (CONTEXT.awayTeamName) params.set('awayTeamName', CONTEXT.awayTeamName);
     if (CONTEXT.leagueName) params.set('leagueName', CONTEXT.leagueName);
@@ -1229,7 +1229,12 @@ async function loadAnalysis() {
     } finally { clearTimeout(timer); }
     if (!res.ok) throw new Error('http_' + res.status);
     const data = await res.json();
-    renderAnalysis(data);
+    try {
+      renderAnalysis(data);
+    } catch (renderErr) {
+      console.error('Analiz render hatasi:', renderErr);
+      renderAnalysisFallback(data);
+    }
     document.getElementById('errorBanner').innerHTML = '';
   } catch (err) {
     console.warn('Analiz alınamadı:', err.message);
@@ -1239,7 +1244,7 @@ async function loadAnalysis() {
         const retryRes = await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${params.toString()}`);
         if (!retryRes.ok) throw new Error('http_' + retryRes.status);
         const retryData = await retryRes.json();
-        renderAnalysis(retryData);
+        try { renderAnalysis(retryData); } catch (renderErr) { console.error('Retry render hatasi:', renderErr); renderAnalysisFallback(retryData); }
         document.getElementById('errorBanner').innerHTML = '';
         return;
       } catch (retryErr) {
@@ -1260,6 +1265,28 @@ function setReading(id, value) {
 
 function updateMatchRoomLink(){const a=document.getElementById('openMatchRoom');if(!a)return;const p=new URLSearchParams(location.search),id=p.get('fixtureId')||p.get('id')||p.get('matchId')||FIXTURE_ID||'',home=currentAnalysis?.homeTeam||document.getElementById('home-name')?.textContent||'',away=currentAnalysis?.awayTeam||document.getElementById('away-name')?.textContent||'',league=currentAnalysis?.league||document.getElementById('league-name')?.textContent||'',kickoff=currentAnalysis?.kickoff||CONTEXT.kickoff||'',markets=(currentAnalysis?.marketBoard?.allMarkets||[]).map(x=>({key:x.key,market:x.market,label:x.label,probability:Number(x.probability)})).filter(x=>Number.isFinite(x.probability));a.href='match-room.html?fixtureId='+encodeURIComponent(id)+'&home='+encodeURIComponent(home)+'&away='+encodeURIComponent(away)+'&league='+encodeURIComponent(league)+'&kickoff='+encodeURIComponent(kickoff)+'&aiMarkets='+encodeURIComponent(JSON.stringify(markets))}
 setTimeout(updateMatchRoomLink,1200);
+function renderAnalysisFallback(data) {
+  // Last-resort core renderer: optional widgets must never make a valid API
+  // analysis look unavailable to the user.
+  currentAnalysis = data;
+  const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
+  set('league-name',data?.league||CONTEXT.leagueName||t('unknownLeague'));
+  set('home-name',data?.homeTeam||CONTEXT.homeTeamName||'—');
+  set('away-name',data?.awayTeam||CONTEXT.awayTeamName||'—');
+  const mp=data?.matchProbabilities||{},m=data?.marketProbabilities||{};
+  set('home-prob',Number.isFinite(Number(mp.homeWinProbability))?mp.homeWinProbability+'%':'–');
+  set('draw-prob',Number.isFinite(Number(mp.drawProbability))?mp.drawProbability+'%':'–');
+  set('away-prob',Number.isFinite(Number(mp.awayWinProbability))?mp.awayWinProbability+'%':'–');
+  setReading('over25',m.over25GoalsPercent);
+  setReading('btts',m.bttsPercent);
+  setReading('corner',data?.cornerMetrics?.over85Percent);
+  set('xg-home',data?.homeLambda??'–'); set('xg-away',data?.awayLambda??'–');
+  set('quality-num',data?.dataQualityScore??'–');
+  try { renderPremiumIntelligence(data?.premium,data); } catch(e) { console.warn('Fallback premium render:',e.message); }
+  try { renderCouponMarkets(data); } catch(e) { console.warn('Fallback coupon render:',e.message); }
+  updateMatchRoomLink();
+}
+
 function renderAnalysis(data) {
   currentAnalysis = data;
   document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
