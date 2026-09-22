@@ -639,6 +639,20 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
 #corner-over85-value{color:#39c7c1!important}
 #corner-over85-bar.parent,.mini-bar{background:#283031!important}
 </style>
+
+<style id="analysis-current-palette-live-20260923">
+/* Current SoccerEdge palette: charcoal + teal + coral + selective amber. */
+body,.app{background:#0b1112!important;color:#f4f7f6!important}
+.match-hero,.analysis-card,.panel,.section-card,.decision-card,.quick-stats,.coupon-section{background:#151d1e!important;border-color:#344244!important}
+.brand-name .premium{color:#e1b65b!important}
+.brand-sub,.muted,.meta{color:#91a09f!important}
+.match-home-button,.match-home-button svg{color:#39c7c1!important;stroke:#39c7c1!important}
+.top-bar{border-bottom-color:#39c7c1!important}
+.live-pill{display:flex!important;background:transparent!important;border:0!important;padding:0 4px!important;color:#ff6f68!important;font-weight:900!important;letter-spacing:.14em!important;box-shadow:none!important}
+.live-pill[hidden]{display:none!important}
+.live-pill .live-dot{width:9px!important;height:9px!important;background:#ff6f68!important;box-shadow:0 0 0 4px rgba(255,111,104,.12)!important;animation:seLiveBlink 1s ease-in-out infinite!important}
+@keyframes seLiveBlink{0%,100%{opacity:1;box-shadow:0 0 0 4px rgba(255,111,104,.12)}50%{opacity:.28;box-shadow:0 0 0 8px rgba(255,111,104,.03)}}
+</style>
 </head>
 <body>
 
@@ -650,7 +664,7 @@ z-index:2147483647!important;box-sizing:border-box!important;overflow:hidden!imp
       <div class="brand-sub" data-i18n="brandSub">PRO MATCH INTELLIGENCE</div>
     </div>
     <div class="top-actions">
-      <div class="live-pill" aria-label="Live"><span class="live-dot"></span><span>LIVE</span></div>
+      <div class="live-pill" id="analysisLiveIndicator" aria-label="Live" hidden><span class="live-dot"></span><span>LIVE</span></div>
       <div class="lang-toggle" id="langToggle">
         <span id="langFlag">🇬🇧</span><span class="lang-code" id="langCode">EN</span>
       </div>
@@ -1287,6 +1301,28 @@ function renderAnalysisFallback(data) {
   updateMatchRoomLink();
 }
 
+
+async function syncAnalysisLiveState(){
+  const indicator=document.getElementById('analysisLiveIndicator');
+  if(!indicator)return;
+  try{
+    const r=await fetch(API_BASE+'/api/live');
+    if(!r.ok){indicator.hidden=true;return}
+    const d=await r.json(), norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+    const rows=Array.isArray(d.matches)?d.matches:[];
+    const live=rows.find(m=>String(m.fixtureId||m.sportmonksId||m.bsdEventId||'')===String(FIXTURE_ID)||(
+      norm(m.homeTeam)===norm(currentAnalysis?.homeTeam||CONTEXT.homeTeamName)&&norm(m.awayTeam)===norm(currentAnalysis?.awayTeam||CONTEXT.awayTeamName)
+    ));
+    indicator.hidden=!live;
+    if(live){
+      const minute=Number(live.minute);
+      indicator.querySelector('span:last-child').textContent=Number.isFinite(minute)&&minute>0?('LIVE · '+minute+"'"):'LIVE';
+      const status=document.getElementById('match-status');
+      if(status)status.textContent=Number.isFinite(minute)&&minute>0?(minute+"' · LIVE"):'LIVE';
+    }
+  }catch(e){indicator.hidden=true}
+}
+
 function renderAnalysis(data) {
   currentAnalysis = data;
   document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
@@ -1308,6 +1344,7 @@ function renderAnalysis(data) {
     }
   }
   document.getElementById('match-status').textContent = data.status || t('notStartedStatus');
+  syncAnalysisLiveState();
 
   const mp = data.matchProbabilities || {};
   document.getElementById('home-prob').textContent = (mp.homeWinProbability ?? '–') + '%';
