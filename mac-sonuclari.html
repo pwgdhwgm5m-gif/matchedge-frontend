@@ -700,8 +700,9 @@ async function loadResults() {
           allMatchesForDay=allMatchesForDay.map(m=>{
             const live=byId.get(String(m.fixtureId)) || byTeams.get(teamKey(m));
             if(!live)return m;
-            const rawMinute=live.minute ?? live.elapsed ?? live.time?.elapsed ?? null;
-            const minute=rawMinute!=null && Number.isFinite(Number(rawMinute)) ? Number(rawMinute) : m.minute;
+            const rawMinute=live.minute ?? live.elapsed ?? live.time?.elapsed ?? live.time ?? live.timer?.minute ?? live.timer ?? live.clock?.minute ?? live.clock ?? null;
+            const parsedMinute=rawMinute!=null ? Number(String(rawMinute).match(/\d+/)?.[0]) : NaN;
+            const minute=Number.isFinite(parsedMinute) && parsedMinute>0 ? parsedMinute : m.minute;
             return {...m,isLive:live.isLive===true || m.isLive,minute,statusShort:live.statusShort||live.status||m.statusShort};
           });
         }
