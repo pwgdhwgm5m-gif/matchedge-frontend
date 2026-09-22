@@ -629,6 +629,9 @@ function canonicalLeague(m) {
   const id=String(m?.leagueId||'');
   const name=String(m?.league||m?.leagueName||'').trim();
   const n=name.toLowerCase().replace(/[._-]+/g,' ').replace(/\s+/g,' ').trim();
+  // Provider placeholder labels are not real competitions and must never render
+  // as a catch-all League section.
+  const placeholder=/^(league|competition|unknown|other|others|all leagues?)$/i.test(name);
 
   // Guard against provider rows whose league label/ID is misleading.
   // Brazilian clubs must never be classified as Italian Serie A.
@@ -652,6 +655,7 @@ function canonicalLeague(m) {
 
   // Never create a synthetic catch-all League bucket. Unknown competition rows
   // stay individually identifiable until the backend supplies their competition.
+  if(placeholder) return 'Competition '+(id||String(m?.fixtureId||'').slice(0,8));
   return name || ('Competition '+(id||String(m?.fixtureId||'').slice(0,8)));
 }
 
