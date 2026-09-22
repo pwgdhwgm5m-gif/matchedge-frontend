@@ -687,7 +687,8 @@ async function loadHome({silent=false} = {}) {
       const known = new Set(matches.map(m => String(m.fixtureId ?? m.id ?? m.sportmonksId ?? '')));
       activeLiveRows.forEach(live => {
         const id = String(live.fixtureId ?? live.id ?? live.sportmonksId ?? '');
-        if (!known.has(id)) matches.push({ ...live, isLive:true });
+        const pairExists = matches.some(m => norm(m.homeTeam) === norm(live.homeTeam) && norm(m.awayTeam) === norm(live.awayTeam));
+        if ((!id || !known.has(id)) && !pairExists) matches.push({ ...live, isLive:true });
       });
     }
   } catch (err) {
