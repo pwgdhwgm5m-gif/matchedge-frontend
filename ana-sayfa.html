@@ -485,9 +485,23 @@ let allMatches = [];
 let featuredViewMode = 'featured'; // 'featured' | 'live'
 let matchAnalyses = new Map();
 const featuredScrollByMode = { featured: 0, top: 0, live: 0, value: 0 };
+const FEATURED_SCROLL_KEY='socceredge_home_carousel_scroll_v1';
+try{const saved=JSON.parse(sessionStorage.getItem(FEATURED_SCROLL_KEY)||'{}');Object.keys(featuredScrollByMode).forEach(k=>{if(Number.isFinite(Number(saved[k])))featuredScrollByMode[k]=Number(saved[k])})}catch(_){}
+function persistFeaturedScroll(){try{sessionStorage.setItem(FEATURED_SCROLL_KEY,JSON.stringify(featuredScrollByMode))}catch(_){}}
 function rememberFeaturedScroll() {
   const carousel = document.querySelector('#featuredContent .featured-carousel');
-  if (carousel) featuredScrollByMode[featuredViewMode] = carousel.scrollLeft;
+  if (carousel) { featuredScrollByMode[featuredViewMode] = carousel.scrollLeft; persistFeaturedScroll(); }
+}
+function restoreFeaturedScroll(carousel,mode=featuredViewMode){
+  if(!carousel)return;
+  const wanted=Math.max(0,Number(featuredScrollByMode[mode])||0);
+  const apply=()=>{const max=Math.max(0,carousel.scrollWidth-carousel.clientWidth);carousel.scrollLeft=Math.min(wanted,max)};
+  requestAnimationFrame(()=>{apply();requestAnimationFrame(apply)});
+}
+function bindFeaturedScrollMemory(carousel,mode=featuredViewMode){
+  if(!carousel)return;
+  restoreFeaturedScroll(carousel,mode);
+  carousel.addEventListener('scroll',()=>{featuredScrollByMode[mode]=carousel.scrollLeft;persistFeaturedScroll()},{passive:true});
 }
 
 const TRANSLATIONS = {
@@ -956,8 +970,8 @@ function renderFeaturedContent() {
     el.innerHTML = '<div class="featured-carousel-wrap"><div class="featured-carousel live-carousel" aria-label="'+t('liveTab')+'">'+liveMatches.slice(0,20).map(featuredCardHtml).join('')+'</div></div>';
     const carousel = el.querySelector('.live-carousel');
     if (carousel) {
-      requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
-      carousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = carousel.scrollLeft; }, { passive:true });
+      featuredScrollByMode[featuredViewMode]=previousScrollLeft;
+      bindFeaturedScrollMemory(carousel,featuredViewMode);
     }
     el.querySelectorAll('.featured-fav-btn').forEach(btn => {
       btn.addEventListener('click', e => {
@@ -1018,7 +1032,7 @@ function renderFeaturedContent() {
       : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
     bindFeaturedFavoriteButtons(el);
     const topCarousel = el.querySelector('.featured-carousel');
-    if (topCarousel) { requestAnimationFrame(() => { topCarousel.scrollLeft = previousScrollLeft; }); topCarousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = topCarousel.scrollLeft; }, {passive:true}); }
+    if (topCarousel) { featuredScrollByMode[featuredViewMode]=previousScrollLeft; bindFeaturedScrollMemory(topCarousel,featuredViewMode); }
     return;
   }
 
@@ -1081,8 +1095,8 @@ function renderFeaturedContent() {
   bindFeaturedFavoriteButtons(el);
   const carousel = el.querySelector('.featured-carousel');
   if (carousel) {
-    requestAnimationFrame(() => { carousel.scrollLeft = previousScrollLeft; });
-    carousel.addEventListener('scroll', () => { featuredScrollByMode[featuredViewMode] = carousel.scrollLeft; }, { passive:true });
+    featuredScrollByMode[featuredViewMode]=previousScrollLeft;
+    bindFeaturedScrollMemory(carousel,featuredViewMode);
   }
 }
 
