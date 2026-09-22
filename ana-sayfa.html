@@ -1290,10 +1290,13 @@ setInterval(() => loadHome({silent:true}), POLL_INTERVAL_MS);
  var popup=document.getElementById('homePwaNotice'),ok=document.getElementById('homePwaNoticeOk'),never=document.getElementById('homePwaNever'),slides=document.getElementById('homePwaSlides'),dots=document.querySelectorAll('.se-pwa-dot');
  if(!popup||!ok)return;
  var standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
- var dismissed=localStorage.getItem('socceredge_hide_install_notice')==='1';
+ var NOTICE_KEY='socceredge_hide_install_notice_v2';
+ function noticeDismissed(){try{if(localStorage.getItem(NOTICE_KEY)==='1')return true}catch(_){ }return document.cookie.split(';').some(function(x){return x.trim()===NOTICE_KEY+'=1'})}
+ function rememberNotice(){try{localStorage.setItem(NOTICE_KEY,'1')}catch(_){ }document.cookie=NOTICE_KEY+'=1; Max-Age=31536000; Path=/; SameSite=Lax'}
+ var dismissed=noticeDismissed();
  if(!standalone&&!dismissed)popup.hidden=false;
  if(slides)slides.addEventListener('scroll',function(){var page=Math.round(slides.scrollLeft/slides.clientWidth);dots.forEach(function(d,i){d.classList.toggle('active',i===page)})},{passive:true});
- ok.addEventListener('click',function(){if(never&&never.checked)localStorage.setItem('socceredge_hide_install_notice','1');popup.hidden=true;});
+ ok.addEventListener('click',function(){if(never&&never.checked)rememberNotice();popup.hidden=true;});
 })();
 </script>
 </body>
