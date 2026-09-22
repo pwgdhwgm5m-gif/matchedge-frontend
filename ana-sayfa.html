@@ -988,7 +988,8 @@ function renderFeaturedContent() {
         const coreTopKeys=new Set(['home','away','bttsYes','over25']);
         const candidates=[
           analysis?.marketBoard?.best,
-          ...(analysis?.marketBoard?.topPredictions || [])
+          ...(analysis?.marketBoard?.topPredictions || []),
+          ...(analysis?.marketBoard?.allMarkets || [])
         ].filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label && Number.isFinite(Number(p.probability)));
         const best=candidates.sort((a,b)=>Number(b.probability)-Number(a.probability))[0];
         if(!best) return null;
