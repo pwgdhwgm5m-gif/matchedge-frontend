@@ -995,7 +995,7 @@ function renderFeaturedContent() {
         // probability alone systematically favors high-base-rate totals such as
         // Over 2.5 and makes every card look the same.
         const best=candidates.sort((a,b)=>{
-          const as=Number(a.score), bs=Number(b.score);
+          const as=Number(a.topPickScore ?? a.score), bs=Number(b.topPickScore ?? b.score);
           if(Number.isFinite(as)||Number.isFinite(bs)) return (Number.isFinite(bs)?bs:-Infinity)-(Number.isFinite(as)?as:-Infinity) || Number(b.probability)-Number(a.probability);
           const ar=Number(a.evidenceReliability||0), br=Number(b.evidenceReliability||0);
           return (Number(b.probability)*(.65+.35*br))-(Number(a.probability)*(.65+.35*ar));
