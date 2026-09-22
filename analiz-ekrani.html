@@ -1078,10 +1078,6 @@ const TRANSLATIONS = {
     reasonNoOdds: 'No matching market price, so a real value edge cannot be verified.',
     reasonLowData: 'Data coverage is below the premium decision threshold.',
     reasonNoStandings: 'League table context is unavailable for this match.',
-    reasonHomeXg: 'Home expected-goal advantage: +{v}.', reasonAwayXg: 'Away expected-goal advantage: +{v}.',
-    reasonHomeAttack: 'Home scoring form is strong ({v} per match).', reasonAwayAttack: 'Away scoring form is strong ({v} per match).',
-    reasonHomeDefence: 'Home defensive risk is elevated ({v} conceded).', reasonAwayDefence: 'Away defensive risk is elevated ({v} conceded).',
-    reasonEdge: 'Best model-to-market difference: {v} percentage points.',
     matchProbTitle: 'MATCH RESULT PROBABILITIES', home: 'Home', draw: 'Draw', away: 'Away',
     modelPrediction: 'Model prediction',
     matchReadingTitle: 'MATCH ANALYSIS', over25: 'OVER 2.5 GOALS', bttsYes: 'BTTS YES',
@@ -1129,10 +1125,6 @@ const TRANSLATIONS = {
     reasonNoOdds: 'Eşleşen piyasa oranı yok; gerçek değer avantajı doğrulanamıyor.',
     reasonLowData: 'Veri kapsamı premium karar eşiğinin altında.',
     reasonNoStandings: 'Bu maç için lig sıralaması bağlamı bulunamadı.',
-    reasonHomeXg: 'Ev sahibinin beklenen gol avantajı: +{v}.', reasonAwayXg: 'Deplasmanın beklenen gol avantajı: +{v}.',
-    reasonHomeAttack: 'Ev sahibinin gol formu güçlü (maç başına {v}).', reasonAwayAttack: 'Deplasmanın gol formu güçlü (maç başına {v}).',
-    reasonHomeDefence: 'Ev sahibinin savunma riski yüksek (maç başına {v} gol yiyor).', reasonAwayDefence: 'Deplasmanın savunma riski yüksek (maç başına {v} gol yiyor).',
-    reasonEdge: 'En iyi model–piyasa farkı: {v} yüzde puan.',
     matchProbTitle: 'MAÇ SONUCU OLASILIKLARI', home: 'Ev Sahibi', draw: 'Beraberlik', away: 'Deplasman',
     modelPrediction: 'Model tahmini',
     matchReadingTitle: 'MAÇ ANALİZİ', over25: '2.5 ÜST GOL', bttsYes: 'KG VAR',
@@ -1466,17 +1458,6 @@ function premiumOutcomeLabel(outcome, data) {
   if (outcome === 'away') return data.awayTeam || CONTEXT.awayTeamName || t('away');
   if (outcome === 'draw') return t('draw');
   return '—';
-}
-
-function premiumReasonText(code, value) {
-  const keys = {
-    SMALL_SAMPLE: 'reasonSmallSample', NO_MARKET_ODDS: 'reasonNoOdds',
-    LOW_DATA_HEALTH: 'reasonLowData', NO_STANDINGS: 'reasonNoStandings',
-    HOME_XG_EDGE: 'reasonHomeXg', AWAY_XG_EDGE: 'reasonAwayXg',
-    HOME_ATTACK_FORM: 'reasonHomeAttack', AWAY_ATTACK_FORM: 'reasonAwayAttack',
-    HOME_DEFENCE_RISK: 'reasonHomeDefence', AWAY_DEFENCE_RISK: 'reasonAwayDefence',
-  };
-  return t(keys[code] || code).replace('{v}', value ?? '');
 }
 
 function renderPremiumIntelligence(premium, data) {
