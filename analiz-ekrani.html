@@ -1555,70 +1555,23 @@ function renderPremiumIntelligence(premium, data) {
     document.getElementById(`pick-prob-${index + 1}`).textContent = pick ? `${pick.probability}%` : '—';
   }
 
-  // Evidence only: probabilities are outputs, not reasons. Never manufacture support/risk copy.
-  const supports = [];
-  if (Number.isFinite(best?.edgePoints)) supports.push(t('reasonEdge').replace('{v}', best.edgePoints >= 0 ? `+${best.edgePoints}` : best.edgePoints));
-  (premium.drivers || []).forEach(d => { if (supports.length < 3 && d?.code) supports.push(premiumReasonText(d.code, d.strength)); });
-  const riskCodes=(premium.blockers||[]).filter(Boolean).slice(0,2);
-  const reasonList = document.getElementById('premium-reasons');
-  const whyHead = document.getElementById('whyPickHead');
-  const rows=supports.slice(0,3).filter(Boolean).map(reason=>({reason,type:'support'}));
-  riskCodes.forEach(code=>rows.push({reason:premiumReasonText(code),type:'risk'}));
+  // Compact statistics only; model interpretation stays internal.
+  const reasonList=document.getElementById('premium-reasons'),whyHead=document.getElementById('whyPickHead'),rows=[];
+  const hForm=data?.modelDiagnostics?.form?.home||data?.homeAwayForm?.home||{},aForm=data?.modelDiagnostics?.form?.away||data?.homeAwayForm?.away||{};
+  const hGF=Number(hForm.avgGoalsFor),aGF=Number(aForm.avgGoalsFor),hGA=Number(hForm.avgGoalsAgainst),aGA=Number(aForm.avgGoalsAgainst);
+  const hL=Number(data?.homeLambda),aL=Number(data?.awayLambda),fmt=n=>Number(n).toFixed(2);
+  if(Number.isFinite(hGF)||Number.isFinite(aGF)) rows.push({type:'support',reason:currentLang==='tr'?'Gol ort.: Ev '+(Number.isFinite(hGF)?fmt(hGF):'—')+' · Dep. '+(Number.isFinite(aGF)?fmt(aGF):'—'):'Goals avg: Home '+(Number.isFinite(hGF)?fmt(hGF):'—')+' · Away '+(Number.isFinite(aGF)?fmt(aGF):'—')});
+  if(Number.isFinite(hGA)||Number.isFinite(aGA)) rows.push({type:'risk',reason:currentLang==='tr'?'Yenilen gol ort.: Ev '+(Number.isFinite(hGA)?fmt(hGA):'—')+' · Dep. '+(Number.isFinite(aGA)?fmt(aGA):'—'):'Conceded avg: Home '+(Number.isFinite(hGA)?fmt(hGA):'—')+' · Away '+(Number.isFinite(aGA)?fmt(aGA):'—')});
+  if(Number.isFinite(hL)||Number.isFinite(aL)) rows.push({type:'support',reason:currentLang==='tr'?'Beklenen gol: Ev '+(Number.isFinite(hL)?fmt(hL):'—')+' · Dep. '+(Number.isFinite(aL)?fmt(aL):'—'):'Expected goals: Home '+(Number.isFinite(hL)?fmt(hL):'—')+' · Away '+(Number.isFinite(aL)?fmt(aL):'—')});
+  const health=premium.dataHealth||{};
+  if(Number(health.score||0)<45) rows.push({type:'risk',reason:(currentLang==='tr'?'Veri sağlığı: ':'Data health: ')+(health.score??'—')+'/100'});
+  if(whyHead) whyHead.style.display=''; reasonList.style.display='';
+  if(!rows.length){const empty=document.createElement('div');empty.className='reason-row';const dot=document.createElement('span');dot.className='reason-dot';const copy=document.createElement('span');copy.textContent=currentLang==='tr'?'Yeterli istatistik yok.':'Not enough statistics.';empty.append(dot,copy);reasonList.replaceChildren(empty);}
+  else reasonList.replaceChildren(...rows.map(item=>{const row=document.createElement('div');row.className='reason-row '+item.type;const dot=document.createElement('span');dot.className='reason-dot';const copy=document.createElement('span');copy.textContent=item.reason;row.append(dot,copy);return row;}));
+  document.getElementById('why-pick-label').textContent=currentLang==='tr'?'KISA İSTATİSTİK':'QUICK STATS';
+  const top=strongestPicks[0]; document.querySelector('#ai-one-line span').textContent=top?(currentLang==='tr'?top.label+' · %'+top.probability:top.label+' · '+top.probability+'%'):(currentLang==='tr'?'Yeterli güçlü seçim oluşmadı.':'No strong pick is available.');
 
-  // Explanation consistency guard: describe what the verified numbers actually mean.
-  // This changes explanatory copy only; prediction/model probabilities stay untouched.
-  const hForm=data?.modelDiagnostics?.form?.home||data?.homeAwayForm?.home||{};
-  const aForm=data?.modelDiagnostics?.form?.away||data?.homeAwayForm?.away||{};
-  const hGF=Number(hForm.avgGoalsFor),aGF=Number(aForm.avgGoalsFor);
-  const hGA=Number(hForm.avgGoalsAgainst),aGA=Number(aForm.avgGoalsAgainst);
-  const fmt=n=>Number(n).toFixed(2);
-  if(Number.isFinite(hGF)||Number.isFinite(aGF)){
-    rows.push({type:'support',reason:currentLang==='tr'
-      ? `Gol eğilimi: ev sahibi maç başına ${Number.isFinite(hGF)?fmt(hGF):'—'} · deplasman ${Number.isFinite(aGF)?fmt(aGF):'—'} gol atıyor.`
-      : `Scoring tendency: home ${Number.isFinite(hGF)?fmt(hGF):'—'} · away ${Number.isFinite(aGF)?fmt(aGF):'—'} goals per match.`});
-  }
-  if(Number.isFinite(hGA)||Number.isFinite(aGA)){
-    rows.push({type:'risk',reason:currentLang==='tr'
-      ? `Savunma eğilimi: ev sahibi maç başına ${Number.isFinite(hGA)?fmt(hGA):'—'} · deplasman ${Number.isFinite(aGA)?fmt(aGA):'—'} gol yiyor. Yüksek yenilen gol güçlü savunma olarak yorumlanmaz.`
-      : `Defensive tendency: home concedes ${Number.isFinite(hGA)?fmt(hGA):'—'} · away ${Number.isFinite(aGA)?fmt(aGA):'—'} per match. A high conceded rate is not labelled strong defence.`});
-  }
-  const topForExplain=strongestPicks[0];
-  if(topForExplain && ['bttsYes','bttsNo'].includes(topForExplain.key)){
-    const hL=Number(data?.homeLambda),aL=Number(data?.awayLambda);
-    if(Number.isFinite(hL)&&Number.isFinite(aL)){
-      const hBlank=Math.exp(-Math.max(0,hL))*100,aBlank=Math.exp(-Math.max(0,aL))*100;
-      rows.push({type:'support',reason:currentLang==='tr'
-        ? `Model beklenen golü: ev ${hL.toFixed(2)} · deplasman ${aL.toFixed(2)}.`
-        : `Model expected goals: home ${hL.toFixed(2)} · away ${aL.toFixed(2)}.`});
-      rows.push({type:topForExplain.key==='bttsNo'?'risk':'support',reason:currentLang==='tr'
-        ? `Gol bulamama olasılığı: ev %${hBlank.toFixed(1)} · deplasman %${aBlank.toFixed(1)}. KG hesabı iki takımın da gol bulma olasılığından üretilir.`
-        : `Chance of failing to score: home ${hBlank.toFixed(1)}% · away ${aBlank.toFixed(1)}%. BTTS is derived from both teams scoring.`});
-    }
-  }
-  if(whyHead) whyHead.style.display='';
-  reasonList.style.display='';
-  if(!rows.length){
-    const empty=document.createElement('div');empty.className='reason-row';
-    const dot=document.createElement('span');dot.className='reason-dot';
-    const copy=document.createElement('span');copy.textContent=currentLang==='tr'?'Bu seçim için doğrulanmış açıklayıcı kanıt hâlâ toplanıyor.':'Verified explanatory evidence for this pick is still collecting.';
-    empty.append(dot,copy);reasonList.replaceChildren(empty);
-  }else{
-    reasonList.replaceChildren(...rows.map(item => {
-      const row = document.createElement('div');row.className = 'reason-row '+item.type;
-      const dot = document.createElement('span');dot.className = 'reason-dot';
-      const copy = document.createElement('span');copy.textContent = (item.type==='risk'?'Risk: ':'')+item.reason;
-      row.append(dot, copy);return row;
-    }));
-  }
-  document.getElementById('why-pick-label').textContent=currentLang==='tr'?'NEDEN BU SEÇİM?':'WHY THIS PICK?';
-  const top=strongestPicks[0];
-  document.querySelector('#ai-one-line span').textContent=top
-    ? (rows.length
-      ? (currentLang==='tr'?`${top.label} · %${top.probability}. Aşağıdaki nedenler yalnız mevcut doğrulanmış sinyallerdir.`:`${top.label} · ${top.probability}%. Reasons below use available verified signals only.`)
-      : (currentLang==='tr'?`${top.label} · %${top.probability}. Açıklayıcı kanıt toplanıyor.`:`${top.label} · ${top.probability}%. Explanatory evidence is still collecting.`))
-    : (currentLang==='tr'?'Yeterli güçlü seçim oluşmadı.':'No strong pick is available.');
 
-  const health = premium.dataHealth || {};
   const badge=document.getElementById('edgeClassBadge');
   if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':premium.status==='NO_BET'?'NO EDGE':(Number(health.score||0)<45?'RISKY':'WATCH');
   document.getElementById('health-score').textContent = `${health.score ?? '—'}/100`;
