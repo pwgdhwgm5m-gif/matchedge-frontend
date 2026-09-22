@@ -1564,6 +1564,19 @@ function renderPremiumIntelligence(premium, data) {
   const whyHead = document.getElementById('whyPickHead');
   const rows=supports.slice(0,3).filter(Boolean).map(reason=>({reason,type:'support'}));
   riskCodes.forEach(code=>rows.push({reason:premiumReasonText(code),type:'risk'}));
+  const topForExplain=strongestPicks[0];
+  if(topForExplain && ['bttsYes','bttsNo'].includes(topForExplain.key)){
+    const hL=Number(data?.homeLambda),aL=Number(data?.awayLambda);
+    if(Number.isFinite(hL)&&Number.isFinite(aL)){
+      const hBlank=Math.exp(-Math.max(0,hL))*100,aBlank=Math.exp(-Math.max(0,aL))*100;
+      rows.push({type:'support',reason:currentLang==='tr'
+        ? `Model beklenen golü: ev ${hL.toFixed(2)} · deplasman ${aL.toFixed(2)}.`
+        : `Model expected goals: home ${hL.toFixed(2)} · away ${aL.toFixed(2)}.`});
+      rows.push({type:topForExplain.key==='bttsNo'?'risk':'support',reason:currentLang==='tr'
+        ? `Gol bulamama olasılığı: ev %${hBlank.toFixed(1)} · deplasman %${aBlank.toFixed(1)}. KG hesabı iki takımın da gol bulma olasılığından üretilir.`
+        : `Chance of failing to score: home ${hBlank.toFixed(1)}% · away ${aBlank.toFixed(1)}%. BTTS is derived from both teams scoring.`});
+    }
+  }
   if(whyHead) whyHead.style.display='';
   reasonList.style.display='';
   if(!rows.length){
