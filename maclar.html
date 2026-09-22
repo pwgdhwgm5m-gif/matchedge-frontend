@@ -753,7 +753,8 @@ async function loadMatches({silent=false} = {}) {
     loadFailed = true;
   }
 
-  matches = matches.filter(m => WHITELISTED_LEAGUE_IDS.has(String(m.leagueId)));
+  // Backend /api/matches is the canonical fixture source used across the app. Do not apply a second legacy TheSportsDB-id filter here: SportsMonks/API-Football fixtures use different league IDs and were being removed only on Fixtures.
+  matches = matches.filter(m => m && (m.fixtureId != null || (m.homeTeam && m.awayTeam)));
   matches.sort((a, b) => new Date(a.kickoff || 0) - new Date(b.kickoff || 0));
 
   lastMatches = matches;
