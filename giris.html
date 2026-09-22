@@ -525,12 +525,20 @@ function renderInstall(){
   document.getElementById('installNext').textContent=installStep===slides.length-1?t('installDone'):t('installNext');
 }
 function openInstallGuide(){installStep=0;renderInstall();const n=document.getElementById('installNever');if(n)n.checked=localStorage.getItem('socceredge_install_guide_never')==='1';const nt=document.getElementById('installNeverText');if(nt)nt.textContent=currentLang==='en'?'Don’t show again':'Bir daha gösterme';installSheet.classList.add('open');installSheet.setAttribute('aria-hidden','false')}
-function closeInstallGuide(persist){installSheet.classList.remove('open');installSheet.setAttribute('aria-hidden','true');const n=document.getElementById('installNever');if(persist&&n&&n.checked)localStorage.setItem('socceredge_install_guide_never','1')}
+function rememberInstallNever(){
+ const n=document.getElementById('installNever');
+ if(n&&n.checked){
+   localStorage.setItem('socceredge_install_guide_never','1');
+   localStorage.setItem('socceredge_install_guide_seen','1');
+ }
+}
+function closeInstallGuide(){rememberInstallNever();installSheet.classList.remove('open');installSheet.setAttribute('aria-hidden','true')}
 document.getElementById('installGuideBtn').addEventListener('click',openInstallGuide);
-document.getElementById('installClose').addEventListener('click',()=>closeInstallGuide(false));
+document.getElementById('installNever').addEventListener('change',rememberInstallNever);
+document.getElementById('installClose').addEventListener('click',closeInstallGuide);
 document.getElementById('installPrev').addEventListener('click',()=>{if(installStep>0){installStep--;renderInstall()}});
-document.getElementById('installNext').addEventListener('click',()=>{const slides=installSlides();if(installStep<slides.length-1){installStep++;renderInstall()}else closeInstallGuide(true)});
-installSheet.addEventListener('click',e=>{if(e.target===installSheet)closeInstallGuide(false)});
+document.getElementById('installNext').addEventListener('click',()=>{const slides=installSlides();if(installStep<slides.length-1){installStep++;renderInstall()}else closeInstallGuide()});
+installSheet.addEventListener('click',e=>{if(e.target===installSheet)closeInstallGuide()});
 if(localStorage.getItem('socceredge_install_guide_never')!=='1'&&localStorage.getItem('socceredge_install_guide_seen')!=='1')setTimeout(openInstallGuide,450);
 
 function clearMessages() {
