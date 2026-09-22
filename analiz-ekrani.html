@@ -1528,7 +1528,7 @@ function renderPremiumIntelligence(premium, data) {
   // that bypasses low-data/corner exclusions and model-health guards.
   const publishedStrongest = (data?.marketBoard?.topPredictions || [])
     .filter(x => x && x.label && Number.isFinite(Number(x.probability)));
-  const detailCoreKeys = new Set(['home','away','bttsYes','over25']);
+  const detailCoreKeys = new Set(['home','away','bttsYes','over25','homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35']);
   const cmStrong = data?.cornerMetrics || {};
   const strongCornerEvidence = cornerCouponSupported() || (
     Number(cmStrong.sample) >= 8 &&
@@ -1558,6 +1558,8 @@ function renderPremiumIntelligence(premium, data) {
       ['home','draw','away','homeWin','drawResult','awayWin'].includes(pick.key) ? '1X2' :
       ['over25','under25'].includes(pick.key) ? 'GOL' :
       ['bttsYes','bttsNo'].includes(pick.key) ? 'KG' :
+      String(pick.key).startsWith('homeOver') ? 'EV TAKIM GOLÜ' :
+      String(pick.key).startsWith('awayOver') ? 'DEP TAKIM GOLÜ' :
       String(pick.key).startsWith('corners') ? 'KORNER' : 'SEÇİM'
     ) } : null;
     cell.setAttribute('aria-label', pick ? `${pick.label} ${pick.probability}% · ${t('addCoupon')}` : '—');
@@ -1608,7 +1610,7 @@ function couponMarketName(market) {
 }
 function couponPickLabel(label) {
   if (currentLang !== 'en') return label;
-  const map={'Ev Sahibi':'Home','Deplasman':'Away','Beraberlik':'Draw','2.5 Üst':'Over 2.5','2.5 Alt':'Under 2.5','KG Var':'BTTS Yes','KG Yok':'BTTS No','9.5 Üst Korner':'Over 9.5 Corners','9.5 Alt Korner':'Under 9.5 Corners','8.5 Üst Korner':'Over 8.5 Corners','8.5 Alt Korner':'Under 8.5 Corners','İlk Yarı':'First Half','İkinci Yarı':'Second Half','Eşit':'Equal','İY 0.5 Üst':'1H Over 0.5','İY 1.5 Üst':'1H Over 1.5','2Y 0.5 Üst':'2H Over 0.5','2Y 1.5 Üst':'2H Over 1.5','İY KG Var':'1H BTTS Yes','Ev 1.5 Üst':'Home Over 1.5 Goals','Dep 1.5 Üst':'Away Over 1.5 Goals'};
+  const map={'Ev Sahibi':'Home','Deplasman':'Away','Beraberlik':'Draw','2.5 Üst':'Over 2.5','2.5 Alt':'Under 2.5','KG Var':'BTTS Yes','KG Yok':'BTTS No','9.5 Üst Korner':'Over 9.5 Corners','9.5 Alt Korner':'Under 9.5 Corners','8.5 Üst Korner':'Over 8.5 Corners','8.5 Alt Korner':'Under 8.5 Corners','İlk Yarı':'First Half','İkinci Yarı':'Second Half','Eşit':'Equal','İY 0.5 Üst':'1H Over 0.5','İY 1.5 Üst':'1H Over 1.5','2Y 0.5 Üst':'2H Over 0.5','2Y 1.5 Üst':'2H Over 1.5','İY KG Var':'1H BTTS Yes','Ev 1.5 Üst':'Home Over 1.5 Goals','Ev 2.5 Üst':'Home Over 2.5 Goals','Ev 3.5 Üst':'Home Over 3.5 Goals','Dep 1.5 Üst':'Away Over 1.5 Goals','Dep 2.5 Üst':'Away Over 2.5 Goals','Dep 3.5 Üst':'Away Over 3.5 Goals'};
   return map[label] || label;
 }
 
