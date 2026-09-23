@@ -554,8 +554,9 @@ function renderDayTabs() {
 }
 
 function analysisLink(m) {
+  const currentLeagueKey = leagueGroupKey(m.league);
   const leagueMatches = lastMatches
-    .filter(item => String(item.leagueId || '') === String(m.leagueId || ''))
+    .filter(item => leagueGroupKey(item.league) === currentLeagueKey)
     .map(item => ({
       fixtureId:item.fixtureId, homeTeam:item.homeTeam||'', awayTeam:item.awayTeam||'',
       league:item.league||'', leagueId:item.leagueId||'', kickoff:item.kickoff||'',
