@@ -542,12 +542,15 @@ function renderInstall(){
   document.getElementById('installPrev').style.visibility=installStep?'visible':'hidden';
   document.getElementById('installNext').textContent=installStep===slides.length-1?t('installDone'):t('installNext');
 }
-function openInstallGuide(){installStep=0;renderInstall();const n=document.getElementById('installNever');if(n)n.checked=localStorage.getItem('socceredge_install_guide_never')==='1';const nt=document.getElementById('installNeverText');if(nt)nt.textContent=currentLang==='en'?'Don’t show again':'Bir daha gösterme';installSheet.classList.add('open');installSheet.setAttribute('aria-hidden','false')}
+const INSTALL_NEVER_KEY='socceredge_install_guide_never',INSTALL_SEEN_KEY='socceredge_install_guide_seen';
+function installGuideDismissed(){try{if(localStorage.getItem(INSTALL_NEVER_KEY)==='1'||localStorage.getItem(INSTALL_SEEN_KEY)==='1')return true}catch(_){ }return document.cookie.split(';').some(x=>{const p=x.trim();return p===INSTALL_NEVER_KEY+'=1'||p===INSTALL_SEEN_KEY+'=1'})}
+function openInstallGuide(){installStep=0;renderInstall();const n=document.getElementById('installNever');if(n)n.checked=installGuideDismissed();const nt=document.getElementById('installNeverText');if(nt)nt.textContent=currentLang==='en'?'Don’t show again':'Bir daha gösterme';installSheet.classList.add('open');installSheet.setAttribute('aria-hidden','false')}
 function rememberInstallNever(){
  const n=document.getElementById('installNever');
  if(n&&n.checked){
-   localStorage.setItem('socceredge_install_guide_never','1');
-   localStorage.setItem('socceredge_install_guide_seen','1');
+  try{localStorage.setItem(INSTALL_NEVER_KEY,'1');localStorage.setItem(INSTALL_SEEN_KEY,'1')}catch(_){ }
+  document.cookie=INSTALL_NEVER_KEY+'=1; Max-Age=31536000; Path=/; SameSite=Lax';
+  document.cookie=INSTALL_SEEN_KEY+'=1; Max-Age=31536000; Path=/; SameSite=Lax';
  }
 }
 function closeInstallGuide(){rememberInstallNever();installSheet.classList.remove('open');installSheet.setAttribute('aria-hidden','true')}
@@ -565,7 +568,7 @@ installSlideEl.addEventListener('touchend',e=>{
  if(Math.abs(dx)>=45&&Math.abs(dx)>Math.abs(dy)*1.15) moveInstallStep(dx<0?1:-1);
 },{passive:true});
 installSheet.addEventListener('click',e=>{if(e.target===installSheet)closeInstallGuide()});
-if(localStorage.getItem('socceredge_install_guide_never')!=='1'&&localStorage.getItem('socceredge_install_guide_seen')!=='1')setTimeout(openInstallGuide,450);
+if(!installGuideDismissed())setTimeout(openInstallGuide,450);
 
 function clearMessages() {
   document.getElementById('errorMsg').classList.remove('show');
