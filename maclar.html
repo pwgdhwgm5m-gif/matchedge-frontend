@@ -606,6 +606,14 @@ function canonicalLeagueName(value){
 }
 function leagueGroupKey(value){return leagueIdentityKey(value);}
 
+function teamIdentityKey(value){
+  return String(value||"").trim().toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"").replace(/^republicof/ ,"").replace(/(footballclub|football|fc)$/ ,"");
+}
+function matchIdentityKey(match){
+  const kickoff=match.kickoff||match.date||"";
+  const minute=kickoff?Math.round(new Date(kickoff).getTime()/60000):"";
+  return teamIdentityKey(match.homeTeam)+"|"+teamIdentityKey(match.awayTeam)+"|"+minute;
+}
 function groupByLeague(matches) {
   const groups = new Map();
   matches.forEach(m => {
@@ -617,9 +625,17 @@ function groupByLeague(matches) {
     group.matches.push(m);
   });
   return Array.from(groups.values()).map(group => {
-    group.matches.sort((a,b) => {
+    const unique=new Map();
+    [...group.matches].sort((a,b)=>{
+      const quality=m=>((m.source||"")==="the-odds-api-events"?0:1)+(m.homeId||m.awayId?1:0);
+      return quality(b)-quality(a);
+    }).forEach(match=>{
+      const key=matchIdentityKey(match);
+      if(!unique.has(key)||matchIdentityKey(match)!=="||"||((match.source||"")==="bsd"&&unique.get(key).source!=="bsd"))unique.set(key,match);
+    });
+    group.matches=[...unique.values()].sort((a,b) => {
       if (a.isLive !== b.isLive) return Number(b.isLive) - Number(a.isLive);
-      return new Date(a.kickoff || 0) - new Date(b.kickoff || 0);
+      return new Date(a.kickoff || a.date || 0) - new Date(b.kickoff || b.date || 0);
     });
     return group;
   }).sort((a, b) => {
