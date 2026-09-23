@@ -1733,9 +1733,7 @@ function renderCouponMarkets(data) {
   const markets = allMarkets;
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
-  const lowConfidenceNotice=!decisionReady
-    ? `<div class="coupon-group"><div class="coupon-group-title">${currentLang==='tr'?'DÜŞÜK GÜVEN: Bu seçim kupona eklenebilir.':'LOW CONFIDENCE: This selection can be added to your coupon.'}</div></div>`
-    : '';
+  const lowConfidenceNotice = '';
 
   const groupOrder = ['1X2','GOL','KG','KORNER','İLK YARI','İKİNCİ YARI','EN GOLLÜ YARI'];
   const groups = new Map();
