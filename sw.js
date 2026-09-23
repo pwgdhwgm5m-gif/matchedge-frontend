@@ -1,8 +1,12 @@
+self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
+self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
 self.addEventListener('push', event => {
   let d = {}; try { d = event.data ? event.data.json() : {}; } catch (_) {}
   const tr = (d.lang === 'tr');
   const title = d.title || (tr ? '⚽ Maç bildirimi' : '⚽ Match alert');
-  const body = d.body || [d.homeTeam, d.homeScore != null ? d.homeScore + ' – ' + d.awayScore : '', d.awayTeam].filter(Boolean).join(' ');
+  const hasScore = d.homeScore !== null && d.homeScore !== undefined && d.awayScore !== null && d.awayScore !== undefined;
+  const score = hasScore ? d.homeScore + ' – ' + d.awayScore : '';
+  const body = d.body || [d.homeTeam, score, d.awayTeam].filter(Boolean).join(' ');
   const notification = self.registration.showNotification(title, {
     body,
     tag: d.tag || ('match-' + (d.fixtureId || d.eventId || '')),
