@@ -726,6 +726,11 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
 .coupon-group[data-market="GOL"] .coupon-market em{font-size:12px!important;margin-top:5px!important;}
 @media(max-width:390px){.coupon-group[data-market="GOL"] .coupon-market strong{font-size:9px!important}.coupon-group[data-market="GOL"] .coupon-market em{font-size:11px!important}}
 </style>
+
+  .analysis-favorite-row{display:flex;align-items:center;justify-content:flex-start;margin:0 0 7px 3px}
+  .analysis-favorite-btn{width:32px;height:32px;padding:0;border:1px solid #456063;border-radius:10px;background:#173638;color:#899794;font-size:21px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .analysis-favorite-btn.active{color:#d9ad58;border-color:#d9ad58;background:rgba(242,201,76,.12);box-shadow:0 0 0 3px rgba(242,201,76,.08)}
+  .analysis-favorite-btn:active{transform:scale(.92)}
 </head>
 <body>
 
@@ -762,6 +767,7 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
       <span class="match-position" id="matchPosition">—</span>
       <button class="match-step-button league-nav-arrow" id="nextMatch" type="button" aria-label="Next match" disabled>›</button>
     </div>
+    <div class="analysis-favorite-row"><button type="button" id="analysisFavoriteBtn" class="analysis-favorite-btn" aria-label="Favorite match" title="Favorite match">☆</button></div>
     <div class="teams-row">
       <div class="team">
         <div class="team-crest" id="home-crest">⚽</div>
@@ -1058,6 +1064,14 @@ const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const qs = new URLSearchParams(window.location.search);
 const FIXTURE_ID = qs.get('fixtureId');
 let currentAnalysis = null;
+let analysisFavorite=false;
+function analysisFavoriteNames(){return {homeTeam:currentAnalysis?.homeTeam||CONTEXT.homeTeamName||document.getElementById("home-name")?.textContent||"",awayTeam:currentAnalysis?.awayTeam||CONTEXT.awayTeamName||document.getElementById("away-name")?.textContent||""};}
+function updateAnalysisFavoriteButton(){const b=document.getElementById("analysisFavoriteBtn");if(!b)return;b.textContent=analysisFavorite?"★":"☆";b.classList.toggle("active",analysisFavorite);b.setAttribute("aria-pressed",String(analysisFavorite));}
+async function loadAnalysisFavorite(){if(!FIXTURE_ID)return;try{const r=await fetch(API_BASE+"/api/favorites",{headers:{Authorization:"Bearer "+localStorage.getItem("matchedge_token")}});if(!r.ok)return;const d=await r.json();analysisFavorite=(d.favorites||[]).some(f=>String(f.fixtureId)===String(FIXTURE_ID));updateAnalysisFavoriteButton();}catch(e){console.warn("Favori durumu alınamadı:",e.message);}}
+async function toggleAnalysisFavorite(){if(!FIXTURE_ID)return;const before=analysisFavorite;analysisFavorite=!before;updateAnalysisFavoriteButton();const names=analysisFavoriteNames();const url=analysisFavorite?API_BASE+"/api/favorites":API_BASE+"/api/favorites/"+encodeURIComponent(FIXTURE_ID);try{const options={method:analysisFavorite?"POST":"DELETE",headers:{"Content-Type":"application/json",Authorization:"Bearer "+localStorage.getItem("matchedge_token")}};if(analysisFavorite)options.body=JSON.stringify({fixtureId:FIXTURE_ID,homeTeam:names.homeTeam,awayTeam:names.awayTeam});const r=await fetch(url,options);if(!r.ok)throw new Error("HTTP "+r.status);}catch(e){analysisFavorite=before;updateAnalysisFavoriteButton();console.warn("Favori güncellenemedi:",e.message);}}
+document.getElementById("analysisFavoriteBtn")?.addEventListener("click",toggleAnalysisFavorite);
+loadAnalysisFavorite();
+
 const selectedCouponMarkets = new Map();
 
 // Liste ekranlarindan (maclar.html, mac-sonuclari.html, ana-sayfa.html)
