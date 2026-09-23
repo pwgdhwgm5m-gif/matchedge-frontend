@@ -728,7 +728,7 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
 </style>
 
 <style id="analysis-favorite-style">
-.analysis-favorite-btn{appearance:none;width:42px;height:42px;padding:0;border:1px solid #456063;border-radius:12px;background:#173638;color:#899794;font-size:30px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.analysis-favorite-btn{appearance:none;width:40px;height:40px;padding:0;border:1px solid #456063;border-radius:12px;background:#173638;color:#899794;font-size:30px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .analysis-favorite-btn.active{color:#d9ad58;border-color:#d9ad58;background:rgba(242,201,76,.12);box-shadow:0 0 0 4px rgba(242,201,76,.08)}
 .analysis-favorite-btn:active{transform:scale(.92)}
 </style>
@@ -1103,61 +1103,30 @@ function leagueAnalysisUrl(m) {
   });
   return 'analiz-ekrani.html?' + params.toString();
 }
-async function setupLeagueMatchNavigation() {
-  const prev = document.getElementById('previousMatch');
-  const next = document.getElementById('nextMatch');
-  const position = document.getElementById('matchPosition');
-
-  // Arrows must always remain visible. Disabled only means there is no match
-  // in that direction; it must never hide the controls.
-  prev.style.visibility = 'visible';
-  next.style.visibility = 'visible';
-
-  let matches = [];
-  try { matches = JSON.parse(sessionStorage.getItem('socceredge_league_matches') || '[]'); } catch (_) {}
-  matches = Array.isArray(matches) ? matches : [];
-
-  const sameLeague = m => {
-    if (CONTEXT.tsdbLeagueId && m.leagueId) return String(m.leagueId) === String(CONTEXT.tsdbLeagueId);
-    return CONTEXT.leagueName && String(m.league || '').toLowerCase() === String(CONTEXT.leagueName).toLowerCase();
-  };
-  matches = matches.filter(sameLeague);
-
-  // Direct links / Home / other entry points may not have session state.
-  // Rebuild the league fixture list from the public matches endpoint.
-  if (!matches.length || !matches.some(m => String(m.fixtureId) === String(FIXTURE_ID))) {
-    const date = (CONTEXT.kickoff || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
-    try {
-      const response = await fetch(API_BASE + '/api/matches?date=' + encodeURIComponent(date), { cache:'no-store' });
-      if (response.ok) {
-        const payload = await response.json();
-        matches = (payload.matches || []).filter(sameLeague).map(m => ({
-          fixtureId:m.fixtureId, homeTeam:m.homeTeam||'', awayTeam:m.awayTeam||'',
-          league:m.league||CONTEXT.leagueName||'', leagueId:m.leagueId||CONTEXT.tsdbLeagueId||'',
-          kickoff:m.kickoff||'', homeBadge:m.homeBadge||'', awayBadge:m.awayBadge||'',
-          homeId:m.homeId||'', awayId:m.awayId||''
-        }));
-        matches.sort((a,b) => new Date(a.kickoff||0) - new Date(b.kickoff||0));
-        try { sessionStorage.setItem('socceredge_league_matches', JSON.stringify(matches)); } catch (_) {}
-      }
-    } catch (err) {
-      console.warn('League navigation fixtures unavailable:', err.message);
-    }
-  }
-
-  const index = matches.findIndex(m => String(m.fixtureId) === String(FIXTURE_ID));
-  if (index < 0 || !matches.length) {
-    position.textContent = '';
-    prev.disabled = true;
-    next.disabled = true;
-    return;
-  }
-
-  position.textContent = (index + 1) + ' / ' + matches.length;
-  prev.disabled = index === 0;
-  next.disabled = index === matches.length - 1;
-  prev.onclick = () => { if (index > 0) window.location.href = leagueAnalysisUrl(matches[index - 1]); };
-  next.onclick = () => { if (index < matches.length - 1) window.location.href = leagueAnalysisUrl(matches[index + 1]); };
+async function setupLeagueMatchNavigation(){
+  const prev=document.getElementById("previousMatch"),next=document.getElementById("nextMatch"),position=document.getElementById("matchPosition");
+  prev.style.visibility="visible"; next.style.visibility="visible";
+  let sessionMatches=[]; try{sessionMatches=JSON.parse(sessionStorage.getItem("socceredge_league_matches")||"[]")}catch(_){}
+  if(!Array.isArray(sessionMatches))sessionMatches=[];
+  const date=(CONTEXT.kickoff||"").slice(0,10)||new Date().toISOString().slice(0,10);
+  let apiMatches=[];
+  try{const response=await fetch(API_BASE+"/api/matches?date="+encodeURIComponent(date),{cache:"no-store"});if(response.ok){const payload=await response.json();apiMatches=Array.isArray(payload.matches)?payload.matches:[];}}catch(err){console.warn("League navigation fixtures unavailable:",err.message)}
+  const byId=new Map();
+  [...sessionMatches,...apiMatches].forEach(m=>{if(m&&m.fixtureId)byId.set(String(m.fixtureId),{fixtureId:m.fixtureId,homeTeam:m.homeTeam||"",awayTeam:m.awayTeam||"",league:m.league||"",leagueId:m.leagueId||"",kickoff:m.kickoff||m.date||"",homeBadge:m.homeBadge||"",awayBadge:m.awayBadge||"",homeId:m.homeId||m.homeTeamId||"",awayId:m.awayId||m.awayTeamId||""})});
+  const seed={fixtureId:FIXTURE_ID,homeTeam:CONTEXT.homeTeamName,awayTeam:CONTEXT.awayTeamName,league:CONTEXT.leagueName,leagueId:CONTEXT.tsdbLeagueId,kickoff:CONTEXT.kickoff};
+  if(FIXTURE_ID&&!byId.has(String(FIXTURE_ID)))byId.set(String(FIXTURE_ID),seed);
+  const current=byId.get(String(FIXTURE_ID))||seed;
+  const targetLeagueId=String(current.leagueId||CONTEXT.tsdbLeagueId||"");
+  const targetLeagueName=String(current.league||CONTEXT.leagueName||"").trim().toLocaleLowerCase();
+  const sameLeague=m=>{if(targetLeagueId&&m.leagueId)return String(m.leagueId)===targetLeagueId;return targetLeagueName&&String(m.league||"").trim().toLocaleLowerCase()===targetLeagueName};
+  const matches=[...byId.values()].filter(sameLeague).sort((a,b)=>new Date(a.kickoff||0)-new Date(b.kickoff||0));
+  try{sessionStorage.setItem("socceredge_league_matches",JSON.stringify(matches))}catch(_){}
+  const index=matches.findIndex(m=>String(m.fixtureId)===String(FIXTURE_ID));
+  if(index<0){position.textContent="";prev.disabled=true;next.disabled=true;return}
+  position.textContent=(index+1)+" / "+matches.length;
+  prev.disabled=index===0; next.disabled=index===matches.length-1;
+  prev.onclick=()=>{if(index>0)window.location.href=leagueAnalysisUrl(matches[index-1])};
+  next.onclick=()=>{if(index<matches.length-1)window.location.href=leagueAnalysisUrl(matches[index+1])};
 }
 setupLeagueMatchNavigation();
 
