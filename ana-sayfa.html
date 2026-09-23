@@ -180,7 +180,10 @@
     cursor: pointer;
   }
   .match-row-card:active { transform: scale(0.98); border-color: rgba(157,124,240,0.5); }
-  .match-row-left { flex: 1; min-width: 0; }
+  .match-row-left { flex: 1; min-width: 0; position:relative; }
+  .match-row-card { position:relative; }
+  .match-card-fav { width:28px; height:28px; margin:0 0 5px 0; }
+  .featured-fav-btn { position:static!important; width:28px; height:28px; margin:0 0 6px 0; }
   .match-row-league { font-size: 9.5px; color: var(--text-muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .match-row-teams { font-size: 13px; font-weight: 700; }
   .match-row-right { text-align: right; flex-shrink: 0; margin-left: 10px; }
@@ -892,8 +895,8 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
 
   return `
     <a class="featured-card" href="${link}" style="display:block; text-decoration:none; color:inherit; position:relative;">
-      ${cardFav}
       <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? '<span class="live-green-dot" aria-hidden="true"></span>'+t('live') : t('today')}</div>
+      ${cardFav}
       <div class="featured-teams">${m.homeTeam} - ${m.awayTeam}${isLive ? ` &nbsp; <span style="color:var(--teal)">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</span>` : ''}</div>
       <div class="featured-meta">${m.league || ''} • ${timeLabel}</div>
       <div class="featured-signal">
@@ -1156,9 +1159,10 @@ function renderTodayList(matches, loadFailed) {
     return `
       <div class="match-row-card" data-link="${rowLink}" style="display:flex; text-decoration:none; color:inherit;">
         <div class="match-row-left">
+          <button type="button" class="fav-btn match-card-fav ${isFav ? "active" : ""}" aria-label="Favorite" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || "").replace(/"/g, "&quot;")}" data-away="${(m.awayTeam || "").replace(/"/g, "&quot;")}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1 6.1L3.4 9.9l6-0.8Z"/></svg></button>
           <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
         </div>
-        <button type="button" class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${(m.homeTeam || '').replace(/"/g, '&quot;')}" data-away="${(m.awayTeam || '').replace(/"/g, '&quot;')}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>
+        
         <div class="match-row-right">
           <div class="match-row-time">${timeLabel}</div>
           ${(m.isLive || isFinished) ? `<div class="match-row-score">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</div>` : ''}
