@@ -1677,15 +1677,20 @@ function renderPremiumIntelligence(premium, data) {
   document.getElementById('why-pick-label').textContent=currentLang==='tr'?'KISA İSTATİSTİK':'QUICK STATS';
   const top=strongestPicks[0];
   document.querySelector('#ai-one-line span').textContent=top
-    ? (currentLang==='tr'?(decisionReady?'SoccerEdge seçimi: ':'Model eğilimi: ')+top.label+' · %'+top.probability:(decisionReady?'SoccerEdge pick: ':'Model lean: ')+top.label+' · '+top.probability+'%')
+    ? (currentLang==='tr'?(decisionReady?'SoccerEdge seçimi: ':'En yüksek olasılık: ')+top.label+' · %'+top.probability:(decisionReady?'SoccerEdge pick: ':'Highest probability: ')+top.label+' · '+top.probability+'%')
     : (currentLang==='tr'?'Hesaplanabilir model eğilimi oluşmadı.':'No model lean could be calculated.');
   if(!decisionReady&&top){
-    document.getElementById('decision-title').textContent=currentLang==='tr'?'MODEL EĞİLİMİ':'MODEL LEAN';
+    const healthScore=Number(premium?.dataHealth?.score||0);
+    document.getElementById('decision-title').textContent=healthScore>=70
+      ? (currentLang==='tr'?'YÜKSEK GÜVEN':'HIGH CONFIDENCE')
+      : healthScore>=45
+        ? (currentLang==='tr'?'ORTA GÜVEN':'MEDIUM CONFIDENCE')
+        : (currentLang==='tr'?'DÜŞÜK GÜVEN':'LOW CONFIDENCE');
   }
 
 
   const badge=document.getElementById('edgeClassBadge');
-  if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':(!decisionReady?(currentLang==='tr'?'DÜŞÜK GÜVEN':'LOW CONFIDENCE'):(Number(health.score||0)<45?'RISKY':'WATCH'));
+  if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':(!decisionReady?((currentLang==='tr'?'VERİ ':'DATA ')+(health.score??'—')+'/100'):(Number(health.score||0)<45?'RISKY':'WATCH'));
   document.getElementById('health-score').textContent = `${health.score ?? '—'}/100`;
   document.getElementById('health-fill').style.width = `${health.score || 0}%`;
   const checks = health.checks || {};
