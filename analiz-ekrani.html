@@ -1121,7 +1121,7 @@ async function setupLeagueMatchNavigation(){
   const normalizeLeague=v=>{
     let key=String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     key=key.replace(/^(soccer|football|sportsmonks|api football)\s+/i,"");
-    return ({mls:"american major league soccer",american major league soccer:"american major league soccer"}[key]||key);
+    return ({mls:"american major league soccer","american major league soccer":"american major league soccer"}[key]||key);
   };
   const targetLeagueKey=normalizeLeague(targetLeagueName);
   const sameLeague=m=>{
