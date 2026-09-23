@@ -131,8 +131,11 @@ async function playDraft(){
   const r=await fetch(API+'/api/coupons',{method:'POST',headers:{...headers(),'Content-Type':'application/json'},body:JSON.stringify({legs,stakeCoins:draftStake})});
   const d=await r.json().catch(()=>({}));
   if(!r.ok)throw new Error(d.error||(isEN()?'Slip could not be saved.':'Kupon kaydedilemedi.'));
-  localStorage.removeItem(SLIP_KEY);
+  // Keep the draft until the server-backed coupon list confirms the save.
+  // A failed refresh must not make the user's local slip disappear.
   await load();
+  localStorage.removeItem(SLIP_KEY);
+  await load().catch(()=>{});
  }catch(error){
   alert(error.message||(isEN()?'Slip could not be saved.':'Kupon kaydedilemedi.'));
   if(button){button.disabled=false;button.textContent='SAVE'}
