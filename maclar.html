@@ -583,23 +583,36 @@ function matchLink(m) {
     : analysisLink(m);
 }
 
+const LEAGUE_ALIASES={
+  mls:"americanmajorleaguesoccer",
+  americanmajorleaguesoccer:"americanmajorleaguesoccer",
+  uefanationsleague:"uefanationsleague",
+  concacafnationsleague:"concacafnationsleague"
+};
+const LEAGUE_DISPLAY_NAMES={
+  americanmajorleaguesoccer:"American Major League Soccer",
+  uefanationsleague:"UEFA Nations League",
+  concacafnationsleague:"CONCACAF Nations League"
+};
+function leagueIdentityKey(value){
+  let key=String(value||"").trim().toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"");
+  key=key.replace(/^(soccer|football|sportsmonks|apifootball)/,"");
+  return LEAGUE_ALIASES[key]||key||"unknown";
+}
 function canonicalLeagueName(value){
   const raw=String(value||"").trim();
-  const key=raw.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"");
-  if(key==="socceruefanationsleague"||key==="uefanationsleague")return "UEFA Nations League";
-  return raw;
+  return LEAGUE_DISPLAY_NAMES[leagueIdentityKey(raw)]||raw;
 }
-
-function leagueGroupKey(value){return canonicalLeagueName(value).toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"")||"unknown";}
+function leagueGroupKey(value){return leagueIdentityKey(value);}
 
 function groupByLeague(matches) {
   const groups = new Map();
   matches.forEach(m => {
     const league=canonicalLeagueName(m.league);
-    const key=league?"name:"+leagueGroupKey(league):"id:"+String(m.leagueId||"unknown");
+    const key="name:"+leagueGroupKey(m.league);
     if (!groups.has(key)) groups.set(key, { leagueId: String(m.leagueId||key), league, matches: [] });
     const group=groups.get(key);
-    if(!group.league&&league)group.league=league;
+    if((!group.league||/^soccer[_-]/i.test(group.league))&&league)group.league=league;
     group.matches.push(m);
   });
   return Array.from(groups.values()).map(group => {
