@@ -98,15 +98,10 @@
     max-height: 3000px;
   }
 
-  .match-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 16px;
-    border-top: 1px solid var(--border-subtle);
-    cursor: pointer;
-    transition: background 0.12s ease;
-  }
+  .match-row { display: flex; align-items: center; justify-content: space-between; position:relative; padding: 11px 16px; border-top: 1px solid var(--border-subtle); cursor: pointer; transition: background 0.12s ease; }
   .match-row:active { background: var(--bg-card-inner); }
-  .match-row-teams { font-size: 13px; font-weight: 600; flex: 1; }
+  .match-row-teams { font-size: 13px; font-weight: 600; flex: 1; padding-top:30px; }
+  .match-row .match-card-fav { position:absolute; left:16px; top:6px; width:28px; height:28px; margin:0; }
   .match-row-time {
     font-size: 11px; font-weight: 700; color: var(--amber);
     background: rgba(245,185,66,0.1);
@@ -654,8 +649,9 @@ function renderMatches(preserveView = false) {
       const isFav = favorites.has(String(m.fixtureId));
       return `
         <div class="match-row" data-link="${matchLink(m)}" style="text-decoration:none; color:inherit;">
+          <button type="button" class="fav-btn match-card-fav ${isFav ? "active" : ""}" aria-label="Favorite" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1 6.1L3.4 9.9l6-0.8Z"/></svg></button>
           <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
-          <button type="button" class="fav-btn ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>
+          
           <div class="match-row-time">${timeLabel}</div>
         </div>`;
     }).join('');
