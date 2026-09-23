@@ -631,7 +631,7 @@ function groupByLeague(matches) {
       return quality(b)-quality(a);
     }).forEach(match=>{
       const key=matchIdentityKey(match);
-      if(!unique.has(key)||matchIdentityKey(match)!=="||"||((match.source||"")==="bsd"&&unique.get(key).source!=="bsd"))unique.set(key,match);
+      if(!unique.has(key))unique.set(key,match);
     });
     group.matches=[...unique.values()].sort((a,b) => {
       if (a.isLive !== b.isLive) return Number(b.isLive) - Number(a.isLive);
