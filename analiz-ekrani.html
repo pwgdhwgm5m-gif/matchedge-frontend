@@ -1592,35 +1592,16 @@ function premiumOutcomeLabel(outcome, data) {
 
 function renderPremiumIntelligence(premium, data) {
   premium = premium || {};
-  const probabilities = data?.matchProbabilities || data?.modelOnlyProbabilities || {};
-  const fallbackChoices = [
-    { outcome: 'home', modelProbability: Number(probabilities.homeWinProbability || 0) },
-    { outcome: 'draw', modelProbability: Number(probabilities.drawProbability || 0) },
-    { outcome: 'away', modelProbability: Number(probabilities.awayWinProbability || 0) },
-  ].sort((a, b) => b.modelProbability - a.modelProbability);
-  const premiumHasSelection = premium.selection && Number(premium.bestEdge?.modelProbability) > 0;
-  if (!premiumHasSelection && fallbackChoices[0].modelProbability > 0) {
-    premium = {
-      ...premium,
-      status: 'PICK',
-      selection: fallbackChoices[0].outcome,
-      bestEdge: {
-        outcome: fallbackChoices[0].outcome,
-        modelProbability: fallbackChoices[0].modelProbability,
-        marketProbability: null,
-        edgePoints: null,
-        odds: null,
-      },
-    };
-  }
+  const decisionReady = premium.status === 'PICK' || premium.status === 'VALUE';
   const card = document.getElementById('premium-verdict');
   const statusMeta = {
     VALUE: { cls: 'verdict-value', icon: '↗', title: 'valueStatus', sub: 'valueSub' },
     PICK: { cls: 'verdict-watch', icon: '★', title: 'pickStatus', sub: 'pickSub' },
     WATCH: { cls: 'verdict-watch', icon: '★', title: 'pickStatus', sub: 'pickSub' },
     NO_BET: { cls: 'verdict-no-bet', icon: '✕', title: 'noBetStatus', sub: 'noBetSub' },
+    UNAVAILABLE: { cls: 'verdict-no-bet', icon: '–', title: 'noBetStatus', sub: 'noBetSub' },
   };
-  const meta = statusMeta[premium.status] || statusMeta.PICK;
+  const meta = statusMeta[premium.status] || statusMeta.UNAVAILABLE;
   card.classList.remove('verdict-value', 'verdict-watch', 'verdict-no-bet');
   card.classList.add(meta.cls);
   document.getElementById('decision-icon').textContent = meta.icon;
@@ -1629,7 +1610,7 @@ function renderPremiumIntelligence(premium, data) {
   // Strongest Picks must come from the backend's evidence-aware market board.
   // Do not reconstruct them in the browser from raw headline probabilities:
   // that bypasses low-data/corner exclusions and model-health guards.
-  const publishedStrongest = (data?.marketBoard?.topPredictions || [])
+  const publishedStrongest = (decisionReady ? (data?.marketBoard?.topPredictions || []) : [])
     .filter(x => x && x.label && Number.isFinite(Number(x.probability)));
   const detailCoreKeys = new Set(['home','away','bttsYes','over25','homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35']);
   const cmStrong = data?.cornerMetrics || {};
@@ -1638,11 +1619,11 @@ function renderPremiumIntelligence(premium, data) {
     cmStrong.lowEvidence !== true &&
     ['sportmonks-history-pressure','historical-corners'].includes(String(cmStrong.source || ''))
   );
-  const detailCandidates = [
+  const detailCandidates = decisionReady ? [
     ...publishedStrongest,
     ...(data?.marketBoard?.allMarkets || [])
   ].filter(x => x && x.label && Number.isFinite(Number(x.probability)) &&
-    (detailCoreKeys.has(x.key) || (strongCornerEvidence && String(x.key || '').startsWith('corners'))));
+    (detailCoreKeys.has(x.key) || (strongCornerEvidence && String(x.key || '').startsWith('corners')))) : [];
   const uniqueDetail = [...new Map(detailCandidates.map(x => [x.key, x])).values()];
   const strongestPicks = uniqueDetail
     .sort((a,b) => {
@@ -1689,7 +1670,7 @@ function renderPremiumIntelligence(premium, data) {
 
 
   const badge=document.getElementById('edgeClassBadge');
-  if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':premium.status==='NO_BET'?'NO EDGE':(Number(health.score||0)<45?'RISKY':'WATCH');
+  if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':(!decisionReady?'NO EDGE':(Number(health.score||0)<45?'RISKY':'WATCH'));
   document.getElementById('health-score').textContent = `${health.score ?? '—'}/100`;
   document.getElementById('health-fill').style.width = `${health.score || 0}%`;
   const checks = health.checks || {};
@@ -1722,13 +1703,18 @@ function cornerCouponSupported(){
   return new Set(['premier league','la liga','bundesliga','serie a','ligue 1','turkish super lig']).has(key);
 }
 function renderCouponMarkets(data) {
-  const allMarkets = data?.marketBoard?.allMarkets || [];
+  const decisionReady = data?.premium?.status === 'PICK' || data?.premium?.status === 'VALUE';
+  const allMarkets = decisionReady ? (data?.marketBoard?.allMarkets || []) : [];
   // Analysis markets are provider/data driven, not league-name driven. If the
   // engine produced a corner market, keep its card visible here. Strongest Picks
   // applies its own stricter real-corner-evidence gate separately.
   const markets = allMarkets;
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
+  if (!decisionReady) {
+    grid.innerHTML = `<div class="coupon-group"><div class="coupon-group-title">${currentLang==='tr'?'Veri yeterli değil; bu maç için kupon seçimi yayınlanmadı.':'Insufficient data; no coupon selection was published for this match.'}</div></div>`;
+    return;
+  }
 
   const groupOrder = ['1X2','GOL','KG','KORNER','İLK YARI','İKİNCİ YARI','EN GOLLÜ YARI'];
   const groups = new Map();
