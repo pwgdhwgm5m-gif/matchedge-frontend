@@ -416,10 +416,10 @@ document.documentElement.setAttribute('data-theme','dark');
   if(!document.querySelector('link[rel="manifest"]')){
     const manifest=document.createElement('link');manifest.rel='manifest';manifest.href='/manifest.json';document.head.appendChild(manifest);
   }
-  const matchBell=document.getElementById('notificationBtn');
+  const matchBell=document.getElementById('notificationBtn')||document.getElementById('couponNotificationBtn');
   if(matchBell){
     const pushBell=matchBell.cloneNode(true);matchBell.replaceWith(pushBell);
-    const paint=()=>{const on=localStorage.getItem('socceredge_match_notifications')==='on';pushBell.textContent=on?'🔔':'🔕';pushBell.classList.toggle('notification-on',on);pushBell.setAttribute('aria-pressed',String(on))};
+    const paint=()=>{const on=localStorage.getItem('socceredge_match_notifications')==='on';pushBell.textContent=on?'🔔':'🔕';pushBell.classList.toggle('notification-on',on);pushBell.setAttribute('aria-pressed',String(on));pushBell.title=on?'Maç bildirimlerini kapat':'Kupon maç bildirimlerini aç'};
     pushBell.addEventListener('click',async()=>{
       const on=localStorage.getItem('socceredge_match_notifications')==='on';pushBell.disabled=true;
       try{const ok=await setPushEnabled(!on);if(ok)localStorage.setItem('socceredge_match_notifications',on?'off':'on')}catch(e){console.warn('Push setup failed',e.message)}
@@ -428,67 +428,40 @@ document.documentElement.setAttribute('data-theme','dark');
     paint();
   }
 
-
   function installGoalNotifications(){
     const token=localStorage.getItem('matchedge_token');
     if(!token) return;
     const API='https://matchedge-backend-kujb.onrender.com';
-    const scoreKey='socceredge_goal_scores_v1';
-    let previous={}; try{previous=JSON.parse(sessionStorage.getItem(scoreKey)||'{}')}catch(_){previous={}}
-
+    const scoreKey='socceredge_goal_scores_v2',eventKey='socceredge_alert_events_v1';
+    let previous={};try{previous=JSON.parse(sessionStorage.getItem(scoreKey)||'{}')}catch(_){previous={}}
+    let seenEvents=new Set();try{seenEvents=new Set(JSON.parse(sessionStorage.getItem(eventKey)||'[]'))}catch(_){seenEvents=new Set()}
     const style=document.createElement('style');
     style.textContent='.se-goal-toast{display:none;position:fixed;top:max(12px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-145%);width:min(430px,calc(100% - 24px));z-index:100001;background:linear-gradient(135deg,#0b2b59,#0b1d3b);border:1px solid #f2c94c;border-radius:15px;padding:12px 14px;box-shadow:0 14px 38px #000a;color:#fff;transition:transform .28s ease;pointer-events:none}.se-goal-toast.show{display:block;transform:translate(-50%,0)}.se-goal-toast b{display:block;color:#f2c94c;font-size:13px;letter-spacing:.5px}.se-goal-toast span{display:block;font-size:15px;font-weight:800;margin-top:4px}';
     document.head.appendChild(style);
     const toast=document.createElement('div');toast.className='se-goal-toast';document.body.appendChild(toast);
     let toastTimer=null,audioCtx=null;
-
+    function rememberEvent(id){if(!id||seenEvents.has(id))return false;seenEvents.add(id);sessionStorage.setItem(eventKey,JSON.stringify([...seenEvents].slice(-100)));return true}
     function sound(){
       if(localStorage.getItem('socceredge_match_notifications')!=='on')return;
-      try{
-        audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
-        if(audioCtx.state==='suspended')audioCtx.resume();
-        const now=audioCtx.currentTime;
-        [[659.25,0,.13],[783.99,.12,.15],[987.77,.25,.24]].forEach(([freq,delay,dur])=>{
-          const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-          o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(.0001,now+delay);g.gain.exponentialRampToValueAtTime(.16,now+delay+.018);g.gain.exponentialRampToValueAtTime(.0001,now+delay+dur);
-          o.connect(g);g.connect(audioCtx.destination);o.start(now+delay);o.stop(now+delay+dur+.03);
-        });
-      }catch(_){}
+      try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const now=audioCtx.currentTime;[[659.25,0,.13],[783.99,.12,.15],[987.77,.25,.24]].forEach(([freq,delay,dur])=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(.0001,now+delay);g.gain.exponentialRampToValueAtTime(.16,now+delay+.018);g.gain.exponentialRampToValueAtTime(.0001,now+delay+dur);o.connect(g);g.connect(audioCtx.destination);o.start(now+delay);o.stop(now+delay+dur+.03)})}catch(_){}
     }
-    function showGoal(m){
-      const tr=(localStorage.getItem('matchedge_lang')||'en')==='tr';
-      toast.innerHTML='<b>⚽ '+(tr?'GOL!':'GOAL!')+'</b><span>'+escapeHtml(m.homeTeam)+' '+Number(m.homeScore||0)+' – '+Number(m.awayScore||0)+' '+escapeHtml(m.awayTeam)+'</span>';
-      toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),5200);sound();
-      if('Notification' in window&&Notification.permission==='granted'&&document.hidden){
-        try{new Notification('SoccerEdge Pro · '+(tr?'GOL!':'GOAL!'),{body:m.homeTeam+' '+Number(m.homeScore||0)+' – '+Number(m.awayScore||0)+' '+m.awayTeam})}catch(_){}
-      }
-    }
+    function speak(text){if(localStorage.getItem('socceredge_match_notifications')!=='on'||!('speechSynthesis' in window))return;try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=(localStorage.getItem('matchedge_lang')||'en')==='tr'?'tr-TR':'en-US';u.rate=.96;u.volume=1;window.speechSynthesis.speak(u)}catch(_){} }
     function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+    function showMatchEvent(m,type){
+      const tr=(localStorage.getItem('matchedge_lang')||'en')==='tr';
+      const labels=tr?{start:'MAÇ BAŞLADI',goal:'GOL!',final:'MAÇ BİTTİ',settled:'KUPON SONUCU'}:{start:'MATCH STARTED',goal:'GOAL!',final:'FULL TIME',settled:'SLIP RESULT'};
+      const title=labels[type]||labels.goal;
+      const score=m.homeScore!=null?(' · '+Number(m.homeScore)+' – '+Number(m.awayScore)):'';
+      const line=m.body||((m.homeTeam||'')+' '+score+' '+(m.awayTeam||''));
+      toast.innerHTML='<b>⚽ '+title+'</b><span>'+escapeHtml(line)+'</span>';toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),5200);sound();speak(title+'. '+line);
+    }
+    if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const p=e.data?.type==='socceredge-push'?e.data.payload:null;if(p&&rememberEvent(String(p.eventId||p.tag||Date.now())))showMatchEvent(p,p.type||'goal')});
     async function getTracked(){
-      const h={Authorization:'Bearer '+token};
-      const [fr,cr]=await Promise.all([fetch(API+'/api/favorites',{headers:h}),fetch(API+'/api/coupons',{headers:h})]);
-      const fav=fr.ok?(await fr.json()).favorites||[]:[];
-      const cps=cr.ok?(await cr.json()).coupons||[]:[];
-      const map=new Map();
-      fav.forEach(x=>map.set(String(x.fixtureId),{fixtureId:String(x.fixtureId),homeTeam:x.homeTeam,awayTeam:x.awayTeam}));
-      cps.filter(x=>x.status==='pending').forEach(cp=>{
-        (cp.legs||[]).forEach(l=>map.set(String(l.fixtureId),{fixtureId:String(l.fixtureId),homeTeam:l.homeTeam,awayTeam:l.awayTeam}));
-        if(!cp.legs?.length&&cp.fixtureId)map.set(String(cp.fixtureId),{fixtureId:String(cp.fixtureId),homeTeam:cp.homeTeam,awayTeam:cp.awayTeam});
-      });
-      return [...map.values()];
+      const h={Authorization:'Bearer '+token};const [fr,cr]=await Promise.all([fetch(API+'/api/favorites',{headers:h}),fetch(API+'/api/coupons',{headers:h})]);const fav=fr.ok?(await fr.json()).favorites||[]:[];const cps=cr.ok?(await cr.json()).coupons||[]:[];const map=new Map();fav.forEach(x=>map.set(String(x.fixtureId),{fixtureId:String(x.fixtureId),homeTeam:x.homeTeam,awayTeam:x.awayTeam}));cps.filter(x=>x.status==='pending').forEach(cp=>{(cp.legs||[]).forEach(l=>map.set(String(l.fixtureId),{fixtureId:String(l.fixtureId),homeTeam:l.homeTeam,awayTeam:l.awayTeam}));if(!cp.legs?.length&&cp.fixtureId)map.set(String(cp.fixtureId),{fixtureId:String(cp.fixtureId),homeTeam:cp.homeTeam,awayTeam:cp.awayTeam})});return [...map.values()];
     }
     async function poll(){
       if(localStorage.getItem('socceredge_match_notifications')!=='on')return;
-      try{
-        const tracked=await getTracked(); if(!tracked.length)return;
-        const live=await Promise.all(tracked.map(async m=>{try{const r=await fetch(API+'/api/live/'+encodeURIComponent(m.fixtureId));if(!r.ok)return null;return {...m,...await r.json()}}catch(_){return null}}));
-        for(const m of live.filter(Boolean)){
-          const id=String(m.fixtureId),hs=Number(m.homeScore||0),as=Number(m.awayScore||0),total=hs+as;
-          const old=previous[id];
-          if(old&&total>Number(old.total||0))showGoal({...m,homeScore:hs,awayScore:as});
-          previous[id]={home:hs,away:as,total};
-        }
-        sessionStorage.setItem(scoreKey,JSON.stringify(previous));
+      try{const tracked=await getTracked();if(!tracked.length)return;const live=await Promise.all(tracked.map(async m=>{try{const r=await fetch(API+'/api/live/'+encodeURIComponent(m.fixtureId));if(!r.ok)return null;return {...m,...await r.json()}}catch(_){return null}}));for(const m of live.filter(Boolean)){const id=String(m.fixtureId),hs=Number(m.homeScore||0),as=Number(m.awayScore||0),total=hs+as,status=String(m.statusShort||m.status||'').toUpperCase(),isLive=m.isLive===true||['LIVE','1H','2H','HT'].includes(status),isFinished=m.isFinished===true||['FT','AET','PEN','AWARDED'].includes(status),old=previous[id];if(isLive&&!old?.started&&rememberEvent('start:'+id))showMatchEvent({...m,homeScore:hs,awayScore:as},'start');if(old&&total>Number(old.total||0)&&rememberEvent('goal:'+id+':'+hs+'-'+as))showMatchEvent({...m,homeScore:hs,awayScore:as},'goal');if(isFinished&&!old?.finished&&rememberEvent('final:'+id))showMatchEvent({...m,homeScore:hs,awayScore:as},'final');previous[id]={home:hs,away:as,total,started:Boolean(old?.started||isLive),finished:Boolean(old?.finished||isFinished)}}sessionStorage.setItem(scoreKey,JSON.stringify(previous));
       }catch(_){}
     }
     poll();setInterval(poll,5000);
