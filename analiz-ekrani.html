@@ -1118,7 +1118,14 @@ async function setupLeagueMatchNavigation(){
   const current=byId.get(String(FIXTURE_ID))||seed;
   const targetLeagueId=String(current.leagueId||CONTEXT.tsdbLeagueId||"");
   const targetLeagueName=String(current.league||CONTEXT.leagueName||"").trim().toLocaleLowerCase();
-  const sameLeague=m=>{if(targetLeagueId&&m.leagueId)return String(m.leagueId)===targetLeagueId;return targetLeagueName&&String(m.league||"").trim().toLocaleLowerCase()===targetLeagueName};
+  const normalizeLeague=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+  const targetLeagueKey=normalizeLeague(targetLeagueName);
+  const sameLeague=m=>{
+    const idMatch=Boolean(targetLeagueId&&m.leagueId&&String(m.leagueId)===targetLeagueId);
+    const candidate=normalizeLeague(m.league);
+    const nameMatch=Boolean(targetLeagueKey&&candidate&&(candidate===targetLeagueKey||candidate.includes(targetLeagueKey)||targetLeagueKey.includes(candidate)));
+    return idMatch||nameMatch;
+  };
   const matches=[...byId.values()].filter(sameLeague).sort((a,b)=>new Date(a.kickoff||0)-new Date(b.kickoff||0));
   try{sessionStorage.setItem("socceredge_league_matches",JSON.stringify(matches))}catch(_){}
   const index=matches.findIndex(m=>String(m.fixtureId)===String(FIXTURE_ID));
