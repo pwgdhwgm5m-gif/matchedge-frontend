@@ -707,6 +707,18 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
 </style>
 
 
+
+<style id="compact-total-goals-market">
+/* COMPACT TOTAL GOALS MARKET — 2026-09-23 */
+.coupon-group[data-market="GOL"]{padding:10px 12px!important;}
+.coupon-group[data-market="GOL"] .coupon-group-title{margin-bottom:8px!important;}
+.coupon-group[data-market="GOL"] .total-goals-compact{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important;width:100%!important;}
+.coupon-group[data-market="GOL"] .total-goals-compact>div{min-width:0!important;}
+.coupon-group[data-market="GOL"] .coupon-market{min-height:68px!important;padding:9px 3px!important;}
+.coupon-group[data-market="GOL"] .coupon-market strong{font-size:10px!important;line-height:1.2!important;white-space:normal!important;}
+.coupon-group[data-market="GOL"] .coupon-market em{font-size:12px!important;margin-top:5px!important;}
+@media(max-width:390px){.coupon-group[data-market="GOL"] .coupon-market strong{font-size:9px!important}.coupon-group[data-market="GOL"] .coupon-market em{font-size:11px!important}}
+</style>
 </head>
 <body>
 
@@ -1696,8 +1708,8 @@ function renderPremiumIntelligence(premium, data) {
 }
 
 function couponMarketName(market) {
-  if (currentLang !== 'en') return market === 'GOL' ? 'TOPLAM GOL 2.5' : market;
-  return ({'GOL':'TOTAL GOALS 2.5','KG':'BTTS','KORNER':'CORNERS','İLK YARI':'FIRST HALF','İKİNCİ YARI':'SECOND HALF','EN GOLLÜ YARI':'HIGHEST SCORING HALF','1X2':'1X2'})[market] || market;
+  if (currentLang !== 'en') return market === 'GOL' ? 'TOPLAM GOL' : market;
+  return ({'GOL':'TOTAL GOALS','KG':'BTTS','KORNER':'CORNERS','İLK YARI':'FIRST HALF','İKİNCİ YARI':'SECOND HALF','EN GOLLÜ YARI':'HIGHEST SCORING HALF','1X2':'1X2'})[market] || market;
 }
 function couponPickLabel(label) {
   if (currentLang !== 'en') return label;
@@ -1731,7 +1743,7 @@ function renderCouponMarkets(data) {
   });
 
   grid.innerHTML = orderedGroups.map(([market, items]) => {
-    const optionClass = items.length === 3 ? 'coupon-options three' : 'coupon-options';
+    const optionClass = market === 'GOL' ? 'coupon-options total-goals-compact' : (items.length === 3 ? 'coupon-options three' : 'coupon-options');
     return `<div class="coupon-group" data-market="${market}">
       <div class="coupon-group-title">${couponMarketName(market)}</div>
       <div class="${optionClass}">
