@@ -402,17 +402,29 @@ async function loadTodayMatches() {
   }
 }
 
+function normalizeFavoriteTeam(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
 function isFinishedMatch(m) {
   if (!m) return false;
   const status=String(m.statusShort ?? m.status ?? '').toUpperCase();
-  return m.isFinished === true || /^(FT|AET|PEN|AWARDED|FINISHED)$/.test(status);
+  return m.isFinished === true || m.finished === true || /^(FT|AET|PEN|AWARDED|FINISHED|ENDED|COMPLETED)$/.test(status) || /(FINISHED|ENDED|COMPLETED)/.test(status);
+}
+
+function matchForFavorite(f) {
+  const byId = todayMatchesById.get(String(f.fixtureId));
+  if (byId) return byId;
+  const home = normalizeFavoriteTeam(f.homeTeam), away = normalizeFavoriteTeam(f.awayTeam);
+  if (!home || !away) return null;
+  for (const match of todayMatchesById.values()) {
+    if (normalizeFavoriteTeam(match.homeTeam) === home && normalizeFavoriteTeam(match.awayTeam) === away) return match;
+  }
+  return null;
 }
 
 async function pruneExpiredFinishedFavorites() {
-  const expired = rawFavorites.filter(f => {
-    const known = todayMatchesById.get(String(f.fixtureId));
-    return isFinishedMatch(known);
-  });
+  const expired = rawFavorites.filter(f => isFinishedMatch(matchForFavorite(f)));
   if (!expired.length) return;
   const expiredIds = new Set(expired.map(f => String(f.fixtureId)));
   rawFavorites = rawFavorites.filter(f => !expiredIds.has(String(f.fixtureId)));
@@ -507,7 +519,7 @@ function renderFavorites() {
   // Siralama: canli olanlar en ustte, sonra bugun oynanacak/oynanmis
   // olanlar, en sonda bugunun listesinde bulunamayanlar (fallback).
   const enriched = rawFavorites.map(f => {
-    const known = todayMatchesById.get(String(f.fixtureId));
+    const known = matchForFavorite(f);
     return { fav: f, known: known || null };
   });
 
