@@ -1612,18 +1612,27 @@ function renderPremiumIntelligence(premium, data) {
   // that bypasses low-data/corner exclusions and model-health guards.
   const publishedStrongest = (decisionReady ? (data?.marketBoard?.topPredictions || []) : [])
     .filter(x => x && x.label && Number.isFinite(Number(x.probability)));
-  const detailCoreKeys = new Set(['home','away','bttsYes','over25','homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35']);
+  // A guarded match still deserves an informational model read. These markets
+  // may be displayed as LOW CONFIDENCE, but they are never made coupon-clickable
+  // unless the server has published PICK/VALUE.
+  const detailCoreKeys = new Set([
+    'home','draw','away','over25','under25','bttsYes','bttsNo',
+    'homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35',
+    'fhHome','fhDraw','fhAway','fhHomeScores','fhAwayScores','fhOver05',
+    'mostGoalsFirst','mostGoalsEqual','mostGoalsSecond'
+  ]);
   const cmStrong = data?.cornerMetrics || {};
   const strongCornerEvidence = cornerCouponSupported() || (
     Number(cmStrong.sample) >= 8 &&
     cmStrong.lowEvidence !== true &&
     ['sportmonks-history-pressure','historical-corners'].includes(String(cmStrong.source || ''))
   );
-  const detailCandidates = decisionReady ? [
+  const detailCandidates = [
     ...publishedStrongest,
     ...(data?.marketBoard?.allMarkets || [])
   ].filter(x => x && x.label && Number.isFinite(Number(x.probability)) &&
-    (detailCoreKeys.has(x.key) || (strongCornerEvidence && String(x.key || '').startsWith('corners')))) : [];
+    Number(x.probability) > 0 && Number(x.probability) < 100 &&
+    (detailCoreKeys.has(x.key) || (strongCornerEvidence && String(x.key || '').startsWith('corners'))));
   const uniqueDetail = [...new Map(detailCandidates.map(x => [x.key, x])).values()];
   const strongestPicks = uniqueDetail
     .sort((a,b) => {
@@ -1638,7 +1647,7 @@ function renderPremiumIntelligence(premium, data) {
     const pick = strongestPicks[index];
     const cell = document.getElementById(`pick-label-${index + 1}`).closest('.edge-cell');
     cell.dataset.marketKey = pick?.key || '';
-    cell._featuredPick = pick ? { ...pick, market: (
+    cell._featuredPick = pick && decisionReady ? { ...pick, market: (
       ['home','draw','away','homeWin','drawResult','awayWin'].includes(pick.key) ? '1X2' :
       ['over25','under25'].includes(pick.key) ? 'GOL' :
       ['bttsYes','bttsNo'].includes(pick.key) ? 'KG' :
@@ -1646,8 +1655,8 @@ function renderPremiumIntelligence(premium, data) {
       String(pick.key).startsWith('awayOver') ? 'DEP TAKIM GOLÜ' :
       String(pick.key).startsWith('corners') ? 'KORNER' : 'SEÇİM'
     ) } : null;
-    cell.setAttribute('aria-label', pick ? `${pick.label} ${pick.probability}% · ${t('addCoupon')}` : '—');
-    cell.classList.toggle('selected', Boolean(pick && selectedCouponMarkets.has(pick.key)));
+    cell.setAttribute('aria-label', pick ? `${pick.label} ${pick.probability}%${decisionReady?' · '+t('addCoupon'):(currentLang==='tr'?' · düşük güven, bilgi amaçlı':' · low confidence, informational')}` : '—');
+    cell.classList.toggle('selected', Boolean(decisionReady && pick && selectedCouponMarkets.has(pick.key)));
     document.getElementById(`pick-label-${index + 1}`).textContent = pick?.label || '—';
     document.getElementById(`pick-prob-${index + 1}`).textContent = pick ? `${pick.probability}%` : '—';
   }
@@ -1666,11 +1675,17 @@ function renderPremiumIntelligence(premium, data) {
   if(!rows.length){const empty=document.createElement('div');empty.className='reason-row';const dot=document.createElement('span');dot.className='reason-dot';const copy=document.createElement('span');copy.textContent=currentLang==='tr'?'Yeterli istatistik yok.':'Not enough statistics.';empty.append(dot,copy);reasonList.replaceChildren(empty);}
   else reasonList.replaceChildren(...rows.map(item=>{const row=document.createElement('div');row.className='reason-row '+item.type;const dot=document.createElement('span');dot.className='reason-dot';const copy=document.createElement('span');copy.textContent=item.reason;row.append(dot,copy);return row;}));
   document.getElementById('why-pick-label').textContent=currentLang==='tr'?'KISA İSTATİSTİK':'QUICK STATS';
-  const top=strongestPicks[0]; document.querySelector('#ai-one-line span').textContent=top?(currentLang==='tr'?top.label+' · %'+top.probability:top.label+' · '+top.probability+'%'):(currentLang==='tr'?'Yeterli güçlü seçim oluşmadı.':'No strong pick is available.');
+  const top=strongestPicks[0];
+  document.querySelector('#ai-one-line span').textContent=top
+    ? (currentLang==='tr'?(decisionReady?'SoccerEdge seçimi: ':'Model eğilimi: ')+top.label+' · %'+top.probability:(decisionReady?'SoccerEdge pick: ':'Model lean: ')+top.label+' · '+top.probability+'%')
+    : (currentLang==='tr'?'Hesaplanabilir model eğilimi oluşmadı.':'No model lean could be calculated.');
+  if(!decisionReady&&top){
+    document.getElementById('decision-title').textContent=currentLang==='tr'?'MODEL EĞİLİMİ':'MODEL LEAN';
+  }
 
 
   const badge=document.getElementById('edgeClassBadge');
-  if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':(!decisionReady?'NO EDGE':(Number(health.score||0)<45?'RISKY':'WATCH'));
+  if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':(!decisionReady?(currentLang==='tr'?'DÜŞÜK GÜVEN':'LOW CONFIDENCE'):(Number(health.score||0)<45?'RISKY':'WATCH'));
   document.getElementById('health-score').textContent = `${health.score ?? '—'}/100`;
   document.getElementById('health-fill').style.width = `${health.score || 0}%`;
   const checks = health.checks || {};
@@ -1712,7 +1727,7 @@ function renderCouponMarkets(data) {
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
   if (!decisionReady) {
-    grid.innerHTML = `<div class="coupon-group"><div class="coupon-group-title">${currentLang==='tr'?'Veri yeterli değil; bu maç için kupon seçimi yayınlanmadı.':'Insufficient data; no coupon selection was published for this match.'}</div></div>`;
+    grid.innerHTML = `<div class="coupon-group"><div class="coupon-group-title">${currentLang==='tr'?'Model eğilimleri yukarıda gösteriliyor. Veri güveni düşük olduğu için kupona ekleme kapalı.':'Model leans are shown above. Coupon entry is disabled because data confidence is low.'}</div></div>`;
     return;
   }
 
