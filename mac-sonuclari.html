@@ -268,6 +268,8 @@
     display:grid; grid-template-columns:minmax(0,1fr) 34px 34px; gap:6px; align-items:center;
   }
   .compact-score-head { color:var(--text-muted); font-size:9px; text-align:center; margin-bottom:5px; }
+  .match-card .compact-fav { left:8px; right:auto; top:9px; transform:none; width:28px; height:28px; }
+  .match-card .compact-fav:active { transform:scale(.9); }
   .compact-score-head .match-status-pill { justify-self:start; }
   .compact-team-row { min-height:25px; font-size:12.5px; }
   .compact-team-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; }
@@ -815,6 +817,7 @@ function renderMatchCard(m, favoriteSection = false) {
   return `
     <div class="match-card ${m.isLive ? 'is-live' : ''} ${favoriteSection ? 'favorite-card' : ''}"
       data-fixture-id="${m.fixtureId}">
+      <button type="button" aria-label="Favorite" class="fav-btn compact-fav ${isFav ? "active" : ""}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 4.3-4.4 4.3 1 6.1L12 17.3l-5.2 3 1 6.1L3.4 9.9l6-0.8Z"/></svg></button>
       <div class="compact-score-head">
         <span class="match-status-pill ${statusClass(m)}">${statusLabel(m)}</span>
         <span>${t('htColumn')}</span><span>${m.isLive ? (currentLang==='tr'?'SKOR':'SCORE') : t('ftColumn')}</span>
@@ -827,7 +830,7 @@ function renderMatchCard(m, favoriteSection = false) {
         <span class="compact-team-name">${m.awayTeam}</span>
         <strong>${awayHt}</strong><strong>${awayScore}</strong>
       </div>
-      <button type="button" aria-label="Favorite" class="fav-btn compact-fav ${isFav ? 'active' : ''}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1-6.1L3.4 9.9l6-0.8Z"/></svg></button>
+      
     </div>
   `;
 }
