@@ -1526,10 +1526,16 @@ function renderStandings(standings) {
   note.style.display = 'none';
   const homeId = String(standings.homeTeamId || '');
   const awayId = String(standings.awayTeamId || '');
+  const normalizeTeamName = value => String(value || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const homeName = normalizeTeamName(standings.homeTeamName || currentAnalysis?.homeTeam || CONTEXT.homeTeamName);
+  const awayName = normalizeTeamName(standings.awayTeamName || currentAnalysis?.awayTeam || CONTEXT.awayTeamName);
 
   tbody.innerHTML = table.map(row => {
-    const isHome = String(row.teamId) === homeId;
-    const isAway = String(row.teamId) === awayId;
+    const rowName = normalizeTeamName(row.teamName);
+    const isHome = String(row.teamId) === homeId || (!!homeName && rowName === homeName);
+    const isAway = String(row.teamId) === awayId || (!!awayName && rowName === awayName);
     const rowStyle = isHome
       ? 'background:rgba(45,212,191,0.1); color:var(--teal); font-weight:700;'
       : isAway
