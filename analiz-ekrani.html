@@ -1647,7 +1647,7 @@ function renderPremiumIntelligence(premium, data) {
     const pick = strongestPicks[index];
     const cell = document.getElementById(`pick-label-${index + 1}`).closest('.edge-cell');
     cell.dataset.marketKey = pick?.key || '';
-    cell._featuredPick = pick && decisionReady ? { ...pick, market: (
+    cell._featuredPick = pick ? { ...pick, market: (
       ['home','draw','away','homeWin','drawResult','awayWin'].includes(pick.key) ? '1X2' :
       ['over25','under25'].includes(pick.key) ? 'GOL' :
       ['bttsYes','bttsNo'].includes(pick.key) ? 'KG' :
@@ -1656,7 +1656,7 @@ function renderPremiumIntelligence(premium, data) {
       String(pick.key).startsWith('corners') ? 'KORNER' : 'SEÇİM'
     ) } : null;
     cell.setAttribute('aria-label', pick ? `${pick.label} ${pick.probability}%${decisionReady?' · '+t('addCoupon'):(currentLang==='tr'?' · düşük güven, bilgi amaçlı':' · low confidence, informational')}` : '—');
-    cell.classList.toggle('selected', Boolean(decisionReady && pick && selectedCouponMarkets.has(pick.key)));
+    cell.classList.toggle('selected', Boolean(pick && selectedCouponMarkets.has(pick.key)));
     document.getElementById(`pick-label-${index + 1}`).textContent = pick?.label || '—';
     document.getElementById(`pick-prob-${index + 1}`).textContent = pick ? `${pick.probability}%` : '—';
   }
@@ -1724,17 +1724,18 @@ function cornerCouponSupported(){
 }
 function renderCouponMarkets(data) {
   const decisionReady = data?.premium?.status === 'PICK' || data?.premium?.status === 'VALUE';
-  const allMarkets = decisionReady ? (data?.marketBoard?.allMarkets || []) : [];
+  const allMarkets = (data?.marketBoard?.allMarkets || []).filter(item =>
+    decisionReady || (Number(item?.probability)>0 && Number(item?.probability)<100)
+  );
   // Analysis markets are provider/data driven, not league-name driven. If the
   // engine produced a corner market, keep its card visible here. Strongest Picks
   // applies its own stricter real-corner-evidence gate separately.
   const markets = allMarkets;
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
-  if (!decisionReady) {
-    grid.innerHTML = `<div class="coupon-group"><div class="coupon-group-title">${currentLang==='tr'?'Model eğilimleri yukarıda gösteriliyor. Veri güveni düşük olduğu için kupona ekleme kapalı.':'Model leans are shown above. Coupon entry is disabled because data confidence is low.'}</div></div>`;
-    return;
-  }
+  const lowConfidenceNotice=!decisionReady
+    ? `<div class="coupon-group"><div class="coupon-group-title">${currentLang==='tr'?'DÜŞÜK GÜVEN: Bu seçimi kullanıcı onayıyla kupona ekleyebilirsin.':'LOW CONFIDENCE: You can add this selection to your coupon after acknowledging the risk.'}</div></div>`
+    : '';
 
   const groupOrder = ['1X2','GOL','KG','KORNER','İLK YARI','İKİNCİ YARI','EN GOLLÜ YARI'];
   const groups = new Map();
@@ -1748,7 +1749,7 @@ function renderCouponMarkets(data) {
     return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
   });
 
-  grid.innerHTML = orderedGroups.map(([market, items]) => {
+  grid.innerHTML = lowConfidenceNotice + orderedGroups.map(([market, items]) => {
     const optionClass = market === 'GOL' ? 'coupon-options total-goals-compact' : (items.length === 3 ? 'coupon-options three' : 'coupon-options');
     return `<div class="coupon-group" data-market="${market}">
       <div class="coupon-group-title">${couponMarketName(market)}</div>
@@ -1810,7 +1811,7 @@ function gameX(p,key){p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(
 function renderSlip(){const legs=getSlip(),box=document.getElementById('slipDrawer'),count=document.getElementById('slipCount'),list=document.getElementById('slipList'),mult=document.getElementById('slipMultiplier'),potential=document.getElementById('slipPotential');if(!box||!count||!list||!mult||!potential)return;box.classList.toggle('show',legs.length>0);count.textContent=legs.length;list.innerHTML=legs.map((l,i)=>`<div class="slip-leg"><div><b>${l.homeTeam} - ${l.awayTeam}</b><br><small>${l.selection.label} · ${gameX(l.selection.probability).toFixed(2)}x</small></div><button class="slip-remove" onclick="removeSlipLeg(${i})">×</button></div>`).join('');let x=legs.reduce((n,l)=>n*gameX(l.selection.probability),1);x=Number(Math.min(50,Math.max(1.15,x)).toFixed(2));mult.textContent=(currentLang==='en'?'Total ':'Toplam ')+x.toFixed(2)+'x';potential.textContent=(currentLang==='en'?'Potential 🪙':'Potansiyel 🪙')+Math.floor(slipStake*x)}
 window.removeSlipLeg=i=>{const a=getSlip();a.splice(i,1);saveSlip(a)};
 document.querySelectorAll('.stake-row button').forEach(b=>b.onclick=()=>{slipStake=+b.dataset.stake;document.querySelectorAll('.stake-row button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderSlip()});
-document.getElementById('addCouponButton').addEventListener('click',()=>{if(!currentAnalysis||!selectedCouponMarkets.size)return;let legs=getSlip();const selection=[...selectedCouponMarkets.values()][0];const leg={fixtureId:FIXTURE_ID,homeTeam:currentAnalysis.homeTeam||CONTEXT.homeTeamName,awayTeam:currentAnalysis.awayTeam||CONTEXT.awayTeamName,league:currentAnalysis.league||CONTEXT.leagueName,kickoff:currentAnalysis.kickoff||CONTEXT.kickoff,selection};const sameIndex=legs.findIndex(x=>String(x.fixtureId)===String(FIXTURE_ID));if(sameIndex>=0){legs[sameIndex]=leg;saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;window.dispatchEvent(new Event('socceredge-slip-change'));return}if(legs.length>=3){document.getElementById('couponFeedback').textContent=(currentLang==='en'?'A slip can contain up to 3 matches':'Kupon en fazla 3 maç olabilir');return}legs.push(leg);saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;const feedback=document.getElementById('couponFeedback');feedback.textContent=currentLang==='en'?('✓ Added to slip · '+legs.length+' match'+(legs.length===1?'':'es')):('✓ Kupona eklendi · Kuponumda '+legs.length+' maç');feedback.classList.add('coupon-success');const addBtn=document.getElementById('addCouponButton');addBtn.textContent=currentLang==='en'?'✓ ADDED TO SLIP':'✓ KUPONA EKLENDİ';setTimeout(()=>{addBtn.textContent=(TRANSLATIONS[currentLang]?.addCoupon||'SEÇİLENLERİ KUPONUMA EKLE')},1800)});
+document.getElementById('addCouponButton').addEventListener('click',()=>{if(!currentAnalysis||!selectedCouponMarkets.size)return;let legs=getSlip();let selection={...[...selectedCouponMarkets.values()][0]};if(currentAnalysis?.premium?.status!=='PICK'&&currentAnalysis?.premium?.status!=='VALUE'){const accepted=window.confirm(currentLang==='en'?'Data confidence is low. Add this selection anyway?':'Veri güveni düşük. Bu seçimi yine de kupona eklemek istiyor musun?');if(!accepted)return;selection.riskAcknowledged=true}const leg={fixtureId:FIXTURE_ID,homeTeam:currentAnalysis.homeTeam||CONTEXT.homeTeamName,awayTeam:currentAnalysis.awayTeam||CONTEXT.awayTeamName,league:currentAnalysis.league||CONTEXT.leagueName,kickoff:currentAnalysis.kickoff||CONTEXT.kickoff,selection};const sameIndex=legs.findIndex(x=>String(x.fixtureId)===String(FIXTURE_ID));if(sameIndex>=0){legs[sameIndex]=leg;saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;window.dispatchEvent(new Event('socceredge-slip-change'));return}if(legs.length>=3){document.getElementById('couponFeedback').textContent=(currentLang==='en'?'A slip can contain up to 3 matches':'Kupon en fazla 3 maç olabilir');return}legs.push(leg);saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;const feedback=document.getElementById('couponFeedback');feedback.textContent=currentLang==='en'?('✓ Added to slip · '+legs.length+' match'+(legs.length===1?'':'es')):('✓ Kupona eklendi · Kuponumda '+legs.length+' maç');feedback.classList.add('coupon-success');const addBtn=document.getElementById('addCouponButton');addBtn.textContent=currentLang==='en'?'✓ ADDED TO SLIP':'✓ KUPONA EKLENDİ';setTimeout(()=>{addBtn.textContent=(TRANSLATIONS[currentLang]?.addCoupon||'SEÇİLENLERİ KUPONUMA EKLE')},1800)});
 const playSlipButton=document.getElementById('playSlip');
 if(playSlipButton){
   playSlipButton.onclick=async()=>{const legs=getSlip();if(!legs.length)return;const b=playSlipButton;b.disabled=true;b.textContent='OYNANIYOR…';try{const r=await fetch(`${API_BASE}/api/coupons`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${localStorage.getItem('matchedge_token')}`},body:JSON.stringify({legs,stakeCoins:slipStake})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Kupon oluşturulamadı');localStorage.removeItem(SLIP_KEY);window.dispatchEvent(new Event('socceredge-slip-change'));location.href='kuponum.html'}catch(e){document.getElementById('couponFeedback').textContent=e.message;b.disabled=false;b.textContent='KUPONU OYNA'}};
