@@ -1118,7 +1118,11 @@ async function setupLeagueMatchNavigation(){
   const current=byId.get(String(FIXTURE_ID))||seed;
   const targetLeagueId=String(current.leagueId||CONTEXT.tsdbLeagueId||"");
   const targetLeagueName=String(current.league||CONTEXT.leagueName||"").trim().toLocaleLowerCase();
-  const normalizeLeague=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+  const normalizeLeague=v=>{
+    let key=String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    key=key.replace(/^(soccer|football|sportsmonks|api football)\s+/i,"");
+    return ({mls:"american major league soccer",american major league soccer:"american major league soccer"}[key]||key);
+  };
   const targetLeagueKey=normalizeLeague(targetLeagueName);
   const sameLeague=m=>{
     const idMatch=Boolean(targetLeagueId&&m.leagueId&&String(m.leagueId)===targetLeagueId);
