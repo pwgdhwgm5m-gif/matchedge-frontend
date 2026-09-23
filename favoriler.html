@@ -448,10 +448,11 @@ function statusClass(m) {
 
 function renderKnownCard(m) {
   const hasHalftime = m.halftimeHome !== null && m.halftimeHome !== undefined;
-  const isClickable = m.isLive || m.statusShort === 'NS';
+  const finished = isFinishedMatch(m);
+  const isClickable = !finished;
   const link = m.isLive
     ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
-    : (m.statusShort === 'NS' ? analysisLink(m) : null);
+    : (!finished ? analysisLink(m) : null);
   const homeScore = m.statusShort === 'NS' ? null : (m.homeScore ?? 0);
   const awayScore = m.statusShort === 'NS' ? null : (m.awayScore ?? 0);
   const timeLabel = m.statusShort === 'NS' && m.kickoff
@@ -485,8 +486,9 @@ function renderKnownCard(m) {
 }
 
 function renderFallbackCard(f) {
+  const link = analysisLink({ fixtureId: f.fixtureId, homeTeam: f.homeTeam || '', awayTeam: f.awayTeam || '', league: f.league || '', kickoff: f.kickoff || '' });
   return `
-    <div class="match-card" data-fixture-id="${f.fixtureId}">
+    <div class="match-card clickable" data-fixture-id="${f.fixtureId}" data-link="${link}">
       <div class="match-league">
         <span class="match-status-pill unknown">${t('notStarted')}</span>
       </div>
