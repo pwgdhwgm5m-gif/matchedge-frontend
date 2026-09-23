@@ -583,14 +583,24 @@ function matchLink(m) {
     : analysisLink(m);
 }
 
+function canonicalLeagueName(value){
+  const raw=String(value||"").trim();
+  const key=raw.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"");
+  if(key==="socceruefanationsleague"||key==="uefanationsleague")return "UEFA Nations League";
+  return raw;
+}
+
+function leagueGroupKey(value){return canonicalLeagueName(value).toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"")||"unknown";}
+
 function groupByLeague(matches) {
   const groups = new Map();
   matches.forEach(m => {
-    const key = String(m.leagueId || m.league || 'unknown');
-    if (!groups.has(key)) {
-      groups.set(key, { leagueId: key, league: m.league || '', matches: [] });
-    }
-    groups.get(key).matches.push(m);
+    const league=canonicalLeagueName(m.league);
+    const key=league?"name:"+leagueGroupKey(league):"id:"+String(m.leagueId||"unknown");
+    if (!groups.has(key)) groups.set(key, { leagueId: String(m.leagueId||key), league, matches: [] });
+    const group=groups.get(key);
+    if(!group.league&&league)group.league=league;
+    group.matches.push(m);
   });
   return Array.from(groups.values()).map(group => {
     group.matches.sort((a,b) => {
@@ -634,8 +644,9 @@ function renderMatches(preserveView = false) {
   const groups = groupByLeague(visibleMatches);
 
   container.innerHTML = groups.map((g) => {
-    const isReturnLeague = (returnLeagueId && String(g.leagueId) === String(returnLeagueId))
-      || (!returnLeagueId && returnLeagueName && g.league === returnLeagueName);
+    const returnNameKey=leagueGroupKey(returnLeagueName);
+    const isReturnLeague = (returnLeagueId && g.matches.some(m=>String(m.leagueId||"")===String(returnLeagueId)))
+      || (returnLeagueName && leagueGroupKey(g.league)===returnNameKey);
     const rows = g.matches.map(m => {
       const isFinished = m.isFinished===true || /^(FT|AET|PEN|AWARDED)$/.test(String(m.statusShort||m.status||'').toUpperCase());
       const scoreKnown = Number.isFinite(Number(m.homeScore)) && Number.isFinite(Number(m.awayScore));
