@@ -170,7 +170,7 @@ async function load(){
   return '<article class="coupon"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY SLIP · ':'KUPONUM · ')+(legs.length||1)+(isEN()?' MATCHES':' MAÇ')+'</div><div class="meta">'+(c.createdAt?new Date(c.createdAt).toLocaleString(isEN()?'en-GB':'tr-TR'):'')+'</div></div><div class="coupon-head-right"><span class="coupon-status '+(c.status||'pending')+'">'+statusLabel(c.status)+'</span><div class="score">'+(c.payoutMultiplier||1)+'x</div></div></div>'+body+(settled>0?'<div class="progress"><i style="width:'+pct+'%"></i></div><div class="progress-text"><span>'+won+'/'+legs.length+(isEN()?' correct':' doğru')+'</span><span>%'+pct+' '+(isEN()?'settled':'sonuçlandı')+'</span></div>':'')+'<div class="pick"><div><small>'+(isEN()?'STAKED':'YATIRILAN')+'</small><strong>🪙 '+(c.stakeCoins||10)+'</strong></div><div><small>'+(isEN()?'POTENTIAL':'POTANSİYEL')+'</small><strong>🪙 '+(c.potentialPayout||0)+'</strong></div></div><button class="coupon-delete" onclick="removeCoupon(\''+c._id+'\')">'+(isEN()?'Delete slip':'Kuponu sil')+'</button></article>';
  }).join(''):(draft?'':'<div class="empty">'+(couponTab==='pending'?'Bekleyen kupon yok.':'Biten kupon yok.')+'</div>'));
 }
-async function removeCoupon(id){
+async async function removeCoupon(id){
  if(!confirm('Kupon silinsin mi?'))return;
  const r=await fetch(API+'/api/coupons/'+id,{method:'DELETE',headers:headers()});
  if(!r.ok){const d=await r.json().catch(()=>({}));alert(d.error||'Kupon silinemedi.');return}load();
