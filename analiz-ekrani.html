@@ -727,10 +727,11 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
 @media(max-width:390px){.coupon-group[data-market="GOL"] .coupon-market strong{font-size:9px!important}.coupon-group[data-market="GOL"] .coupon-market em{font-size:11px!important}}
 </style>
 
-  .analysis-favorite-row{display:flex;align-items:center;justify-content:flex-start;margin:0 0 7px 3px}
-  .analysis-favorite-btn{width:32px;height:32px;padding:0;border:1px solid #456063;border-radius:10px;background:#173638;color:#899794;font-size:21px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .analysis-favorite-btn.active{color:#d9ad58;border-color:#d9ad58;background:rgba(242,201,76,.12);box-shadow:0 0 0 3px rgba(242,201,76,.08)}
-  .analysis-favorite-btn:active{transform:scale(.92)}
+<style id="analysis-favorite-style">
+.analysis-favorite-btn{appearance:none;width:42px;height:42px;padding:0;border:1px solid #456063;border-radius:12px;background:#173638;color:#899794;font-size:30px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.analysis-favorite-btn.active{color:#d9ad58;border-color:#d9ad58;background:rgba(242,201,76,.12);box-shadow:0 0 0 4px rgba(242,201,76,.08)}
+.analysis-favorite-btn:active{transform:scale(.92)}
+</style>
 </head>
 <body>
 
@@ -754,6 +755,7 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
 
   <div class="card">
     <div class="match-shortcuts">
+      <button type="button" id="analysisFavoriteBtn" class="analysis-favorite-btn" aria-label="Favorite match" title="Favorite match">☆</button>
       <span></span>
       <a class="match-home-button" id="backToMatches" href="ana-sayfa.html" aria-label="Home" title="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 3.8l8.5 6.7"></path><path d="M5.5 9.5V20h13V9.5"></path><path d="M9.5 20v-6h5v6"></path></svg></a>
     </div>
@@ -767,7 +769,6 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
       <span class="match-position" id="matchPosition">—</span>
       <button class="match-step-button league-nav-arrow" id="nextMatch" type="button" aria-label="Next match" disabled>›</button>
     </div>
-    <div class="analysis-favorite-row"><button type="button" id="analysisFavoriteBtn" class="analysis-favorite-btn" aria-label="Favorite match" title="Favorite match">☆</button></div>
     <div class="teams-row">
       <div class="team">
         <div class="team-crest" id="home-crest">⚽</div>
