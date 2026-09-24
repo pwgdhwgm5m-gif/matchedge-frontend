@@ -408,7 +408,7 @@ a[href*="legal"],.legal-btn,#legalBtn{
       <input type="email" class="field-input" id="forgotEmailInput" autocomplete="email">
     </div>
 
-    <button class="submit-btn" id="submitBtn" data-i18n="loginBtn">Log In</button>
+    <button class="submit-btn" id="submitBtn" type="button" data-i18n="loginBtn">Log In</button>
 
     <div class="forgot-link" id="forgotLink" data-i18n="forgotLink">Forgot password?</div>
     <div class="back-link" id="backLink" style="display:none;" data-i18n="backToLogin">Back to log in</div>
@@ -493,6 +493,119 @@ document.getElementById('langToggle').addEventListener('click', () => {
   applyStaticTranslations();
 });
 
+
+function clearMessages() {
+  document.getElementById('errorMsg').classList.remove('show');
+  document.getElementById('successMsg').classList.remove('show');
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  clearMessages();
+
+  document.getElementById('tabsRow').style.display = mode === 'forgot' ? 'none' : 'flex';
+  document.getElementById('mainFields').style.display = mode === 'forgot' ? 'none' : 'block';
+  document.getElementById('forgotFields').classList.toggle('visible', mode === 'forgot');
+  document.getElementById('emailGroup').classList.toggle('visible', mode === 'register');
+  document.getElementById('birthDateGroup').classList.toggle('visible', mode === 'register');
+  document.getElementById('forgotLink').style.display = 'none';
+  document.getElementById('backLink').style.display = mode === 'forgot' ? 'block' : 'none';
+
+  updateSubmitLabel();
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    tab.classList.add('active');
+    setMode(tab.dataset.mode);
+  });
+});
+
+document.getElementById('forgotLink').addEventListener('click', () => setMode('forgot'));
+document.getElementById('backLink').addEventListener('click', () => setMode('login'));
+
+function showError(msg) {
+  clearMessages();
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function showSuccess(msg) {
+  clearMessages();
+  const el = document.getElementById('successMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+document.getElementById('submitBtn').addEventListener('click', async () => {
+  if (!API_BASE) {
+    showError(t('backendMissing'));
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+
+  try {
+    if (currentMode === 'forgot') {
+      const email = document.getElementById('forgotEmailInput').value.trim();
+      if (!email) { showError(t('fillFields')); return; }
+
+      btn.textContent = t('connecting');
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      await res.json();
+      showSuccess(t('resetSent'));
+      return;
+    }
+
+    const username = document.getElementById('usernameInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
+    const email = document.getElementById('emailInput').value.trim();
+    const birthYear = document.getElementById('birthYearInput').value.trim();
+
+    if (!username || !password || (currentMode === 'register' && (!email || !birthYear))) {
+      showError(t('fillFields'));
+      return;
+    }
+
+    btn.textContent = t('connecting');
+    const endpoint = currentMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+    const body = currentMode === 'login'
+      ? { username, password, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '' }
+      : { username, email, password, birthYear };
+
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data.error || t('networkError'));
+      return;
+    }
+
+    localStorage.setItem('matchedge_token', data.token);
+    localStorage.setItem('matchedge_username', data.username);
+    const next=new URLSearchParams(location.search).get('next');
+    window.location.href = next || 'ana-sayfa.html';
+  } catch (err) {
+    showError(t('networkError'));
+  } finally {
+    btn.disabled = false;
+    updateSubmitLabel();
+  }
+});
+
+applyStaticTranslations();
+applyCountryDefaultLanguage();
 </script>
 
 <script src="language-selector.js"></script>
