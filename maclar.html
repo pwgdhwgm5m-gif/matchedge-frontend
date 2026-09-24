@@ -598,7 +598,7 @@ const LEAGUE_DISPLAY_NAMES={
   concacafnationsleague:"CONCACAF Nations League"
 };
 function leagueIdentityKey(value){
-  let key=String(value||"").trim().toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"");
+  let key=String(value||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"");
   key=key.replace(/^(soccer|football|sportsmonks|apifootball)/,"");
   return LEAGUE_ALIASES[key]||key||"unknown";
 }
@@ -609,7 +609,7 @@ function canonicalLeagueName(value){
 function leagueGroupKey(value){return leagueIdentityKey(value);}
 
 function teamIdentityKey(value){
-  let words=String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim().split(/\s+/).filter(Boolean);
+  let words=String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim().split(/\s+/).filter(Boolean);
   const prefixes=new Set(["fc","cf","afc","sc","ac","as","fk","sk","sv","tsv"]);
   const suffixes=new Set(["fc","cf","afc","football","club"]);
   while(words.length>1&&prefixes.has(words[0]))words.shift();
