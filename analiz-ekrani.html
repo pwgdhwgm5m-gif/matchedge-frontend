@@ -1104,7 +1104,7 @@ function leagueAnalysisUrl(m) {
   return 'analiz-ekrani.html?' + params.toString();
 }
 function navTeamIdentityKey(value){
-  let words=String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim().split(/\s+/).filter(Boolean);
+  let words=String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim().split(/\s+/).filter(Boolean);
   const prefixes=new Set(["fc","cf","afc","sc","ac","as","fk","sk","sv","tsv"]),suffixes=new Set(["fc","cf","afc","football","club"]);
   while(words.length>1&&prefixes.has(words[0]))words.shift();while(words.length>1&&suffixes.has(words[words.length-1]))words.pop();
   const key=words.join("");return ({republicofireland:"ireland",nireland:"northernireland",turkiye:"turkey",czechrepublic:"czechia"}[key]||key);
@@ -1130,9 +1130,9 @@ async function setupLeagueMatchNavigation(){
   if(FIXTURE_ID&&!byId.has(String(FIXTURE_ID)))byId.set(String(FIXTURE_ID),seed);
   const current=byId.get(String(FIXTURE_ID))||seed;
   const targetLeagueId=String(current.leagueId||CONTEXT.tsdbLeagueId||"");
-  const targetLeagueName=String(current.league||CONTEXT.leagueName||"").trim().toLocaleLowerCase();
+  const targetLeagueName=String(current.league||CONTEXT.leagueName||"").trim().toLowerCase();
   const normalizeLeague=v=>{
-    let key=String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    let key=String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     key=key.replace(/^(soccer|football|sportsmonks|api football)\s+/i,"");
     return ({mls:"american major league soccer","american major league soccer":"american major league soccer"}[key]||key);
   };
