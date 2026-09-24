@@ -122,6 +122,15 @@
   .fav-btn svg { width: 18px; height: 18px; stroke: var(--text-muted); fill: none; stroke-width: 2; transition: all 0.15s ease; }
   .fav-btn.active { background: transparent; border-color: transparent; box-shadow: none; }
   .fav-btn.active svg { stroke: var(--amber); fill: var(--amber); }
+  /* Keep fixture favorites icon-only; prevent any shared button/flag decoration. */
+  .match-row .match-card-fav,
+  .match-row .match-card-fav.active {
+    -webkit-appearance: none !important; appearance: none !important;
+    background: none !important; background-image: none !important;
+    border: 0 !important; outline: 0 !important; box-shadow: none !important;
+  }
+  .match-row .match-card-fav::before,
+  .match-row .match-card-fav::after { content: none !important; display: none !important; }
 
   .sub-league-label {
     font-size: 10px; font-weight: 700; color: var(--text-secondary);
