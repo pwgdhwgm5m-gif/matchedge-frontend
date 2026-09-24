@@ -708,7 +708,8 @@ function renderMatches(preserveView = false) {
     expanded: new Set([...container.querySelectorAll('.league-group.expanded')].map(el => el.dataset.leagueId).filter(Boolean))
   } : null;
   const q=(document.getElementById('matchSearch')?.value||'').trim().toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US');
-  const visibleMatches=q?lastMatches.filter(m=>[m.homeTeam,m.awayTeam,m.displayName,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q))):lastMatches;
+  const whitelistedMatches=lastMatches.filter(m=>m.visibleInCompetitionFilter === true);
+  const visibleMatches=q?whitelistedMatches.filter(m=>[m.homeTeam,m.awayTeam,m.displayName,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q))):whitelistedMatches;
 
   if (lastLoadFailed) {
     container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
