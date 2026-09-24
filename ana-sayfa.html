@@ -745,7 +745,7 @@ function homeAnalysisUrl(m) {
 async function loadHomeAnalyses(matches) {
   // Analyse SportMonks core leagues first and enough matches to fill both
   // Featured and Top Picks with at least 10 real analysed fixtures.
-  const upcoming = matches.filter(m => !m.isLive);
+  const upcoming = matches.filter(m => !m.isLive && isHomeWhitelistedMatch(m));
   const priority = upcoming.filter(isSportmonksPriorityMatch);
   const other = upcoming.filter(m => !isSportmonksPriorityMatch(m));
   // If none of the six core leagues plays today, skip that tier immediately.
@@ -811,7 +811,7 @@ function sportmonksFirst(items, getMatch = x => x?.match || x) {
 }
 
 function rankedMatches(valueOnly = false) {
-  return allMatches.map(match => {
+  return allMatches.filter(isHomeWhitelistedMatch).map(match => {
     const analysis = matchAnalyses.get(String(match.fixtureId));
     const best = analysis?.marketBoard?.best;
     const value = analysis?.marketBoard?.valuePicks?.[0];
@@ -911,10 +911,18 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
 // Ustteki bolumun tamami: baslik + toggle bar (Ozne Cikan / Canli) + icerik.
 // Toggle degistiginde sadece bu bolum yeniden ciziliyor, altindaki gunun
 // maclari listesi (renderTodayList) hic etkilenmiyor.
+// Home recommendation surfaces must use the same central competition whitelist
+// as Fixtures/Scores. Unknown, legacy and explicitly excluded provider leagues
+// must never leak into Featured, Top Predictions or Live.
+function isHomeWhitelistedMatch(m) {
+  return m?.visibleInCompetitionFilter === true && m?.eligibleForHomePriority === true;
+}
+
 function renderFeaturedSection() {
   const container = document.getElementById('featuredSection');
-  const hasLive = allMatches.some(m => m.isLive);
-  const featured = rankedMatches()[0]?.match || allMatches.find(m => m.isLive) || allMatches[0];
+  const homeMatches = allMatches.filter(isHomeWhitelistedMatch);
+  const hasLive = homeMatches.some(m => m.isLive);
+  const featured = rankedMatches()[0]?.match || homeMatches.find(m => m.isLive) || homeMatches[0];
 
   if (!featured) {
     container.innerHTML = '';
@@ -964,7 +972,7 @@ function renderFeaturedContent() {
   if (!el) return;
 
   if (featuredViewMode === 'live') {
-    const allLive = allMatches.filter(m => m.isLive);
+    const allLive = allMatches.filter(m => m.isLive && isHomeWhitelistedMatch(m));
     const priorityLive = sportmonksFirst(allLive.filter(isSportmonksPriorityMatch));
     const otherLive = allLive.filter(m => !isSportmonksPriorityMatch(m));
     const liveMatches = priorityLive.length ? [...priorityLive, ...otherLive] : otherLive;
@@ -997,7 +1005,7 @@ function renderFeaturedContent() {
     // The six SportsMonks leagues are analysed first upstream, but once an
     // analysis exists every match competes only on model strength.
     const strongest = allMatches
-      .filter(m => !m.isLive)
+      .filter(m => !m.isLive && isHomeWhitelistedMatch(m))
       .map(match => {
         const analysis=matchAnalyses.get(String(match.fixtureId));
         if(!analysis) return null;
