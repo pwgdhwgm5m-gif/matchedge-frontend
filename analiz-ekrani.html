@@ -1646,20 +1646,29 @@ function renderPremiumIntelligence(premium, data) {
   // Strongest Picks are published by the Phase 2 backend only after
   // market-specific evidence gates. Raw allMarkets stays available below for
   // normal analysis/manual selection, but can never promote itself here.
-  const strongestPicks = (decisionReady ? (data?.marketBoard?.topPredictions || []) : [])
-    .filter(x => x && x.label && Number.isFinite(Number(x.probability)) && hasStrongMarketEvidence(x))
-    .slice(0,3)
+  const publishedPicks = (data?.marketBoard?.topPredictions || [])
+    .filter(x => x && x.label && Number.isFinite(Number(x.probability)) && hasStrongMarketEvidence(x));
+  // When evidence is below the publication gate, still show the model's
+  // strongest calculable lean in the match-analysis verdict. This is
+  // informational only: it cannot enter Top Picks/Strong Picks or coupons.
+  const informationalLean = !decisionReady
+    ? (data?.marketBoard?.allMarkets || [])
+        .filter(x => x && x.label && Number.isFinite(Number(x.probability)) && ['home','draw','away','over25','bttsYes','bttsNo'].includes(x.key))
+        .sort((a,b)=>Number(b.probability)-Number(a.probability))[0]
+    : null;
+  const strongestPicks = (decisionReady ? publishedPicks.slice(0,3) : (informationalLean ? [informationalLean] : []))
     .map(x => ({
       label:x.label, probability:+Number(x.probability).toFixed(1), key:x.key,
       market:x.market, direction:x.direction, evidenceLevel:x.evidenceLevel,
-      effectiveSample:x.effectiveSample, isBettingValue:x.isBettingValue===true
+      effectiveSample:x.effectiveSample, isBettingValue:x.isBettingValue===true,
+      informational:!decisionReady
     }));
 
   for (let index = 0; index < 3; index += 1) {
     const pick = strongestPicks[index];
     const cell = document.getElementById(`pick-label-${index + 1}`).closest('.edge-cell');
     cell.dataset.marketKey = pick?.key || '';
-    cell._featuredPick = pick ? { ...pick, market: (
+    cell._featuredPick = (pick && decisionReady) ? { ...pick, market: (
       ['home','draw','away','homeWin','drawResult','awayWin'].includes(pick.key) ? '1X2' :
       ['over25','under25'].includes(pick.key) ? 'GOL' :
       ['bttsYes','bttsNo'].includes(pick.key) ? 'KG' :
@@ -1668,7 +1677,7 @@ function renderPremiumIntelligence(premium, data) {
       String(pick.key).startsWith('corners') ? 'KORNER' : 'SEÇİM'
     ) } : null;
     cell.setAttribute('aria-label', pick ? `${pick.label} ${pick.probability}%${decisionReady?' · '+t('addCoupon'):(currentLang==='tr'?' · düşük güven, bilgi amaçlı':' · low confidence, informational')}` : '—');
-    cell.classList.toggle('selected', Boolean(pick && selectedCouponMarkets.has(pick.key)));
+    cell.classList.toggle('selected', Boolean(pick && decisionReady && selectedCouponMarkets.has(pick.key)));
     document.getElementById(`pick-label-${index + 1}`).textContent = pick?.label || '—';
     document.getElementById(`pick-prob-${index + 1}`).textContent = pick ? `${pick.probability}%` : '—';
   }
