@@ -716,7 +716,7 @@ function renderMatches(preserveView = false) {
       const isFav = favorites.has(String(m.fixtureId));
       return `
         <div class="match-row" data-link="${matchLink(m)}" style="text-decoration:none; color:inherit;">
-          <button type="button" class="fav-btn match-card-fav ${isFav ? "active" : ""}" aria-label="Favorite" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 0.8-4.4 4.3 1 6.1L12 17.3l-5.2 3 1 6.1L3.4 9.9l6-0.8Z"/></svg></button>
+          <button type="button" class="fav-btn match-card-fav ${isFav ? "active" : ""}" aria-label="Favorite" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 2.5 L14.94 8.46 L21.5 9.42 L16.75 14.06 L17.87 20.61 L12 17.52 L6.13 20.61 L7.25 14.06 L2.5 9.42 L9.06 8.46 Z" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
           <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
           
           <div class="match-row-time">${timeLabel}</div>
