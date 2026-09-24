@@ -111,9 +111,8 @@
   .fav-btn {
     width: 34px; height: 34px;
     display: flex; align-items: center; justify-content: center;
-    background: var(--bg-card-inner);
-    border: 1px solid var(--border-subtle);
-    border-radius: 11px;
+    -webkit-appearance: none; appearance: none; padding: 0;
+    background: transparent; border: 0; border-radius: 0;
     flex-shrink: 0;
     cursor: pointer;
     margin-left: 8px;
@@ -121,11 +120,7 @@
   }
   .fav-btn:active { transform: scale(0.88); }
   .fav-btn svg { width: 18px; height: 18px; stroke: var(--text-muted); fill: none; stroke-width: 2; transition: all 0.15s ease; }
-  .fav-btn.active {
-    background: rgba(245,185,66,0.12);
-    border-color: rgba(245,185,66,0.45);
-    box-shadow: 0 0 0 4px rgba(245,185,66,0.10);
-  }
+  .fav-btn.active { background: transparent; border-color: transparent; box-shadow: none; }
   .fav-btn.active svg { stroke: var(--amber); fill: var(--amber); }
 
   .sub-league-label {
