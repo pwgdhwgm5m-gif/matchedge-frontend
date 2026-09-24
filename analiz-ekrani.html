@@ -1103,6 +1103,19 @@ function leagueAnalysisUrl(m) {
   });
   return 'analiz-ekrani.html?' + params.toString();
 }
+function navTeamIdentityKey(value){
+  let words=String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim().split(/\s+/).filter(Boolean);
+  const prefixes=new Set(["fc","cf","afc","sc","ac","as","fk","sk","sv","tsv"]),suffixes=new Set(["fc","cf","afc","football","club"]);
+  while(words.length>1&&prefixes.has(words[0]))words.shift();while(words.length>1&&suffixes.has(words[words.length-1]))words.pop();
+  const key=words.join("");return ({republicofireland:"ireland",nireland:"northernireland",turkiye:"turkey",czechrepublic:"czechia"}[key]||key);
+}
+function navFixtureTime(m){const n=new Date(m.kickoff||m.date||"").getTime();return Number.isFinite(n)?n:null;}
+function navSourceQuality(m){return (m.canonicalProvider?100:0)+(m.bsdEventId?40:0)+(m.source==="bsd"?25:0)+((m.homeTeamId||m.homeId)?5:0)+((m.awayTeamId||m.awayId)?5:0)+(String(m.fixtureId||"").startsWith("odds:")?-50:0);}
+function dedupeNavigationMatches(input){
+  const ranked=[...input].sort((a,b)=>navSourceQuality(b)-navSourceQuality(a)),kept=[];
+  for(const m of ranked){const pair=[navTeamIdentityKey(m.homeTeam),navTeamIdentityKey(m.awayTeam)].sort().join("|");if(!pair||pair==="|"){kept.push(m);continue;}const time=navFixtureTime(m);const duplicate=kept.some(x=>{const other=[navTeamIdentityKey(x.homeTeam),navTeamIdentityKey(x.awayTeam)].sort().join("|");if(other!==pair)return false;const t=navFixtureTime(x);return time===null?t===null:(t!==null&&Math.abs(time-t)<=15*60*1000)});if(!duplicate)kept.push(m)}
+  return kept;
+}
 async function setupLeagueMatchNavigation(){
   const prev=document.getElementById("previousMatch"),next=document.getElementById("nextMatch"),position=document.getElementById("matchPosition");
   prev.style.visibility="visible"; next.style.visibility="visible";
@@ -1112,7 +1125,7 @@ async function setupLeagueMatchNavigation(){
   let apiMatches=[];
   try{const response=await fetch(API_BASE+"/api/matches?date="+encodeURIComponent(date),{cache:"no-store"});if(response.ok){const payload=await response.json();apiMatches=Array.isArray(payload.matches)?payload.matches:[];}}catch(err){console.warn("League navigation fixtures unavailable:",err.message)}
   const byId=new Map();
-  [...sessionMatches,...apiMatches].forEach(m=>{if(m&&m.fixtureId)byId.set(String(m.fixtureId),{fixtureId:m.fixtureId,homeTeam:m.homeTeam||"",awayTeam:m.awayTeam||"",league:m.league||"",leagueId:m.leagueId||"",kickoff:m.kickoff||m.date||"",homeBadge:m.homeBadge||"",awayBadge:m.awayBadge||"",homeId:m.homeId||m.homeTeamId||"",awayId:m.awayId||m.awayTeamId||""})});
+  [...sessionMatches,...apiMatches].forEach(m=>{if(m&&m.fixtureId)byId.set(String(m.fixtureId),{fixtureId:m.fixtureId,homeTeam:m.homeTeam||"",awayTeam:m.awayTeam||"",league:m.league||"",leagueId:m.leagueId||"",kickoff:m.kickoff||m.date||"",homeBadge:m.homeBadge||"",awayBadge:m.awayBadge||"",homeId:m.homeId||m.homeTeamId||"",awayId:m.awayId||m.awayTeamId||"",homeTeamId:m.homeTeamId||"",awayTeamId:m.awayTeamId||"",source:m.source||"",canonicalProvider:m.canonicalProvider||"",bsdEventId:m.bsdEventId||""})});
   const seed={fixtureId:FIXTURE_ID,homeTeam:CONTEXT.homeTeamName,awayTeam:CONTEXT.awayTeamName,league:CONTEXT.leagueName,leagueId:CONTEXT.tsdbLeagueId,kickoff:CONTEXT.kickoff};
   if(FIXTURE_ID&&!byId.has(String(FIXTURE_ID)))byId.set(String(FIXTURE_ID),seed);
   const current=byId.get(String(FIXTURE_ID))||seed;
@@ -1130,7 +1143,7 @@ async function setupLeagueMatchNavigation(){
     const nameMatch=Boolean(targetLeagueKey&&candidate&&(candidate===targetLeagueKey||candidate.includes(targetLeagueKey)||targetLeagueKey.includes(candidate)));
     return idMatch||nameMatch;
   };
-  const matches=[...byId.values()].filter(sameLeague).sort((a,b)=>new Date(a.kickoff||0)-new Date(b.kickoff||0));
+  const matches=dedupeNavigationMatches([...byId.values()].filter(sameLeague)).sort((a,b)=>new Date(a.kickoff||0)-new Date(b.kickoff||0));
   try{sessionStorage.setItem("socceredge_league_matches",JSON.stringify(matches))}catch(_){}
   const index=matches.findIndex(m=>String(m.fixtureId)===String(FIXTURE_ID));
   if(index<0){position.textContent="";prev.disabled=true;next.disabled=true;return}
