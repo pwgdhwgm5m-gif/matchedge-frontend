@@ -1373,9 +1373,14 @@ function renderAnalysisFallback(data) {
   set('draw-prob',Number.isFinite(Number(mp.drawProbability))?mp.drawProbability+'%':'–');
   set('away-prob',Number.isFinite(Number(mp.awayWinProbability))?mp.awayWinProbability+'%':'–');
   setReading('over25',m.over25GoalsPercent);
-  setReading('btts',m.bttsPercent);
+  const btts=data?.bttsDirection;
+  setReading('btts',Number.isFinite(Number(btts?.probability))?btts.probability:m.bttsPercent);
+  const bttsLabel=document.querySelector('[data-i18n="bttsYes"]');
+  if(bttsLabel&&btts?.direction)bttsLabel.textContent=btts.direction==='NO'?(currentLang==='tr'?'KG YOK':'BTTS NO'):(currentLang==='tr'?'KG VAR':'BTTS YES');
   setReading('corner',data?.cornerMetrics?.over85Percent);
-  set('xg-home',data?.homeLambda??'–'); set('xg-away',data?.awayLambda??'–');
+  const px=data?.providerXg||data?.xg||null,pxOk=String(data?.xgProvenance?.status||'').toUpperCase()==='PROVIDER_XG';
+  set('xg-home',pxOk&&Number.isFinite(Number(px?.home))?Number(px.home).toFixed(2):'–');
+  set('xg-away',pxOk&&Number.isFinite(Number(px?.away))?Number(px.away).toFixed(2):'–');
   set('quality-num',data?.dataQualityScore??'–');
   try { renderPremiumIntelligence(data?.premium,data); } catch(e) { console.warn('Fallback premium render:',e.message); }
   try { renderCouponMarkets(data); } catch(e) { console.warn('Fallback coupon render:',e.message); }
@@ -1445,7 +1450,10 @@ function renderAnalysis(data) {
 
   const mkt = data.marketProbabilities || {};
   setReading('over25', mkt.over25GoalsPercent);
-  setReading('btts', mkt.bttsPercent);
+  const bttsDirection=data.bttsDirection||null;
+  setReading('btts',Number.isFinite(Number(bttsDirection?.probability))?bttsDirection.probability:mkt.bttsPercent);
+  const bttsReadingLabel=document.querySelector('[data-i18n="bttsYes"]');
+  if(bttsReadingLabel&&bttsDirection?.direction)bttsReadingLabel.textContent=bttsDirection.direction==='NO'?(currentLang==='tr'?'KG YOK':'BTTS NO'):(currentLang==='tr'?'KG VAR':'BTTS YES');
   setReading('corner', data.cornerMetrics?.over85Percent);
   const mostGoalsHalf = data.halfMarkets?.mostGoalsHalf || {};
   const halfChoices = [
