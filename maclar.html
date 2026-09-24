@@ -555,12 +555,12 @@ function renderDayTabs() {
 
 function leagueMatchesForAnalysis(m) {
   const currentLeagueKey = leagueGroupKey(m.league);
-  return lastMatches
-    .filter(item => leagueGroupKey(item.league) === currentLeagueKey)
+  return dedupeLeagueMatches(lastMatches.filter(item => leagueGroupKey(item.league) === currentLeagueKey))
     .map(item => ({
       fixtureId:item.fixtureId, homeTeam:item.homeTeam||'', awayTeam:item.awayTeam||'',
       league:item.league||'', leagueId:item.leagueId||'', kickoff:item.kickoff||item.date||'',
-      homeBadge:item.homeBadge||'', awayBadge:item.awayBadge||'', homeId:item.homeId||item.homeTeamId||'', awayId:item.awayId||item.awayTeamId||''
+      homeBadge:item.homeBadge||'', awayBadge:item.awayBadge||'', homeId:item.homeId||item.homeTeamId||'', awayId:item.awayId||item.awayTeamId||'',
+      source:item.source||'', canonicalProvider:item.canonicalProvider||'', bsdEventId:item.bsdEventId||'', homeTeamId:item.homeTeamId||'', awayTeamId:item.awayTeamId||''
     }));
 }
 
@@ -608,6 +608,41 @@ function canonicalLeagueName(value){
 }
 function leagueGroupKey(value){return leagueIdentityKey(value);}
 
+function teamIdentityKey(value){
+  let words=String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[^a-z0-9]+/g," ").trim().split(/\s+/).filter(Boolean);
+  const prefixes=new Set(["fc","cf","afc","sc","ac","as","fk","sk","sv","tsv"]);
+  const suffixes=new Set(["fc","cf","afc","football","club"]);
+  while(words.length>1&&prefixes.has(words[0]))words.shift();
+  while(words.length>1&&suffixes.has(words[words.length-1]))words.pop();
+  let key=words.join("");
+  const aliases={republicofireland:"ireland",nireland:"northernireland",turkiye:"turkey",czechrepublic:"czechia"};
+  return aliases[key]||key;
+}
+function fixtureStartTime(match){
+  const value=match.kickoff||match.date||"";
+  const time=value?new Date(value).getTime():NaN;
+  return Number.isFinite(time)?time:null;
+}
+function matchSourceQuality(match){
+  return (match.canonicalProvider?100:0)+(match.bsdEventId?40:0)+(match.source==="bsd"?25:0)+((match.homeTeamId||match.homeId)?5:0)+((match.awayTeamId||match.awayId)?5:0)+(String(match.fixtureId||"").startsWith("odds:")?-50:0);
+}
+function dedupeLeagueMatches(matches){
+  const ranked=[...matches].sort((a,b)=>matchSourceQuality(b)-matchSourceQuality(a));
+  const kept=[];
+  for(const match of ranked){
+    const pair=[teamIdentityKey(match.homeTeam),teamIdentityKey(match.awayTeam)].sort().join("|");
+    if(!pair||pair==="|"){kept.push(match);continue;}
+    const time=fixtureStartTime(match);
+    const duplicate=kept.some(existing=>{
+      const existingPair=[teamIdentityKey(existing.homeTeam),teamIdentityKey(existing.awayTeam)].sort().join("|");
+      if(existingPair!==pair)return false;
+      const existingTime=fixtureStartTime(existing);
+      return time===null?existingTime===null:(existingTime!==null&&Math.abs(time-existingTime)<=15*60*1000);
+    });
+    if(!duplicate)kept.push(match);
+  }
+  return kept;
+}
 function groupByLeague(matches) {
   const groups = new Map();
   matches.forEach(m => {
@@ -619,6 +654,7 @@ function groupByLeague(matches) {
     group.matches.push(m);
   });
   return Array.from(groups.values()).map(group => {
+    group.matches=dedupeLeagueMatches(group.matches);
     group.matches.sort((a,b) => {
       if (a.isLive !== b.isLive) return Number(b.isLive) - Number(a.isLive);
       return new Date(a.kickoff || a.date || 0) - new Date(b.kickoff || b.date || 0);
