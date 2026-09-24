@@ -1034,11 +1034,24 @@ function renderFeaturedContent() {
         const coreTopKeys=new Set(['home','away','bttsYes','over25','homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35']);
         // Strong Picks are a published backend surface. Never rebuild them
         // from raw allMarkets, which includes informational/low-evidence estimates.
-        const candidates=[
+        const published=[
           analysis?.marketBoard?.best,
           ...(analysis?.marketBoard?.topPredictions || [])
-        ].filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label &&
+        ];
+        let candidates=published.filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label &&
           Number.isFinite(Number(p.probability)) && hasStrongMarketEvidence(p));
+        // En Güçlü should not stay empty while valid completed analyses exist.
+        // If today's evidence gate produces no published Strong Pick yet, use the
+        // backend's valid market board as a display fallback. This does NOT promote
+        // the fallback into Top Picks/auto-coupon; it only fills the Home carousel.
+        if(!candidates.length){
+          const fallback=[
+            ...(analysis?.marketBoard?.allMarkets || []),
+            ...(analysis?.allMarkets || [])
+          ];
+          candidates=fallback.filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label &&
+            Number.isFinite(Number(p.probability)) && Number(p.probability)>0);
+        }
         // Rank by the backend's evidence-aware market score first. Raw
         // probability alone systematically favors high-base-rate totals such as
         // Over 2.5 and makes every card look the same.
