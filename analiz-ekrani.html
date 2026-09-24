@@ -1373,9 +1373,14 @@ function renderAnalysisFallback(data) {
   set('draw-prob',Number.isFinite(Number(mp.drawProbability))?mp.drawProbability+'%':'–');
   set('away-prob',Number.isFinite(Number(mp.awayWinProbability))?mp.awayWinProbability+'%':'–');
   setReading('over25',m.over25GoalsPercent);
-  setReading('btts',m.bttsPercent);
+  const btts=data?.bttsDirection;
+  setReading('btts',Number.isFinite(Number(btts?.probability))?btts.probability:m.bttsPercent);
+  const bttsLabel=document.querySelector('[data-i18n="bttsYes"]');
+  if(bttsLabel&&btts?.direction)bttsLabel.textContent=btts.direction==='NO'?(currentLang==='tr'?'KG YOK':'BTTS NO'):(currentLang==='tr'?'KG VAR':'BTTS YES');
   setReading('corner',data?.cornerMetrics?.over85Percent);
-  set('xg-home',data?.homeLambda??'–'); set('xg-away',data?.awayLambda??'–');
+  const px=data?.providerXg||data?.xg||null,pxOk=String(data?.xgProvenance?.status||'').toUpperCase()==='PROVIDER_XG';
+  set('xg-home',pxOk&&Number.isFinite(Number(px?.home))?Number(px.home).toFixed(2):'–');
+  set('xg-away',pxOk&&Number.isFinite(Number(px?.away))?Number(px.away).toFixed(2):'–');
   set('quality-num',data?.dataQualityScore??'–');
   try { renderPremiumIntelligence(data?.premium,data); } catch(e) { console.warn('Fallback premium render:',e.message); }
   try { renderCouponMarkets(data); } catch(e) { console.warn('Fallback coupon render:',e.message); }
@@ -1428,9 +1433,10 @@ function renderAnalysis(data) {
   syncAnalysisLiveState();
 
   const mp = data.matchProbabilities || {};
-  document.getElementById('home-prob').textContent = (mp.homeWinProbability ?? '–') + '%';
-  document.getElementById('draw-prob').textContent = (mp.drawProbability ?? '–') + '%';
-  document.getElementById('away-prob').textContent = (mp.awayWinProbability ?? '–') + '%';
+  const probabilityText = value => Number.isFinite(Number(value)) ? Number(value) + '%' : '–';
+  document.getElementById('home-prob').textContent = probabilityText(mp.homeWinProbability);
+  document.getElementById('draw-prob').textContent = probabilityText(mp.drawProbability);
+  document.getElementById('away-prob').textContent = probabilityText(mp.awayWinProbability);
   document.getElementById('bar-home').style.width = (mp.homeWinProbability || 0) + '%';
   document.getElementById('bar-draw').style.width = (mp.drawProbability || 0) + '%';
   document.getElementById('bar-away').style.width = (mp.awayWinProbability || 0) + '%';
@@ -1444,7 +1450,10 @@ function renderAnalysis(data) {
 
   const mkt = data.marketProbabilities || {};
   setReading('over25', mkt.over25GoalsPercent);
-  setReading('btts', mkt.bttsPercent);
+  const bttsDirection=data.bttsDirection||null;
+  setReading('btts',Number.isFinite(Number(bttsDirection?.probability))?bttsDirection.probability:mkt.bttsPercent);
+  const bttsReadingLabel=document.querySelector('[data-i18n="bttsYes"]');
+  if(bttsReadingLabel&&bttsDirection?.direction)bttsReadingLabel.textContent=bttsDirection.direction==='NO'?(currentLang==='tr'?'KG YOK':'BTTS NO'):(currentLang==='tr'?'KG VAR':'BTTS YES');
   setReading('corner', data.cornerMetrics?.over85Percent);
   const mostGoalsHalf = data.halfMarkets?.mostGoalsHalf || {};
   const halfChoices = [
@@ -1456,8 +1465,12 @@ function renderAnalysis(data) {
   document.getElementById('half-value').textContent = bestHalf ? bestHalf.label + '\n' + bestHalf.value + '%' : '–';
   document.getElementById('half-bar').style.width = (bestHalf?.value || 0) + '%';
 
-  document.getElementById('xg-home').textContent = data.homeLambda ?? '–';
-  document.getElementById('xg-away').textContent = data.awayLambda ?? '–';
+  const providerXg = data.providerXg || data.xg || null;
+  const providerXgAvailable = String(data?.xgProvenance?.status || '').toUpperCase() === 'PROVIDER_XG';
+  const providerHomeXg = providerXgAvailable ? Number(providerXg?.home) : NaN;
+  const providerAwayXg = providerXgAvailable ? Number(providerXg?.away) : NaN;
+  document.getElementById('xg-home').textContent = Number.isFinite(providerHomeXg) ? providerHomeXg.toFixed(2) : '–';
+  document.getElementById('xg-away').textContent = Number.isFinite(providerAwayXg) ? providerAwayXg.toFixed(2) : '–';
 
   document.getElementById('quality-num').textContent = data.dataQualityScore ?? '–';
   document.getElementById('quality-tag').textContent =
@@ -1505,7 +1518,7 @@ function renderAnalysis(data) {
 
   const cm = data.cornerMetrics || {};
   document.getElementById('corner-min-value').textContent = cm.minExpected ?? '–';
-  document.getElementById('corner-over85-value').textContent = (cm.over85Percent ?? '–') + '%';
+  document.getElementById('corner-over85-value').textContent = Number.isFinite(Number(cm.over85Percent)) ? Number(cm.over85Percent) + '%' : '–';
   document.getElementById('corner-over85-bar').style.width = (cm.over85Percent || 0) + '%';
 
   renderStandings(data.standings);
@@ -1604,6 +1617,8 @@ function renderInjuryList(elementId, list) {
   ).join('<br>');
 }
 
+function hasStrongMarketEvidence(p){return p?.strongPickEligible===true&&['SUFFICIENT','STRONG'].includes(String(p?.evidenceLevel||'').toUpperCase())&&Number(p?.effectiveSample||0)>=8}
+
 function premiumOutcomeLabel(outcome, data) {
   if (outcome === 'home') return data.homeTeam || CONTEXT.homeTeamName || t('home');
   if (outcome === 'away') return data.awayTeam || CONTEXT.awayTeamName || t('away');
@@ -1628,41 +1643,17 @@ function renderPremiumIntelligence(premium, data) {
   document.getElementById('decision-icon').textContent = meta.icon;
   document.getElementById('decision-title').textContent = t(meta.title);
 
-  // Strongest Picks must come from the backend's evidence-aware market board.
-  // Do not reconstruct them in the browser from raw headline probabilities:
-  // that bypasses low-data/corner exclusions and model-health guards.
-  const publishedStrongest = (decisionReady ? (data?.marketBoard?.topPredictions || []) : [])
-    .filter(x => x && x.label && Number.isFinite(Number(x.probability)));
-  // A guarded match still deserves an informational model read. These markets
-  // may be displayed as LOW CONFIDENCE, but they are never made coupon-clickable
-  // unless the server has published PICK/VALUE.
-  const detailCoreKeys = new Set([
-    'home','draw','away','over25','under25','bttsYes','bttsNo',
-    'homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35',
-    'fhHome','fhDraw','fhAway','fhHomeScores','fhAwayScores','fhOver05',
-    'mostGoalsFirst','mostGoalsEqual','mostGoalsSecond'
-  ]);
-  const cmStrong = data?.cornerMetrics || {};
-  const strongCornerEvidence = cornerCouponSupported() || (
-    Number(cmStrong.sample) >= 8 &&
-    cmStrong.lowEvidence !== true &&
-    ['sportmonks-history-pressure','historical-corners'].includes(String(cmStrong.source || ''))
-  );
-  const detailCandidates = [
-    ...publishedStrongest,
-    ...(data?.marketBoard?.allMarkets || [])
-  ].filter(x => x && x.label && Number.isFinite(Number(x.probability)) &&
-    Number(x.probability) > 0 && Number(x.probability) < 100 &&
-    (detailCoreKeys.has(x.key) || (strongCornerEvidence && String(x.key || '').startsWith('corners'))));
-  const uniqueDetail = [...new Map(detailCandidates.map(x => [x.key, x])).values()];
-  const strongestPicks = uniqueDetail
-    .sort((a,b) => {
-      const as=Number(a.topPickScore ?? a.score), bs=Number(b.topPickScore ?? b.score);
-      if(Number.isFinite(as)||Number.isFinite(bs)) return (Number.isFinite(bs)?bs:-Infinity)-(Number.isFinite(as)?as:-Infinity) || Number(b.probability)-Number(a.probability);
-      return Number(b.probability)-Number(a.probability);
-    })
+  // Strongest Picks are published by the Phase 2 backend only after
+  // market-specific evidence gates. Raw allMarkets stays available below for
+  // normal analysis/manual selection, but can never promote itself here.
+  const strongestPicks = (decisionReady ? (data?.marketBoard?.topPredictions || []) : [])
+    .filter(x => x && x.label && Number.isFinite(Number(x.probability)) && hasStrongMarketEvidence(x))
     .slice(0,3)
-    .map(x => ({label:x.label, probability:+Number(x.probability).toFixed(1), key:x.key, market:x.market, isBettingValue:x.isBettingValue===true}));
+    .map(x => ({
+      label:x.label, probability:+Number(x.probability).toFixed(1), key:x.key,
+      market:x.market, direction:x.direction, evidenceLevel:x.evidenceLevel,
+      effectiveSample:x.effectiveSample, isBettingValue:x.isBettingValue===true
+    }));
 
   for (let index = 0; index < 3; index += 1) {
     const pick = strongestPicks[index];
@@ -1830,7 +1821,7 @@ function gameX(p,key){p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(
 function renderSlip(){const legs=getSlip(),box=document.getElementById('slipDrawer'),count=document.getElementById('slipCount'),list=document.getElementById('slipList'),mult=document.getElementById('slipMultiplier'),potential=document.getElementById('slipPotential');if(!box||!count||!list||!mult||!potential)return;box.classList.toggle('show',legs.length>0);count.textContent=legs.length;list.innerHTML=legs.map((l,i)=>`<div class="slip-leg"><div><b>${l.homeTeam} - ${l.awayTeam}</b><br><small>${l.selection.label} · ${gameX(l.selection.probability).toFixed(2)}x</small></div><button class="slip-remove" onclick="removeSlipLeg(${i})">×</button></div>`).join('');let x=legs.reduce((n,l)=>n*gameX(l.selection.probability),1);x=Number(Math.min(50,Math.max(1.15,x)).toFixed(2));mult.textContent=(currentLang==='en'?'Total ':'Toplam ')+x.toFixed(2)+'x';potential.textContent=(currentLang==='en'?'Potential 🪙':'Potansiyel 🪙')+Math.floor(slipStake*x)}
 window.removeSlipLeg=i=>{const a=getSlip();a.splice(i,1);saveSlip(a)};
 document.querySelectorAll('.stake-row button').forEach(b=>b.onclick=()=>{slipStake=+b.dataset.stake;document.querySelectorAll('.stake-row button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderSlip()});
-document.getElementById('addCouponButton').addEventListener('click',()=>{if(!currentAnalysis||!selectedCouponMarkets.size)return;let legs=getSlip();let selection={...[...selectedCouponMarkets.values()][0]};const leg={fixtureId:FIXTURE_ID,homeTeam:currentAnalysis.homeTeam||CONTEXT.homeTeamName,awayTeam:currentAnalysis.awayTeam||CONTEXT.awayTeamName,league:currentAnalysis.league||CONTEXT.leagueName,kickoff:currentAnalysis.kickoff||CONTEXT.kickoff,selection};const sameIndex=legs.findIndex(x=>String(x.fixtureId)===String(FIXTURE_ID));if(sameIndex>=0){legs[sameIndex]=leg;saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;window.dispatchEvent(new Event('socceredge-slip-change'));return}if(legs.length>=3){document.getElementById('couponFeedback').textContent=(currentLang==='en'?'A slip can contain up to 3 matches':'Kupon en fazla 3 maç olabilir');return}legs.push(leg);saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;const feedback=document.getElementById('couponFeedback');feedback.textContent=currentLang==='en'?('✓ Added to slip · '+legs.length+' match'+(legs.length===1?'':'es')):('✓ Kupona eklendi · Kuponumda '+legs.length+' maç');feedback.classList.add('coupon-success');const addBtn=document.getElementById('addCouponButton');addBtn.textContent=currentLang==='en'?'✓ ADDED TO SLIP':'✓ KUPONA EKLENDİ';setTimeout(()=>{addBtn.textContent=(TRANSLATIONS[currentLang]?.addCoupon||'SEÇİLENLERİ KUPONA EKLE')},1800)});
+document.getElementById('addCouponButton').addEventListener('click',()=>{if(!currentAnalysis||!selectedCouponMarkets.size)return;let legs=getSlip();let selection={...[...selectedCouponMarkets.values()][0]};if(selection.key==='bttsYes')selection.direction=selection.direction||'YES';if(selection.key==='bttsNo')selection.direction=selection.direction||'NO';const leg={fixtureId:FIXTURE_ID,homeTeam:currentAnalysis.homeTeam||CONTEXT.homeTeamName,awayTeam:currentAnalysis.awayTeam||CONTEXT.awayTeamName,league:currentAnalysis.league||CONTEXT.leagueName,kickoff:currentAnalysis.kickoff||CONTEXT.kickoff,selection};const sameIndex=legs.findIndex(x=>String(x.fixtureId)===String(FIXTURE_ID));if(sameIndex>=0){legs[sameIndex]=leg;saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;window.dispatchEvent(new Event('socceredge-slip-change'));return}if(legs.length>=3){document.getElementById('couponFeedback').textContent=(currentLang==='en'?'A slip can contain up to 3 matches':'Kupon en fazla 3 maç olabilir');return}legs.push(leg);saveSlip(legs);selectedCouponMarkets.clear();document.querySelectorAll('.coupon-market.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('addCouponButton').disabled=true;const feedback=document.getElementById('couponFeedback');feedback.textContent=currentLang==='en'?('✓ Added to slip · '+legs.length+' match'+(legs.length===1?'':'es')):('✓ Kupona eklendi · Kuponumda '+legs.length+' maç');feedback.classList.add('coupon-success');const addBtn=document.getElementById('addCouponButton');addBtn.textContent=currentLang==='en'?'✓ ADDED TO SLIP':'✓ KUPONA EKLENDİ';setTimeout(()=>{addBtn.textContent=(TRANSLATIONS[currentLang]?.addCoupon||'SEÇİLENLERİ KUPONA EKLE')},1800)});
 const playSlipButton=document.getElementById('playSlip');
 if(playSlipButton){
   playSlipButton.onclick=async()=>{const legs=getSlip();if(!legs.length)return;const b=playSlipButton;b.disabled=true;b.textContent='OYNANIYOR…';try{const r=await fetch(`${API_BASE}/api/coupons`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${localStorage.getItem('matchedge_token')}`},body:JSON.stringify({legs,stakeCoins:slipStake})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Kupon oluşturulamadı');localStorage.removeItem(SLIP_KEY);window.dispatchEvent(new Event('socceredge-slip-change'));location.href='kuponum.html'}catch(e){document.getElementById('couponFeedback').textContent=e.message;b.disabled=false;b.textContent='KUPONU OYNA'}};
