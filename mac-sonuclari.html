@@ -863,7 +863,7 @@ function renderMatchCard(m, favoriteSection = false) {
   return `
     <div class="match-card ${m.isLive ? 'is-live' : ''} ${favoriteSection ? 'favorite-card' : ''}"
       data-fixture-id="${m.fixtureId}">
-      ${finishedCard ? '' : `<button type="button" aria-label="Favorite" class="fav-btn compact-fav ${isFav ? "active" : ""}" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 4.3-4.4 4.3 1 6.1L12 17.3l-5.2 3 1 6.1L3.4 9.9l6-0.8Z"/></svg></button>`}
+      
       <div class="compact-score-head">
         <span class="match-status-pill ${statusClass(m)}">${statusLabel(m)}</span>
         <span>${t('htColumn')}</span><span>${m.isLive ? (currentLang==='tr'?'SKOR':'SCORE') : t('ftColumn')}</span>
