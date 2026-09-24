@@ -1231,12 +1231,6 @@ function renderTodayList(matches, loadFailed) {
       if (link) window.location.href = link;
     });
   });
-
-  container.querySelectorAll('.fav-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleFavorite(btn.dataset.fixtureId, btn.dataset.home, btn.dataset.away, btn);
-    });
   });
 }
 
