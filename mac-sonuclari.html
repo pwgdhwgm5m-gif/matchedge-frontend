@@ -671,7 +671,11 @@ function renderCountryFilters() {
 
 function renderLeagueFilters() {
   const filtersEl=document.getElementById('leagueFilters');
-  const source=relevantMatches(allMatchesForDay);
+  // The filter is a verified master-list view, not a list of every raw
+  // provider label. Unverified rows remain visible in results but don't
+  // advertise unsupported competitions as selectable coverage.
+  const source=relevantMatches(allMatchesForDay)
+    .filter(m=>m.visibleInCompetitionFilter === true);
   const leagueOrder=['England Premier League','Spain La Liga','Italy Serie A','Germany Bundesliga','France Ligue 1','Turkey Süper Lig','UEFA Champions League','UEFA Europa League','UEFA Conference League'];
   const rankByLeague=new Map();
   source.forEach(m=>{

@@ -1068,7 +1068,7 @@ function renderFeaturedContent() {
   // Top Predictions below remains the model-strength surface.
   const now = Date.now();
   const editorial = allMatches
-    .filter(m => !m.isLive && isUpcomingMatch(m, now))
+    .filter(m => m.eligibleForHomePriority === true && !m.isLive && isUpcomingMatch(m, now))
     .map(m => {
       const leagueRank = majorLeaguePriority(m);
       const favBoost = favorites.has(String(m.fixtureId)) ? -3 : 0;
