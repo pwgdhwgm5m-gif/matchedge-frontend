@@ -480,6 +480,17 @@ const PRIORITY_LEAGUE_ORDER = new Map([
   ['4335',4], // La Liga
   ['4339',5], // Super Lig
 ]);
+const PRIORITY_COMPETITION_ORDER = new Map([
+  ['england-premier-league',0],
+  ['germany-bundesliga',1],
+  ['france-ligue-1',2],
+  ['italy-serie-a',3],
+  ['spain-la-liga',4],
+  ['turkey-super-lig',5],
+  ['uefa-champions-league',6],
+  ['uefa-europa-league',7],
+  ['uefa-conference-league',8]
+]);
 
 const TRANSLATIONS = {
   en: {
@@ -650,11 +661,21 @@ function dedupeLeagueMatches(matches){
 function groupByLeague(matches) {
   const groups = new Map();
   matches.forEach(m => {
-    const league=canonicalLeagueName(m.league);
-    const key="name:"+leagueGroupKey(m.league);
-    if (!groups.has(key)) groups.set(key, { leagueId: String(m.leagueId||key), league, matches: [] });
+    const league=String(m.displayName||canonicalLeagueName(m.league||m.leagueName)||'').trim();
+    const key=m.canonicalCompetitionKey
+      ? "competition:"+String(m.canonicalCompetitionKey)
+      : "name:"+leagueGroupKey(m.league||m.leagueName);
+    if (!groups.has(key)) groups.set(key, {
+      leagueId: String(m.canonicalCompetitionKey||m.leagueId||key),
+      league,
+      competitionPriority:Number(m.competitionPriority)||99,
+      homePageRank:Number(m.homePageRank)||99,
+      matches: []
+    });
     const group=groups.get(key);
     if((!group.league||/^soccer[_-]/i.test(group.league))&&league)group.league=league;
+    if(Number(m.competitionPriority)<group.competitionPriority)group.competitionPriority=Number(m.competitionPriority);
+    if(Number(m.homePageRank)<group.homePageRank)group.homePageRank=Number(m.homePageRank);
     group.matches.push(m);
   });
   return Array.from(groups.values()).map(group => {
@@ -665,8 +686,10 @@ function groupByLeague(matches) {
     });
     return group;
   }).sort((a, b) => {
-    const ao = PRIORITY_LEAGUE_ORDER.has(a.leagueId) ? PRIORITY_LEAGUE_ORDER.get(a.leagueId) : 999;
-    const bo = PRIORITY_LEAGUE_ORDER.has(b.leagueId) ? PRIORITY_LEAGUE_ORDER.get(b.leagueId) : 999;
+    if (a.homePageRank !== b.homePageRank) return a.homePageRank - b.homePageRank;
+    if (a.competitionPriority !== b.competitionPriority) return a.competitionPriority - b.competitionPriority;
+    const ao = PRIORITY_COMPETITION_ORDER.get(a.leagueId) ?? PRIORITY_LEAGUE_ORDER.get(a.leagueId) ?? 999;
+    const bo = PRIORITY_COMPETITION_ORDER.get(b.leagueId) ?? PRIORITY_LEAGUE_ORDER.get(b.leagueId) ?? 999;
     if (ao !== bo) return ao - bo;
     const aPriority = PRIORITY_LEAGUE_IDS.has(a.leagueId);
     const bPriority = PRIORITY_LEAGUE_IDS.has(b.leagueId);
@@ -685,7 +708,7 @@ function renderMatches(preserveView = false) {
     expanded: new Set([...container.querySelectorAll('.league-group.expanded')].map(el => el.dataset.leagueId).filter(Boolean))
   } : null;
   const q=(document.getElementById('matchSearch')?.value||'').trim().toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US');
-  const visibleMatches=q?lastMatches.filter(m=>[m.homeTeam,m.awayTeam,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q))):lastMatches;
+  const visibleMatches=q?lastMatches.filter(m=>[m.homeTeam,m.awayTeam,m.displayName,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q))):lastMatches;
 
   if (lastLoadFailed) {
     container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;

@@ -640,7 +640,7 @@ function strongestHomeItems(){return allMatches.filter(m=>!m.isLive&&isUpcomingM
 async function loadV4HomeDecisions(){try{const ids=allMatches.filter(m=>!m.isLive).map(m=>String(m.fixtureId)).filter(Boolean).slice(0,60);if(!ids.length)return;const r=await fetch(API_BASE+'/api/analysis/v4-decisions',{method:'POST',headers:authHeaders(),body:JSON.stringify({fixtureIds:ids})});if(r.ok){const d=await r.json();v4HomeDecisions=new Map((d.items||[]).map(x=>[String(x.fixtureId),x]));renderHomeForYou()}}catch(e){console.warn('V4 home decisions unavailable:',e.message)}}
 function renderHomeForYou(){const el=document.getElementById('homeForYou');if(!el)return;const lang=currentLang==='tr',cards=[];
  followingPicks.filter(x=>x.result==='pending').slice(0,4).forEach(x=>cards.push({score:300+Number(x.user?.accuracy||0),html:'<a class="fy-card" href="match-room.html?fixtureId='+encodeURIComponent(x.fixtureId)+'&home='+encodeURIComponent(x.homeTeam||'')+'&away='+encodeURIComponent(x.awayTeam||'')+'&league='+encodeURIComponent(x.league||'')+'&kickoff='+encodeURIComponent(x.kickoff||'')+'"><div class="fy-source">👤 '+(lang?'TAKİP ETTİĞİN ANALİST':'FOLLOWING ANALYST')+'</div><div class="fy-match">'+escapeHtml(x.homeTeam)+' – '+escapeHtml(x.awayTeam)+'</div><div class="fy-sub">'+escapeHtml(x.league)+' · '+escapeHtml(x.market)+'</div><div class="fy-pick">✓ '+escapeHtml(x.label)+'</div><div class="fy-user">@'+escapeHtml(x.user?.username||'')+' · '+Number(x.user?.accuracy||0)+'%</div></a>'}));
- strongestHomeItems().slice(0,12).forEach(x=>{const source=x.fav?'★ '+(lang?'FAVORİ MAÇIN':'YOUR FAVORITE'):(x.health>=55&&Number(x.p.probability)>=55?'🔥 '+(lang?'GÜÇLÜ ANALİZ':'STRONG ANALYSIS'):'✨ '+(lang?'SANA ÖZEL ANALİZ':'FOR YOU ANALYSIS'));const score=(x.fav?220:100)+x.score;cards.push({score,html:'<a class="fy-card" href="'+analysisLink(x.m)+'"><div class="fy-source">'+source+'</div><div class="fy-match">'+escapeHtml(x.m.homeTeam)+' – '+escapeHtml(x.m.awayTeam)+'</div><div class="fy-sub">'+escapeHtml(x.m.league)+(Number.isFinite(x.health)&&x.health>0?' · '+(lang?'Veri':'Data')+' '+Math.round(x.health)+'/100':'')+'</div><div class="fy-pick">'+escapeHtml(x.p.label)+' · '+Math.round(Number(x.p.probability))+'%</div></a>'})});
+  strongestHomeItems().slice(0,12).forEach(x=>{const source=x.fav?'★ '+(lang?'FAVORİ MAÇIN':'YOUR FAVORITE'):(x.health>=55&&Number(x.p.probability)>=55?'🔥 '+(lang?'GÜÇLÜ ANALİZ':'STRONG ANALYSIS'):'✨ '+(lang?'SANA ÖZEL ANALİZ':'FOR YOU ANALYSIS'));const score=(x.fav?220:100)+x.score;cards.push({score,html:'<a class="fy-card" href="'+analysisLink(x.m)+'"><div class="fy-source">'+source+'</div><div class="fy-match">'+escapeHtml(x.m.homeTeam)+' – '+escapeHtml(x.m.awayTeam)+'</div><div class="fy-sub">'+escapeHtml(x.m.displayName||x.m.league)+(Number.isFinite(x.health)&&x.health>0?' · '+(lang?'Veri':'Data')+' '+Math.round(x.health)+'/100':'')+'</div><div class="fy-pick">'+escapeHtml(x.p.label)+' · '+Math.round(Number(x.p.probability))+'%</div></a>'})});
  const seen=new Set(),out=cards.sort((a,b)=>b.score-a.score).filter(x=>{const k=x.html.match(/fy-match[^>]*>([^<]+)/)?.[1]||x.html;if(seen.has(k))return false;seen.add(k);return true}).slice(0,8);el.innerHTML=out.map(x=>x.html).join('')||'<div class="fy-empty">'+(lang?'Takip, favori ve AI seçimlerin burada görünecek.':'Your followed analysts, favorites and AI picks will appear here.')+'</div>';document.getElementById('forYouTitle').textContent=lang?'SANA ÖZEL':'FOR YOU';document.getElementById('forYouAll').textContent=lang?'Takip edilen seçimler →':'See following picks →'}
 async function loadHome({silent=false} = {}) {
   const scrollRoot=document.scrollingElement||document.documentElement; const savedScrollY=scrollRoot.scrollTop||window.scrollY||0;
@@ -898,7 +898,7 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
       <div class="featured-tag ${isLive ? 'live' : ''}">${isLive ? '<span class="live-green-dot" aria-hidden="true"></span>'+t('live') : t('today')}</div>
       ${cardFav}
       <div class="featured-teams">${m.homeTeam} - ${m.awayTeam}${isLive ? ` &nbsp; <span style="color:var(--teal)">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</span>` : ''}</div>
-      <div class="featured-meta">${m.league || ''} • ${timeLabel}</div>
+      <div class="featured-meta">${m.displayName || m.league || ''} • ${timeLabel}</div>
       <div class="featured-signal">
         <div class="featured-signal-icon">${isLive ? '⚡' : '📈'}</div>
         <div style="flex:1">${signal}</div>
@@ -1047,18 +1047,16 @@ function renderFeaturedContent() {
   }
 
   const majorLeaguePriority = (m) => {
+    if (m?.homePageRank != null && Number.isFinite(Number(m.homePageRank))) {
+      return Number(m.homePageRank);
+    }
     const id = Number(m.leagueId);
     const name = String(m.league || '').toLowerCase();
-    // UEFA / major European cups first, then major domestic leagues.
-    if (/champions league|uefa champions|europa league|uefa europa|conference league|uefa conference|super cup|uefa süper|uefa super/.test(name)) return 0;
-    if (/fa cup|copa del rey|coppa italia|dfb.?pokal|coupe de france|knvb cup|knvb beker|türkiye kupası|turkiye kupasi|supercopa|supercoppa|community shield/.test(name)) return 1;
-    if (id === 39 || /premier league|england|ingiltere/.test(name)) return 2;
-    if (id === 78 || /bundesliga|germany|almanya/.test(name)) return 3;
-    if (id === 61 || /ligue 1|france|fransa/.test(name)) return 4;
-    if (id === 135 || /serie a|italy|italya/.test(name)) return 5;
-    if (id === 140 || /la liga|laliga|spain|ispanya/.test(name)) return 5;
-    if (id === 203 || /süper lig|super lig|turkey|türkiye/.test(name)) return 6;
-    if (id === 88 || /eredivisie|netherlands|holland|hollanda/.test(name)) return 8;
+    if (/premier league|bundesliga|serie a|ligue 1|la liga|süper lig|super lig/.test(name)) return 1;
+    if (/champions league|uefa champions|europa league|uefa europa|conference league|uefa conference/.test(name)) return 2;
+    if (/eredivisie|primeira|pro league|super league|premiership|ekstraklasa|eliteserien|allsvenskan|superliga/.test(name)) return 3;
+    if (/mls|j1 league|k league|chinese super|a-league/.test(name)) return 4;
+    if (/cup|pokal|copa|taca|taça|coupe|beker/.test(name)) return 5;
     return 99;
   };
   const kickoffTime = (m) => {
@@ -1083,7 +1081,7 @@ function renderFeaturedContent() {
   // Prefer variety across leagues before filling remaining slots.
   const chosen=[], seenLeagues=new Set();
   for (const item of editorial) {
-    const leagueKey=String(item.m.leagueId || item.m.league || '');
+    const leagueKey=String(item.m.canonicalCompetitionKey || item.m.leagueId || item.m.league || '');
     if (!seenLeagues.has(leagueKey)) { chosen.push(item.m); seenLeagues.add(leagueKey); }
     if (chosen.length>=10) break;
   }
@@ -1106,7 +1104,7 @@ function renderFeaturedContent() {
 
 function renderTodayList(matches, loadFailed) {
   const q=(document.getElementById('matchSearch')?.value||'').trim().toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US');
-  if(q) matches=matches.filter(m=>[m.homeTeam,m.awayTeam,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q)));
+  if(q) matches=matches.filter(m=>[m.homeTeam,m.awayTeam,m.displayName,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q)));
   const container = document.getElementById('todayMatchesList');
 
   if (loadFailed) {
@@ -1121,12 +1119,24 @@ function renderTodayList(matches, loadFailed) {
 
   const groups = new Map();
   matches.forEach(match => {
-    const key = String(match.leagueId || match.league || 'unknown');
-    if (!groups.has(key)) groups.set(key, { league: match.league || 'Diğer', matches: [] });
+    const league=String(match.displayName||match.league||match.leagueName||'').trim() ||
+      `Competition ${String(match.leagueId||match.fixtureId||'unlabeled')}`;
+    const key = String(match.canonicalCompetitionKey || `name:${league}`);
+    if (!groups.has(key)) groups.set(key, {
+      league,
+      homePageRank:Number(match.homePageRank)||99,
+      competitionPriority:Number(match.competitionPriority)||99,
+      matches: []
+    });
+    const group=groups.get(key);
+    group.homePageRank=Math.min(group.homePageRank,Number(match.homePageRank)||99);
+    group.competitionPriority=Math.min(group.competitionPriority,Number(match.competitionPriority)||99);
     groups.get(key).matches.push(match);
   });
 
   const sortedGroups = Array.from(groups.values()).sort((a, b) => {
+    if(a.homePageRank!==b.homePageRank)return a.homePageRank-b.homePageRank;
+    if(a.competitionPriority!==b.competitionPriority)return a.competitionPriority-b.competitionPriority;
     const aPriority = a.matches.some(isSportmonksPriorityMatch);
     const bPriority = b.matches.some(isSportmonksPriorityMatch);
     if (aPriority !== bPriority) return Number(bPriority) - Number(aPriority);

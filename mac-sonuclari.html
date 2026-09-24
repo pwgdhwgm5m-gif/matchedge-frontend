@@ -612,11 +612,21 @@ function leagueCountry(league, leagueId) {
     ['germany','🇩🇪',/germany|bundesliga|dfb/],['france','🇫🇷',/france|ligue|coupe de france/],
     ['netherlands','🇳🇱',/netherlands|eredivisie/],['belgium','🇧🇪',/belg|pro league/],['portugal','🇵🇹',/portugal|primeira/],
     ['scotland','🏴',/scot/],['greece','🇬🇷',/greece|greek|super league greece/],
-    ['europe','🏆',/champions|europa|conference|nations league/]
+    ['czechia','🇨🇿',/czech|czechia/],['poland','🇵🇱',/poland|polish|ekstraklasa/],
+    ['austria','🇦🇹',/austria|österreich/],['switzerland','🇨🇭',/switzerland|swiss/],
+    ['denmark','🇩🇰',/denmark|danish|superliga/],['norway','🇳🇴',/norway|norwegian|eliteserien/],
+    ['sweden','🇸🇪',/sweden|swedish|allsvenskan/],['romania','🇷🇴',/romania|romanian/],
+    ['croatia','🇭🇷',/croatia|croatian|hnl/],['serbia','🇷🇸',/serbia|serbian/],
+    ['ukraine','🇺🇦',/ukraine|ukrainian/],['russia','🇷🇺',/russia|russian/],
+    ['hungary','🇭🇺',/hungary|hungarian|nb i/],['finland','🇫🇮',/finland|finnish|veikkausliiga/],
+    ['ireland','🇮🇪',/ireland|irish/],['usa','🇺🇸',/united states|usa|mls|us open cup|leagues cup/],
+    ['japan','🇯🇵',/japan|japanese|j1 league|emperor/],['south-korea','🇰🇷',/south korea|korean|k league|korea cup/],
+    ['china','🇨🇳',/china|chinese/],['australia','🇦🇺',/australia|a-league/],
+    ['asia','🏆',/afc/],['europe','🏆',/champions|europa|conference|nations league/]
   ];
   const names={
-    en:{turkey:'Turkey',england:'England',spain:'Spain',italy:'Italy',germany:'Germany',france:'France',netherlands:'Netherlands',belgium:'Belgium',portugal:'Portugal',scotland:'Scotland',greece:'Greece',europe:'Europe'},
-    tr:{turkey:'Türkiye',england:'İngiltere',spain:'İspanya',italy:'İtalya',germany:'Almanya',france:'Fransa',netherlands:'Hollanda',belgium:'Belçika',portugal:'Portekiz',scotland:'İskoçya',greece:'Yunanistan',europe:'Avrupa'}
+    en:{turkey:'Turkey',england:'England',spain:'Spain',italy:'Italy',germany:'Germany',france:'France',netherlands:'Netherlands',belgium:'Belgium',portugal:'Portugal',scotland:'Scotland',greece:'Greece',czechia:'Czechia',poland:'Poland',austria:'Austria',switzerland:'Switzerland',denmark:'Denmark',norway:'Norway',sweden:'Sweden',romania:'Romania',croatia:'Croatia',serbia:'Serbia',ukraine:'Ukraine',russia:'Russia',hungary:'Hungary',finland:'Finland',ireland:'Ireland',usa:'USA',japan:'Japan','south-korea':'South Korea',china:'China',australia:'Australia',asia:'Asia',europe:'Europe'},
+    tr:{turkey:'Türkiye',england:'İngiltere',spain:'İspanya',italy:'İtalya',germany:'Almanya',france:'Fransa',netherlands:'Hollanda',belgium:'Belçika',portugal:'Portekiz',scotland:'İskoçya',greece:'Yunanistan',czechia:'Çekya',poland:'Polonya',austria:'Avusturya',switzerland:'İsviçre',denmark:'Danimarka',norway:'Norveç',sweden:'İsveç',romania:'Romanya',croatia:'Hırvatistan',serbia:'Sırbistan',ukraine:'Ukrayna',russia:'Rusya',hungary:'Macaristan',finland:'Finlandiya',ireland:'İrlanda',usa:'ABD',japan:'Japonya','south-korea':'Güney Kore',china:'Çin',australia:'Avustralya',asia:'Asya',europe:'Avrupa'}
   };
   const mapped=byId[id];
   const hit=mapped ? [mapped[0],mapped[1]] : rules.find(r=>r[2].test(s));
@@ -630,6 +640,7 @@ function leagueCountry(league, leagueId) {
 function canonicalLeague(m) {
   const name=String(m?.league||m?.leagueName||'').trim();
   if(!name || /^(league|competition|unknown|other|others|all leagues?)$/i.test(name)) return '';
+  if(m?.canonicalCompetitionKey && m?.displayName) return String(m.displayName).trim();
   // BSD owns competition identity outside the six subscribed SportMonks
   // leagues. Never reinterpret a BSD league by team-name heuristics or local
   // numeric mappings; render the provider's canonical league registry name.
@@ -661,8 +672,22 @@ function renderCountryFilters() {
 function renderLeagueFilters() {
   const filtersEl=document.getElementById('leagueFilters');
   const source=relevantMatches(allMatchesForDay);
-  const leagueOrder=['Süper Lig','English Premier League','Spanish La Liga','German Bundesliga','Italian Serie A','French Ligue 1'];
+  const leagueOrder=['England Premier League','Spain La Liga','Italy Serie A','Germany Bundesliga','France Ligue 1','Turkey Süper Lig','UEFA Champions League','UEFA Europa League','UEFA Conference League'];
+  const rankByLeague=new Map();
+  source.forEach(m=>{
+    const name=canonicalLeague(m);
+    if(!name)return;
+    const old=rankByLeague.get(name)||{homePageRank:99,priority:99};
+    rankByLeague.set(name,{
+      homePageRank:Math.min(old.homePageRank,Number(m.homePageRank)||99),
+      priority:Math.min(old.priority,Number(m.competitionPriority)||99)
+    });
+  });
   const leagues=[...new Set(source.map(m=>canonicalLeague(m)).filter(Boolean))].sort((a,b)=>{
+    const ar=rankByLeague.get(a)||{homePageRank:99,priority:99};
+    const br=rankByLeague.get(b)||{homePageRank:99,priority:99};
+    if(ar.homePageRank!==br.homePageRank)return ar.homePageRank-br.homePageRank;
+    if(ar.priority!==br.priority)return ar.priority-br.priority;
     const ai=leagueOrder.indexOf(a), bi=leagueOrder.indexOf(b);
     if(ai>=0 || bi>=0) return (ai<0?999:ai)-(bi<0?999:bi);
     return a.localeCompare(b);
@@ -745,7 +770,7 @@ function statusClass(m) {
 function renderResults() {
   const q=(document.getElementById('matchSearch')?.value||'').trim().toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US');
   const container = document.getElementById('resultsContainer');
-  const shown = filteredRelevantMatches().filter(m => !showFavoriteScoresOnly || favorites.has(String(m.fixtureId))).filter(m=>!q||[m.homeTeam,m.awayTeam,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q)));
+  const shown = filteredRelevantMatches().filter(m => !showFavoriteScoresOnly || favorites.has(String(m.fixtureId))).filter(m=>!q||[m.homeTeam,m.awayTeam,m.displayName,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q)));
   if (!shown.length) {
     container.innerHTML = `<div class="empty-state">${t(showFavoriteScoresOnly ? 'noFavorites' : 'noMatchesDate')}</div>`;
     return;
@@ -772,7 +797,21 @@ function renderResults() {
   regularShown.forEach(m => { const k=canonicalLeague(m); if(!k)return; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(m); });
   if (groups.size === 1 && openLeagues.size === 0) openLeagues.add([...groups.keys()][0]);
   const leagueOrder=['Süper Lig','English Premier League','Spanish La Liga','German Bundesliga','Italian Serie A','French Ligue 1'];
+  const groupRank=new Map();
+  regularShown.forEach(m=>{
+    const name=canonicalLeague(m);
+    if(!name)return;
+    const old=groupRank.get(name)||{homePageRank:99,priority:99};
+    groupRank.set(name,{
+      homePageRank:Math.min(old.homePageRank,Number(m.homePageRank)||99),
+      priority:Math.min(old.priority,Number(m.competitionPriority)||99)
+    });
+  });
   const orderedGroups=[...groups.entries()].sort(([a],[b])=>{
+    const ar=groupRank.get(a)||{homePageRank:99,priority:99};
+    const br=groupRank.get(b)||{homePageRank:99,priority:99};
+    if(ar.homePageRank!==br.homePageRank)return ar.homePageRank-br.homePageRank;
+    if(ar.priority!==br.priority)return ar.priority-br.priority;
     const ai=leagueOrder.indexOf(a), bi=leagueOrder.indexOf(b);
     if(ai>=0 || bi>=0) return (ai<0?999:ai)-(bi<0?999:bi);
     return a.localeCompare(b);
