@@ -708,6 +708,9 @@ async function loadHome({silent=false} = {}) {
     return new Date(a.kickoff || 0) - new Date(b.kickoff || 0);
   });
 
+  // Apply the whitelist once, before ANY Home surface renders.
+  // This covers Featured, Strongest, Live and Today's Matches with one source.
+  matches = matches.filter(isHomeWhitelistedMatch);
   allMatches = matches;
 
   renderDateHeader();
@@ -927,9 +930,11 @@ const HOME_ALLOWED_COMPETITIONS = new Set([
   'uefa-champions-league','uefa-europa-league','uefa-conference-league','uefa-super-cup','uefa-nations-league','england-fa-cup'
 ]);
 function isHomeWhitelistedMatch(m) {
-  if (m?.visibleInCompetitionFilter === false || m?.eligibleForHomePriority === false) return false;
+  // Strict Home rule: a match needs an explicit approved canonical competition.
+  // Provider visibility booleans alone are not sufficient because broad fixture
+  // rows can carry them without a resolved/approved competition identity.
   const key=String(m?.canonicalCompetitionKey||'').trim();
-  return key ? HOME_ALLOWED_COMPETITIONS.has(key) : m?.visibleInCompetitionFilter === true;
+  return Boolean(key && HOME_ALLOWED_COMPETITIONS.has(key));
 }
 
 function renderFeaturedSection() {
