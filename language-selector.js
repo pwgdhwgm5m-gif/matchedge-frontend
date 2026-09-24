@@ -432,15 +432,15 @@ document.documentElement.setAttribute('data-theme','dark');
     const token=localStorage.getItem('matchedge_token');
     if(!token) return;
     const API='https://matchedge-backend-kujb.onrender.com';
-    const scoreKey='socceredge_goal_scores_v2',eventKey='socceredge_alert_events_v1';
-    let previous={};try{previous=JSON.parse(sessionStorage.getItem(scoreKey)||'{}')}catch(_){previous={}}
-    let seenEvents=new Set();try{seenEvents=new Set(JSON.parse(sessionStorage.getItem(eventKey)||'[]'))}catch(_){seenEvents=new Set()}
+    const scoreKey='socceredge_goal_scores_v3',eventKey='socceredge_alert_events_v2';
+    let previous={};try{previous=JSON.parse(localStorage.getItem(scoreKey)||'{}')}catch(_){previous={}}
+    let seenEvents=new Set();try{seenEvents=new Set(JSON.parse(localStorage.getItem(eventKey)||'[]'))}catch(_){seenEvents=new Set()}
     const style=document.createElement('style');
     style.textContent='.se-goal-toast{display:none;position:fixed;top:max(12px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-145%);width:min(430px,calc(100% - 24px));z-index:100001;background:linear-gradient(135deg,#171d1e,#202728);border:1px solid #39c7c1;border-radius:15px;padding:12px 14px;box-shadow:0 14px 38px rgba(0,0,0,.55),0 0 18px rgba(57,199,193,.16);color:#f4f7f6;transition:transform .28s ease;pointer-events:none}.se-goal-toast.show{display:block;transform:translate(-50%,0)}.se-goal-toast b{display:block;color:#d9ad58;font-size:13px;letter-spacing:.5px}.se-goal-toast span{display:block;font-size:15px;font-weight:800;margin-top:4px}';
     document.head.appendChild(style);
     const toast=document.createElement('div');toast.className='se-goal-toast';document.body.appendChild(toast);
     let toastTimer=null,audioCtx=null;
-    function rememberEvent(id){if(!id||seenEvents.has(id))return false;seenEvents.add(id);sessionStorage.setItem(eventKey,JSON.stringify([...seenEvents].slice(-100)));return true}
+    function rememberEvent(id){if(!id||seenEvents.has(id))return false;seenEvents.add(id);localStorage.setItem(eventKey,JSON.stringify([...seenEvents].slice(-300)));return true}
     function sound(){
       if(localStorage.getItem('socceredge_match_notifications')!=='on')return;
       try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const now=audioCtx.currentTime;[[659.25,0,.13],[783.99,.12,.15],[987.77,.25,.24]].forEach(([freq,delay,dur])=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(.0001,now+delay);g.gain.exponentialRampToValueAtTime(.16,now+delay+.018);g.gain.exponentialRampToValueAtTime(.0001,now+delay+dur);o.connect(g);g.connect(audioCtx.destination);o.start(now+delay);o.stop(now+delay+dur+.03)})}catch(_){}
@@ -461,7 +461,7 @@ document.documentElement.setAttribute('data-theme','dark');
     }
     async function poll(){
       if(localStorage.getItem('socceredge_match_notifications')!=='on')return;
-      try{const tracked=await getTracked();if(!tracked.length)return;const live=await Promise.all(tracked.map(async m=>{try{const r=await fetch(API+'/api/live/'+encodeURIComponent(m.fixtureId));if(!r.ok)return null;return {...m,...await r.json()}}catch(_){return null}}));for(const m of live.filter(Boolean)){const id=String(m.fixtureId),hs=Number(m.homeScore||0),as=Number(m.awayScore||0),total=hs+as,status=String(m.statusShort||m.status||'').toUpperCase(),isLive=m.isLive===true||['LIVE','1H','2H','HT'].includes(status),isFinished=m.isFinished===true||['FT','AET','PEN','AWARDED'].includes(status),old=previous[id];if(isLive&&!old?.started&&rememberEvent('coupon-start:'+id))showMatchEvent({...m,homeScore:hs,awayScore:as},'start');if(old&&total>Number(old.total||0)&&rememberEvent(id+':'+hs+'-'+as))showMatchEvent({...m,homeScore:hs,awayScore:as},'goal');if(isFinished&&!old?.finished&&rememberEvent('final:'+id))showMatchEvent({...m,homeScore:hs,awayScore:as},'final');previous[id]={home:hs,away:as,total,started:Boolean(old?.started||isLive),finished:Boolean(old?.finished||isFinished)}}sessionStorage.setItem(scoreKey,JSON.stringify(previous));
+      try{const tracked=await getTracked();if(!tracked.length)return;const live=await Promise.all(tracked.map(async m=>{try{const r=await fetch(API+'/api/live/'+encodeURIComponent(m.fixtureId));if(!r.ok)return null;return {...m,...await r.json()}}catch(_){return null}}));for(const m of live.filter(Boolean)){const id=String(m.fixtureId),hs=Number(m.homeScore||0),as=Number(m.awayScore||0),total=hs+as,status=String(m.statusShort||m.status||'').toUpperCase(),isLive=m.isLive===true||['LIVE','1H','2H','HT'].includes(status),isFinished=m.isFinished===true||['FT','AET','PEN','AWARDED'].includes(status),old=previous[id];if(isLive&&!old?.started&&rememberEvent('coupon-start:'+id))showMatchEvent({...m,homeScore:hs,awayScore:as},'start');if(old&&total>Number(old.total||0)&&rememberEvent(id+':'+hs+'-'+as))showMatchEvent({...m,homeScore:hs,awayScore:as},'goal');if(isFinished&&!old?.finished&&rememberEvent('final:'+id))showMatchEvent({...m,homeScore:hs,awayScore:as},'final');previous[id]={home:hs,away:as,total,started:Boolean(old?.started||isLive),finished:Boolean(old?.finished||isFinished)}}localStorage.setItem(scoreKey,JSON.stringify(previous));
       }catch(_){}
     }
     poll();setInterval(poll,5000);
