@@ -658,6 +658,7 @@ function canonicalLeague(m) {
 
 function filteredRelevantMatches() {
   return relevantMatches(allMatchesForDay).filter(m => {
+    if (m.visibleInCompetitionFilter !== true) return false;
     if (selectedLeague && canonicalLeague(m) !== selectedLeague) return false;
     return true;
   });
