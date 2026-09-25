@@ -737,11 +737,25 @@ async function loadLivePredictions(matches) {
   renderFeaturedSection();
 }
 
+function homeOddsSportKey(m) {
+  const key=String(m?.canonicalCompetitionKey||'');
+  const map={
+    'uefa-nations-league':'soccer_uefa_nations_league',
+    'uefa-champions-league':'soccer_uefa_champs_league',
+    'uefa-europa-league':'soccer_uefa_europa_league',
+    'uefa-conference-league':'soccer_uefa_europa_conference_league',
+    'england-premier-league':'soccer_epl','spain-la-liga':'soccer_spain_la_liga',
+    'italy-serie-a':'soccer_italy_serie_a','germany-bundesliga':'soccer_germany_bundesliga',
+    'france-ligue-1':'soccer_france_ligue_one','turkey-super-lig':'soccer_turkey_super_league'
+  };
+  return map[key]||'';
+}
 function homeAnalysisUrl(m) {
   const params = new URLSearchParams({
     homeTeamName: m.homeTeam || '', awayTeamName: m.awayTeam || '',
     leagueName: m.league || '', kickoff: m.kickoff || '', tsdbLeagueId: m.leagueId || '',
   });
+  const sportKey=homeOddsSportKey(m); if(sportKey) params.set('sportKey',sportKey);
   return `${API_BASE}/api/analysis/${encodeURIComponent(m.fixtureId)}?${params.toString()}`;
 }
 
