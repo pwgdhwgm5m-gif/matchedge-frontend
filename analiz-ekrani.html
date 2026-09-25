@@ -1685,11 +1685,12 @@ function renderPremiumIntelligence(premium, data) {
   // Compact statistics only; model interpretation stays internal.
   const reasonList=document.getElementById('premium-reasons'),whyHead=document.getElementById('whyPickHead'),rows=[];
   const hForm=data?.modelDiagnostics?.form?.home||data?.homeAwayForm?.home||{},aForm=data?.modelDiagnostics?.form?.away||data?.homeAwayForm?.away||{};
-  const hGF=Number(hForm.avgGoalsFor),aGF=Number(aForm.avgGoalsFor),hGA=Number(hForm.avgGoalsAgainst),aGA=Number(aForm.avgGoalsAgainst);
+  const observed=(form,key)=>Number(form.played)>0&&form[key]!=null&&form[key]!==''&&Number.isFinite(Number(form[key]))?Number(form[key]):NaN;
+  const hGF=observed(hForm,'avgGoalsFor'),aGF=observed(aForm,'avgGoalsFor'),hGA=observed(hForm,'avgGoalsAgainst'),aGA=observed(aForm,'avgGoalsAgainst');
   const hL=Number(data?.homeLambda),aL=Number(data?.awayLambda),fmt=n=>Number(n).toFixed(2);
   if(Number.isFinite(hGF)||Number.isFinite(aGF)) rows.push({type:'support',reason:currentLang==='tr'?'Gol ort.: Ev '+(Number.isFinite(hGF)?fmt(hGF):'—')+' · Dep. '+(Number.isFinite(aGF)?fmt(aGF):'—'):'Goals avg: Home '+(Number.isFinite(hGF)?fmt(hGF):'—')+' · Away '+(Number.isFinite(aGF)?fmt(aGF):'—')});
   if(Number.isFinite(hGA)||Number.isFinite(aGA)) rows.push({type:'risk',reason:currentLang==='tr'?'Yenilen gol ort.: Ev '+(Number.isFinite(hGA)?fmt(hGA):'—')+' · Dep. '+(Number.isFinite(aGA)?fmt(aGA):'—'):'Conceded avg: Home '+(Number.isFinite(hGA)?fmt(hGA):'—')+' · Away '+(Number.isFinite(aGA)?fmt(aGA):'—')});
-  if(Number.isFinite(hL)||Number.isFinite(aL)) rows.push({type:'support',reason:currentLang==='tr'?'Beklenen gol: Ev '+(Number.isFinite(hL)?fmt(hL):'—')+' · Dep. '+(Number.isFinite(aL)?fmt(aL):'—'):'Expected goals: Home '+(Number.isFinite(hL)?fmt(hL):'—')+' · Away '+(Number.isFinite(aL)?fmt(aL):'—')});
+  if(Number.isFinite(hL)||Number.isFinite(aL)) rows.push({type:'support',reason:currentLang==='tr'?'Model gol tahmini: Ev '+(Number.isFinite(hL)?fmt(hL):'—')+' · Dep. '+(Number.isFinite(aL)?fmt(aL):'—'):'Model goal estimate: Home '+(Number.isFinite(hL)?fmt(hL):'—')+' · Away '+(Number.isFinite(aL)?fmt(aL):'—')});
   const health=premium.dataHealth||{};
   if(Number(health.score||0)<45) rows.push({type:'risk',reason:(currentLang==='tr'?'Veri sağlığı: ':'Data health: ')+(health.score??'—')+'/100'});
   if(whyHead) whyHead.style.display=''; reasonList.style.display='';
@@ -1697,7 +1698,9 @@ function renderPremiumIntelligence(premium, data) {
   else reasonList.replaceChildren(...rows.map(item=>{const row=document.createElement('div');row.className='reason-row '+item.type;const dot=document.createElement('span');dot.className='reason-dot';const copy=document.createElement('span');copy.textContent=item.reason;row.append(dot,copy);return row;}));
   document.getElementById('why-pick-label').textContent=currentLang==='tr'?'KISA İSTATİSTİK':'QUICK STATS';
   const top=strongestPicks[0];
-  document.querySelector('#ai-one-line span').textContent=top
+  document.querySelector('#ai-one-line span').textContent=!decisionReady && Number(health.score||0)<45
+    ? (currentLang==='tr'?'Takım verisi yetersiz; güvenilir seçim üretilemedi.':'Insufficient team data; no reliable pick available.')
+    : top
     ? (currentLang==='tr'?(decisionReady?'SoccerEdge seçimi: ':'En yüksek olasılık: ')+top.label+' · %'+top.probability:(decisionReady?'SoccerEdge pick: ':'Highest probability: ')+top.label+' · '+top.probability+'%')
     : (currentLang==='tr'?'Hesaplanabilir model eğilimi oluşmadı.':'No model lean could be calculated.');
   if(!decisionReady&&top){
