@@ -417,17 +417,23 @@ async function loadPrematchAnalysis(liveData){
     for(const k of ['leagueName','kickoff','tsdbLeagueId']){const v=LIVE_CONTEXT.get(k);if(v)p.set(k,v)}
     const r=await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${p.toString()}`);
     if(!r.ok)throw new Error('http_'+r.status); const a=await r.json();
-    const mp=a.matchProbabilities||a.probabilities||{};
-    document.getElementById('pre-home').textContent=pct(mp.home??mp.homeWin);
-    document.getElementById('pre-draw').textContent=pct(mp.draw);
-    document.getElementById('pre-away').textContent=pct(mp.away??mp.awayWin);
-    const mk=a.markets||a.marketProbabilities||a.predictions||{};
-    const over=mk.over25?.probability??mk.over25??a.over25Probability??a.over25;
-    const btts=mk.bttsYes?.probability??mk.bttsYes??a.bttsProbability??a.bttsYes;
+    // Same response contract used by analiz-ekrani.html. Do not guess older
+    // property names: the canonical API exposes *Probability and *Percent.
+    const mp=a.matchProbabilities||{};
+    document.getElementById('pre-home').textContent=pct(mp.homeWinProbability);
+    document.getElementById('pre-draw').textContent=pct(mp.drawProbability);
+    document.getElementById('pre-away').textContent=pct(mp.awayWinProbability);
+    const mk=a.marketProbabilities||{};
+    const over=mk.over25GoalsPercent;
+    const btts=(a.bttsDirection&&a.bttsDirection.probability!=null)?a.bttsDirection.probability:mk.bttsPercent;
+    const bttsDir=a.bttsDirection?.direction;
     document.getElementById('pre-ou').textContent=Number.isFinite(Number(over))?'O '+pct(over):'–';
-    document.getElementById('pre-btts').textContent=Number.isFinite(Number(btts))?pct(btts):'–';
-    const l=a.modelDiagnostics?.lambdas||{}; document.getElementById('pre-xg').textContent=(l.finalHome!=null&&l.finalAway!=null)?Number(l.finalHome).toFixed(2)+' – '+Number(l.finalAway).toFixed(2):'–';
-    document.getElementById('pre-quality').textContent=(a.dataHealthScore??a.dataHealth??'–')+(Number.isFinite(Number(a.dataHealthScore??a.dataHealth))?'/100':'');
+    document.getElementById('pre-btts').textContent=Number.isFinite(Number(btts))?((bttsDir==='NO'?'NO ':'YES ')+pct(btts)):'–';
+    const l=a.modelDiagnostics?.lambdas||{};
+    const hx=l.finalHome??l.home??a.expectedGoals?.home, ax=l.finalAway??l.away??a.expectedGoals?.away;
+    document.getElementById('pre-xg').textContent=(hx!=null&&ax!=null)?Number(hx).toFixed(2)+' – '+Number(ax).toFixed(2):'–';
+    const quality=a.dataQualityScore??a.dataHealthScore??a.dataHealth;
+    document.getElementById('pre-quality').textContent=Number.isFinite(Number(quality))?Number(quality).toFixed(0)+'/100':'–';
     loading.style.display='none';content.style.display='';
   }catch(e){loading.textContent=currentLang==='tr'?'Maç öncesi analiz yüklenemedi.':'Pre-match analysis unavailable.'}
 }
