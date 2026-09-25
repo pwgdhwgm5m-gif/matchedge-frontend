@@ -1751,7 +1751,22 @@ function renderCouponMarkets(data) {
   // Analysis markets are provider/data driven, not league-name driven. If the
   // engine produced a corner market, keep its card visible here. Strongest Picks
   // applies its own stricter real-corner-evidence gate separately.
-  const markets = allMarkets;
+  // 1X2 must have one canonical published probability everywhere on this page.
+  // The header uses the backend's final market-blended matchProbabilities, while
+  // marketBoard intentionally retains model-only probabilities for value/evidence
+  // calculations. Reuse the final 1X2 values for display/coupon selection so the
+  // same match cannot show two contradictory 1X2 probability sets.
+  const final1x2 = data?.matchProbabilities || {};
+  const final1x2ByKey = {
+    home: final1x2.homeWinProbability, homeWin: final1x2.homeWinProbability,
+    draw: final1x2.drawProbability, drawResult: final1x2.drawProbability,
+    away: final1x2.awayWinProbability, awayWin: final1x2.awayWinProbability
+  };
+  const markets = allMarkets.map(item => {
+    if (item?.market !== '1X2' || !Object.prototype.hasOwnProperty.call(final1x2ByKey,item.key)) return item;
+    const probability = Number(final1x2ByKey[item.key]);
+    return Number.isFinite(probability) ? { ...item, probability:+probability.toFixed(1) } : item;
+  });
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
   const lowConfidenceNotice = '';
