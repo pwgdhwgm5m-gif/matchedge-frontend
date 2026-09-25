@@ -415,7 +415,7 @@ async function loadPrematchAnalysis(liveData){
     const home=LIVE_CONTEXT.get('homeTeamName')||liveData?.homeTeam||'', away=LIVE_CONTEXT.get('awayTeamName')||liveData?.awayTeam||'';
     if(home)p.set('homeTeamName',home); if(away)p.set('awayTeamName',away);
     for(const k of ['leagueName','kickoff','tsdbLeagueId']){const v=LIVE_CONTEXT.get(k);if(v)p.set(k,v)}
-    const r=await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${p.toString()}`);
+    const r=await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}/prematch-snapshot`);
     if(!r.ok)throw new Error('http_'+r.status); const a=await r.json();
     // Same response contract used by analiz-ekrani.html. Do not guess older
     // property names: the canonical API exposes *Probability and *Percent.
