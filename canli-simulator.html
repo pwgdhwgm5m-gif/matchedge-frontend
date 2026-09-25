@@ -172,14 +172,26 @@
     <div class="card-title"><span data-i18n="prematchTitle">PRE-MATCH ANALYSIS</span><span class="premium-tag" data-i18n="readOnlyTag">READ ONLY</span></div>
     <div id="prematchLoading" class="prematch-note" data-i18n="prematchLoading">Loading the last pre-match model analysis…</div>
     <div id="prematchContent" style="display:none">
-      <div class="prematch-summary">
-        <div class="prematch-box"><b id="pre-home">–</b><span data-i18n="preHome">HOME</span></div>
-        <div class="prematch-box"><b id="pre-draw">–</b><span data-i18n="preDraw">DRAW</span></div>
-        <div class="prematch-box"><b id="pre-away">–</b><span data-i18n="preAway">AWAY</span></div>
+      <div class="card" style="margin:10px 0">
+        <div class="card-title"><span>MAÇ SONUCU OLASILIKLARI</span><span>ⓘ</span></div>
+        <div class="prematch-summary">
+          <div class="prematch-box"><span id="pre-home-name">EV</span><b id="pre-home">–</b></div>
+          <div class="prematch-box"><span>Beraberlik</span><b id="pre-draw">–</b></div>
+          <div class="prematch-box"><span id="pre-away-name">DEP</span><b id="pre-away">–</b></div>
+        </div>
+        <div class="prob-bars"><div class="prob-bar-fill" id="pre-bar-home" style="background:var(--teal)"></div><div class="prob-bar-fill" id="pre-bar-draw" style="background:var(--amber)"></div><div class="prob-bar-fill" id="pre-bar-away" style="background:var(--purple)"></div></div>
+        <div class="prematch-note" id="pre-source-note"></div>
+      </div>
+      <div class="card" style="margin:10px 0">
+        <div class="card-title"><span>MAÇ ANALİZİ</span><span>ⓘ</span></div>
+        <div class="reading-grid">
+          <div class="reading-card"><div class="reading-icon">⚽</div><div class="reading-label">2.5 ÜST GOL</div><div class="reading-value" id="pre-ou">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-ou-bar"></div></div></div>
+          <div class="reading-card"><div class="reading-icon">🥅</div><div class="reading-label">KG VAR</div><div class="reading-value" id="pre-btts">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-btts-bar"></div></div></div>
+          <div class="reading-card"><div class="reading-icon">🚩</div><div class="reading-label">8.5 ÜST KORNER</div><div class="reading-value" id="pre-corner">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-corner-bar"></div></div></div>
+          <div class="reading-card"><div class="reading-icon">◐</div><div class="reading-label">EN GOLLÜ YARI</div><div class="reading-value" id="pre-half">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-half-bar"></div></div></div>
+        </div>
       </div>
       <div class="prematch-markets">
-        <div class="prematch-market"><span>O/U 2.5</span><b id="pre-ou">–</b></div>
-        <div class="prematch-market"><span>BTTS</span><b id="pre-btts">–</b></div>
         <div class="prematch-market"><span>xG</span><b id="pre-xg">–</b></div>
         <div class="prematch-market"><span data-i18n="dataQualityLabel">Data</span><b id="pre-quality">–</b></div>
       </div>
@@ -420,15 +432,21 @@ async function loadPrematchAnalysis(liveData){
     // Same response contract used by analiz-ekrani.html. Do not guess older
     // property names: the canonical API exposes *Probability and *Percent.
     const mp=a.matchProbabilities||{};
-    document.getElementById('pre-home').textContent=pct(mp.homeWinProbability);
-    document.getElementById('pre-draw').textContent=pct(mp.drawProbability);
-    document.getElementById('pre-away').textContent=pct(mp.awayWinProbability);
+    const norm=v=>{const n=Number(v);return Number.isFinite(n)?(n<=1?n*100:n):null};
+    const hp=norm(mp.homeWinProbability),dp=norm(mp.drawProbability),ap=norm(mp.awayWinProbability);
+    document.getElementById('pre-home').textContent=pct(hp);
+    document.getElementById('pre-draw').textContent=pct(dp);
+    document.getElementById('pre-away').textContent=pct(ap);
+    document.getElementById('pre-home-name').textContent=a.homeTeam||home||'EV';
+    document.getElementById('pre-away-name').textContent=a.awayTeam||away||'DEP';
+    document.getElementById('pre-bar-home').style.width=(hp||0)+'%';document.getElementById('pre-bar-draw').style.width=(dp||0)+'%';document.getElementById('pre-bar-away').style.width=(ap||0)+'%';
+    document.getElementById('pre-source-note').textContent=a.marketAnchorSource?'Model + piyasa oranı harmanı':'Model tahmini';
     const mk=a.marketProbabilities||{};
-    const over=mk.over25GoalsPercent;
-    const btts=(a.bttsDirection&&a.bttsDirection.probability!=null)?a.bttsDirection.probability:mk.bttsPercent;
+    const over=norm(mk.over25GoalsPercent);
+    const btts=norm((a.bttsDirection&&a.bttsDirection.probability!=null)?a.bttsDirection.probability:mk.bttsPercent);
     const bttsDir=a.bttsDirection?.direction;
-    document.getElementById('pre-ou').textContent=Number.isFinite(Number(over))?'O '+pct(over):'–';
-    document.getElementById('pre-btts').textContent=Number.isFinite(Number(btts))?((bttsDir==='NO'?'NO ':'YES ')+pct(btts)):'–';
+    document.getElementById('pre-ou').textContent=Number.isFinite(Number(over))?pct(over):'–'; document.getElementById('pre-ou-bar').style.width=(over||0)+'%';
+    document.getElementById('pre-btts').textContent=Number.isFinite(Number(btts))?((bttsDir==='NO'?'YOK ':'VAR ')+pct(btts)):'–'; document.getElementById('pre-btts-bar').style.width=(btts||0)+'%'; const all=a.marketBoard?.allMarkets||a.marketBoardSnapshot?.allMarkets||[]; const findM=keys=>all.find(m=>keys.includes(m.key)||keys.includes(m.market)); const cm=findM(['over85Corners','over8_5_corners','corners_over_8_5']); const hm=findM(['mostScoringHalf','most_scoring_half']); const cp=norm(cm?.probability); document.getElementById('pre-corner').textContent=cp!=null?pct(cp):'–';document.getElementById('pre-corner-bar').style.width=(cp||0)+'%'; const hv=hm?.label||hm?.selection||hm?.name||'–', hprob=norm(hm?.probability); document.getElementById('pre-half').textContent=hv==='–'?'–':hv+(hprob!=null?' '+pct(hprob):'');document.getElementById('pre-half-bar').style.width=(hprob||0)+'%';
     const l=a.modelDiagnostics?.lambdas||{};
     const hx=l.finalHome??l.home??a.expectedGoals?.home, ax=l.finalAway??l.away??a.expectedGoals?.away;
     document.getElementById('pre-xg').textContent=(hx!=null&&ax!=null)?Number(hx).toFixed(2)+' – '+Number(ax).toFixed(2):'–';
