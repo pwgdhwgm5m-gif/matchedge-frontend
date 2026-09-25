@@ -550,7 +550,12 @@ async function tick() {
     renderTick(data);
   } catch (err) {
     console.warn('Canli veri alinamadi:', err.message);
-    showError('loadError', 'loadErrorSub');
+    // A transient/missing live feed must not destroy the page or hide the
+    // immutable pre-match analysis. Keep the normal cards visible and load
+    // the saved pre-kickoff snapshot independently.
+    const note=document.getElementById('statsUnavailableNote');
+    if(note){note.textContent=t('statsUnavailableNote');note.style.display='block';}
+    if(!prematchLoaded){prematchLoaded=true;loadPrematchAnalysis({});}
   }
 }
 
