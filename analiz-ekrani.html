@@ -1701,15 +1701,13 @@ function renderPremiumIntelligence(premium, data) {
   document.querySelector('#ai-one-line span').textContent=!decisionReady && Number(health.score||0)<45
     ? (currentLang==='tr'?'Takım verisi yetersiz; güvenilir seçim üretilemedi.':'Insufficient team data; no reliable pick available.')
     : top
-    ? (currentLang==='tr'?(decisionReady?'SoccerEdge seçimi: ':'En yüksek olasılık: ')+top.label+' · %'+top.probability:(decisionReady?'SoccerEdge pick: ':'Highest probability: ')+top.label+' · '+top.probability+'%')
+    ? (currentLang==='tr'?(decisionReady?'SoccerEdge seçimi: ':'Model olasılığı (bilgi amaçlı): ')+top.label+' · %'+top.probability:(decisionReady?'SoccerEdge pick: ':'Model probability (informational): ')+top.label+' · '+top.probability+'%')
     : (currentLang==='tr'?'Hesaplanabilir model eğilimi oluşmadı.':'No model lean could be calculated.');
   if(!decisionReady&&top){
     const healthScore=Number(premium?.dataHealth?.score||0);
-    document.getElementById('decision-title').textContent=healthScore>=70
-      ? (currentLang==='tr'?'YÜKSEK GÜVEN':'HIGH CONFIDENCE')
-      : healthScore>=45
-        ? (currentLang==='tr'?'ORTA GÜVEN':'MEDIUM CONFIDENCE')
-        : (currentLang==='tr'?'DÜŞÜK GÜVEN':'LOW CONFIDENCE');
+    document.getElementById('decision-title').textContent=healthScore>=45
+      ? (currentLang==='tr'?'VERİ SINIRLI':'LIMITED DATA')
+      : (currentLang==='tr'?'DÜŞÜK GÜVEN':'LOW CONFIDENCE');
   }
 
 
