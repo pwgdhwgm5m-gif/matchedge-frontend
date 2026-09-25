@@ -14,7 +14,7 @@
 .momentum-wrap{margin-top:24px}.momentum-labels{display:flex;justify-content:space-between;font-size:11px;color:#c5cfcc;margin-bottom:9px}.momentum-bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:#283031}.momentum-fill{transition:width .6s ease}.momentum-fill.home{background:#39c7c1}.momentum-fill.away{background:#e66b64}.momentum-caption{text-align:center;font-size:10.5px;color:#899794;margin-top:9px}.goal-side-call{margin-top:16px;padding:12px 14px;border-radius:12px;background:#173d3c;border:1px solid #31504d;display:flex;align-items:center;justify-content:space-between;gap:12px}.goal-side-call span{color:#c5cfcc;font-size:11px;font-weight:650}.goal-side-call strong{color:#39c7c1;font-size:14px;text-align:right}
 .xg-chart-wrap{position:relative;height:140px;margin-top:4px}.xg-legend{display:flex;justify-content:center;gap:16px;margin-bottom:12px;font-size:10.5px;color:#c5cfcc}.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}#xgCanvas{width:100%;height:100%;display:block}.xg-current-row{display:flex;justify-content:space-around;margin-top:14px}.xg-current{text-align:center}.xg-current-value{font-size:20px;font-weight:800}.xg-current-label{font-size:10px;color:#899794;margin-top:4px}
 .alert-card{background:#202728;border:1px solid #364142;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px}.alert-icon{font-size:20px}.alert-text{font-size:12px;color:#f4f7f6;font-weight:650;line-height:1.4}.alert-sub{font-size:10px;color:#899794;margin-top:2px}.premium-tag{font-size:9px;background:#263330;color:#39c7c1;border:1px solid #31504d;font-weight:800;padding:4px 8px;border-radius:8px}
-.live-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.live-stat-row{display:flex;align-items:center;justify-content:space-between;background:#202728;border:1px solid #364142;border-radius:12px;padding:12px 14px;grid-column:span 2}.live-stat-label{font-size:11.5px;color:#c5cfcc;flex:1;text-align:center}.live-stat-value{font-size:15px;font-weight:800;width:30px;text-align:center}.live-stat-value.home{color:#39c7c1}.live-stat-value.away{color:#aa91df}
+.prematch-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.prematch-box{background:#202728;border:1px solid #364142;border-radius:12px;padding:12px 8px;text-align:center}.prematch-box b{display:block;font-size:18px;color:#39c7c1}.prematch-box span{font-size:9px;color:#899794}.prematch-markets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.prematch-market{background:#202728;border:1px solid #364142;border-radius:12px;padding:11px}.prematch-market b{float:right;color:#f4f7f6}.prematch-note{font-size:10px;color:#899794;line-height:1.45;margin-top:12px}.live-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.live-stat-row{display:flex;align-items:center;justify-content:space-between;background:#202728;border:1px solid #364142;border-radius:12px;padding:12px 14px;grid-column:span 2}.live-stat-label{font-size:11.5px;color:#c5cfcc;flex:1;text-align:center}.live-stat-value{font-size:15px;font-weight:800;width:30px;text-align:center}.live-stat-value.home{color:#39c7c1}.live-stat-value.away{color:#aa91df}
 .error-state{text-align:center;padding:40px 20px;color:#899794;font-size:13px}.legal-footer{font-size:9px;line-height:1.6;color:#899794;text-align:center;padding:22px 8px 6px}
 .se-bottom-nav{position:fixed;left:0;right:0;bottom:0;width:100%;height:calc(82px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:#171d1e;border-top:1px solid #364142;z-index:9999;padding:6px 4px env(safe-area-inset-bottom,0px)}.se-bottom-nav a{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:4px 1px;color:#899794;text-decoration:none;font-size:10px;font-weight:800;overflow:hidden}.se-bottom-nav a b{font-size:25px;line-height:28px}.se-bottom-nav a span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.se-bottom-nav a.active{color:#39c7c1}html[data-se-lang="en"] .se-bottom-nav .nav-tr,html[data-se-lang="tr"] .se-bottom-nav .nav-en{display:none}
 @media(max-width:390px){.app{padding-left:12px;padding-right:12px}.se-bottom-nav a{font-size:8px}.se-bottom-nav a b{font-size:22px}}
@@ -168,6 +168,25 @@
     </div>
   </div>
 
+  <div class="card" id="prematchAnalysisCard">
+    <div class="card-title"><span data-i18n="prematchTitle">PRE-MATCH ANALYSIS</span><span class="premium-tag" data-i18n="readOnlyTag">READ ONLY</span></div>
+    <div id="prematchLoading" class="prematch-note" data-i18n="prematchLoading">Loading the last pre-match model analysis…</div>
+    <div id="prematchContent" style="display:none">
+      <div class="prematch-summary">
+        <div class="prematch-box"><b id="pre-home">–</b><span data-i18n="preHome">HOME</span></div>
+        <div class="prematch-box"><b id="pre-draw">–</b><span data-i18n="preDraw">DRAW</span></div>
+        <div class="prematch-box"><b id="pre-away">–</b><span data-i18n="preAway">AWAY</span></div>
+      </div>
+      <div class="prematch-markets">
+        <div class="prematch-market"><span>O/U 2.5</span><b id="pre-ou">–</b></div>
+        <div class="prematch-market"><span>BTTS</span><b id="pre-btts">–</b></div>
+        <div class="prematch-market"><span>xG</span><b id="pre-xg">–</b></div>
+        <div class="prematch-market"><span data-i18n="dataQualityLabel">Data</span><b id="pre-quality">–</b></div>
+      </div>
+      <div class="prematch-note" data-i18n="prematchReadOnly">This is the model analysis from before kick-off. Coupon actions are disabled after the match starts.</div>
+    </div>
+  </div>
+
   <div class="legal-footer" data-i18n="legalText">
     Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.
     <br><br>
@@ -196,6 +215,7 @@
 const API_BASE = 'https://matchedge-backend-kujb.onrender.com';
 const FIXTURE_ID = new URLSearchParams(window.location.search).get('fixtureId');
 const POLLING_INTERVAL_MS = 15000;
+const LIVE_CONTEXT = new URLSearchParams(window.location.search);
 
 document.getElementById('backButton').addEventListener('click', () => {
   try {
@@ -226,7 +246,8 @@ const TRANSLATIONS = {
     noFixtureSub: 'Go back and tap a live match to see it here',
     loadError: "Couldn't load live data for this match",
     loadErrorSub: 'It may have ended, or data is temporarily unavailable',
-    statsUnavailableNote: "Live stats aren't provided by the data source for this match (common for smaller/lesser-known leagues) - that's why pressure, goal proximity and xG stay flat.",
+    statsUnavailableNote: "Live stats aren't provided by the data source for this match. Goal Proximity, pressure and live xG are unavailable rather than estimated.",
+    prematchTitle:'PRE-MATCH ANALYSIS', readOnlyTag:'READ ONLY', prematchLoading:'Loading the last pre-match model analysis…', preHome:'HOME', preDraw:'DRAW', preAway:'AWAY', dataQualityLabel:'Data', prematchReadOnly:'This is the model analysis from before kick-off. Coupon actions are disabled after the match starts.',
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
   },
   tr: {
@@ -246,7 +267,8 @@ const TRANSLATIONS = {
     noFixtureSub: 'Geri dönüp canlı bir maça dokun',
     loadError: 'Bu maç için canlı veri yüklenemedi',
     loadErrorSub: 'Maç bitmiş olabilir, ya da veri geçici olarak ulaşılamıyor',
-    statsUnavailableNote: 'Bu maç için veri kaynağı canlı istatistik sağlamıyor (küçük/az bilinen liglerde bu normaldir) - baskı, gol yakınlığı ve xG bu yüzden sabit görünüyor.',
+    statsUnavailableNote: 'Bu maç için veri kaynağı canlı istatistik sağlamıyor. Gole yakınlık, baskı ve canlı xG tahmin edilmek yerine boş bırakılır.',
+    prematchTitle:'MAÇ ÖNCESİ ANALİZ', readOnlyTag:'SADECE GÖRÜNTÜLE', prematchLoading:'Maç başlamadan önceki son model analizi yükleniyor…', preHome:'EV', preDraw:'BERABERLİK', preAway:'DEP', dataQualityLabel:'Veri', prematchReadOnly:'Bu bölüm maç başlamadan önceki model analizidir. Maç başladıktan sonra kupon işlemleri kapalıdır.',
     legalText: 'Sunulan veriler ve istatistikler yalnızca bilgilendirme amaçlıdır, bahis tavsiyesi niteliği taşımaz. Bu verilere dayanarak alınan kararlar sonucunda oluşabilecek kayıplardan SoccerEdge Pro sorumlu tutulamaz.<br><br>SoccerEdge Pro © 2026 — Eddas tarafından geliştirildi.',
   },
 };
@@ -385,7 +407,34 @@ function crestHtml(badgeUrl, teamName) {
   return '⚽';
 }
 
+function pct(v){const n=Number(v);return Number.isFinite(n)?n.toFixed(1)+'%':'–'}
+async function loadPrematchAnalysis(liveData){
+  const loading=document.getElementById('prematchLoading'), content=document.getElementById('prematchContent');
+  try{
+    const p=new URLSearchParams();
+    const home=LIVE_CONTEXT.get('homeTeamName')||liveData?.homeTeam||'', away=LIVE_CONTEXT.get('awayTeamName')||liveData?.awayTeam||'';
+    if(home)p.set('homeTeamName',home); if(away)p.set('awayTeamName',away);
+    for(const k of ['leagueName','kickoff','tsdbLeagueId']){const v=LIVE_CONTEXT.get(k);if(v)p.set(k,v)}
+    const r=await fetch(`${API_BASE}/api/analysis/${FIXTURE_ID}?${p.toString()}`);
+    if(!r.ok)throw new Error('http_'+r.status); const a=await r.json();
+    const mp=a.matchProbabilities||a.probabilities||{};
+    document.getElementById('pre-home').textContent=pct(mp.home??mp.homeWin);
+    document.getElementById('pre-draw').textContent=pct(mp.draw);
+    document.getElementById('pre-away').textContent=pct(mp.away??mp.awayWin);
+    const mk=a.markets||a.marketProbabilities||a.predictions||{};
+    const over=mk.over25?.probability??mk.over25??a.over25Probability??a.over25;
+    const btts=mk.bttsYes?.probability??mk.bttsYes??a.bttsProbability??a.bttsYes;
+    document.getElementById('pre-ou').textContent=Number.isFinite(Number(over))?'O '+pct(over):'–';
+    document.getElementById('pre-btts').textContent=Number.isFinite(Number(btts))?pct(btts):'–';
+    const l=a.modelDiagnostics?.lambdas||{}; document.getElementById('pre-xg').textContent=(l.finalHome!=null&&l.finalAway!=null)?Number(l.finalHome).toFixed(2)+' – '+Number(l.finalAway).toFixed(2):'–';
+    document.getElementById('pre-quality').textContent=(a.dataHealthScore??a.dataHealth??'–')+(Number.isFinite(Number(a.dataHealthScore??a.dataHealth))?'/100':'');
+    loading.style.display='none';content.style.display='';
+  }catch(e){loading.textContent=currentLang==='tr'?'Maç öncesi analiz yüklenemedi.':'Pre-match analysis unavailable.'}
+}
+let prematchLoaded=false;
+
 function renderTick(data) {
+  if(!prematchLoaded){prematchLoaded=true;loadPrematchAnalysis(data)}
   document.getElementById('home-name').textContent = data.homeTeam || '–';
   document.getElementById('away-name').textContent = data.awayTeam || '–';
   document.getElementById('home-crest').innerHTML = crestHtml(data.homeBadge, data.homeTeam);
@@ -407,27 +456,27 @@ function renderTick(data) {
 
   const rawMomentum = data.momentum || {};
   const mh = Number(rawMomentum.home), ma = Number(rawMomentum.away);
-  const m = { home: Number.isFinite(mh) ? mh : 50, away: Number.isFinite(ma) ? ma : 50 };
-  document.getElementById('momentum-home').style.width = m.home + '%';
-  document.getElementById('momentum-away').style.width = m.away + '%';
-  document.getElementById('momentum-home-label').textContent = `${t('homePrefix')} %${m.home}`;
-  document.getElementById('momentum-away-label').textContent = `${t('awayPrefix')} %${m.away}`;
+  const m = { home: Number.isFinite(mh) ? mh : null, away: Number.isFinite(ma) ? ma : null };
+  document.getElementById('momentum-home').style.width = (m.home ?? 0) + '%';
+  document.getElementById('momentum-away').style.width = (m.away ?? 0) + '%';
+  document.getElementById('momentum-home-label').textContent = m.home==null?`${t('homePrefix')} –`:`${t('homePrefix')} %${m.home}`;
+  document.getElementById('momentum-away-label').textContent = m.away==null?`${t('awayPrefix')} –`:`${t('awayPrefix')} %${m.away}`;
 
   const rawPoss = data.possession || {};
   const ph = Number(rawPoss.home), pa = Number(rawPoss.away);
-  const poss = { home: Number.isFinite(ph) ? ph : 50, away: Number.isFinite(pa) ? pa : 50 };
-  document.getElementById('possession-home').style.width = poss.home + '%';
-  document.getElementById('possession-away').style.width = poss.away + '%';
-  document.getElementById('possession-home-label').textContent = `${t('homePrefix')} %${poss.home}`;
-  document.getElementById('possession-away-label').textContent = `${t('awayPrefix')} %${poss.away}`;
+  const poss = { home: Number.isFinite(ph) ? ph : null, away: Number.isFinite(pa) ? pa : null };
+  document.getElementById('possession-home').style.width = (poss.home ?? 0) + '%';
+  document.getElementById('possession-away').style.width = (poss.away ?? 0) + '%';
+  document.getElementById('possession-home-label').textContent = poss.home==null?`${t('homePrefix')} –`:`${t('homePrefix')} %${poss.home}`;
+  document.getElementById('possession-away-label').textContent = poss.away==null?`${t('awayPrefix')} –`:`${t('awayPrefix')} %${poss.away}`;
 
   const rawGp = data.goalProximity || {};
   const gh = Number(rawGp.home), ga = Number(rawGp.away);
-  const gp = { home: Number.isFinite(gh) ? gh : 50, away: Number.isFinite(ga) ? ga : 50 };
-  document.getElementById('proximity-home').style.width = gp.home + '%';
-  document.getElementById('proximity-away').style.width = gp.away + '%';
-  document.getElementById('proximity-home-label').textContent = `${t('homePrefix')} %${gp.home}`;
-  document.getElementById('proximity-away-label').textContent = `${t('awayPrefix')} %${gp.away}`;
+  const gp = { home: Number.isFinite(gh) ? gh : null, away: Number.isFinite(ga) ? ga : null };
+  document.getElementById('proximity-home').style.width = (gp.home ?? 0) + '%';
+  document.getElementById('proximity-away').style.width = (gp.away ?? 0) + '%';
+  document.getElementById('proximity-home-label').textContent = gp.home==null?`${t('homePrefix')} –`:`${t('homePrefix')} %${gp.home}`;
+  document.getElementById('proximity-away-label').textContent = gp.away==null?`${t('awayPrefix')} –`:`${t('awayPrefix')} %${gp.away}`;
 
   document.getElementById('xg-current-home').textContent = (data.homeLiveXg ?? 0).toFixed(2);
   document.getElementById('xg-current-away').textContent = (data.awayLiveXg ?? 0).toFixed(2);
