@@ -896,7 +896,7 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
       : t('todayFallback'));
 
   const link = isLive
-    ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
+    ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}&homeTeamName=${encodeURIComponent(m.homeTeam||'')}&awayTeamName=${encodeURIComponent(m.awayTeam||'')}&leagueName=${encodeURIComponent(m.league||'')}&kickoff=${encodeURIComponent(m.kickoff||'')}`
     : analysisLink(m);
   const livePick = isLive ? analysis?.livePrediction : null;
   const pick = isLive ? null : (forcedPick || analysis?.marketBoard?.best);
