@@ -168,33 +168,34 @@
     </div>
   </div>
 
-  <div class="card" id="prematchAnalysisCard">
-    <div class="card-title"><span data-i18n="prematchTitle">PRE-MATCH ANALYSIS</span><span class="premium-tag" data-i18n="readOnlyTag">READ ONLY</span></div>
+  <div id="prematchAnalysisCard">
+    <div class="card-title" style="margin:0 0 10px"><span data-i18n="prematchTitle">PRE-MATCH ANALYSIS</span><span class="premium-tag" data-i18n="readOnlyTag">READ ONLY</span></div>
     <div id="prematchLoading" class="prematch-note" data-i18n="prematchLoading">Loading the last pre-match model analysis…</div>
     <div id="prematchContent" style="display:none">
-      <div class="card" style="margin:10px 0">
-        <div class="card-title"><span>MAÇ SONUCU OLASILIKLARI</span><span>ⓘ</span></div>
-        <div class="prematch-summary">
-          <div class="prematch-box"><span id="pre-home-name">EV</span><b id="pre-home">–</b></div>
-          <div class="prematch-box"><span>Beraberlik</span><b id="pre-draw">–</b></div>
-          <div class="prematch-box"><span id="pre-away-name">DEP</span><b id="pre-away">–</b></div>
+      <div class="card" id="section-probabilities">
+        <div class="card-title"><span>MAÇ SONUCU OLASILIKLARI</span><span class="info-dot">i</span></div>
+        <div class="prob-row">
+          <div class="prob-col"><div class="prob-label" id="pre-home-name">Ev</div><div class="prob-value home" id="pre-home">–</div></div>
+          <div class="prob-col"><div class="prob-label">Beraberlik</div><div class="prob-value draw" id="pre-draw">–</div></div>
+          <div class="prob-col"><div class="prob-label" id="pre-away-name">Dep</div><div class="prob-value away" id="pre-away">–</div></div>
         </div>
         <div class="prob-bars"><div class="prob-bar-fill" id="pre-bar-home" style="background:var(--teal)"></div><div class="prob-bar-fill" id="pre-bar-draw" style="background:var(--amber)"></div><div class="prob-bar-fill" id="pre-bar-away" style="background:var(--purple)"></div></div>
-        <div class="prematch-note" id="pre-source-note"></div>
+        <div class="signal-tag" style="text-align:center;margin-top:10px" id="pre-source-note">Model tahmini</div>
       </div>
-      <div class="card" style="margin:10px 0">
-        <div class="card-title"><span>MAÇ ANALİZİ</span><span>ⓘ</span></div>
+      <div class="card" id="section-reading">
+        <div class="card-title"><span>MAÇ ANALİZİ</span><span class="info-dot">i</span></div>
         <div class="reading-grid">
           <div class="reading-card"><div class="reading-icon">⚽</div><div class="reading-label">2.5 ÜST GOL</div><div class="reading-value" id="pre-ou">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-ou-bar"></div></div></div>
           <div class="reading-card"><div class="reading-icon">🥅</div><div class="reading-label">KG VAR</div><div class="reading-value" id="pre-btts">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-btts-bar"></div></div></div>
           <div class="reading-card"><div class="reading-icon">🚩</div><div class="reading-label">8.5 ÜST KORNER</div><div class="reading-value" id="pre-corner">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-corner-bar"></div></div></div>
-          <div class="reading-card"><div class="reading-icon">◐</div><div class="reading-label">EN GOLLÜ YARI</div><div class="reading-value" id="pre-half">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-half-bar"></div></div></div>
+          <div class="reading-card"><div class="reading-icon">◐</div><div class="reading-label">EN GOLLÜ YARI</div><div class="reading-value" id="pre-half" style="font-size:14px">–</div><div class="mini-bar"><div class="mini-bar-fill" id="pre-half-bar"></div></div></div>
         </div>
       </div>
-      <div class="prematch-markets">
-        <div class="prematch-market"><span>xG</span><b id="pre-xg">–</b></div>
-        <div class="prematch-market"><span data-i18n="dataQualityLabel">Data</span><b id="pre-quality">–</b></div>
-      </div>
+      <div class="card" id="section-xg"><div class="stats-trio">
+        <div class="stat-box"><div class="stat-label">BEKLENEN GOL (xG)</div><div class="xg-value"><span class="home" id="pre-xg-home">–</span><span> – </span><span class="away" id="pre-xg-away">–</span></div></div>
+        <div class="stat-box"><div class="stat-label">VERİ KALİTESİ</div><div class="quality-shield"><div class="quality-num" id="pre-quality">–</div><div class="quality-max">/100</div></div></div>
+        <div class="stat-box"><div class="stat-label">EN GÜÇLÜ SİNYAL</div><div class="signal-badge" id="pre-signal">—</div><div class="signal-conf" id="pre-signal-confidence">–</div></div>
+      </div></div>
       <div class="prematch-note" data-i18n="prematchReadOnly">This is the model analysis from before kick-off. Coupon actions are disabled after the match starts.</div>
     </div>
   </div>
@@ -449,9 +450,15 @@ async function loadPrematchAnalysis(liveData){
     document.getElementById('pre-btts').textContent=Number.isFinite(Number(btts))?((bttsDir==='NO'?'YOK ':'VAR ')+pct(btts)):'–'; document.getElementById('pre-btts-bar').style.width=(btts||0)+'%'; const all=a.marketBoard?.allMarkets||a.marketBoardSnapshot?.allMarkets||[]; const findM=keys=>all.find(m=>keys.includes(m.key)||keys.includes(m.market)); const cm=findM(['over85Corners','over8_5_corners','corners_over_8_5']); const hm=findM(['mostScoringHalf','most_scoring_half']); const cp=norm(cm?.probability); document.getElementById('pre-corner').textContent=cp!=null?pct(cp):'–';document.getElementById('pre-corner-bar').style.width=(cp||0)+'%'; const hv=hm?.label||hm?.selection||hm?.name||'–', hprob=norm(hm?.probability); document.getElementById('pre-half').textContent=hv==='–'?'–':hv+(hprob!=null?' '+pct(hprob):'');document.getElementById('pre-half-bar').style.width=(hprob||0)+'%';
     const l=a.modelDiagnostics?.lambdas||{};
     const hx=l.finalHome??l.home??a.expectedGoals?.home, ax=l.finalAway??l.away??a.expectedGoals?.away;
-    document.getElementById('pre-xg').textContent=(hx!=null&&ax!=null)?Number(hx).toFixed(2)+' – '+Number(ax).toFixed(2):'–';
+    document.getElementById('pre-xg-home').textContent=hx!=null?Number(hx).toFixed(2):'–';
+    document.getElementById('pre-xg-away').textContent=ax!=null?Number(ax).toFixed(2):'–';
     const quality=a.dataQualityScore??a.dataHealthScore??a.dataHealth;
-    document.getElementById('pre-quality').textContent=Number.isFinite(Number(quality))?Number(quality).toFixed(0)+'/100':'–';
+    document.getElementById('pre-quality').textContent=Number.isFinite(Number(quality))?Number(quality).toFixed(0):'–';
+    const strongest=a.strongestSignal||a.modelDiagnostics?.strongestSignal||a.topPick||null;
+    const signalLabel=strongest?.label||strongest?.selection||strongest?.market||'—';
+    const signalProb=norm(strongest?.probability??strongest?.confidence);
+    document.getElementById('pre-signal').textContent=signalLabel;
+    document.getElementById('pre-signal-confidence').textContent=signalProb!=null?pct(signalProb):'–';
     loading.style.display='none';content.style.display='';
   }catch(e){loading.textContent=currentLang==='tr'?'Maç öncesi analiz yüklenemedi.':'Pre-match analysis unavailable.'}
 }
