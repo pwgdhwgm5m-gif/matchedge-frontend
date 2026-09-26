@@ -503,7 +503,8 @@ function renderTick(data) {
   document.getElementById('momentum-away-label').textContent = m.away==null?`${t('awayPrefix')} –`:`${t('awayPrefix')} %${m.away}`;
 
   const rawPoss = data.possession || {};
-  const ph = Number(rawPoss.home), pa = Number(rawPoss.away);
+  const ph = rawPoss.home == null ? NaN : Number(rawPoss.home);
+  const pa = rawPoss.away == null ? NaN : Number(rawPoss.away);
   const poss = { home: Number.isFinite(ph) ? ph : null, away: Number.isFinite(pa) ? pa : null };
   document.getElementById('possession-home').style.width = (poss.home ?? 0) + '%';
   document.getElementById('possession-away').style.width = (poss.away ?? 0) + '%';
@@ -511,15 +512,16 @@ function renderTick(data) {
   document.getElementById('possession-away-label').textContent = poss.away==null?`${t('awayPrefix')} –`:`${t('awayPrefix')} %${poss.away}`;
 
   const rawGp = data.goalProximity || {};
-  const gh = Number(rawGp.home), ga = Number(rawGp.away);
+  const gh = rawGp.home == null ? NaN : Number(rawGp.home);
+  const ga = rawGp.away == null ? NaN : Number(rawGp.away);
   const gp = { home: Number.isFinite(gh) ? gh : null, away: Number.isFinite(ga) ? ga : null };
   document.getElementById('proximity-home').style.width = (gp.home ?? 0) + '%';
   document.getElementById('proximity-away').style.width = (gp.away ?? 0) + '%';
   document.getElementById('proximity-home-label').textContent = gp.home==null?`${t('homePrefix')} –`:`${t('homePrefix')} %${gp.home}`;
   document.getElementById('proximity-away-label').textContent = gp.away==null?`${t('awayPrefix')} –`:`${t('awayPrefix')} %${gp.away}`;
 
-  document.getElementById('xg-current-home').textContent = (data.homeLiveXg ?? 0).toFixed(2);
-  document.getElementById('xg-current-away').textContent = (data.awayLiveXg ?? 0).toFixed(2);
+  document.getElementById('xg-current-home').textContent = data.homeLiveXg == null ? '–' : Number(data.homeLiveXg).toFixed(2);
+  document.getElementById('xg-current-away').textContent = data.awayLiveXg == null ? '–' : Number(data.awayLiveXg).toFixed(2);
 
   const homeXg = Number(data.homeLiveXg || 0);
   const awayXg = Number(data.awayLiveXg || 0);
@@ -546,16 +548,16 @@ function renderTick(data) {
     s.dangerousAttacksHome, s.dangerousAttacksAway
   ];
   const hasRealLiveStats = data.statsAvailable !== false &&
-    statValues.some(v => v !== null && v !== undefined && Number(v) !== 0);
+    (statValues.some(v => v !== null && v !== undefined) || poss.home != null || poss.away != null);
   const liveStatsCard = document.getElementById('liveStatsCard');
   if (liveStatsCard) liveStatsCard.style.display = hasRealLiveStats ? '' : 'none';
 
-  document.getElementById('stat-shots-home').textContent = s.shotsOnTargetHome ?? 0;
-  document.getElementById('stat-shots-away').textContent = s.shotsOnTargetAway ?? 0;
-  document.getElementById('stat-corners-home').textContent = s.cornersHome ?? 0;
-  document.getElementById('stat-corners-away').textContent = s.cornersAway ?? 0;
-  document.getElementById('stat-attacks-home').textContent = s.dangerousAttacksHome ?? 0;
-  document.getElementById('stat-attacks-away').textContent = s.dangerousAttacksAway ?? 0;
+  document.getElementById('stat-shots-home').textContent = s.shotsOnTargetHome ?? '–';
+  document.getElementById('stat-shots-away').textContent = s.shotsOnTargetAway ?? '–';
+  document.getElementById('stat-corners-home').textContent = s.cornersHome ?? '–';
+  document.getElementById('stat-corners-away').textContent = s.cornersAway ?? '–';
+  document.getElementById('stat-attacks-home').textContent = s.dangerousAttacksHome ?? '–';
+  document.getElementById('stat-attacks-away').textContent = s.dangerousAttacksAway ?? '–';
 
   const statsNote = document.getElementById('statsUnavailableNote');
   if (data.statsAvailable === false) {
