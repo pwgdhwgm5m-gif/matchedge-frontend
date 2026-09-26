@@ -532,7 +532,7 @@ const TRANSLATIONS = {
     welcomeBack: 'Welcome back, ',
     featuredTab: 'Featured', liveTab: 'Live',
     topTab: 'Top Predictions', valueTab: 'Values', loadingAnalysis: 'Analysing matches...',
-    noValue: 'No price-backed value pick found', dataHealth: 'Data health',
+    noValue: 'No price-backed value pick found', noStrongPicks: 'No sufficiently supported prediction yet', dataHealth: 'Data health',
     noLiveNow: 'No matches are live right now',
   },
   tr: {
@@ -559,7 +559,7 @@ const TRANSLATIONS = {
     welcomeBack: 'Tekrar hoş geldin, ',
     featuredTab: 'Öne Çıkan', liveTab: 'Canlı',
     topTab: 'En Güçlü', valueTab: 'Değerli Seçimler', loadingAnalysis: 'Maçlar analiz ediliyor...',
-    noValue: 'Oranla doğrulanmış değerli seçim bulunamadı', dataHealth: 'Veri sağlığı',
+    noValue: 'Oranla doğrulanmış değerli seçim bulunamadı', noStrongPicks: 'Yeterli veriyle desteklenen güçlü analiz henüz yok', dataHealth: 'Veri sağlığı',
     noLiveNow: 'Şu anda canlı maç yok',
   },
 };
@@ -640,6 +640,17 @@ function isUpcomingMatch(match, now = Date.now()) {
   if (!match.kickoff) return false;
   const kickoff = new Date(match.kickoff).getTime();
   return Number.isFinite(kickoff) && kickoff > now;
+}
+const EUROPEAN_COUNTRIES = new Set(['England','Spain','Italy','Germany','France','Turkey','Portugal',
+  'Netherlands','Belgium','Greece','Scotland','Czechia','Poland','Austria','Switzerland','Denmark',
+  'Norway','Sweden','Romania','Croatia','Serbia','Ukraine','Russia','Hungary','Finland','Ireland']);
+function homeRegionTier(m){
+  const key=String(m?.canonicalCompetitionKey||'');
+  if(key.startsWith('uefa-'))return 0;
+  if(isSportmonksPriorityMatch(m))return 1;
+  if(EUROPEAN_COUNTRIES.has(String(m?.competitionCountry||'')))
+    return m?.competitionType==='league'?2:3;
+  return 4;
 }
 
 const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -769,8 +780,11 @@ function homeOddsSportKey(m) {
 function homeAnalysisUrl(m) {
   const params = new URLSearchParams({
     homeTeamName: m.homeTeam || '', awayTeamName: m.awayTeam || '',
-    leagueName: m.league || '', kickoff: m.kickoff || '', tsdbLeagueId: m.leagueId || '',
+    leagueName: m.league || '', kickoff: m.kickoff || '',
   });
+  if(m.providerIds?.sportsdb)params.set('tsdbLeagueId',String(m.providerIds.sportsdb));
+  const provider=m.canonicalProvider||m.source||m.dataSource;
+  if(provider)params.set('provider',provider);
   const sportKey=homeOddsSportKey(m); if(sportKey) params.set('sportKey',sportKey);
   return `${API_BASE}/api/analysis/${encodeURIComponent(m.fixtureId)}?${params.toString()}`;
 }
@@ -778,12 +792,9 @@ function homeAnalysisUrl(m) {
 async function loadHomeAnalyses(matches) {
   // Analyse SportMonks core leagues first and enough matches to fill both
   // Featured and Top Picks with at least 10 real analysed fixtures.
-  const upcoming = matches.filter(m => !m.isLive && isHomeWhitelistedMatch(m));
-  const priority = upcoming.filter(isSportmonksPriorityMatch);
-  const other = upcoming.filter(m => !isSportmonksPriorityMatch(m));
-  // If none of the six core leagues plays today, skip that tier immediately.
-  // Otherwise process core leagues first, then the rest of the day's fixtures.
-  const candidates = priority.length ? [...priority, ...other] : other;
+  const upcoming = matches.filter(m => !m.isLive && isUpcomingMatch(m) && isHomeWhitelistedMatch(m));
+  const candidates = [...upcoming].sort((a,b)=>homeRegionTier(a)-homeRegionTier(b) ||
+    new Date(a.kickoff)-new Date(b.kickoff));
   if (!candidates.length) return;
   // Do not wait for the slowest SportMonks analysis before updating the UI.
   // Run a small worker pool and repaint each card as soon as its analysis arrives.
@@ -810,30 +821,16 @@ async function loadHomeAnalyses(matches) {
   await Promise.allSettled(Array.from({ length: workerCount }, () => worker()));
 }
 
-// Core leagues covered by the SportsMonks-first home experience.
-// Accept both SportsMonks IDs and legacy provider IDs because merged fixtures
-// can retain either identity.
-const SPORTMONKS_PRIORITY_LEAGUES = new Set([
-  '8','39',       // English Premier League
-  '82','78',      // German Bundesliga
-  '301','61',     // French Ligue 1
-  '384','135',    // Italian Serie A
-  '564','140',    // Spanish La Liga
-  '600','203'     // Turkish Süper Lig
-]);
+// Only canonical competition identities can grant the six paid-league priority.
 function sportmonksPriorityRank(m) {
-  const id=String(m?.leagueId??'');
-  const name=String(m?.league||'').toLowerCase();
-  if(id==='8'||id==='39'||/premier league/.test(name)) return 0;
-  if(id==='82'||id==='78'||/bundesliga/.test(name)) return 1;
-  if(id==='301'||id==='61'||/ligue 1|french league/.test(name)) return 2;
-  if(id==='384'||id==='135'||/serie a|italian/.test(name)) return 3;
-  if(id==='564'||id==='140'||/la liga|laliga|spanish/.test(name)) return 4;
-  if(id==='600'||id==='203'||/süper lig|super lig/.test(name)) return 5;
+  const keys=['england-premier-league','germany-bundesliga','france-ligue-1',
+    'italy-serie-a','spain-la-liga','turkey-super-lig'];
+  const index=keys.indexOf(String(m?.canonicalCompetitionKey||''));
+  if(index>=0)return index;
   return 99;
 }
 function isSportmonksPriorityMatch(m) {
-  return SPORTMONKS_PRIORITY_LEAGUES.has(String(m?.leagueId??'')) || sportmonksPriorityRank(m)<99;
+  return sportmonksPriorityRank(m)<99;
 }
 function sportmonksFirst(items, getMatch = x => x?.match || x) {
   return [...items].sort((a,b) => {
@@ -1030,45 +1027,20 @@ function renderFeaturedContent() {
   }
 
   if (featuredViewMode === 'top') {
-    // "En Güçlü" is model-driven and independent from "Öne Çıkan".
-    // Do not restrict it to the editorial/SportsMonks featured pool and do not
-    // pad it with unanalysed featured fixtures.
-    // En Güçlü is strictly model-driven. Unlike Öne Çıkan it has no
-    // editorial/fixture fallback and no league-priority override inside ranking.
-    // The six SportsMonks leagues are analysed first upstream, but once an
-    // analysis exists every match competes only on model strength.
-    const strongest = allMatches
-      .filter(m => !m.isLive && isHomeWhitelistedMatch(m))
+    const upcoming=allMatches.filter(m=>!m.isLive&&isUpcomingMatch(m)&&isHomeWhitelistedMatch(m));
+    const hasEuropeanFixtures=upcoming.some(m=>homeRegionTier(m)<4);
+    const strongest = upcoming
+      .filter(m=>!hasEuropeanFixtures||homeRegionTier(m)<4)
       .map(match => {
         const analysis=matchAnalyses.get(String(match.fixtureId));
         if(!analysis) return null;
-        // marketBoard.best can legitimately be null when data-health is below
-        // its publication threshold. En Güçlü must still rank a completed model
-        // analysis, so fall back to the strongest valid market candidate.
         const coreTopKeys=new Set(['home','away','bttsYes','over25','homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35']);
-        // Strong Picks are a published backend surface. Never rebuild them
-        // from raw allMarkets, which includes informational/low-evidence estimates.
         const published=[
           analysis?.marketBoard?.best,
           ...(analysis?.marketBoard?.topPredictions || [])
         ];
-        let candidates=published.filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label &&
+        const candidates=published.filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label &&
           Number.isFinite(Number(p.probability)) && hasStrongMarketEvidence(p));
-        // En Güçlü should not stay empty while valid completed analyses exist.
-        // If today's evidence gate produces no published Strong Pick yet, use the
-        // backend's valid market board as a display fallback. This does NOT promote
-        // the fallback into Top Picks/auto-coupon; it only fills the Home carousel.
-        if(!candidates.length){
-          const fallback=[
-            ...(analysis?.marketBoard?.allMarkets || []),
-            ...(analysis?.allMarkets || [])
-          ];
-          candidates=fallback.filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label &&
-            Number.isFinite(Number(p.probability)) && Number(p.probability)>0);
-        }
-        // Rank by the backend's evidence-aware market score first. Raw
-        // probability alone systematically favors high-base-rate totals such as
-        // Over 2.5 and makes every card look the same.
         const best=candidates.sort((a,b)=>{
           const as=Number(a.topPickScore ?? a.score), bs=Number(b.topPickScore ?? b.score);
           if(Number.isFinite(as)||Number.isFinite(bs)) return (Number.isFinite(bs)?bs:-Infinity)-(Number.isFinite(as)?as:-Infinity) || Number(b.probability)-Number(a.probability);
@@ -1078,6 +1050,7 @@ function renderFeaturedContent() {
         if(!best) return null;
         const probability=Number(best.probability ?? best.confidence ?? 0);
         const health=Number(best?.dataHealth ?? analysis?.dataHealth?.score ?? analysis?.premium?.dataHealth?.score ?? 0);
+        if(health<55)return null;
         const value=analysis?.marketBoard?.valuePicks?.[0];
         const edge=Number(value?.edgePoints || 0);
         let strength=probability*0.72 + health*0.28;
@@ -1085,12 +1058,12 @@ function renderFeaturedContent() {
         return {match,analysis,best,strength};
       })
       .filter(Boolean)
-      .sort((a,b)=>b.strength-a.strength || Number(b.best?.probability||0)-Number(a.best?.probability||0))
+      .sort((a,b)=>homeRegionTier(a.match)-homeRegionTier(b.match) || b.strength-a.strength || Number(b.best?.probability||0)-Number(a.best?.probability||0))
       .slice(0,10);
     const cards=strongest.map(item=>featuredCardHtml(item.match,item.analysis,item.best));
     el.innerHTML = cards.length
       ? `<div class="featured-carousel top-picks-carousel" aria-label="${t('topTab')}">${cards.join('')}</div>`
-      : `<div class="empty-state">${t('loadingAnalysis')}</div>`;
+      : `<div class="empty-state">${t('noStrongPicks')}</div>`;
     bindFeaturedFavoriteButtons(el);
     const topCarousel = el.querySelector('.featured-carousel');
     if (topCarousel) { featuredScrollByMode[featuredViewMode]=previousScrollLeft; bindFeaturedScrollMemory(topCarousel,featuredViewMode); }
@@ -1104,8 +1077,10 @@ function renderFeaturedContent() {
   }
 
   const majorLeaguePriority = (m) => {
+    const region=homeRegionTier(m);
+    if(region<4)return region;
     if (m?.homePageRank != null && Number.isFinite(Number(m.homePageRank))) {
-      return Number(m.homePageRank);
+      return 10+Number(m.homePageRank);
     }
     const id = Number(m.leagueId);
     const name = String(m.league || '').toLowerCase();
@@ -1135,20 +1110,16 @@ function renderFeaturedContent() {
     })
     .sort((a,b)=>a.score-b.score || kickoffTime(a.m)-kickoffTime(b.m));
 
-  // Prefer variety across leagues before filling remaining slots.
-  const chosen=[], seenLeagues=new Set();
-  for (const item of editorial) {
-    const leagueKey=String(item.m.canonicalCompetitionKey || item.m.leagueId || item.m.league || '');
-    if (!seenLeagues.has(leagueKey)) { chosen.push(item.m); seenLeagues.add(leagueKey); }
-    if (chosen.length>=10) break;
-  }
-  if (chosen.length<10) {
-    const used=new Set(chosen.map(m=>String(m.fixtureId)));
-    for (const item of editorial) {
-      if (!used.has(String(item.m.fixtureId))) { chosen.push(item.m); used.add(String(item.m.fixtureId)); }
-      if (chosen.length>=10) break;
-    }
-  }
+  // Give today's UEFA and European leagues their own first slots, then fill
+  // with other European fixtures. Only use other regions if those run out.
+  const chosen=[],used=new Set();
+  const append=(items,max)=>{for(const item of items){if(chosen.length>=max)break;
+    const id=String(item.m.fixtureId);if(used.has(id))continue;chosen.push(item.m);used.add(id)}};
+  append(editorial.filter(x=>homeRegionTier(x.m)===0),Math.min(5,editorial.filter(x=>homeRegionTier(x.m)===0).length));
+  append(editorial.filter(x=>homeRegionTier(x.m)===1||homeRegionTier(x.m)===2),10);
+  append(editorial.filter(x=>homeRegionTier(x.m)===0),10);
+  append(editorial.filter(x=>homeRegionTier(x.m)===3),10);
+  append(editorial.filter(x=>homeRegionTier(x.m)===4),10);
   const featuredCards = chosen.map(m => featuredCardHtml(m));
   el.innerHTML = featuredCards.length ? '<div class="featured-carousel-wrap"><div class="featured-carousel" aria-label="'+t('featuredTab')+'">'+featuredCards.join('')+'</div></div>' : '';
   bindFeaturedFavoriteButtons(el);
