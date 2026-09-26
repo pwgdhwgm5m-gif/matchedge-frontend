@@ -241,6 +241,14 @@
     background: var(--bg-card-inner);
   }
   .prob-bar-fill { height: 100%; }
+  .first-half-summary { margin-top:16px; padding-top:14px; border-top:1px solid var(--border-subtle); }
+  .first-half-summary-title { color:var(--text-secondary); font-size:11px; font-weight:800; letter-spacing:.5px; margin-bottom:10px; }
+  .first-half-summary-teams { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .first-half-summary-team { background:var(--bg-card-inner); border:1px solid var(--border-subtle); border-radius:8px; padding:10px; min-width:0; }
+  .first-half-summary-team span { display:block; color:var(--text-secondary); font-size:11px; overflow-wrap:anywhere; }
+  .first-half-summary-team strong { display:block; margin-top:5px; color:var(--teal); font-size:19px; }
+  .first-half-summary-team.away strong { color:var(--purple); }
+  .first-half-summary-note { margin-top:9px; color:var(--text-secondary); font-size:11px; line-height:1.5; overflow-wrap:anywhere; }
 
   .reading-grid {
     display: grid;
@@ -811,6 +819,14 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
       <div class="prob-bar-fill" id="bar-away" style="background: var(--purple); width: 34%;"></div>
     </div>
     <div class="signal-tag" style="text-align:center; margin-top:10px;" id="prob-source-note" data-i18n="modelPrediction">Model prediction</div>
+    <div class="first-half-summary">
+      <div class="first-half-summary-title" data-i18n="firstHalfScoringTitle">LIKELY TO SCORE IN THE FIRST HALF</div>
+      <div class="first-half-summary-teams">
+        <div class="first-half-summary-team"><span id="first-half-home-name">Home</span><strong id="first-half-home-score">–</strong></div>
+        <div class="first-half-summary-team away"><span id="first-half-away-name">Away</span><strong id="first-half-away-score">–</strong></div>
+      </div>
+      <div class="first-half-summary-note" id="first-half-summary-note">–</div>
+    </div>
   </div>
 
   <div class="card" id="section-reading">
@@ -1147,7 +1163,11 @@ const TRANSLATIONS = {
     reasonLowData: 'Data coverage is below the premium decision threshold.',
     reasonNoStandings: 'League table context is unavailable for this match.',
     matchProbTitle: 'MATCH RESULT PROBABILITIES', home: 'Home', draw: 'Draw', away: 'Away',
-    modelPrediction: 'Model prediction',
+    modelPrediction: 'Model prediction', firstHalfScoringTitle: 'LIKELY TO SCORE IN THE FIRST HALF',
+    firstHalfLeader: '{team} is closer to a first-half goal (model difference: {gap} points).',
+    firstHalfEven: 'The teams are close in the first-half goal model.',
+    firstHalfLimited: 'Limited first-half sample ({home}/{away} matches); percentages are model estimates.',
+    firstHalfUnavailable: 'Not enough first-half match data for a team comparison.',
     matchReadingTitle: 'MATCH ANALYSIS', over25: 'OVER 2.5 GOALS', bttsYes: 'BTTS YES',
     cornerOver: 'OVER 8.5 CORNERS', mostGoalsHalf: 'HIGHEST-SCORING HALF', secondHalf: 'Second Half',
     expectedGoals: 'EXPECTED GOALS (xG)', dataQuality: 'DATA QUALITY', strongestSignal: 'STRONGEST SIGNAL',
@@ -1194,7 +1214,11 @@ const TRANSLATIONS = {
     reasonLowData: 'Veri kapsamı premium karar eşiğinin altında.',
     reasonNoStandings: 'Bu maç için lig sıralaması bağlamı bulunamadı.',
     matchProbTitle: 'MAÇ SONUCU OLASILIKLARI', home: 'Ev Sahibi', draw: 'Beraberlik', away: 'Deplasman',
-    modelPrediction: 'Model tahmini',
+    modelPrediction: 'Model tahmini', firstHalfScoringTitle: 'İLK YARIDA GOL ATMAYA EN YAKIN TAKIM',
+    firstHalfLeader: '{team} ilk yarı golüne daha yakın (model farkı: {gap} puan).',
+    firstHalfEven: 'İlk yarı gol modelinde iki takım birbirine yakın.',
+    firstHalfLimited: 'İlk yarı örneklemi sınırlı ({home}/{away} maç); yüzdeler model tahminidir.',
+    firstHalfUnavailable: 'Takımları karşılaştırmak için yeterli ilk yarı maç verisi yok.',
     matchReadingTitle: 'MAÇ ANALİZİ', over25: '2.5 ÜST GOL', bttsYes: 'KG VAR',
     cornerOver: '8.5 ÜST KORNER', mostGoalsHalf: 'EN GOLLÜ YARI', secondHalf: 'İkinci Yarı',
     expectedGoals: 'BEKLENEN GOL (xG)', dataQuality: 'VERİ KALİTESİ', strongestSignal: 'EN GÜÇLÜ SİNYAL',
@@ -1333,6 +1357,32 @@ function setReading(id, value) {
 
 function updateMatchRoomLink(){const a=document.getElementById('openMatchRoom');if(!a)return;const p=new URLSearchParams(location.search),id=p.get('fixtureId')||p.get('id')||p.get('matchId')||FIXTURE_ID||'',home=currentAnalysis?.homeTeam||document.getElementById('home-name')?.textContent||'',away=currentAnalysis?.awayTeam||document.getElementById('away-name')?.textContent||'',league=currentAnalysis?.league||document.getElementById('league-name')?.textContent||'',kickoff=currentAnalysis?.kickoff||CONTEXT.kickoff||'',markets=(currentAnalysis?.marketBoard?.allMarkets||[]).map(x=>({key:x.key,market:x.market,label:x.label,probability:Number(x.probability)})).filter(x=>Number.isFinite(x.probability));a.href='match-room.html?fixtureId='+encodeURIComponent(id)+'&home='+encodeURIComponent(home)+'&away='+encodeURIComponent(away)+'&league='+encodeURIComponent(league)+'&kickoff='+encodeURIComponent(kickoff)+'&aiMarkets='+encodeURIComponent(JSON.stringify(markets))}
 setTimeout(updateMatchRoomLink,1200);
+function renderFirstHalfScoring(data) {
+  const homeName = data?.homeTeam || CONTEXT.homeTeamName || t('home');
+  const awayName = data?.awayTeam || CONTEXT.awayTeamName || t('away');
+  document.getElementById('first-half-home-name').textContent = homeName;
+  document.getElementById('first-half-away-name').textContent = awayName;
+  const first = data?.halfMarkets?.firstHalf || {};
+  const evidence = data?.halfMarkets?.evidence || {};
+  const homeSample = Number(evidence.homeHTSamples || 0);
+  const awaySample = Number(evidence.awayHTSamples || 0);
+  const home = first.homeScores == null ? NaN : Number(first.homeScores);
+  const away = first.awayScores == null ? NaN : Number(first.awayScores);
+  const valid = homeSample >= 3 && awaySample >= 3 &&
+    Number.isFinite(home) && Number.isFinite(away) &&
+    home >= 0 && home <= 100 && away >= 0 && away <= 100;
+  document.getElementById('first-half-home-score').textContent = valid ? home.toFixed(1) + '%' : '–';
+  document.getElementById('first-half-away-score').textContent = valid ? away.toFixed(1) + '%' : '–';
+  const note = document.getElementById('first-half-summary-note');
+  if (!valid) { note.textContent = t('firstHalfUnavailable'); return; }
+  const gap = Math.abs(home - away);
+  const verdict = gap >= 5
+    ? t('firstHalfLeader').replace('{team}', home > away ? homeName : awayName).replace('{gap}', gap.toFixed(1))
+    : t('firstHalfEven');
+  note.textContent = verdict + (Math.min(homeSample, awaySample) < 8
+    ? ' ' + t('firstHalfLimited').replace('{home}', homeSample).replace('{away}', awaySample)
+    : '');
+}
 function renderAnalysisFallback(data) {
   // Last-resort core renderer: optional widgets must never make a valid API
   // analysis look unavailable to the user.
@@ -1345,6 +1395,7 @@ function renderAnalysisFallback(data) {
   set('home-prob',Number.isFinite(Number(mp.homeWinProbability))?mp.homeWinProbability+'%':'–');
   set('draw-prob',Number.isFinite(Number(mp.drawProbability))?mp.drawProbability+'%':'–');
   set('away-prob',Number.isFinite(Number(mp.awayWinProbability))?mp.awayWinProbability+'%':'–');
+  renderFirstHalfScoring(data);
   setReading('over25',m.over25GoalsPercent);
   const btts=data?.bttsDirection;
   setReading('btts',Number.isFinite(Number(btts?.probability))?btts.probability:m.bttsPercent);
@@ -1412,6 +1463,7 @@ function renderAnalysis(data) {
   document.getElementById('bar-home').style.width = (mp.homeWinProbability || 0) + '%';
   document.getElementById('bar-draw').style.width = (mp.drawProbability || 0) + '%';
   document.getElementById('bar-away').style.width = (mp.awayWinProbability || 0) + '%';
+  renderFirstHalfScoring(data);
   const probSourceNoteEl = document.getElementById('prob-source-note');
   if (mp.blended) {
     probSourceNoteEl.style.display = '';
