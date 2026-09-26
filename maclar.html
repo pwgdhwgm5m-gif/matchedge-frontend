@@ -592,12 +592,13 @@ function analysisLink(m) {
     home: m.homeId || '',
     away: m.awayId || '',
   });
+  if(m.canonicalProvider)params.set('provider',m.canonicalProvider);
   return `analiz-ekrani.html?${params.toString()}`;
 }
 
 function matchLink(m) {
   return m.isLive
-    ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
+    ? `canli-simulator.html?${new URLSearchParams({fixtureId:m.fixtureId,homeTeamName:m.homeTeam||'',awayTeamName:m.awayTeam||'',leagueName:m.league||'',kickoff:m.kickoff||'',provider:m.canonicalProvider||m.source||''}).toString()}`
     : analysisLink(m);
 }
 

@@ -623,7 +623,16 @@ function analysisLink(m) {
     home: m.homeId || '',
     away: m.awayId || '',
   });
+  if(m.canonicalProvider)params.set('provider',m.canonicalProvider);
   return `analiz-ekrani.html?${params.toString()}`;
+}
+
+function liveMatchLink(m) {
+  const p = new URLSearchParams({fixtureId:m.fixtureId, homeTeamName:m.homeTeam||'',
+    awayTeamName:m.awayTeam||'', leagueName:m.league||'', kickoff:m.kickoff||''});
+  const provider=m.canonicalProvider||m.source||m.dataSource;
+  if(provider)p.set('provider',provider);
+  return `canli-simulator.html?${p.toString()}`;
 }
 
 function isUpcomingMatch(match, now = Date.now()) {
@@ -896,7 +905,7 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
       : t('todayFallback'));
 
   const link = isLive
-    ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}&homeTeamName=${encodeURIComponent(m.homeTeam||'')}&awayTeamName=${encodeURIComponent(m.awayTeam||'')}&leagueName=${encodeURIComponent(m.league||'')}&kickoff=${encodeURIComponent(m.kickoff||'')}`
+    ? liveMatchLink(m)
     : analysisLink(m);
   const livePick = isLive ? analysis?.livePrediction : null;
   const pick = isLive ? null : (forcedPick || analysis?.marketBoard?.best);
@@ -1226,7 +1235,7 @@ function renderTodayList(matches, loadFailed) {
           : '--:--');
 
     const rowLink = m.isLive
-      ? `canli-simulator.html?fixtureId=${encodeURIComponent(m.fixtureId)}`
+      ? liveMatchLink(m)
       : isFinished ? '' : analysisLink(m);
     return `
       <div class="match-row-card" data-link="${rowLink}" style="display:flex; text-decoration:none; color:inherit;">

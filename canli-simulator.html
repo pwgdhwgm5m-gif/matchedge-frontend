@@ -321,7 +321,11 @@ function showError(titleKey, subKey) {
 }
 
 async function fetchLiveTick() {
-  const res = await fetch(`${API_BASE}/api/live/${FIXTURE_ID}`);
+  const context = new URLSearchParams();
+  for (const key of ['homeTeamName','awayTeamName','leagueName','kickoff','provider']) {
+    if (LIVE_CONTEXT.get(key)) context.set(key,LIVE_CONTEXT.get(key));
+  }
+  const res = await fetch(`${API_BASE}/api/live/${encodeURIComponent(FIXTURE_ID)}?${context}`);
   if (!res.ok) throw new Error('http_' + res.status);
   return await res.json();
 }
