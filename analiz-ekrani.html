@@ -786,33 +786,6 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
     <a class="match-room-btn" id="openMatchRoom" href="match-room.html">💬 MAÇ SOHBETİ</a>
   </div>
 
-  <div class="card premium-verdict verdict-watch" id="premium-verdict">
-    <div class="verdict-head">
-      <div class="eyebrow" data-i18n="edgeVerdict">SOCCEREDGE VERDICT</div>
-      <div class="method-badge" id="edgeClassBadge">WATCH</div>
-    </div>
-    <div class="decision-line">
-      <div class="decision-icon" id="decision-icon">◌</div>
-      <div>
-        <div class="decision-title" id="decision-title" data-i18n="analysing">ANALYSING</div>
-      </div>
-    </div>
-    <div class="edge-strip" id="decisionMetrics">
-      <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-1">—</span><strong id="pick-prob-1">—</strong></div>
-      <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-2">—</span><strong id="pick-prob-2">—</strong></div>
-      <div class="edge-cell" role="button" tabindex="0" aria-label="Add to coupon"><span id="pick-label-3">—</span><strong id="pick-prob-3">—</strong></div>
-    </div>
-    <div class="quick-proof-head" id="whyPickHead"><span id="why-pick-label">WHY THIS PICK?</span></div>
-    <div class="reason-list" id="premium-reasons"></div>
-    <div class="ai-one-line" id="ai-one-line"><b>AI</b><span>Analysing the strongest available signals…</span></div>
-    
-    <div class="data-health">
-      <div class="data-health-line"><span data-i18n="dataHealth">Data health</span><strong id="health-score">—/100</strong></div>
-      <div class="health-track"><div class="health-fill" id="health-fill"></div></div>
-      <div class="source-chips" id="source-chips"></div>
-    </div>
-  </div>
-
   <div class="card" id="section-probabilities">
     <div class="card-title">
       <span data-i18n="matchProbTitle">MATCH RESULT PROBABILITIES</span>
@@ -1382,7 +1355,6 @@ function renderAnalysisFallback(data) {
   set('xg-home',pxOk&&Number.isFinite(Number(px?.home))?Number(px.home).toFixed(2):'–');
   set('xg-away',pxOk&&Number.isFinite(Number(px?.away))?Number(px.away).toFixed(2):'–');
   set('quality-num',data?.dataQualityScore??'–');
-  try { renderPremiumIntelligence(data?.premium,data); } catch(e) { console.warn('Fallback premium render:',e.message); }
   try { renderCouponMarkets(data); } catch(e) { console.warn('Fallback coupon render:',e.message); }
   updateMatchRoomLink();
 }
@@ -1523,8 +1495,7 @@ function renderAnalysis(data) {
 
   renderStandings(data.standings);
 
-  // Optional premium/coupon widgets must never prevent the core analysis from rendering.
-  try { renderPremiumIntelligence(data.premium, data); } catch (err) { console.warn('Premium kart render hatasi:', err.message); }
+  // Coupon widgets must never prevent the core analysis from rendering.
   try { renderCouponMarkets(data); } catch (err) { console.warn('Kupon market render hatasi:', err.message); }
   updateMatchRoomLink();
   setTimeout(loadModelReportCard,350);
@@ -1617,119 +1588,6 @@ function renderInjuryList(elementId, list) {
   ).join('<br>');
 }
 
-function hasStrongMarketEvidence(p){return p?.strongPickEligible===true&&['SUFFICIENT','STRONG'].includes(String(p?.evidenceLevel||'').toUpperCase())&&Number(p?.effectiveSample||0)>=8}
-
-function premiumOutcomeLabel(outcome, data) {
-  if (outcome === 'home') return data.homeTeam || CONTEXT.homeTeamName || t('home');
-  if (outcome === 'away') return data.awayTeam || CONTEXT.awayTeamName || t('away');
-  if (outcome === 'draw') return t('draw');
-  return '—';
-}
-
-function renderPremiumIntelligence(premium, data) {
-  premium = premium || {};
-  const decisionReady = premium.status === 'PICK' || premium.status === 'VALUE';
-  const card = document.getElementById('premium-verdict');
-  const statusMeta = {
-    VALUE: { cls: 'verdict-value', icon: '↗', title: 'valueStatus', sub: 'valueSub' },
-    PICK: { cls: 'verdict-watch', icon: '★', title: 'pickStatus', sub: 'pickSub' },
-    WATCH: { cls: 'verdict-watch', icon: '★', title: 'pickStatus', sub: 'pickSub' },
-    NO_BET: { cls: 'verdict-no-bet', icon: '✕', title: 'noBetStatus', sub: 'noBetSub' },
-    UNAVAILABLE: { cls: 'verdict-no-bet', icon: '–', title: 'noBetStatus', sub: 'noBetSub' },
-  };
-  const meta = statusMeta[premium.status] || statusMeta.UNAVAILABLE;
-  card.classList.remove('verdict-value', 'verdict-watch', 'verdict-no-bet');
-  card.classList.add(meta.cls);
-  document.getElementById('decision-icon').textContent = meta.icon;
-  document.getElementById('decision-title').textContent = t(meta.title);
-
-  // Strongest Picks are published by the Phase 2 backend only after
-  // market-specific evidence gates. Raw allMarkets stays available below for
-  // normal analysis/manual selection, but can never promote itself here.
-  const publishedPicks = (data?.marketBoard?.topPredictions || [])
-    .filter(x => x && x.label && Number.isFinite(Number(x.probability)) && hasStrongMarketEvidence(x));
-  // When evidence is below the publication gate, still show the model's
-  // strongest calculable lean in the match-analysis verdict. This is
-  // informational only: it cannot enter Top Picks/Strong Picks or coupons.
-  const informationalLean = !decisionReady
-    ? (data?.marketBoard?.allMarkets || [])
-        .filter(x => x && x.label && Number.isFinite(Number(x.probability)) && ['home','draw','away','over25','bttsYes','bttsNo'].includes(x.key))
-        .sort((a,b)=>Number(b.probability)-Number(a.probability))[0]
-    : null;
-  const strongestPicks = (decisionReady ? publishedPicks.slice(0,3) : (informationalLean ? [informationalLean] : []))
-    .map(x => ({
-      label:x.label, probability:+Number(x.probability).toFixed(1), key:x.key,
-      market:x.market, direction:x.direction, evidenceLevel:x.evidenceLevel,
-      effectiveSample:x.effectiveSample, isBettingValue:x.isBettingValue===true,
-      informational:!decisionReady
-    }));
-
-  for (let index = 0; index < 3; index += 1) {
-    const pick = strongestPicks[index];
-    const cell = document.getElementById(`pick-label-${index + 1}`).closest('.edge-cell');
-    cell.dataset.marketKey = pick?.key || '';
-    cell._featuredPick = (pick && decisionReady) ? { ...pick, market: (
-      ['home','draw','away','homeWin','drawResult','awayWin'].includes(pick.key) ? '1X2' :
-      ['over25','under25'].includes(pick.key) ? 'GOL' :
-      ['bttsYes','bttsNo'].includes(pick.key) ? 'KG' :
-      String(pick.key).startsWith('homeOver') ? 'EV TAKIM GOLÜ' :
-      String(pick.key).startsWith('awayOver') ? 'DEP TAKIM GOLÜ' :
-      String(pick.key).startsWith('corners') ? 'KORNER' : 'SEÇİM'
-    ) } : null;
-    cell.setAttribute('aria-label', pick ? `${pick.label} ${pick.probability}%${decisionReady?' · '+t('addCoupon'):(currentLang==='tr'?' · düşük güven, bilgi amaçlı':' · low confidence, informational')}` : '—');
-    cell.classList.toggle('selected', Boolean(pick && decisionReady && selectedCouponMarkets.has(pick.key)));
-    document.getElementById(`pick-label-${index + 1}`).textContent = pick?.label || '—';
-    document.getElementById(`pick-prob-${index + 1}`).textContent = pick ? `${pick.probability}%` : '—';
-  }
-
-  // Compact statistics only; model interpretation stays internal.
-  const reasonList=document.getElementById('premium-reasons'),whyHead=document.getElementById('whyPickHead'),rows=[];
-  const hForm=data?.modelDiagnostics?.form?.home||data?.homeAwayForm?.home||{},aForm=data?.modelDiagnostics?.form?.away||data?.homeAwayForm?.away||{};
-  const observed=(form,key)=>Number(form.played)>0&&form[key]!=null&&form[key]!==''&&Number.isFinite(Number(form[key]))?Number(form[key]):NaN;
-  const hGF=observed(hForm,'avgGoalsFor'),aGF=observed(aForm,'avgGoalsFor'),hGA=observed(hForm,'avgGoalsAgainst'),aGA=observed(aForm,'avgGoalsAgainst');
-  const hL=Number(data?.homeLambda),aL=Number(data?.awayLambda),fmt=n=>Number(n).toFixed(2);
-  if(Number.isFinite(hGF)||Number.isFinite(aGF)) rows.push({type:'support',reason:currentLang==='tr'?'Gol ort.: Ev '+(Number.isFinite(hGF)?fmt(hGF):'—')+' · Dep. '+(Number.isFinite(aGF)?fmt(aGF):'—'):'Goals avg: Home '+(Number.isFinite(hGF)?fmt(hGF):'—')+' · Away '+(Number.isFinite(aGF)?fmt(aGF):'—')});
-  if(Number.isFinite(hGA)||Number.isFinite(aGA)) rows.push({type:'risk',reason:currentLang==='tr'?'Yenilen gol ort.: Ev '+(Number.isFinite(hGA)?fmt(hGA):'—')+' · Dep. '+(Number.isFinite(aGA)?fmt(aGA):'—'):'Conceded avg: Home '+(Number.isFinite(hGA)?fmt(hGA):'—')+' · Away '+(Number.isFinite(aGA)?fmt(aGA):'—')});
-  if(Number.isFinite(hL)||Number.isFinite(aL)) rows.push({type:'support',reason:currentLang==='tr'?'Model gol tahmini: Ev '+(Number.isFinite(hL)?fmt(hL):'—')+' · Dep. '+(Number.isFinite(aL)?fmt(aL):'—'):'Model goal estimate: Home '+(Number.isFinite(hL)?fmt(hL):'—')+' · Away '+(Number.isFinite(aL)?fmt(aL):'—')});
-  const health=premium.dataHealth||{};
-  if(Number(health.score||0)<45) rows.push({type:'risk',reason:(currentLang==='tr'?'Veri sağlığı: ':'Data health: ')+(health.score??'—')+'/100'});
-  if(whyHead) whyHead.style.display=''; reasonList.style.display='';
-  if(!rows.length){const empty=document.createElement('div');empty.className='reason-row';const dot=document.createElement('span');dot.className='reason-dot';const copy=document.createElement('span');copy.textContent=currentLang==='tr'?'Yeterli istatistik yok.':'Not enough statistics.';empty.append(dot,copy);reasonList.replaceChildren(empty);}
-  else reasonList.replaceChildren(...rows.map(item=>{const row=document.createElement('div');row.className='reason-row '+item.type;const dot=document.createElement('span');dot.className='reason-dot';const copy=document.createElement('span');copy.textContent=item.reason;row.append(dot,copy);return row;}));
-  document.getElementById('why-pick-label').textContent=currentLang==='tr'?'KISA İSTATİSTİK':'QUICK STATS';
-  const top=strongestPicks[0];
-  document.querySelector('#ai-one-line span').textContent=!decisionReady && Number(health.score||0)<45
-    ? (currentLang==='tr'?'Takım verisi yetersiz; güvenilir seçim üretilemedi.':'Insufficient team data; no reliable pick available.')
-    : top
-    ? (currentLang==='tr'?(decisionReady?'SoccerEdge seçimi: ':'Model olasılığı (bilgi amaçlı): ')+top.label+' · %'+top.probability:(decisionReady?'SoccerEdge pick: ':'Model probability (informational): ')+top.label+' · '+top.probability+'%')
-    : (currentLang==='tr'?'Hesaplanabilir model eğilimi oluşmadı.':'No model lean could be calculated.');
-  if(!decisionReady&&top){
-    const healthScore=Number(premium?.dataHealth?.score||0);
-    document.getElementById('decision-title').textContent=healthScore>=45
-      ? (currentLang==='tr'?'VERİ SINIRLI':'LIMITED DATA')
-      : (currentLang==='tr'?'DÜŞÜK GÜVEN':'LOW CONFIDENCE');
-  }
-
-
-  const badge=document.getElementById('edgeClassBadge');
-  if(badge) badge.textContent=premium.status==='VALUE'?'STRONG EDGE':(!decisionReady?((currentLang==='tr'?'VERİ ':'DATA ')+(health.score??'—')+'/100'):(Number(health.score||0)<45?'RISKY':'WATCH'));
-  document.getElementById('health-score').textContent = `${health.score ?? '—'}/100`;
-  document.getElementById('health-fill').style.width = `${health.score || 0}%`;
-  const checks = health.checks || {};
-  const sampleOk = (health.sample?.home || 0) >= 5 && (health.sample?.away || 0) >= 5;
-  const chipData = [
-    [t('sourceOdds'), checks.odds], [t('sourceTable'), checks.standings],
-    [t('sourceInjuries'), checks.injuries], [t('sourceH2h'), checks.h2h],
-    [t('sourceSample'), sampleOk],
-  ];
-  document.getElementById('source-chips').replaceChildren(...chipData.map(([label, ok]) => {
-    const chip = document.createElement('span');
-    chip.className = `source-chip${ok ? ' ok' : ''}`;
-    chip.textContent = `${ok ? '✓' : '–'} ${label}`;
-    return chip;
-  }));
-}
-
 function couponMarketName(market) {
   if (currentLang !== 'en') return market === 'GOL' ? 'TOPLAM GOL' : market;
   return ({'GOL':'TOTAL GOALS','KG':'BTTS','KORNER':'CORNERS','İLK YARI':'FIRST HALF','İKİNCİ YARI':'SECOND HALF','EN GOLLÜ YARI':'HIGHEST SCORING HALF','1X2':'1X2'})[market] || market;
@@ -1807,7 +1665,6 @@ function renderCouponMarkets(data) {
       grid.querySelectorAll('.coupon-market').forEach(option => {
         option.classList.toggle('selected', selectedCouponMarkets.has(option.dataset.key));
       });
-      syncFeaturedPicks();
       document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
       document.getElementById('couponFeedback').textContent = selectedCouponMarkets.size
         ? (currentLang === 'en' ? '1 pick ready' : '1 seçim hazır')
@@ -1816,28 +1673,6 @@ function renderCouponMarkets(data) {
   });
 }
 
-function syncFeaturedPicks() {
-  document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => cell.classList.toggle('selected', selectedCouponMarkets.has(cell.dataset.marketKey)));
-}
-document.querySelectorAll('.edge-strip .edge-cell').forEach(cell => {
-  function toggle() {
-    const marketItem = (currentAnalysis?.marketBoard?.allMarkets || []).find(m => m.key === cell.dataset.marketKey);
-    const item = marketItem || cell._featuredPick;
-    if (!item || !item.key || !Number.isFinite(Number(item.probability))) return;
-    // Corner analysis remains selectable whenever the engine exposed the market.
-    // Featured analysis cards only select/deselect a market.
-    // Never create a coupon until the user explicitly presses "Kupona Ekle".
-    if (selectedCouponMarkets.has(item.key)) selectedCouponMarkets.clear();
-    else { selectedCouponMarkets.clear(); selectedCouponMarkets.set(item.key, item); }
-    syncFeaturedPicks();
-    document.querySelectorAll('.coupon-market').forEach(button => {
-      button.classList.toggle('selected', selectedCouponMarkets.has(button.dataset.key));
-    });
-    document.getElementById('addCouponButton').disabled = selectedCouponMarkets.size === 0;
-  }
-  cell.addEventListener('click', toggle);
-  cell.addEventListener('keydown', event => { if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); } });
-});
 const SLIP_KEY='coinedge_draft_v1';let slipStake=10;
 function getSlip(){try{const v=JSON.parse(localStorage.getItem(SLIP_KEY)||'[]');if(Array.isArray(v))return v;if(v&&Array.isArray(v.legs))return v.legs;return[]}catch(_){return[]}}
 function saveSlip(v){const clean=Array.isArray(v)?v:[];localStorage.setItem(SLIP_KEY,JSON.stringify(clean));window.dispatchEvent(new Event('socceredge-slip-change'));try{renderSlip()}catch(e){console.warn('Legacy slip drawer unavailable:',e.message)}}
