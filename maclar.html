@@ -413,57 +413,6 @@ async function toggleFavorite(fixtureId, homeTeam, awayTeam, btnEl) {
 // liste kendiliginden CANLI durumuna/skoruna gunceleniyor.
 const POLL_INTERVAL_MS = 20000;
 
-// Sadece buyuk liglerin/kupalarin gosterilmesi icin TheSportsDB idLeague
-// beyaz listesi. Backend (/api/matches) zaten bu listeyle filtreliyor -
-// burasi ikinci bir guvenlik agi: backend'de ileride bir sorun cikarsa
-// kucuk lig/alt lig gurultusu yine de arayuze sizmasin diye.
-const WHITELISTED_LEAGUE_IDS = new Set([
-  // --- Avrupa 1. Ligleri ---
-  '4328', // Ingiltere Premier League
-  '4335', // Ispanya La Liga
-  '4332', // Italya Serie A
-  '4331', // Almanya Bundesliga
-  '4334', // Fransa Ligue 1
-  '4337', // Hollanda Eredivisie
-  '4344', // Portekiz Primeira Liga
-  '4330', // Iskocya Premiership
-  '4336', // Yunanistan Super League
-  '4355', // Rusya Premier League
-  '4422', // Polonya Ekstraklasa
-  '4338', // Belcika First Division A
-  '4340', // Danimarka Superligaen
-  '4358', // Norvec Eliteserien
-  '4347', // Isvec Allsvenskan
-  '4636', // Finlandiya Veikkausliiga
-  '4339', // Turkiye Super Lig
-  '4621', // Avusturya Bundesliga
-  '4675', // Isvicre Super League
-  '4629', // Hirvatistan HNL
-  '4691', // Romanya Liga I
-  // --- Amerika 1. Ligleri ---
-  '4346', // ABD MLS
-  '4350', // Meksika Liga MX
-  '4351', // Brezilya Serie A
-  '4406', // Arjantin Primera Division
-  // --- Asya 1. Ligleri ---
-  '4633', // Japonya J1 League
-  '4689', // Guney Kore K League 1
-  // --- Buyuk Kupalar / Turnuvalar ---
-  '4480', // UEFA Sampiyonlar Ligi
-  '4481', // UEFA Avrupa Ligi
-  '4482', // Ingiltere FA Cup
-  '4483', // Ispanya Copa del Rey
-  '4484', // Fransa Coupe de France
-  '4485', // Almanya DFB-Pokal
-  '4506', // Italya Coppa Italia
-  '4501', // Copa Libertadores
-  '4490', // UEFA Uluslar Ligi
-  '5071', // UEFA Konferans Ligi
-  '4503', // FIFA Kulupler Dunya Kupasi
-  '4510', // Portekiz Kupasi
-  '206',  // Turkiye Kupasi (API-Football tamamlayici kaynak)
-]);
-
 // Bu alt kume, ayni beyaz liste icinde en cok takip edilen ligleri/kupalari
 // listenin basinda gostermek icin kullaniliyor (kucuk ligleri gizlemiyor -
 // onlar zaten yukaridaki beyaz listede yoklar).
