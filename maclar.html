@@ -445,7 +445,7 @@ const PRIORITY_COMPETITION_ORDER = new Map([
 
 const TRANSLATIONS = {
   en: {
-    brandSub: 'UPCOMING MATCHES', loading: 'Loading...',
+    brandSub: 'UPCOMING MATCHES', loading: 'Loading...', searchPlaceholder: 'Search team or league…',
     navHome: 'Home', navMatches: 'Matches', navResults: 'Results', navNotes: 'Coupon', navFav: 'Favorites', navArena: 'Arena',
     today: 'Today', noMatchesDate: 'No matches found for this date',
     loadError: "Couldn't load matches - pull to refresh",
@@ -455,7 +455,7 @@ const TRANSLATIONS = {
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
   },
   tr: {
-    brandSub: 'YAKLAŞAN MAÇLAR', loading: 'Yükleniyor...',
+    brandSub: 'YAKLAŞAN MAÇLAR', loading: 'Yükleniyor...', searchPlaceholder: 'Takım veya lig ara…',
     navHome: 'Ana Sayfa', navMatches: 'Maçlar', navResults: 'Sonuçlar', navNotes: 'Kuponum', navFav: 'Favoriler', navArena: 'Arena',
     today: 'Bugün', noMatchesDate: 'Bu tarihte maç bulunamadı',
     loadError: 'Maçlar yüklenemedi - yenilemek için tekrar dene',
@@ -473,6 +473,8 @@ function displayLeague(name,key) { return SoccerEdgeNames.league(name,key,curren
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
+  const search = document.getElementById('matchSearch');
+  if (search) { search.placeholder = t('searchPlaceholder'); search.setAttribute('aria-label', t('searchPlaceholder')); }
   document.querySelectorAll('[data-i18n]').forEach(el => {
     el.textContent = t(el.getAttribute('data-i18n'));
   });
