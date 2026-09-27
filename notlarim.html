@@ -362,6 +362,7 @@
   </div>
 </div>
 
+<script src="football-names.js"></script>
 <script>
 // Giris kontrolu - token yoksa giris ekranina yonlendir
 (function() {
@@ -761,8 +762,8 @@ async function loadPickerMatches(date) {
   listEl.innerHTML = matches.map(m => `
     <div class="pick-item" data-fixture-id="${m.fixtureId}" data-home="${escapeHtml(m.homeTeam)}" data-away="${escapeHtml(m.awayTeam)}">
       <div>
-        <span class="pick-league">${escapeHtml(m.league || '')}</span>
-        ${escapeHtml(m.homeTeam)} - ${escapeHtml(m.awayTeam)}
+        <span class="pick-league">${escapeHtml(SoccerEdgeNames.league(m.league,m.canonicalCompetitionKey,currentLang))}</span>
+        ${escapeHtml(SoccerEdgeNames.team(m.homeTeam,currentLang))} - ${escapeHtml(SoccerEdgeNames.team(m.awayTeam,currentLang))}
       </div>
     </div>
   `).join('');
