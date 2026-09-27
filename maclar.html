@@ -528,7 +528,8 @@ function leagueMatchesForAnalysis(m) {
       fixtureId:item.fixtureId, homeTeam:item.homeTeam||'', awayTeam:item.awayTeam||'',
       league:item.league||'', leagueId:item.leagueId||'', kickoff:item.kickoff||item.date||'',
       homeBadge:item.homeBadge||'', awayBadge:item.awayBadge||'', homeId:item.homeId||item.homeTeamId||'', awayId:item.awayId||item.awayTeamId||'',
-      source:item.source||'', canonicalProvider:item.canonicalProvider||'', bsdEventId:item.bsdEventId||'', homeTeamId:item.homeTeamId||'', awayTeamId:item.awayTeamId||''
+      source:item.source||'', canonicalProvider:item.canonicalProvider||'', bsdEventId:item.bsdEventId||'', homeTeamId:item.homeTeamId||'', awayTeamId:item.awayTeamId||'',
+      isFinished:item.isFinished===true, statusShort:item.statusShort||'', homeScore:item.homeScore, awayScore:item.awayScore
     }));
 }
 
@@ -546,6 +547,12 @@ function analysisLink(m) {
     away: m.awayId || '',
   });
   if(m.canonicalProvider)params.set('provider',m.canonicalProvider);
+  if(m.isFinished===true || /^(FT|AET|PEN|AWARDED)$/.test(String(m.statusShort||m.status||'').toUpperCase())) {
+    params.set('final','1');
+    if(m.homeScore!=null && m.awayScore!=null && Number.isFinite(Number(m.homeScore)) && Number.isFinite(Number(m.awayScore))) {
+      params.set('homeScore',m.homeScore); params.set('awayScore',m.awayScore);
+    }
+  }
   return `analiz-ekrani.html?${params.toString()}`;
 }
 
@@ -683,7 +690,7 @@ function renderMatches(preserveView = false) {
       || (returnLeagueName && leagueGroupKey(g.league)===returnNameKey);
     const rows = g.matches.map(m => {
       const isFinished = m.isFinished===true || /^(FT|AET|PEN|AWARDED)$/.test(String(m.statusShort||m.status||'').toUpperCase());
-      const scoreKnown = Number.isFinite(Number(m.homeScore)) && Number.isFinite(Number(m.awayScore));
+      const scoreKnown = m.homeScore!=null && m.awayScore!=null && Number.isFinite(Number(m.homeScore)) && Number.isFinite(Number(m.awayScore));
       const timeLabel = isFinished
         ? (scoreKnown ? `${m.homeScore} - ${m.awayScore} · ${t('finished')}` : t('finished'))
         : (m.isLive
