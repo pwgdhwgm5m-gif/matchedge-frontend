@@ -795,8 +795,9 @@ applyStaticTranslations();
 document.getElementById('matchSearch').addEventListener('input',renderMatches);
 renderDayTabs();
 (async () => {
-  await loadFavoritesFromServer();
   loadMatches();
+  await loadFavoritesFromServer();
+  if(lastMatches.length)renderMatches();
 })();
 setInterval(() => loadMatches({silent:true}), POLL_INTERVAL_MS);
 </script>

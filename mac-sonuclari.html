@@ -995,8 +995,9 @@ applyStaticTranslations();
 renderSoundSettings();
 renderDayTabs();
 (async () => {
-  await loadFavoritesFromServer();
   loadResults();
+  await loadFavoritesFromServer();
+  if(allMatchesForDay.length)renderResults();
 })();
 setInterval(pollLiveForGoals, LIVE_POLL_INTERVAL_MS);
 pollLiveForGoals();

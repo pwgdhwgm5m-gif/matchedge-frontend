@@ -488,6 +488,9 @@ const POLL_INTERVAL_MS = 20000;
 let allMatches = [];
 let featuredViewMode = 'featured'; // 'featured' | 'live'
 let matchAnalyses = new Map();
+const homeAnalysisLoadedAt = new Map();
+const homeAnalysesInFlight = new Set();
+let homeLoadInFlight = false;
 const featuredScrollByMode = { featured: 0, top: 0, live: 0, value: 0 };
 const FEATURED_SCROLL_KEY='socceredge_home_carousel_scroll_v1';
 try{const saved=JSON.parse(sessionStorage.getItem(FEATURED_SCROLL_KEY)||'{}');Object.keys(featuredScrollByMode).forEach(k=>{if(Number.isFinite(Number(saved[k])))featuredScrollByMode[k]=Number(saved[k])})}catch(_){}
@@ -667,12 +670,21 @@ function renderHomeForYou(){const el=document.getElementById('homeForYou');if(!e
   strongestHomeItems().slice(0,12).forEach(x=>{const source=x.fav?'★ '+(lang?'FAVORİ MAÇIN':'YOUR FAVORITE'):(x.health>=55&&Number(x.p.probability)>=55?'🔥 '+(lang?'GÜÇLÜ ANALİZ':'STRONG ANALYSIS'):'✨ '+(lang?'SANA ÖZEL ANALİZ':'FOR YOU ANALYSIS'));const score=(x.fav?220:100)+x.score;cards.push({score,html:'<a class="fy-card" href="'+analysisLink(x.m)+'"><div class="fy-source">'+source+'</div><div class="fy-match">'+escapeHtml(displayTeam(x.m.homeTeam))+' – '+escapeHtml(displayTeam(x.m.awayTeam))+'</div><div class="fy-sub">'+escapeHtml(displayLeague(x.m.displayName||x.m.league,x.m.canonicalCompetitionKey))+(Number.isFinite(x.health)&&x.health>0?' · '+(lang?'Veri':'Data')+' '+Math.round(x.health)+'/100':'')+'</div><div class="fy-pick">'+escapeHtml(x.p.label)+' · '+Math.round(Number(x.p.probability))+'%</div></a>'})});
  const seen=new Set(),out=cards.sort((a,b)=>b.score-a.score).filter(x=>{const k=x.html.match(/fy-match[^>]*>([^<]+)/)?.[1]||x.html;if(seen.has(k))return false;seen.add(k);return true}).slice(0,8);el.innerHTML=out.map(x=>x.html).join('')||'<div class="fy-empty">'+(lang?'Takip, favori ve AI seçimlerin burada görünecek.':'Your followed analysts, favorites and AI picks will appear here.')+'</div>';document.getElementById('forYouTitle').textContent=lang?'SANA ÖZEL':'FOR YOU';document.getElementById('forYouAll').textContent=lang?'Takip edilen seçimler →':'See following picks →'}
 async function loadHome({silent=false} = {}) {
+  if(homeLoadInFlight)return;
+  homeLoadInFlight=true;
+  try {
   const scrollRoot=document.scrollingElement||document.documentElement; const savedScrollY=scrollRoot.scrollTop||window.scrollY||0;
   const todayContainer = document.getElementById('todayMatchesList');
   const expandedHomeLeagues = silent && todayContainer ? new Set([...todayContainer.querySelectorAll('.home-league-group.expanded')].map(el => el.querySelector('.home-league-title')?.textContent).filter(Boolean)) : new Set();
   rememberFeaturedScroll();
   let matches = [];
   let loadFailed = false;
+  // Start the live feed alongside the fixture feed; both are needed for the
+  // first paint, but neither depends on the other.
+  const livePromise = fetch(`${API_BASE}/api/live`).catch(err => {
+    console.warn('Canlı skor overlay alınamadı:', err.message);
+    return null;
+  });
 
   try {
     const res = await fetch(`${API_BASE}/api/matches?date=${todayKey()}`);
@@ -690,8 +702,8 @@ async function loadHome({silent=false} = {}) {
   // The live tab must use the dedicated live feed for current score/minute.
   // /api/matches is the broad daily fixture backbone; /api/live overlays current score/minute.
   try {
-    const liveRes = await fetch(`${API_BASE}/api/live`);
-    if (liveRes.ok) {
+    const liveRes = await livePromise;
+    if (liveRes?.ok) {
       const liveJson = await liveRes.json();
       const liveRows = Array.isArray(liveJson.matches) ? liveJson.matches : [];
       const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
@@ -746,6 +758,9 @@ async function loadHome({silent=false} = {}) {
   renderHomeForYou();
   loadHomeAnalyses(matches.filter(m=>isUpcomingMatch(m,now) && isHomeWhitelistedMatch(m)));
   loadLivePredictions(matches);
+  } finally {
+    homeLoadInFlight=false;
+  }
 }
 
 async function loadLivePredictions(matches) {
@@ -797,7 +812,11 @@ async function loadHomeAnalyses(matches) {
   // Featured and Top Picks with at least 10 real analysed fixtures.
   const upcoming = matches.filter(m => !m.isLive && isUpcomingMatch(m) && isHomeWhitelistedMatch(m));
   const candidates = [...upcoming].sort((a,b)=>homeRegionTier(a)-homeRegionTier(b) ||
-    new Date(a.kickoff)-new Date(b.kickoff));
+    new Date(a.kickoff)-new Date(b.kickoff)).filter(m=>{
+      const id=String(m.fixtureId);
+      return !homeAnalysesInFlight.has(id) &&
+        Date.now()-(homeAnalysisLoadedAt.get(id)||0)>=5*60*1000;
+    });
   if (!candidates.length) return;
   // Do not wait for the slowest SportMonks analysis before updating the UI.
   // Run a small worker pool and repaint each card as soon as its analysis arrives.
@@ -806,18 +825,24 @@ async function loadHomeAnalyses(matches) {
   async function worker() {
     while (nextIndex < candidates.length) {
       const m = candidates[nextIndex++];
+      const id=String(m.fixtureId);
+      if(homeAnalysesInFlight.has(id))continue;
+      homeAnalysesInFlight.add(id);
+      let timer;
       try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 26000);
+        timer = setTimeout(() => controller.abort(), 26000);
         const response = await fetch(homeAnalysisUrl(m), { signal: controller.signal });
-        clearTimeout(timer);
         if (!response.ok) throw new Error('analysis');
-        matchAnalyses.set(String(m.fixtureId), await response.json());
+        matchAnalyses.set(id, await response.json());
+        homeAnalysisLoadedAt.set(id,Date.now());
         renderFeaturedSection();
-        loadV4HomeDecisions();
-  renderHomeForYou();
+        renderHomeForYou();
       } catch (err) {
         console.warn('Ana sayfa analizi alınamadı:', m.fixtureId, err.message);
+      } finally {
+        clearTimeout(timer);
+        homeAnalysesInFlight.delete(id);
       }
     }
   }
@@ -1275,9 +1300,14 @@ loadCommunityPanel();
 // Notification bell is managed by language-selector.js via the existing PWA Web Push subscription system.
 
 (async () => {
-  await loadFavoritesFromServer();
   loadHome();
   loadFollowingPicks();
+  await loadFavoritesFromServer();
+  if(allMatches.length){
+    renderFeaturedSection();
+    renderTodayList(allMatches, false);
+    renderHomeForYou();
+  }
 })();
 setInterval(() => loadHome({silent:true}), POLL_INTERVAL_MS);
 </script>
