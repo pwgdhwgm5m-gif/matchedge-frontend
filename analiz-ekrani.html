@@ -1022,6 +1022,7 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
 <a class="" href="edge-arena.html"><b>◆</b><span class="nav-en">Arena</span><span class="nav-tr">Arena</span></a>
 <a class="" href="kuponum.html"><b>▤</b><span class="nav-en">Coupon</span><span class="nav-tr">Kuponum</span></a>
 </nav>
+<script src="football-names.js"></script>
 <script>
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
@@ -1228,6 +1229,8 @@ const TRANSLATIONS = {
 
 let currentLang = localStorage.getItem('matchedge_lang') || 'en';
 function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
+function displayTeam(name) { return SoccerEdgeNames.team(name,currentLang); }
+function displayLeague(name,key) { return SoccerEdgeNames.league(name,key,currentLang); }
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -1253,13 +1256,13 @@ function showErrorBanner(msg) {
 // URL'den gelen baglam bilgisini hemen ekrana yaz - fetch sonucunu
 // beklemeden kullanici takim isimlerini/ligi gorsun
 function renderContextImmediately() {
-  if (CONTEXT.homeTeamName) document.getElementById('home-name').textContent = CONTEXT.homeTeamName;
-  if (CONTEXT.awayTeamName) document.getElementById('away-name').textContent = CONTEXT.awayTeamName;
-  if (CONTEXT.leagueName) document.getElementById('league-name').textContent = CONTEXT.leagueName;
-  if (CONTEXT.homeTeamName) document.getElementById('home-label').textContent = CONTEXT.homeTeamName;
-  if (CONTEXT.awayTeamName) document.getElementById('away-label').textContent = CONTEXT.awayTeamName;
-  if (CONTEXT.homeTeamName) document.getElementById('xg-legend-home').textContent = CONTEXT.homeTeamName;
-  if (CONTEXT.awayTeamName) document.getElementById('xg-legend-away').textContent = CONTEXT.awayTeamName;
+  if (CONTEXT.homeTeamName) document.getElementById('home-name').textContent = displayTeam(CONTEXT.homeTeamName);
+  if (CONTEXT.awayTeamName) document.getElementById('away-name').textContent = displayTeam(CONTEXT.awayTeamName);
+  if (CONTEXT.leagueName) document.getElementById('league-name').textContent = displayLeague(CONTEXT.leagueName);
+  if (CONTEXT.homeTeamName) document.getElementById('home-label').textContent = displayTeam(CONTEXT.homeTeamName);
+  if (CONTEXT.awayTeamName) document.getElementById('away-label').textContent = displayTeam(CONTEXT.awayTeamName);
+  if (CONTEXT.homeTeamName) document.getElementById('xg-legend-home').textContent = displayTeam(CONTEXT.homeTeamName);
+  if (CONTEXT.awayTeamName) document.getElementById('xg-legend-away').textContent = displayTeam(CONTEXT.awayTeamName);
   if (CONTEXT.homeBadge) document.getElementById('home-crest').innerHTML = `<img src="${CONTEXT.homeBadge}" onerror="this.parentElement.textContent='⚽'">`;
   if (CONTEXT.awayBadge) document.getElementById('away-crest').innerHTML = `<img src="${CONTEXT.awayBadge}" onerror="this.parentElement.textContent='⚽'">`;
   if (CONTEXT.kickoff) {
@@ -1338,9 +1341,9 @@ function renderAnalysisFallback(data) {
   // analysis look unavailable to the user.
   currentAnalysis = data;
   const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
-  set('league-name',data?.league||CONTEXT.leagueName||t('unknownLeague'));
-  set('home-name',data?.homeTeam||CONTEXT.homeTeamName||'—');
-  set('away-name',data?.awayTeam||CONTEXT.awayTeamName||'—');
+  set('league-name',displayLeague(data?.league||CONTEXT.leagueName||t('unknownLeague'),data?.canonicalCompetitionKey));
+  set('home-name',displayTeam(data?.homeTeam||CONTEXT.homeTeamName||'—'));
+  set('away-name',displayTeam(data?.awayTeam||CONTEXT.awayTeamName||'—'));
   const mp=data?.matchProbabilities||{},m=data?.marketProbabilities||{};
   set('home-prob',Number.isFinite(Number(mp.homeWinProbability))?mp.homeWinProbability+'%':'–');
   set('draw-prob',Number.isFinite(Number(mp.drawProbability))?mp.drawProbability+'%':'–');
@@ -1383,13 +1386,13 @@ async function syncAnalysisLiveState(){
 
 function renderAnalysis(data) {
   currentAnalysis = data;
-  document.getElementById('league-name').textContent = data.league || CONTEXT.leagueName || t('unknownLeague');
-  document.getElementById('home-name').textContent = data.homeTeam || CONTEXT.homeTeamName || '—';
-  document.getElementById('away-name').textContent = data.awayTeam || CONTEXT.awayTeamName || '—';
-  document.getElementById('home-label').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
-  document.getElementById('away-label').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
-  document.getElementById('xg-legend-home').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
-  document.getElementById('xg-legend-away').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
+  document.getElementById('league-name').textContent = displayLeague(data.league || CONTEXT.leagueName || t('unknownLeague'),data.canonicalCompetitionKey);
+  document.getElementById('home-name').textContent = displayTeam(data.homeTeam || CONTEXT.homeTeamName || '—');
+  document.getElementById('away-name').textContent = displayTeam(data.awayTeam || CONTEXT.awayTeamName || '—');
+  document.getElementById('home-label').textContent = displayTeam(data.homeTeam || CONTEXT.homeTeamName || t('home'));
+  document.getElementById('away-label').textContent = displayTeam(data.awayTeam || CONTEXT.awayTeamName || t('away'));
+  document.getElementById('xg-legend-home').textContent = displayTeam(data.homeTeam || CONTEXT.homeTeamName || t('home'));
+  document.getElementById('xg-legend-away').textContent = displayTeam(data.awayTeam || CONTEXT.awayTeamName || t('away'));
 
   const kickoff = data.kickoff || CONTEXT.kickoff;
   if (kickoff) {
@@ -1455,8 +1458,8 @@ function renderAnalysis(data) {
   document.getElementById('signal-confidence').textContent =
     signal.confidenceScore ? t('confidencePrefix') + signal.confidenceScore : '–';
 
-  document.getElementById('injuries-home-title').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
-  document.getElementById('injuries-away-title').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
+  document.getElementById('injuries-home-title').textContent = displayTeam(data.homeTeam || CONTEXT.homeTeamName || t('home'));
+  document.getElementById('injuries-away-title').textContent = displayTeam(data.awayTeam || CONTEXT.awayTeamName || t('away'));
   renderInjuryList('injuries-home-list', data.injuries?.home);
   renderInjuryList('injuries-away-list', data.injuries?.away);
   const hasSquadData = (data.injuries?.home?.length || 0) + (data.injuries?.away?.length || 0) > 0;
@@ -1470,16 +1473,16 @@ function renderAnalysis(data) {
   document.getElementById('motivation-home-badge').textContent = mot.home?.label || '—';
   document.getElementById('motivation-away-badge').textContent = mot.away?.label || '—';
 
-  document.getElementById('streak-home-label').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
-  document.getElementById('streak-away-label').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
+  document.getElementById('streak-home-label').textContent = displayTeam(data.homeTeam || CONTEXT.homeTeamName || t('home'));
+  document.getElementById('streak-away-label').textContent = displayTeam(data.awayTeam || CONTEXT.awayTeamName || t('away'));
   renderStreak('streak-home-value', data.streak?.home);
   renderStreak('streak-away-value', data.streak?.away);
   renderRest('rest-home-value', data.fatigue?.home);
   renderRest('rest-away-value', data.fatigue?.away);
 
   const fh = data.firstHalfProximity || { home: 50, away: 50 };
-  document.getElementById('fh-home-label').textContent = data.homeTeam || CONTEXT.homeTeamName || t('home');
-  document.getElementById('fh-away-label').textContent = data.awayTeam || CONTEXT.awayTeamName || t('away');
+  document.getElementById('fh-home-label').textContent = displayTeam(data.homeTeam || CONTEXT.homeTeamName || t('home'));
+  document.getElementById('fh-away-label').textContent = displayTeam(data.awayTeam || CONTEXT.awayTeamName || t('away'));
   document.getElementById('fh-home-prob').textContent = fh.home + '%';
   document.getElementById('fh-away-prob').textContent = fh.away + '%';
   document.getElementById('fh-bar-home').style.width = fh.home + '%';

@@ -436,6 +436,7 @@ body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
 <a class="" href="edge-arena.html"><b>◆</b><span class="nav-en">Arena</span><span class="nav-tr">Arena</span></a>
 <a class="" href="kuponum.html"><b>▤</b><span class="nav-en">Coupon</span><span class="nav-tr">Kuponum</span></a>
 </nav>
+<script src="football-names.js"></script>
 <script>
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
@@ -479,6 +480,9 @@ const TRANSLATIONS = {
 
 let currentLang = localStorage.getItem('matchedge_lang') || 'en';
 function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
+function displayTeam(name) { return SoccerEdgeNames.team(name,currentLang); }
+function displayLeague(name,key) { return SoccerEdgeNames.league(name,key,currentLang); }
+const escapeHtml = str => String(str ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -699,7 +703,7 @@ function renderLeagueFilters() {
   });
   if(leagues.length<=1){filtersEl.innerHTML='';return;}
   filtersEl.innerHTML=[`<button class="league-chip ${!selectedLeague?'active':''}" data-league="">${t('allLeagues')}</button>`]
-    .concat(leagues.map(l=>`<button class="league-chip ${selectedLeague===l?'active':''}" data-league="${escapeAttr(l)}">${l}</button>`)).join('');
+    .concat(leagues.map(l=>`<button class="league-chip ${selectedLeague===l?'active':''}" data-league="${escapeAttr(l)}">${escapeHtml(displayLeague(l,source.find(m=>canonicalLeague(m)===l)?.canonicalCompetitionKey))}</button>`)).join('');
   filtersEl.querySelectorAll('[data-league]').forEach(btn=>btn.addEventListener('click',()=>{
     selectedLeague=btn.dataset.league||null; openLeagues.clear(); renderLeagueFilters(); renderResults();
   }));
@@ -775,7 +779,7 @@ function statusClass(m) {
 function renderResults() {
   const q=(document.getElementById('matchSearch')?.value||'').trim().toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US');
   const container = document.getElementById('resultsContainer');
-  const shown = filteredRelevantMatches().filter(m => !showFavoriteScoresOnly || favorites.has(String(m.fixtureId))).filter(m=>!q||[m.homeTeam,m.awayTeam,m.displayName,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q)));
+  const shown = filteredRelevantMatches().filter(m => !showFavoriteScoresOnly || favorites.has(String(m.fixtureId))).filter(m=>!q||[m.homeTeam,m.awayTeam,m.displayName,m.league,displayTeam(m.homeTeam),displayTeam(m.awayTeam),displayLeague(m.displayName||m.league,m.canonicalCompetitionKey)].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q)));
   if (!shown.length) {
     container.innerHTML = `<div class="empty-state">${t(showFavoriteScoresOnly ? 'noFavorites' : 'noMatchesDate')}</div>`;
     return;
@@ -792,7 +796,7 @@ function renderResults() {
     <div class="scores-live-list">${[...liveGroups.entries()].map(([league,matches])=>`
       <section class="scores-live-group" data-live-group="${escapeAttr(league)}">
         <button type="button" class="scores-live-league" data-toggle-live="${escapeAttr(league)}">
-          <span>${leagueCountry(league).flag} ${league}</span>
+          <span>${leagueCountry(league).flag} ${escapeHtml(displayLeague(league,matches[0]?.canonicalCompetitionKey))}</span>
           <span><b>${matches.length}</b> <span class="live-chevron">⌄</span></span>
         </button>
         <div class="scores-live-group-body">${matches.map(m=>renderMatchCard(m, favorites.has(String(m.fixtureId)))).join('')}</div>
@@ -825,7 +829,7 @@ function renderResults() {
     const open=openLeagues.has(league);
     return `<section class="league-group ${open?'open':''}" data-league-group="${escapeAttr(league)}">
       <button type="button" class="league-toggle" data-toggle-league="${escapeAttr(league)}">
-        <span>⚽ ${league}</span><span><span class="league-count">${matches.length} maç</span> <span class="chevron">⌄</span></span>
+        <span>⚽ ${escapeHtml(displayLeague(league,matches[0]?.canonicalCompetitionKey))}</span><span><span class="league-count">${matches.length} maç</span> <span class="chevron">⌄</span></span>
       </button>
       <div class="league-body">${matches.map(m=>renderMatchCard(m, favorites.has(String(m.fixtureId)))).join('')}</div>
     </section>`;
@@ -869,11 +873,11 @@ function renderMatchCard(m, favoriteSection = false) {
         <span>${t('htColumn')}</span><span>${m.isLive ? (currentLang==='tr'?'SKOR':'SCORE') : t('ftColumn')}</span>
       </div>
       <div class="compact-team-row">
-        <span class="compact-team-name">${m.homeTeam}</span>
+        <span class="compact-team-name">${escapeHtml(displayTeam(m.homeTeam))}</span>
         <strong>${homeHt}</strong><strong>${homeScore}</strong>
       </div>
       <div class="compact-team-row">
-        <span class="compact-team-name">${m.awayTeam}</span>
+        <span class="compact-team-name">${escapeHtml(displayTeam(m.awayTeam))}</span>
         <strong>${awayHt}</strong><strong>${awayScore}</strong>
       </div>
       

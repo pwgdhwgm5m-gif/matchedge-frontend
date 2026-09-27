@@ -219,6 +219,7 @@
 <a class="" href="edge-arena.html"><b>◆</b><span class="nav-en">Arena</span><span class="nav-tr">Arena</span></a>
 <a class="" href="kuponum.html"><b>▤</b><span class="nav-en">Coupon</span><span class="nav-tr">Kuponum</span></a>
 </nav>
+<script src="football-names.js"></script>
 <script>
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
@@ -289,6 +290,7 @@ const TRANSLATIONS = {
 
 let currentLang = localStorage.getItem('matchedge_lang') || 'en';
 function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
+function displayTeam(name) { return SoccerEdgeNames.team(name,currentLang); }
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -303,6 +305,10 @@ document.getElementById('langToggle').addEventListener('click', () => {
   currentLang = currentLang === 'tr' ? 'en' : 'tr';
   localStorage.setItem('matchedge_lang', currentLang);
   applyStaticTranslations();
+  if(prematchTeams){
+    document.getElementById('pre-home-name').textContent=displayTeam(prematchTeams.home||t('preHome'));
+    document.getElementById('pre-away-name').textContent=displayTeam(prematchTeams.away||t('preAway'));
+  }
   tick();
 });
 
@@ -447,8 +453,9 @@ async function loadPrematchAnalysis(liveData){
     document.getElementById('pre-home').textContent=pct(hp);
     document.getElementById('pre-draw').textContent=pct(dp);
     document.getElementById('pre-away').textContent=pct(ap);
-    document.getElementById('pre-home-name').textContent=a.homeTeam||home||'EV';
-    document.getElementById('pre-away-name').textContent=a.awayTeam||away||'DEP';
+    prematchTeams={home:a.homeTeam||home,away:a.awayTeam||away};
+    document.getElementById('pre-home-name').textContent=displayTeam(prematchTeams.home||t('preHome'));
+    document.getElementById('pre-away-name').textContent=displayTeam(prematchTeams.away||t('preAway'));
     document.getElementById('pre-bar-home').style.width=(hp||0)+'%';document.getElementById('pre-bar-draw').style.width=(dp||0)+'%';document.getElementById('pre-bar-away').style.width=(ap||0)+'%';
     document.getElementById('pre-source-note').textContent=a.marketAnchorSource?'Model + piyasa oranı harmanı':'Model tahmini';
     const mk=a.marketProbabilities||{};
@@ -471,12 +478,12 @@ async function loadPrematchAnalysis(liveData){
     loading.style.display='none';content.style.display='';
   }catch(e){loading.textContent=currentLang==='tr'?'Maç öncesi analiz yüklenemedi.':'Pre-match analysis unavailable.'}
 }
-let prematchLoaded=false;
+let prematchLoaded=false, prematchTeams=null;
 
 function renderTick(data) {
   if(!prematchLoaded){prematchLoaded=true;loadPrematchAnalysis(data)}
-  document.getElementById('home-name').textContent = data.homeTeam || '–';
-  document.getElementById('away-name').textContent = data.awayTeam || '–';
+  document.getElementById('home-name').textContent = displayTeam(data.homeTeam || '–');
+  document.getElementById('away-name').textContent = displayTeam(data.awayTeam || '–');
   document.getElementById('home-crest').innerHTML = crestHtml(data.homeBadge, data.homeTeam);
   document.getElementById('away-crest').innerHTML = crestHtml(data.awayBadge, data.awayTeam);
 
@@ -531,8 +538,8 @@ function renderTick(data) {
   const goalCall = Math.abs(homeGoalShare - awayGoalShare) < 5
     ? t('balancedGoalCall')
     : homeGoalShare > awayGoalShare
-      ? `${data.homeTeam || t('homePrefix')} · %${homeGoalShare}`
-      : `${data.awayTeam || t('awayPrefix')} · %${awayGoalShare}`;
+      ? `${displayTeam(data.homeTeam || t('homePrefix'))} · %${homeGoalShare}`
+      : `${displayTeam(data.awayTeam || t('awayPrefix'))} · %${awayGoalShare}`;
   document.getElementById('closest-goal-team').textContent = goalCall;
   document.getElementById('goal-side-call').style.display = data.statsAvailable === false ? 'none' : 'flex';
 

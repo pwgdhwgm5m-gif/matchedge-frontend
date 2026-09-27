@@ -282,6 +282,7 @@ body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
 <a class="" href="edge-arena.html"><b>◆</b><span class="nav-en">Arena</span><span class="nav-tr">Arena</span></a>
 <a class="" href="kuponum.html"><b>▤</b><span class="nav-en">Coupon</span><span class="nav-tr">Kuponum</span></a>
 </nav>
+<script src="football-names.js"></script>
 <script>
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
@@ -319,6 +320,9 @@ const TRANSLATIONS = {
 
 let currentLang = localStorage.getItem('matchedge_lang') || 'en';
 function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
+function displayTeam(name) { return SoccerEdgeNames.team(name,currentLang); }
+function displayLeague(name,key) { return SoccerEdgeNames.league(name,key,currentLang); }
+const escapeHtml = str => String(str ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -464,17 +468,17 @@ function renderKnownCard(m) {
       data-fixture-id="${m.fixtureId}"
       ${link ? `data-link="${link}"` : ''}>
       <div class="match-league">
-        <span>${m.league || ''}</span>
+        <span>${escapeHtml(displayLeague(m.displayName||m.league,m.canonicalCompetitionKey))}</span>
         <span class="match-status-pill ${statusClass(m)}">${timeLabel || statusLabel(m)}</span>
       </div>
       <div class="match-row">
         <div class="match-teams">
           <div class="team-line">
-            <span class="tname">${m.homeTeam}</span>
+            <span class="tname">${escapeHtml(displayTeam(m.homeTeam))}</span>
             ${homeScore !== null ? `<span class="tscore">${homeScore}</span>` : ''}
           </div>
           <div class="team-line">
-            <span class="tname">${m.awayTeam}</span>
+            <span class="tname">${escapeHtml(displayTeam(m.awayTeam))}</span>
             ${awayScore !== null ? `<span class="tscore">${awayScore}</span>` : ''}
           </div>
           ${hasHalftime ? `<div class="halftime-note">${t('htPrefix')}: ${m.halftimeHome}-${m.halftimeAway}</div>` : ''}
@@ -495,7 +499,7 @@ function renderFallbackCard(f) {
       <div class="match-row">
         <div class="match-teams">
           <div class="team-line single">
-            <span class="tname">${f.homeTeam || '?'} - ${f.awayTeam || '?'}</span>
+            <span class="tname">${escapeHtml(displayTeam(f.homeTeam || '?'))} - ${escapeHtml(displayTeam(f.awayTeam || '?'))}</span>
           </div>
           <div class="unavailable-note">${t('unavailableNote')}</div>
         </div>
