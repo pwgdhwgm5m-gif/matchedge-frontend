@@ -1598,18 +1598,13 @@ function couponPickLabel(label) {
   return map[label] || label;
 }
 
-function cornerCouponSupported(){
-  const key=String(currentAnalysis?.league||CONTEXT.leagueName||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ü/g,'u').replace(/[^a-z0-9]+/g,' ').trim().replace(/^super lig$/,'turkish super lig');
-  return new Set(['premier league','la liga','bundesliga','serie a','ligue 1','turkish super lig']).has(key);
-}
 function renderCouponMarkets(data) {
   const decisionReady = data?.premium?.status === 'PICK' || data?.premium?.status === 'VALUE';
   const allMarkets = (data?.marketBoard?.allMarkets || []).filter(item =>
-    decisionReady || (Number(item?.probability)>0 && Number(item?.probability)<100)
+    item?.market !== 'KORNER' && !String(item?.key||'').startsWith('corners') &&
+    (decisionReady || (Number(item?.probability)>0 && Number(item?.probability)<100))
   );
-  // Analysis markets are provider/data driven, not league-name driven. If the
-  // engine produced a corner market, keep its card visible here. Strongest Picks
-  // applies its own stricter real-corner-evidence gate separately.
+  // Corner estimates remain analysis data, but are not selectable coupon markets.
   // 1X2 must have one canonical published probability everywhere on this page.
   // The header uses the backend's final market-blended matchProbabilities, while
   // marketBoard intentionally retains model-only probabilities for value/evidence
@@ -1630,7 +1625,7 @@ function renderCouponMarkets(data) {
   selectedCouponMarkets.clear();
   const lowConfidenceNotice = '';
 
-  const groupOrder = ['1X2','GOL','KG','KORNER','İLK YARI','İKİNCİ YARI','EN GOLLÜ YARI'];
+  const groupOrder = ['1X2','GOL','KG','İLK YARI','İKİNCİ YARI','EN GOLLÜ YARI'];
   const groups = new Map();
   markets.forEach(item => {
     if (!groups.has(item.market)) groups.set(item.market, []);

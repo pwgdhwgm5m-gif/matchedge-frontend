@@ -9,10 +9,21 @@
   const MARKET_X={home:1.8,draw:2.8,away:2.1,over25:1.7,under25:1.8,bttsYes:1.7,bttsNo:1.9,cornersOver85:1.8,cornersUnder85:1.8,cornersOver95:1.8,cornersUnder95:1.8,fhHome:2.2,fhDraw:2.6,fhAway:2.4,shHome:2.1,shDraw:2.5,shAway:2.3,mostGoalsFirst:2.2,mostGoalsEqual:2.8,mostGoalsSecond:1.9};
   const gx=(p,key)=>{p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(100/p).toFixed(2))):(MARKET_X[key]||1.5)};
   const CORNER_KEYS=new Set(['cornersOver95','cornersUnder95','cornersOver85','cornersUnder85']);
-  const CORNER_LEAGUES=new Set(['premier league','la liga','bundesliga','serie a','ligue 1','turkish super lig']);
-  const leagueKey=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/ü/g,'u').replace(/[^a-z0-9]+/g,' ').trim().replace(/^super lig$/,'turkish super lig');
-  const invalidReason=l=>CORNER_KEYS.has(l?.selection?.key)&&!CORNER_LEAGUES.has(leagueKey(l?.league))?tr('Corner picks are not available for this league because verified corner settlement data is unavailable.','Bu ligde doğrulanmış korner sonuç verisi olmadığı için korner seçimi kupona eklenemez.'):null;
-  function sanitize(showMessage){const legs=get(),valid=[],removed=[];legs.forEach(l=>(invalidReason(l)?removed:valid).push(l));if(valid.length>3)removed.push(...valid.splice(3));if(removed.length){save(valid);if(showMessage){const msg=document.querySelector('.se-global-msg');if(msg)msg.textContent=tr('Slip updated: unsupported or extra picks were removed. Maximum 3 matches.','Kupon güncellendi: desteklenmeyen veya fazla seçimler çıkarıldı. En fazla 3 maç.')}}return {legs:valid,removed};}return {legs:valid,removed};}
+  const invalidReason=l=>CORNER_KEYS.has(l?.selection?.key)?tr('Corner picks have been removed from slips.','Korner seçimleri kupondan kaldırıldı.'):null;
+  function sanitize(showMessage){
+    const legs=get(),valid=[],removed=[];
+    legs.forEach(l=>(invalidReason(l)?removed:valid).push(l));
+    if(valid.length>3)removed.push(...valid.splice(3));
+    if(removed.length){
+      save(valid);
+      if(showMessage){
+        const msg=document.querySelector('.se-global-msg');
+        if(msg)msg.textContent=tr('Slip updated: corner or extra picks were removed. Maximum 3 matches.',
+          'Kupon güncellendi: korner veya fazla seçimler çıkarıldı. En fazla 3 maç.');
+      }
+    }
+    return {legs:valid,removed};
+  }
   function css(){if(document.getElementById('se-global-slip-css'))return;const s=document.createElement('style');s.id='se-global-slip-css';s.textContent=`
   .se-global-slip{position:fixed;left:50%;right:auto;transform:translateX(-50%);bottom:82px;z-index:2147483646;border:1px solid #f2c94c;background:#0b2851;color:#fff;border-radius:22px;padding:9px 12px;font:900 12px system-ui;box-shadow:0 8px 26px #0008;display:flex;gap:7px;align-items:center;min-width:112px;justify-content:center}.se-global-slip .n{background:#f2c94c;color:#08224a;border-radius:12px;min-width:20px;height:20px;display:grid;place-items:center}.se-global-sheet{position:fixed;inset:0;z-index:2147483647;background:#0009;display:none;align-items:flex-end;justify-content:center}.se-global-sheet.open{display:flex}.se-global-panel{width:min(560px,100%);max-height:76vh;overflow:auto;background:#071b38;color:#fff;border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -10px 35px #0009;font-family:system-ui}.se-global-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.se-global-head b{font-size:16px}.se-global-close{border:0;background:#173a69;color:#fff;border-radius:10px;width:34px;height:34px;font-size:20px}.se-global-leg{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #29476e}.se-global-leg small{color:#91a7c7;display:block;margin-top:4px}.se-global-remove{border:0;background:transparent;color:#91a7c7;font-size:20px}.se-global-stakes{display:flex;gap:7px;margin:14px 0}.se-global-stakes button{flex:1;border:1px solid #315c8d;background:#0c3061;color:#fff;border-radius:9px;padding:9px;font-weight:900}.se-global-stakes button.active{border-color:#f2c94c;color:#f2c94c}.se-global-play{width:100%;border:0;border-radius:11px;padding:13px;background:#f2c94c;color:#08224a;font-weight:950}.se-global-play:disabled{opacity:.45}.se-global-empty{text-align:center;color:#91a7c7;padding:24px 8px}.se-global-total{display:flex;justify-content:space-between;margin:12px 0;color:#c7d6ea}.se-global-msg{font-size:11px;text-align:center;min-height:18px;margin-top:8px;color:#f2c94c}
   `;document.head.appendChild(s)}
