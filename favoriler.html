@@ -428,7 +428,16 @@ function matchForFavorite(f) {
 }
 
 async function pruneExpiredFinishedFavorites() {
-  const expired = rawFavorites.filter(f => isFinishedMatch(matchForFavorite(f)));
+  // Finished matches stay visible through the end of their Istanbul day.
+  // The server also removes confirmed older favorites at midnight, including
+  // matches absent from today's fixture response.
+  const todayIstanbul = new Date(Date.now()+3*60*60*1000).toISOString().slice(0,10);
+  const cutoff = Date.parse(todayIstanbul+'T00:00:00Z')-3*60*60*1000;
+  const expired = rawFavorites.filter(f => {
+    const match=matchForFavorite(f);
+    const kickoff=Date.parse(match?.kickoff||match?.date||'');
+    return isFinishedMatch(match) && Number.isFinite(kickoff) && kickoff<cutoff;
+  });
   if (!expired.length) return;
   const expiredIds = new Set(expired.map(f => String(f.fixtureId)));
   rawFavorites = rawFavorites.filter(f => !expiredIds.has(String(f.fixtureId)));
