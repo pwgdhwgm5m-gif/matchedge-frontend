@@ -338,6 +338,7 @@ html[data-se-lang="en"] .se-bottom-nav .nav-tr,html[data-se-lang="tr"] .se-botto
 <a class="" href="edge-arena.html"><b>◆</b><span class="nav-en">Arena</span><span class="nav-tr">Arena</span></a>
 <a class="" href="kuponum.html"><b>▤</b><span class="nav-en">Coupon</span><span class="nav-tr">Kuponum</span></a>
 </nav>
+<script src="football-names.js"></script>
 <script>
 (function() {
   if (!localStorage.getItem('matchedge_token')) {
@@ -358,6 +359,7 @@ function authHeaders() {
 function escapeAttr(str) {
   return (str || '').replace(/"/g, '&quot;');
 }
+const escapeHtml = str => String(str ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
 // Favoriler backend'de kullaniciya bagli olarak saklaniyor (bkz.
 // mac-sonuclari.html'deki ayni desen / backend api/favorites) - burada da
@@ -466,6 +468,8 @@ const TRANSLATIONS = {
 
 let currentLang = localStorage.getItem('matchedge_lang') || 'en';
 function t(key) { return (TRANSLATIONS[currentLang] || TRANSLATIONS.en)[key] ?? key; }
+function displayTeam(name) { return SoccerEdgeNames.team(name,currentLang); }
+function displayLeague(name,key) { return SoccerEdgeNames.league(name,key,currentLang); }
 
 function applyStaticTranslations() {
   document.documentElement.lang = currentLang;
@@ -659,7 +663,7 @@ function renderMatches(preserveView = false) {
   } : null;
   const q=(document.getElementById('matchSearch')?.value||'').trim().toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US');
   const whitelistedMatches=lastMatches.filter(m=>m.visibleInCompetitionFilter === true);
-  const visibleMatches=q?whitelistedMatches.filter(m=>[m.homeTeam,m.awayTeam,m.displayName,m.league].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q))):whitelistedMatches;
+  const visibleMatches=q?whitelistedMatches.filter(m=>[m.homeTeam,m.awayTeam,m.displayName,m.league,displayTeam(m.homeTeam),displayTeam(m.awayTeam),displayLeague(m.displayName||m.league,m.canonicalCompetitionKey)].some(v=>String(v||'').toLocaleLowerCase(currentLang==='tr'?'tr-TR':'en-US').includes(q))):whitelistedMatches;
 
   if (lastLoadFailed) {
     container.innerHTML = `<div class="empty-state error">${t('loadError')}</div>`;
@@ -691,7 +695,7 @@ function renderMatches(preserveView = false) {
       return `
         <div class="match-row" data-link="${matchLink(m)}" style="text-decoration:none; color:inherit;">
           <button type="button" class="fav-btn match-card-fav ${isFav ? "active" : ""}" aria-label="Favorite" data-fixture-id="${m.fixtureId}" data-home="${escapeAttr(m.homeTeam)}" data-away="${escapeAttr(m.awayTeam)}"><svg viewBox="0 0 24 24"><path d="M12 2.5 L14.94 8.46 L21.5 9.42 L16.75 14.06 L17.87 20.61 L12 17.52 L6.13 20.61 L7.25 14.06 L2.5 9.42 L9.06 8.46 Z" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
-          <div class="match-row-teams">${m.homeTeam} - ${m.awayTeam}</div>
+          <div class="match-row-teams">${escapeHtml(displayTeam(m.homeTeam))} - ${escapeHtml(displayTeam(m.awayTeam))}</div>
           
           <div class="match-row-time">${timeLabel}</div>
         </div>`;
@@ -701,7 +705,7 @@ function renderMatches(preserveView = false) {
       <div class="league-group${isReturnLeague ? ' expanded return-league' : ''}" data-league-id="${g.leagueId}">
         <div class="league-header">
           <div class="league-header-left">
-            <div class="league-name">${g.league}</div>
+            <div class="league-name">${escapeHtml(displayLeague(g.league,g.leagueId))}</div>
             <div class="league-meta">${t('matchCount')(g.matches.length)}</div>
           </div>
           <div class="league-chevron">›</div>
