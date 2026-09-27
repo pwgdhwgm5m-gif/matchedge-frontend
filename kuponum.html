@@ -144,8 +144,18 @@ async function playDraft(){
  }
 }
 let lastRecomputeAt=0;
+let recomputeInFlight=false;
+async function recomputeInBackground(){
+ if(recomputeInFlight||Date.now()-lastRecomputeAt<=60000)return;
+ lastRecomputeAt=Date.now();recomputeInFlight=true;
+ try{
+  const response=await fetch(API+'/api/coupons/recompute',{method:'POST',headers:headers()});
+  if(response.ok)setTimeout(refreshCoupons,1000);
+ }catch(error){console.warn('[coupon-recompute]',error)}
+ finally{recomputeInFlight=false}
+}
 async function load(){
- if(Date.now()-lastRecomputeAt>60000){lastRecomputeAt=Date.now();try{await fetch(API+'/api/coupons/recompute',{method:'POST',headers:headers()})}catch(_){}}
+ recomputeInBackground();
  document.getElementById('pageSlipTitle').textContent=isEN()?'MY SLIP':'KUPONUM';
  document.getElementById('tabPendingLabel').textContent=isEN()?'PENDING':'BEKLEYEN';
  document.getElementById('tabFinishedLabel').textContent=isEN()?'FINISHED':'BİTEN';
