@@ -749,6 +749,11 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
 .analysis-probability-heading b{flex-shrink:0;color:#63c6c2;font-variant-numeric:tabular-nums}
 .analysis-probability-track{height:7px;border-radius:8px;background:#203b3d;overflow:hidden}
 .analysis-probability-track>div{height:100%;background:#51aaa8;border-radius:8px}
+.corner-compact{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.corner-compact-item{background:#142d2f;border:1px solid #344e50;border-radius:12px;padding:12px 8px;text-align:center}
+.corner-compact-item span{display:block;color:var(--text-muted);font-size:10px;line-height:1.25;margin-bottom:6px}
+.corner-compact-item b{display:block;color:#63c6c2;font-size:17px;font-variant-numeric:tabular-nums}
+.corner-limited{color:var(--text-muted);font-size:12px;padding:8px 0}
 </style></head>
 <body>
 
@@ -1691,13 +1696,27 @@ function renderCouponMarkets(data) {
     groups.get(item.market).push(item);
   });
   const detail=document.getElementById('detailedMarketGrid');
-  detail.innerHTML=[...groups].map(([market,items])=>`<section class="analysis-bar-group">
+  const corner=data?.cornerMetrics||{};
+  const cornerDisplay=corner?.displayMarket||null;
+  const cornerLines=cornerDisplay?.lines||cornerDisplay?.projection||{};
+  const homeExpected=Number(cornerDisplay?.expectedHome ?? corner?.expectedHome);
+  const awayExpected=Number(cornerDisplay?.expectedAway ?? corner?.expectedAway);
+  const over85=Number(cornerLines?.over85Percent ?? corner?.over85Percent);
+  const cornerReady=!corner?.limitedData && Number.isFinite(homeExpected) && Number.isFinite(awayExpected) && Number.isFinite(over85);
+  const cornerHtml=cornerReady ? `<section class="analysis-bar-group"><h3>${tr?'KORNER':'CORNERS'}</h3>
+    <div class="corner-compact">
+      <div class="corner-compact-item"><span>${tr?'Ev Beklenen':'Home Expected'}</span><b>${homeExpected.toFixed(1)}</b></div>
+      <div class="corner-compact-item"><span>${tr?'Dep Beklenen':'Away Expected'}</span><b>${awayExpected.toFixed(1)}</b></div>
+      <div class="corner-compact-item"><span>${tr?'8.5 Üst':'Over 8.5'}</span><b>${over85.toFixed(1)}%</b></div>
+    </div></section>` : (cornerDisplay?.type==='limited-data' ? `<section class="analysis-bar-group"><h3>${tr?'KORNER':'CORNERS'}</h3><div class="corner-limited">${tr?'Sınırlı veri':'Limited data'}</div></section>` : '');
+  const regularHtml=[...groups].filter(([market])=>String(market||'').toLocaleUpperCase('tr-TR')!=='KORNER'&&String(market||'').toUpperCase()!=='CORNERS').map(([market,items])=>`<section class="analysis-bar-group">
     <h3>${escape(couponMarketName(market))}</h3>${items.map(item=>{
       const p=Number(item.probability),valid=item.probability!=null&&item.probability!==''&&Number.isFinite(p)&&p>=0&&p<=100;
       return `<div class="analysis-probability"><div class="analysis-probability-heading"><span>${escape(couponPickLabel(item.label))}</span><b>${valid?p+'%':'—'}</b></div>
       <div class="analysis-probability-track" aria-hidden="true"><div style="width:${valid?p:0}%"></div></div></div>`;
     }).join('')}</section>`).join('');
-  document.getElementById('detailed-market-card').hidden=groups.size===0;
+  detail.innerHTML=regularHtml+cornerHtml;
+  document.getElementById('detailed-market-card').hidden=!detail.innerHTML.trim();
   grid.querySelectorAll('.coupon-market').forEach(button => {
     button.addEventListener('click', () => {
       const item = markets.find(market => market.key === button.dataset.key);
