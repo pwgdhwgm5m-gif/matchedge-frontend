@@ -732,7 +732,23 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
 .analysis-favorite-btn.active{color:#d9ad58;border-color:#d9ad58;background:rgba(242,201,76,.12);box-shadow:0 0 0 4px rgba(242,201,76,.08)}
 .analysis-favorite-btn:active{transform:scale(.92)}
 </style>
-<style>.coupon-market:disabled{cursor:default;opacity:1}.analysis-only-label{display:block;font-size:9px;color:var(--text-muted);margin-top:4px}</style></head>
+<style>.coupon-market:disabled{cursor:default;opacity:1}.analysis-only-label{display:block;font-size:9px;color:var(--text-muted);margin-top:4px}</style><style>
+#couponMarketGrid{display:grid;grid-template-columns:1fr;gap:12px}
+#couponMarketGrid .coupon-options{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#couponMarketGrid .coupon-options.three{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#couponMarketGrid .coupon-market{min-height:80px!important}
+#couponMarketGrid .coupon-market:disabled{opacity:.45;cursor:default}
+#detailed-market-card{border-color:#344e50!important}
+.analysis-caption{color:var(--text-muted);font-size:12px;margin:0 0 18px}
+.analysis-bar-group+ .analysis-bar-group{border-top:1px solid #344e50;margin-top:20px;padding-top:18px}
+.analysis-bar-group h3{font-size:12px;letter-spacing:.04em;color:var(--text-secondary);margin:0 0 16px}
+.analysis-probability{margin:0 0 14px}
+.analysis-probability-heading{display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-size:13px;margin-bottom:8px}
+.analysis-probability-heading span{min-width:0;overflow-wrap:anywhere}
+.analysis-probability-heading b{flex-shrink:0;color:#63c6c2;font-variant-numeric:tabular-nums}
+.analysis-probability-track{height:7px;border-radius:8px;background:#203b3d;overflow:hidden}
+.analysis-probability-track>div{height:100%;background:#51aaa8;border-radius:8px}
+</style></head>
 <body>
 
 <div class="app">
@@ -847,10 +863,16 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
   </div>
 
   <div class="card" id="coupon-market-card">
-    <div class="card-title" data-i18n="couponTitle">KUPON SEÇİMLERİ</div>
+    <div class="card-title" data-i18n="couponTitle">BUILD YOUR SLIP</div>
     <div class="coupon-market-grid" id="couponMarketGrid"></div>
     <button class="coupon-add" id="addCouponButton" type="button" disabled data-i18n="addCoupon">SEÇİLENLERİ KUPONUMA EKLE</button>
     <div class="coupon-feedback" id="couponFeedback"></div>
+  </div>
+
+  <div class="card" id="detailed-market-card">
+    <div class="card-title" data-i18n="detailedAnalysis">DETAILED ANALYSIS</div>
+    <p class="analysis-caption" data-i18n="analysisOnly">Probabilities for analysis only</p>
+    <div id="detailedMarketGrid"></div>
   </div>
 
   <div class="card" id="section-xg">
@@ -1048,7 +1070,7 @@ document.getElementById("analysisFavoriteBtn")?.addEventListener("click",toggleA
 loadAnalysisFavorite();
 
 const selectedCouponMarkets = new Map();
-const COUPON_KEYS = new Set(['home','draw','away','over25','bttsYes']);
+const COUPON_KEYS = new Set(['home','draw','away','over25','under25','bttsYes','bttsNo']);
 
 // Liste ekranlarindan (maclar.html, mac-sonuclari.html, ana-sayfa.html)
 // URL uzerinden gelen baglamsal bilgi - backend bunlari hem hesaplama
@@ -1152,7 +1174,7 @@ setupLeagueMatchNavigation();
 
 const TRANSLATIONS = {
   en: {
-    couponTitle: 'COUPON PICKS', matchChat: 'Match Room', addCoupon: 'ADD SELECTED PICKS TO MY COUPON', couponAdded: 'Added to My Coupon', couponError: 'Could not add coupon',
+    couponTitle: 'BUILD YOUR SLIP', detailedAnalysis: 'DETAILED ANALYSIS', analysisOnly: 'Probabilities for analysis only', matchChat: 'Match Room', addCoupon: 'ADD SELECTED PICKS TO MY COUPON', couponAdded: 'Added to My Coupon', couponError: 'Could not add coupon',
     brandSub: 'PRO MATCH INTELLIGENCE', liveData: 'LIVE DATA', loading: 'Loading...', backToMatches: 'Back to matches',
     edgeVerdict: 'SOCCEREDGE VERDICT', analysing: 'ANALYSING', decisionLoading: 'Checking price, sample and data quality…',
     selection: 'Selection', model: 'Model', edge: 'Edge', dataHealth: 'Data health',
@@ -1199,7 +1221,7 @@ const TRANSLATIONS = {
     legalText: 'Data and statistics shown are for informational purposes only and do not constitute betting advice. SoccerEdge Pro is not liable for any losses arising from decisions based on this data.<br><br>SoccerEdge Pro © 2026 — Built by Eddas.',
   },
   tr: {
-    couponTitle: 'KUPON SEÇİMLERİ', matchChat: 'Maç Sohbeti', addCoupon: 'SEÇİLENLERİ KUPONUMA EKLE', couponAdded: 'Kuponuma eklendi', couponError: 'Kupon eklenemedi',
+    couponTitle: 'KUPONUNU OLUŞTUR', detailedAnalysis: 'DETAYLI ANALİZ', analysisOnly: 'Yalnızca analiz amaçlı olasılıklar', matchChat: 'Maç Sohbeti', addCoupon: 'SEÇİLENLERİ KUPONUMA EKLE', couponAdded: 'Kuponuma eklendi', couponError: 'Kupon eklenemedi',
     brandSub: 'PRO MAÇ ZEKASI', liveData: 'CANLI VERİ', loading: 'Yükleniyor...', backToMatches: 'Maçlara dön',
     edgeVerdict: 'SOCCEREDGE KARARI', analysing: 'İNCELENİYOR', decisionLoading: 'Fiyat, örneklem ve veri kalitesi kontrol ediliyor…',
     selection: 'Seçim', model: 'Model', edge: 'Avantaj', dataHealth: 'Veri sağlığı',
@@ -1647,31 +1669,35 @@ function renderCouponMarkets(data) {
   });
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
-  const lowConfidenceNotice = '';
+  document.getElementById('addCouponButton').disabled = true;
+  const tr=currentLang==='tr';
+  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const rows=[
+    {title:tr?'Maç sonucu':'Match result',keys:['home','draw','away'],labels:tr?['Ev sahibi','Beraberlik','Deplasman']:['Home','Draw','Away']},
+    {title:tr?'Toplam gol · 2.5':'Total goals · 2.5',keys:['under25','over25'],labels:tr?['2.5 Alt','2.5 Üst']:['Under 2.5','Over 2.5']},
+    {title:tr?'Karşılıklı gol':'Both teams to score',keys:['bttsYes','bttsNo'],labels:tr?['KG Var','KG Yok']:['BTTS Yes','BTTS No']}
+  ];
+  grid.innerHTML=rows.map(row=>`<div class="coupon-group"><div class="coupon-group-title">${row.title}</div>
+    <div class="coupon-options ${row.keys.length===3?'three':''}">${row.keys.map((key,i)=>{
+      const item=markets.find(m=>m.key===key);
+      const available=item&&item.probability!=null&&item.probability!==''&&Number.isFinite(Number(item.probability));
+      return `<div><button type="button" class="coupon-market" data-key="${key}" ${available?'':'disabled aria-disabled="true"'}>
+        <strong>${row.labels[i]}</strong><em>${available?escape(item.probability)+'%':'—'}</em></button></div>`;
+    }).join('')}</div></div>`).join('');
 
-  const groupOrder = ['1X2','GOL','KG','İLK YARI','İKİNCİ YARI','EN GOLLÜ YARI'];
-  const groups = new Map();
-  markets.forEach(item => {
-    if (!groups.has(item.market)) groups.set(item.market, []);
+  const groups=new Map();
+  markets.filter(item=>!COUPON_KEYS.has(item.key)).forEach(item=>{
+    if(!groups.has(item.market))groups.set(item.market,[]);
     groups.get(item.market).push(item);
   });
-
-  const orderedGroups = [...groups.entries()].sort((a,b) => {
-    const ai = groupOrder.indexOf(a[0]), bi = groupOrder.indexOf(b[0]);
-    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
-  });
-
-  grid.innerHTML = lowConfidenceNotice + orderedGroups.map(([market, items]) => {
-    const optionClass = market === 'GOL' ? 'coupon-options total-goals-compact' : (items.length === 3 ? 'coupon-options three' : 'coupon-options');
-    return `<div class="coupon-group" data-market="${market}">
-      <div class="coupon-group-title">${couponMarketName(market)}</div>
-      <div class="${optionClass}">
-        ${items.map(item => `<div><button type="button" class="coupon-market" ${COUPON_KEYS.has(item.key) ? '' : 'disabled aria-disabled="true"'} data-key="${item.key}" data-market="${item.market}">
-          <strong>${couponPickLabel(item.label)}</strong><em>%${item.probability}</em>${COUPON_KEYS.has(item.key) ? '' : `<small class="analysis-only-label">${currentLang==='tr'?'Yalnızca analiz':'Analysis only'}</small>`}
-        </button></div>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  const detail=document.getElementById('detailedMarketGrid');
+  detail.innerHTML=[...groups].map(([market,items])=>`<section class="analysis-bar-group">
+    <h3>${escape(couponMarketName(market))}</h3>${items.map(item=>{
+      const p=Number(item.probability),valid=item.probability!=null&&item.probability!==''&&Number.isFinite(p)&&p>=0&&p<=100;
+      return `<div class="analysis-probability"><div class="analysis-probability-heading"><span>${escape(couponPickLabel(item.label))}</span><b>${valid?p+'%':'—'}</b></div>
+      <div class="analysis-probability-track" aria-hidden="true"><div style="width:${valid?p:0}%"></div></div></div>`;
+    }).join('')}</section>`).join('');
+  document.getElementById('detailed-market-card').hidden=groups.size===0;
   grid.querySelectorAll('.coupon-market').forEach(button => {
     button.addEventListener('click', () => {
       const item = markets.find(market => market.key === button.dataset.key);

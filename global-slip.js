@@ -9,7 +9,7 @@
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const MARKET_X={home:1.8,draw:2.8,away:2.1,over25:1.7,under25:1.8,bttsYes:1.7,bttsNo:1.9,cornersOver85:1.8,cornersUnder85:1.8,cornersOver95:1.8,cornersUnder95:1.8,fhHome:2.2,fhDraw:2.6,fhAway:2.4,shHome:2.1,shDraw:2.5,shAway:2.3,mostGoalsFirst:2.2,mostGoalsEqual:2.8,mostGoalsSecond:1.9};
   const gx=(p,key)=>{p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(100/p).toFixed(2))):(MARKET_X[key]||1.5)};
-  const COUPON_KEYS=new Set(['home','draw','away','over25','bttsYes']);
+  const COUPON_KEYS=new Set(['home','draw','away','over25','under25','bttsYes','bttsNo']);
   const invalidReason=l=>!COUPON_KEYS.has(l?.selection?.key)?tr('This selection is available for analysis only.','Bu seçim yalnızca analiz için kullanılabilir.'):null;
   function sanitize(showMessage){
     const legs=get(),valid=[],removed=[];
