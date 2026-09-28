@@ -847,17 +847,11 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
         <div class="reading-value" id="btts-value">–</div>
         <div class="mini-bar"><div class="mini-bar-fill" id="btts-bar" style="width:0%"></div></div>
       </div>
-      <div class="reading-card">
+      <div class="reading-card" id="corner-reading-card" style="display:none">
         <div class="reading-icon">🚩</div>
-        <div class="reading-label" data-i18n="cornerOver">OVER 8.5 CORNERS</div>
+        <div class="reading-label" id="corner-reading-label">CORNERS</div>
         <div class="reading-value" id="corner-value">–</div>
         <div class="mini-bar"><div class="mini-bar-fill" id="corner-bar" style="width:0%"></div></div>
-      </div>
-      <div class="reading-card">
-        <div class="reading-icon">◐</div>
-        <div class="reading-label" data-i18n="mostGoalsHalf">HIGHEST-SCORING HALF</div>
-        <div class="reading-value" id="half-value" style="font-size:14px;">–</div>
-        <div class="mini-bar"><div class="mini-bar-fill" id="half-bar" style="width:0%"></div></div>
       </div>
     </div>
   </div>
@@ -1436,16 +1430,18 @@ function renderAnalysis(data) {
   setReading('btts',Number.isFinite(Number(bttsDirection?.probability))?bttsDirection.probability:mkt.bttsPercent);
   const bttsReadingLabel=document.querySelector('[data-i18n="bttsYes"]');
   if(bttsReadingLabel&&bttsDirection?.direction)bttsReadingLabel.textContent=bttsDirection.direction==='NO'?(currentLang==='tr'?'KG YOK':'BTTS NO'):(currentLang==='tr'?'KG VAR':'BTTS YES');
-  setReading('corner', data.cornerMetrics?.over85Percent);
-  const mostGoalsHalf = data.halfMarkets?.mostGoalsHalf || {};
-  const halfChoices = [
-    { label: t('firstHalf'), value: Number(mostGoalsHalf.first) },
-    { label: t('secondHalf'), value: Number(mostGoalsHalf.second) },
-    { label: t('equal'), value: Number(mostGoalsHalf.equal) },
-  ].filter(item => Number.isFinite(item.value));
-  const bestHalf = halfChoices.sort((a,b) => b.value-a.value)[0];
-  document.getElementById('half-value').textContent = bestHalf ? bestHalf.label + '\n' + bestHalf.value + '%' : '–';
-  document.getElementById('half-bar').style.width = (bestHalf?.value || 0) + '%';
+  // Corner quick card is shown only for a real BSD two-way bookmaker market.
+  // Never fall back to the legacy fixed 8.5 projection.
+  const cornerMarket=data.cornerMetrics?.displayMarket || null;
+  const cornerCard=document.getElementById('corner-reading-card');
+  if(cornerMarket && Number.isFinite(Number(cornerMarket.line)) && Number.isFinite(Number(cornerMarket.overPercent))){
+    cornerCard.style.display='';
+    document.getElementById('corner-reading-label').textContent =
+      (currentLang==='tr' ? Number(cornerMarket.line)+' ÜST KORNER' : 'OVER '+Number(cornerMarket.line)+' CORNERS');
+    setReading('corner',Number(cornerMarket.overPercent));
+  } else {
+    cornerCard.style.display='none';
+  }
 
   const providerXg = data.providerXg || data.xg || null;
   const providerXgAvailable = String(data?.xgProvenance?.status || '').toUpperCase() === 'PROVIDER_XG';
