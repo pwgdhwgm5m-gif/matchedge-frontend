@@ -992,25 +992,6 @@ body{background:linear-gradient(180deg,#101819 0%,#0b1112 55%,#081011 100%)!impo
   </div>
 
   <div class="card">
-    <div class="card-title" data-i18n="firstHalfTitle">FIRST-HALF GOAL - WHO SCORES?</div>
-    <div class="prob-row" style="margin-bottom:10px;">
-      <div class="prob-col">
-        <div class="prob-label" id="fh-home-label">Home</div>
-        <div class="prob-value home" id="fh-home-prob" style="font-size:22px;">–</div>
-      </div>
-      <div class="prob-col">
-        <div class="prob-label" id="fh-away-label">Away</div>
-        <div class="prob-value away" id="fh-away-prob" style="font-size:22px;">–</div>
-      </div>
-    </div>
-    <div class="prob-bars">
-      <div class="prob-bar-fill" id="fh-bar-home" style="background: var(--teal); width: 50%;"></div>
-      <div class="prob-bar-fill" id="fh-bar-away" style="background: var(--purple); width: 50%;"></div>
-    </div>
-    <div class="signal-tag" style="text-align:center; margin-top:10px;" id="fh-sample-note" data-i18n="fhOwnOnly">Based on own past matches</div>
-  </div>
-
-  <div class="card">
     <div class="card-title" data-i18n="cornerPredictionTitle">CORNER PREDICTION</div>
     <div style="display:flex; gap:10px;">
       <div class="reading-card" style="flex:1;">
@@ -1523,21 +1504,6 @@ function renderAnalysis(data) {
   renderStreak('streak-away-value', data.streak?.away);
   renderRest('rest-home-value', data.fatigue?.home);
   renderRest('rest-away-value', data.fatigue?.away);
-
-  const fh = data.firstHalfProximity || {};
-  const fhHome = Number(fh.home), fhAway = Number(fh.away);
-  const fhAvailable = fh.dataAvailable !== false && Number.isFinite(fhHome) && Number.isFinite(fhAway);
-  document.getElementById('fh-home-label').textContent = displayTeam(data.homeTeam || CONTEXT.homeTeamName || t('home'));
-  document.getElementById('fh-away-label').textContent = displayTeam(data.awayTeam || CONTEXT.awayTeamName || t('away'));
-  document.getElementById('fh-home-prob').textContent = fhAvailable ? fhHome + '%' : '–';
-  document.getElementById('fh-away-prob').textContent = fhAvailable ? fhAway + '%' : '–';
-  document.getElementById('fh-bar-home').style.width = fhAvailable ? fhHome + '%' : '0%';
-  document.getElementById('fh-bar-away').style.width = fhAvailable ? fhAway + '%' : '0%';
-  document.getElementById('fh-sample-note').textContent = !fhAvailable
-    ? (currentLang === 'tr' ? 'Yeterli gerçek ilk yarı verisi yok' : 'Insufficient real first-half data')
-    : fh.h2hSampleSize >= 3
-      ? t('fhOwnH2h').replace('{n}', fh.h2hSampleSize)
-      : t('fhOwnOnly');
 
   const cm = data.cornerMetrics || {};
   document.getElementById('corner-min-value').textContent = cm.minExpected ?? '–';
