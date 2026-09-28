@@ -230,20 +230,207 @@ document.documentElement.setAttribute('data-theme','dark');
     'Tüm hakları saklıdır. Tasarım, yazılım ve içerikler izinsiz kopyalanamaz.':'All rights reserved. Design, software and content may not be copied without permission.',
   });
 
+  Object.assign(literalMaps.en, {
+  "MAÇ ODASI": "MATCH ROOM",
+  "Maç Odası": "Match Room",
+  "Maç odası": "Match Room",
+  "MAÇ SOHBETİ": "MATCH ROOM",
+  "Maç Sohbeti": "Match Room",
+  "Match Chat": "Match Room",
+  "MATCH CHAT": "MATCH ROOM",
+  "TAKIM GOLÜ": "TEAM GOALS",
+  "EV TAKIM GOLÜ": "HOME TEAM GOALS",
+  "DEP TAKIM GOLÜ": "AWAY TEAM GOALS",
+  "İLK YARI GOL": "FIRST-HALF GOALS",
+  "İKİNCİ YARI GOL": "SECOND-HALF GOALS",
+  "İLK YARI": "FIRST HALF",
+  "İKİNCİ YARI": "SECOND HALF",
+  "EN GOLLÜ YARI": "HIGHEST SCORING HALF",
+  "TOPLAM GOL": "TOTAL GOALS",
+  "Ev Sahibi Gol Atar": "Home Team to Score",
+  "Deplasman Gol Atar": "Away Team to Score",
+  "Ev İlk Yarı Gol Atar": "Home to Score in First Half",
+  "Dep İlk Yarı Gol Atar": "Away to Score in First Half",
+  "Ev İkinci Yarı Gol Atar": "Home to Score in Second Half",
+  "Dep İkinci Yarı Gol Atar": "Away to Score in Second Half",
+  "Ev Sahibi": "Home",
+  "Beraberlik": "Draw",
+  "KG Var": "BTTS Yes",
+  "KG Yok": "BTTS No",
+  "İlk Yarı": "First Half",
+  "İkinci Yarı": "Second Half",
+  "Eşit": "Equal",
+  "Orta Sıra - Nötr": "Mid-table - Neutral",
+  "Küme Düşme Hattı": "Relegation Zone",
+  "Şampiyonlar Ligi Yarışı": "Champions League Race",
+  "Avrupa Kupası Yarışı": "European Qualification Race",
+  "Play-off / Yükselme Yarışı": "Play-off / Promotion Race",
+  "Şampiyonluk Yarışı": "Title Race",
+  "Çok Yüksek": "Very High",
+  "Yüksek": "High",
+  "Orta": "Medium",
+  "Düşük": "Low",
+  "Güven": "Confidence",
+  "Attığı": "Scored",
+  "Yediği": "Conceded",
+  "Veri yok": "No data",
+  "Bilgi yok": "No information",
+  "Başlamadı": "Not Started",
+  "Canlı": "Live",
+  "CANLI": "LIVE",
+  "OYNANIYOR…": "SUBMITTING…",
+  "KUPONU OYNA": "PLAY SLIP",
+  "Bu maça ait sohbet odası": "Discussion for this match",
+  "SOHBET KURALLARI": "ROOM RULES",
+  "Küfür, hakaret, tehdit, nefret söylemi, spam, bağlantı ve iletişim bilgisi paylaşımı yasaktır.": "Profanity, insults, threats, hate speech, spam, links and contact details are prohibited.",
+  "Kurallara aykırı mesajlar engellenir; tekrar eden ihlallerde sohbet erişimi geçici olarak durdurulabilir.": "Messages that violate the rules are blocked; repeated violations may temporarily suspend room access.",
+  "Kuralları kabul ediyorum": "I accept the rules",
+  "Kurallar kabul edildi": "Rules accepted",
+  "Sohbet yükleniyor…": "Loading messages…",
+  "Bu maç hakkında yaz…": "Write about this match…",
+  "Gönder": "Send",
+  "Geri": "Back",
+  "Bu maçın sohbeti henüz boş. İlk mesajı sen yaz.": "No messages yet. Be the first to write.",
+  "Maç kimliği bulunamadı.": "Match ID not found.",
+  "Sohbet yüklenemedi.": "Could not load messages.",
+  "Sohbet erişimin geçici olarak durduruldu.": "Your room access has been temporarily suspended.",
+  "Kurallar kabul edilemedi.": "Could not accept the rules.",
+  "Mesaj gönderilemedi.": "Could not send the message.",
+  "0.5 Üst": "Over 0.5",
+  "Ev 0.5 Üst": "Home Over 0.5",
+  "Dep 0.5 Üst": "Away Over 0.5",
+  "İY 0.5 Üst": "1H Over 0.5",
+  "2Y 0.5 Üst": "2H Over 0.5",
+  "İlk Yarı 0.5 Üst": "First Half Over 0.5",
+  "İkinci Yarı 0.5 Üst": "Second Half Over 0.5",
+  "0.5 Alt": "Under 0.5",
+  "Ev 0.5 Alt": "Home Under 0.5",
+  "Dep 0.5 Alt": "Away Under 0.5",
+  "İY 0.5 Alt": "1H Under 0.5",
+  "2Y 0.5 Alt": "2H Under 0.5",
+  "İlk Yarı 0.5 Alt": "First Half Under 0.5",
+  "İkinci Yarı 0.5 Alt": "Second Half Under 0.5",
+  "1.5 Üst": "Over 1.5",
+  "Ev 1.5 Üst": "Home Over 1.5",
+  "Dep 1.5 Üst": "Away Over 1.5",
+  "İY 1.5 Üst": "1H Over 1.5",
+  "2Y 1.5 Üst": "2H Over 1.5",
+  "İlk Yarı 1.5 Üst": "First Half Over 1.5",
+  "İkinci Yarı 1.5 Üst": "Second Half Over 1.5",
+  "1.5 Alt": "Under 1.5",
+  "Ev 1.5 Alt": "Home Under 1.5",
+  "Dep 1.5 Alt": "Away Under 1.5",
+  "İY 1.5 Alt": "1H Under 1.5",
+  "2Y 1.5 Alt": "2H Under 1.5",
+  "İlk Yarı 1.5 Alt": "First Half Under 1.5",
+  "İkinci Yarı 1.5 Alt": "Second Half Under 1.5",
+  "2.5 Üst": "Over 2.5",
+  "Ev 2.5 Üst": "Home Over 2.5",
+  "Dep 2.5 Üst": "Away Over 2.5",
+  "İY 2.5 Üst": "1H Over 2.5",
+  "2Y 2.5 Üst": "2H Over 2.5",
+  "İlk Yarı 2.5 Üst": "First Half Over 2.5",
+  "İkinci Yarı 2.5 Üst": "Second Half Over 2.5",
+  "2.5 Alt": "Under 2.5",
+  "Ev 2.5 Alt": "Home Under 2.5",
+  "Dep 2.5 Alt": "Away Under 2.5",
+  "İY 2.5 Alt": "1H Under 2.5",
+  "2Y 2.5 Alt": "2H Under 2.5",
+  "İlk Yarı 2.5 Alt": "First Half Under 2.5",
+  "İkinci Yarı 2.5 Alt": "Second Half Under 2.5",
+  "3.5 Üst": "Over 3.5",
+  "Ev 3.5 Üst": "Home Over 3.5",
+  "Dep 3.5 Üst": "Away Over 3.5",
+  "İY 3.5 Üst": "1H Over 3.5",
+  "2Y 3.5 Üst": "2H Over 3.5",
+  "İlk Yarı 3.5 Üst": "First Half Over 3.5",
+  "İkinci Yarı 3.5 Üst": "Second Half Over 3.5",
+  "3.5 Alt": "Under 3.5",
+  "Ev 3.5 Alt": "Home Under 3.5",
+  "Dep 3.5 Alt": "Away Under 3.5",
+  "İY 3.5 Alt": "1H Under 3.5",
+  "2Y 3.5 Alt": "2H Under 3.5",
+  "İlk Yarı 3.5 Alt": "First Half Under 3.5",
+  "İkinci Yarı 3.5 Alt": "Second Half Under 3.5",
+  "4.5 Üst": "Over 4.5",
+  "Ev 4.5 Üst": "Home Over 4.5",
+  "Dep 4.5 Üst": "Away Over 4.5",
+  "İY 4.5 Üst": "1H Over 4.5",
+  "2Y 4.5 Üst": "2H Over 4.5",
+  "İlk Yarı 4.5 Üst": "First Half Over 4.5",
+  "İkinci Yarı 4.5 Üst": "Second Half Over 4.5",
+  "4.5 Alt": "Under 4.5",
+  "Ev 4.5 Alt": "Home Under 4.5",
+  "Dep 4.5 Alt": "Away Under 4.5",
+  "İY 4.5 Alt": "1H Under 4.5",
+  "2Y 4.5 Alt": "2H Under 4.5",
+  "İlk Yarı 4.5 Alt": "First Half Under 4.5",
+  "İkinci Yarı 4.5 Alt": "Second Half Under 4.5",
+  "8.5 Üst": "Over 8.5",
+  "Ev 8.5 Üst": "Home Over 8.5",
+  "Dep 8.5 Üst": "Away Over 8.5",
+  "İY 8.5 Üst": "1H Over 8.5",
+  "2Y 8.5 Üst": "2H Over 8.5",
+  "İlk Yarı 8.5 Üst": "First Half Over 8.5",
+  "İkinci Yarı 8.5 Üst": "Second Half Over 8.5",
+  "8.5 Alt": "Under 8.5",
+  "Ev 8.5 Alt": "Home Under 8.5",
+  "Dep 8.5 Alt": "Away Under 8.5",
+  "İY 8.5 Alt": "1H Under 8.5",
+  "2Y 8.5 Alt": "2H Under 8.5",
+  "İlk Yarı 8.5 Alt": "First Half Under 8.5",
+  "İkinci Yarı 8.5 Alt": "Second Half Under 8.5",
+  "9.5 Üst": "Over 9.5",
+  "Ev 9.5 Üst": "Home Over 9.5",
+  "Dep 9.5 Üst": "Away Over 9.5",
+  "İY 9.5 Üst": "1H Over 9.5",
+  "2Y 9.5 Üst": "2H Over 9.5",
+  "İlk Yarı 9.5 Üst": "First Half Over 9.5",
+  "İkinci Yarı 9.5 Üst": "Second Half Over 9.5",
+  "9.5 Alt": "Under 9.5",
+  "Ev 9.5 Alt": "Home Under 9.5",
+  "Dep 9.5 Alt": "Away Under 9.5",
+  "İY 9.5 Alt": "1H Under 9.5",
+  "2Y 9.5 Alt": "2H Under 9.5",
+  "İlk Yarı 9.5 Alt": "First Half Under 9.5",
+  "İkinci Yarı 9.5 Alt": "Second Half Under 9.5"
+});
+
+  Object.assign(literalMaps.en, {
+    '2.5 Ust Gol':'Over 2.5 Goals','Ev 1.5 Ust Takim Golü':'Home Over 1.5 Goals',
+    'Dep 1.5 Ust Takim Golü':'Away Over 1.5 Goals','Ev Gol Atar':'Home Team to Score','Dep Gol Atar':'Away Team to Score'
+  });
+  const translationPatterns=new WeakMap();
+  function translateText(raw, map) {
+    let pattern=translationPatterns.get(map);
+    if(!pattern){
+    const keys=Object.keys(map).sort((a,b)=>b.length-a.length);
+    const escape=value=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    pattern=new RegExp('(?<![\\p{L}\\p{N}_])(?:'+keys.map(escape).join('|')+')(?![\\p{L}\\p{N}_])','gu');
+    translationPatterns.set(map,pattern);
+    }
+    return String(raw).replace(pattern, source=>map[source]);
+  }
+
   function translateDocument(code) {
     const map = literalMaps[code] || literalMaps.en;
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
     while (walker.nextNode()) {
       const parent = walker.currentNode.parentElement;
-      if (parent && !parent.closest('.se-bottom-nav') && !/^(SCRIPT|STYLE|TEXTAREA|OPTION)$/.test(parent.tagName)) nodes.push(walker.currentNode);
+      if (parent && !parent.closest('.se-bottom-nav, .bubble .text, .bubble .who, [data-no-translate]') && !/^(SCRIPT|STYLE|TEXTAREA|OPTION)$/.test(parent.tagName)) nodes.push(walker.currentNode);
     }
+    document.querySelectorAll('[placeholder], [aria-label], [title]').forEach(function(el){
+      ['placeholder','aria-label','title'].forEach(function(attr){
+        const raw=el.getAttribute(attr);if(raw){const value=translateText(raw,map);if(value!==raw)el.setAttribute(attr,value);}
+      });
+    });
     nodes.forEach(function(node) {
       const raw = node.nodeValue;
       let translated = raw;
-      Object.keys(map).sort(function(a,b){ return b.length-a.length; }).forEach(function(source) {
-        if (translated.includes(source)) translated = translated.split(source).join(map[source]);
-      });
+      // One pass prevents translated output being translated again. Word
+      // boundaries keep short labels such as Ev/Dep out of club names.
+      translated = translateText(raw, map);
       if (translated !== raw) node.nodeValue = translated;
     });
   }
@@ -348,6 +535,12 @@ document.documentElement.setAttribute('data-theme','dark');
       if(label && span) span.textContent=label;
     });
     if (typeof applyStaticTranslations === 'function') applyStaticTranslations();
+    if(typeof TRANSLATIONS!=='undefined'&&TRANSLATIONS.tr&&TRANSLATIONS.en){
+      Object.keys(TRANSLATIONS.tr).forEach(key=>{
+        const from=TRANSLATIONS.tr[key],to=TRANSLATIONS.en[key];
+        if(typeof from==='string'&&typeof to==='string'&&from.length>2)literalMaps.en[from]=to;
+      });
+    }
     translateDocument(selected);
     const meta = languages[selected];
     const flag = toggle.querySelector('#langFlag');
@@ -361,7 +554,7 @@ document.documentElement.setAttribute('data-theme','dark');
     document.addEventListener('click', function () { menu.classList.remove('open'); });
     document.documentElement.lang = selected;
     const observer = new MutationObserver(function(){ translateDocument(selected); });
-    observer.observe(document.body, { childList:true, subtree:true });
+    observer.observe(document.body, { childList:true, subtree:true, characterData:true });
   }
 
   function installLegalFooter() {
