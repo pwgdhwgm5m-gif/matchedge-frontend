@@ -119,13 +119,12 @@ document.getElementById('tabPending').onclick=()=>setCouponTab('pending');docume
 const SLIP_KEY='coinedge_draft_v1';
 const LEGACY_SLIP_KEY='coinedge_draft_v1';
 function getDraft(){try{const v=JSON.parse(localStorage.getItem(SLIP_KEY)||'[]');const original=Array.isArray(v)?v:[];const clean=original.filter(x=>['home','draw','away','over25','under25','bttsYes','bttsNo'].includes(x?.selection?.key)).slice(0,3);if(clean.length!==original.length)localStorage.setItem(SLIP_KEY,JSON.stringify(clean));return clean}catch{return[]}}
-const MARKET_X={home:1.8,draw:2.8,away:2.1,over25:1.7,under25:1.8,bttsYes:1.7,bttsNo:1.9,cornersOver85:1.8,cornersUnder85:1.8,cornersOver95:1.8,cornersUnder95:1.8,fhHome:2.2,fhDraw:2.6,fhAway:2.4,shHome:2.1,shDraw:2.5,shAway:2.3,mostGoalsFirst:2.2,mostGoalsEqual:2.8,mostGoalsSecond:1.9};
-function gameX(p,key){p=Number(p);return p>=5&&p<=95?Math.max(1.15,Math.min(4,+(100/p).toFixed(2))):(MARKET_X[key]||1.5)}
+function gameX(selection){const o=Number(selection?.odds??selection?.verifiedOdds);return o>1?o:null}
 function draftHtml(){
  const legs=getDraft(); if(couponTab!=='pending'||!legs.length)return '';
- const x=Number(Math.min(50,Math.max(1.15,legs.reduce((n,l)=>n*gameX(l.selection?.probability),1))).toFixed(2));
- const body=legs.map((l,i)=>'<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(displayTeam(l.homeTeam||'Takım'))+' – '+safe(displayTeam(l.awayTeam||'Takım'))+'</strong><small class="leg-selection">'+safe(selectionLabel(l.selection)||'Seçim')+' · '+gameX(l.selection?.probability).toFixed(2)+'x'+(l.selection?.probability?' · %'+l.selection.probability:'')+'</small></div><button class="leg-delete" onclick="removeDraftLeg('+i+')">×</button></div>').join('');
- const potential=Math.floor(10*x);return '<article class="coupon" style="border-color:#d9ad58"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY SLIP · ':'KUPONUM · ')+legs.length+(isEN()?' MATCHES':' MAÇ')+'</div></div><div class="score">'+x.toFixed(2)+'x</div></div>'+body+'<div class="stake-box"><div class="stake-title">'+(isEN()?'EDGE COIN TO USE':'KULLANILACAK EDGE COIN')+' · '+(isEN()?'BALANCE':'BAKİYE')+' 🪙 '+walletCoins+'</div><div class="stake-payout"><span>'+(isEN()?'Stake':'Bahis')+' 🪙 10 · '+(isEN()?'Potential payout':'Olası kazanç')+'</span><strong>🪙 '+potential+'</strong></div></div><button class="draft-save" type="button" onclick="playDraft()">'+(isEN()?'PLAY SLIP':'KUPONU OYNA')+'</button></article>'; 
+ const priced=legs.every(l=>gameX(l.selection));const x=priced?Number(Math.min(50,Math.max(1.01,legs.reduce((n,l)=>n*gameX(l.selection),1))).toFixed(2)):0;
+ const body=legs.map((l,i)=>'<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(displayTeam(l.homeTeam||'Takım'))+' – '+safe(displayTeam(l.awayTeam||'Takım'))+'</strong><small class="leg-selection">'+safe(selectionLabel(l.selection)||'Seçim')+' · '+(gameX(l.selection)?gameX(l.selection).toFixed(2):'—')+(l.selection?.probability?' · %'+l.selection.probability:'')+'</small></div><button class="leg-delete" onclick="removeDraftLeg('+i+')">×</button></div>').join('');
+ const potential=priced?Math.floor(10*x):0;return '<article class="coupon" style="border-color:#d9ad58"><div class="coupon-head"><div><div class="teams">'+(isEN()?'MY SLIP · ':'KUPONUM · ')+legs.length+(isEN()?' MATCHES':' MAÇ')+'</div></div><div class="score">'+x.toFixed(2)+'x</div></div>'+body+'<div class="stake-box"><div class="stake-title">'+(isEN()?'EDGE COIN TO USE':'KULLANILACAK EDGE COIN')+' · '+(isEN()?'BALANCE':'BAKİYE')+' 🪙 '+walletCoins+'</div><div class="stake-payout"><span>'+(isEN()?'Stake':'Bahis')+' 🪙 10 · '+(isEN()?'Potential payout':'Olası kazanç')+'</span><strong>🪙 '+potential+'</strong></div></div><button class="draft-save" type="button" onclick="playDraft()">'+(isEN()?'PLAY SLIP':'KUPONU OYNA')+'</button></article>'; 
 }
 function setDraftStake(){draftStake=10}
 function removeDraftLeg(i){const a=getDraft();a.splice(i,1);localStorage.setItem(SLIP_KEY,JSON.stringify(a));load()}
@@ -181,7 +180,7 @@ async function load(){
  document.getElementById('list').innerHTML=draft+(coupons.length?coupons.map(c=>{
   const legs=c.legs||[],settled=legs.filter(l=>l.selection?.result&&l.selection.result!=='pending').length,won=legs.filter(l=>l.selection?.result==='won').length,pct=legs.length?Math.round(settled/legs.length*100):0;
   const line=(home,away,s,result,kickoff,fixtureId)=>{
-   const probability=Number(s?.probability)||0,mult=gameX(s?.probability,s?.key).toFixed(2)+'x';
+   const probability=Number(s?.probability)||0,odd=gameX(s),mult=odd?odd.toFixed(2):'';
    const canDelete=c.status==='pending'&&fixtureId&&kickoff&&new Date(kickoff).getTime()>Date.now();
    return '<div class="pick coupon-leg"><div class="leg-info"><strong class="leg-match">'+safe(displayTeam(home||(isEN()?'Team':'Takım')))+' – '+safe(displayTeam(away||(isEN()?'Team':'Takım')))+'</strong><small class="leg-selection">'+safe(selectionLabel(s)||(isEN()?'Pick':'Seçim'))+(mult?' · '+mult:'')+(probability?' · %'+probability:'')+'</small></div><div class="leg-actions">'+('<span class="badge '+(result||'pending')+'">'+statusLabel(result)+'</span>')+(canDelete?'<button class="leg-delete" onclick="removeLeg(\''+c._id+'\',\''+fixtureId+'\')">×</button>':'')+'</div></div>';
   };
