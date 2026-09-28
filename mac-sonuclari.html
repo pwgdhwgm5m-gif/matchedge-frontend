@@ -223,7 +223,7 @@
   .sound-option { border:1px solid var(--border-subtle); background:var(--bg-card-inner); color:var(--text-secondary); border-radius:9px; padding:8px 4px; font-size:9.5px; }
   .sound-option.active { color:var(--amber); border-color:var(--amber); }
   .favorite-card { border-color:rgba(245,185,66,.5); }
-  .score-scroll { max-height:740px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+  .score-scroll { overflow:visible; }
   .score-scroll .match-card { margin-bottom:10px; }
 
   .bottom-nav {
@@ -288,6 +288,20 @@
 .day-tab .dow{color:#c7d0ce!important;font-size:12px!important;font-weight:800!important;line-height:1.15!important}
 .day-tab .dnum{color:#f3f6f5!important;font-size:16px!important;font-weight:900!important;line-height:1.15!important}
 .day-tab.active{background:#39c7c1!important;border-color:#39c7c1!important}.day-tab.active .dow,.day-tab.active .dnum{color:#0f1415!important;text-shadow:none!important}.day-tab.active .today-dot{background:#e66b64!important}
+
+/* Professional scoreboard */
+.scores-summary{display:flex;align-items:center;justify-content:space-between;margin:4px 0 12px;padding:0 2px;color:var(--text-muted);font-size:10px;font-weight:800}
+.league-toggle{position:sticky;top:0;z-index:3;background:#141b1c!important;border-radius:10px!important}
+.league-body{padding-top:5px!important}
+.match-card{background:#151b1c!important;border-color:#303b3c!important;padding:10px 12px!important;margin-bottom:5px!important}
+.compact-score-head,.compact-team-row{grid-template-columns:minmax(0,1fr) 38px 38px!important}
+.compact-score-head{margin-bottom:7px!important;font-size:9.5px!important;font-weight:800!important}
+.compact-team-row{min-height:30px!important}
+.compact-team-name{font-size:13px!important;font-weight:750!important}
+.compact-team-row strong{font-size:14px!important;font-variant-numeric:tabular-nums}
+.match-status-pill{letter-spacing:.35px;text-transform:uppercase}
+.match-card.is-live{box-shadow:inset 3px 0 0 var(--red)}
+@media(max-width:390px){.compact-score-head,.compact-team-row{grid-template-columns:minmax(0,1fr) 34px 34px!important}}
 </style>
 
 <style id="socceredge-stadium-theme">
@@ -722,6 +736,26 @@ async function loadResults() {
     if(!response.ok) throw new Error('results_unavailable');
     const json=await response.json();
     allMatchesForDay=Array.isArray(json.matches)?json.matches:[];
+    // Defensive UI dedupe: one real fixture must render once even when
+    // providers use different IDs or localized country/team labels.
+    const normFixtureText=v=>String(v||'').toLocaleLowerCase('en-US').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/türkiye/g,'turkey').replace(/[^a-z0-9]+/g,' ').trim();
+    const fixtureKey=m=>{
+      const d=String(m.kickoff||m.date||selectedDate).slice(0,10);
+      return d+'|'+normFixtureText(m.homeTeam)+'|'+normFixtureText(m.awayTeam);
+    };
+    const unique=new Map();
+    for(const m of allMatchesForDay){
+      const k=fixtureKey(m),old=unique.get(k);
+      if(!old){unique.set(k,m);continue;}
+      unique.set(k,{...old,
+        homeScore:old.homeScore??m.homeScore,awayScore:old.awayScore??m.awayScore,
+        halftimeHome:old.halftimeHome??m.halftimeHome,halftimeAway:old.halftimeAway??m.halftimeAway,
+        statusShort:old.statusShort&&old.statusShort!=='NS'?old.statusShort:m.statusShort,
+        isLive:Boolean(old.isLive||m.isLive),isFinished:Boolean(old.isFinished||m.isFinished),
+        providerIds:{...(m.providerIds||{}),...(old.providerIds||{})}
+      });
+    }
+    allMatchesForDay=[...unique.values()];
     // /api/results remains the score-page authority. For today's page only,
     // enrich matching live rows with provider-reported clock/status; never
     // create extra fixtures from /api/live and never infer a minute locally.
