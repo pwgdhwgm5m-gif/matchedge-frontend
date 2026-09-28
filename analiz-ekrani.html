@@ -1434,11 +1434,17 @@ function renderAnalysis(data) {
   // Never fall back to the legacy fixed 8.5 projection.
   const cornerMarket=data.cornerMetrics?.displayMarket || null;
   const cornerCard=document.getElementById('corner-reading-card');
-  if(cornerMarket && Number.isFinite(Number(cornerMarket.line)) && Number.isFinite(Number(cornerMarket.overPercent))){
+  if(cornerMarket?.type==='market' && Number.isFinite(Number(cornerMarket.line)) && Number.isFinite(Number(cornerMarket.overPercent))){
     cornerCard.style.display='';
     document.getElementById('corner-reading-label').textContent =
-      (currentLang==='tr' ? Number(cornerMarket.line)+' ÜST KORNER' : 'OVER '+Number(cornerMarket.line)+' CORNERS');
+      (currentLang==='tr' ? Number(cornerMarket.line)+' ÜST KORNER · MARKET' : 'OVER '+Number(cornerMarket.line)+' CORNERS · MARKET');
     setReading('corner',Number(cornerMarket.overPercent));
+  } else if(cornerMarket?.type==='projection' && Number.isFinite(Number(cornerMarket.expectedTotal))){
+    cornerCard.style.display='';
+    document.getElementById('corner-reading-label').textContent =
+      (currentLang==='tr' ? 'BEKLENEN TOPLAM KORNER' : 'EXPECTED TOTAL CORNERS');
+    document.getElementById('corner-value').textContent=Number(cornerMarket.expectedTotal).toFixed(1);
+    document.getElementById('corner-bar').style.width=Math.max(0,Math.min(100,Number(cornerMarket.expectedTotal)/14*100))+'%';
   } else {
     cornerCard.style.display='none';
   }
