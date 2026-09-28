@@ -1652,7 +1652,10 @@ function renderCouponMarkets(data) {
     const market=String(item?.market||'').toLocaleLowerCase('tr-TR');
     const label=String(item?.label||'').toLocaleLowerCase('tr-TR');
     return key.startsWith('sh') || key.startsWith('secondhalf') ||
+      key.startsWith('mostgoals') || key.includes('highestscoringhalf') ||
       market.includes('ikinci yarı') || market.includes('second half') ||
+      market.includes('en gollü yarı') || market.includes('highest scoring half') ||
+      label.includes('en gollü yarı') || label.includes('highest scoring half') ||
       /(^|\s)(2y|2h)\s*(0[.,]5|1[.,]5|gol|goal)/i.test(label) ||
       /ikinci yarı.*(gol|0[.,]5|1[.,]5)|second half.*(goal|0[.,]5|1[.,]5)/i.test(label);
   };
