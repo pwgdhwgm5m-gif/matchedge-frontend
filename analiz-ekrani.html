@@ -1611,8 +1611,18 @@ function renderCouponMarkets(data) {
       /(^|\s)(2y|2h)\s*(0[.,]5|1[.,]5|gol|goal)/i.test(label) ||
       /ikinci yarı.*(gol|0[.,]5|1[.,]5)|second half.*(goal|0[.,]5|1[.,]5)/i.test(label);
   };
+  const isFirstHalfMarket = item => {
+    const key=String(item?.key||'').toLowerCase();
+    const market=String(item?.market||'').toLocaleLowerCase('tr-TR');
+    const label=String(item?.label||'').toLocaleLowerCase('tr-TR');
+    return key.startsWith('fh') || key.startsWith('firsthalf') ||
+      market.includes('ilk yarı') || market.includes('first half') ||
+      /(^|\s)(iy|1h|ht)\b/i.test(label) ||
+      label.includes('ilk yarı') || label.includes('first half');
+  };
   const allMarkets = (data?.marketBoard?.allMarkets || []).filter(item =>
     !isSecondHalfGoalMarket(item) &&
+    !isFirstHalfMarket(item) &&
     (decisionReady || (Number(item?.probability)>0 && Number(item?.probability)<100))
   );
   // Non-core markets remain visible as analysis, but cannot be added to slips.
