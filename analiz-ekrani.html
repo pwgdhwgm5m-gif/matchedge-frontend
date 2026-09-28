@@ -1524,16 +1524,20 @@ function renderAnalysis(data) {
   renderRest('rest-home-value', data.fatigue?.home);
   renderRest('rest-away-value', data.fatigue?.away);
 
-  const fh = data.firstHalfProximity || { home: 50, away: 50 };
+  const fh = data.firstHalfProximity || {};
+  const fhHome = Number(fh.home), fhAway = Number(fh.away);
+  const fhAvailable = fh.dataAvailable !== false && Number.isFinite(fhHome) && Number.isFinite(fhAway);
   document.getElementById('fh-home-label').textContent = displayTeam(data.homeTeam || CONTEXT.homeTeamName || t('home'));
   document.getElementById('fh-away-label').textContent = displayTeam(data.awayTeam || CONTEXT.awayTeamName || t('away'));
-  document.getElementById('fh-home-prob').textContent = fh.home + '%';
-  document.getElementById('fh-away-prob').textContent = fh.away + '%';
-  document.getElementById('fh-bar-home').style.width = fh.home + '%';
-  document.getElementById('fh-bar-away').style.width = fh.away + '%';
-  document.getElementById('fh-sample-note').textContent = fh.h2hSampleSize >= 3
-    ? t('fhOwnH2h').replace('{n}', fh.h2hSampleSize)
-    : t('fhOwnOnly');
+  document.getElementById('fh-home-prob').textContent = fhAvailable ? fhHome + '%' : '–';
+  document.getElementById('fh-away-prob').textContent = fhAvailable ? fhAway + '%' : '–';
+  document.getElementById('fh-bar-home').style.width = fhAvailable ? fhHome + '%' : '0%';
+  document.getElementById('fh-bar-away').style.width = fhAvailable ? fhAway + '%' : '0%';
+  document.getElementById('fh-sample-note').textContent = !fhAvailable
+    ? (currentLang === 'tr' ? 'Yeterli gerçek ilk yarı verisi yok' : 'Insufficient real first-half data')
+    : fh.h2hSampleSize >= 3
+      ? t('fhOwnH2h').replace('{n}', fh.h2hSampleSize)
+      : t('fhOwnOnly');
 
   const cm = data.cornerMetrics || {};
   document.getElementById('corner-min-value').textContent = cm.minExpected ?? '–';
