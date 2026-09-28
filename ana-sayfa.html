@@ -933,7 +933,16 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
     ? liveMatchLink(m)
     : analysisLink(m);
   const livePick = isLive ? analysis?.livePrediction : null;
-  const pick = isLive ? null : (forcedPick || analysis?.marketBoard?.best);
+  const isFirstHalfAnalysisPick = p => {
+    const key=String(p?.key||'').toLowerCase();
+    const market=String(p?.market||'').toLocaleLowerCase('tr-TR');
+    const label=String(p?.label||'').toLocaleLowerCase('tr-TR');
+    return key.startsWith('fh') || key.startsWith('firsthalf') ||
+      market.includes('ilk yarı') || market.includes('first half') ||
+      /(^|\s)(iy|1h|ht)\b/i.test(label) || label.includes('ilk yarı') || label.includes('first half');
+  };
+  const rawPick = isLive ? null : (forcedPick || analysis?.marketBoard?.best);
+  const pick = isFirstHalfAnalysisPick(rawPick) ? null : rawPick;
   let signal;
   if (isLive && livePick?.available && Number.isFinite(Number(livePick.probability))) {
     const probability = Number(livePick.probability).toFixed(1).replace('.0','');
