@@ -1662,11 +1662,32 @@ function renderCouponMarkets(data) {
     draw: final1x2.drawProbability, drawResult: final1x2.drawProbability,
     away: final1x2.awayWinProbability, awayWin: final1x2.awayWinProbability
   };
-  const markets = allMarkets.map(item => {
+  const normalizeCouponKey = raw => {
+    const original=String(raw||'').trim();
+    const key=original.toLowerCase().replace(/[^a-z0-9]/g,'');
+    return ({
+      home:'home',homewin:'home',hometeam:'home','1':'home',
+      draw:'draw',x:'draw',
+      away:'away',awaywin:'away',awayteam:'away','2':'away',
+      over25:'over25',o25:'over25',
+      under25:'under25',u25:'under25',
+      bttsyes:'bttsYes',kgvar:'bttsYes',
+      bttsno:'bttsNo',kgyok:'bttsNo'
+    })[key] || original;
+  };
+  const normalizedMarkets = allMarkets.map(item => ({...item,key:normalizeCouponKey(item?.key)}));
+  const markets = normalizedMarkets.map(item => {
     if (item?.market !== '1X2' || !Object.prototype.hasOwnProperty.call(final1x2ByKey,item.key)) return item;
     const probability = Number(final1x2ByKey[item.key]);
     return Number.isFinite(probability) ? { ...item, probability:+probability.toFixed(1) } : item;
   });
+  const ensureComplement=(yesKey,noKey,market,yesLabel,noLabel)=>{
+    const yes=markets.find(m=>m.key===yesKey), no=markets.find(m=>m.key===noKey);
+    if(yes&&!no&&Number.isFinite(Number(yes.probability))) markets.push({...yes,key:noKey,market,label:noLabel,probability:+(100-Number(yes.probability)).toFixed(1),derivedComplement:true});
+    if(no&&!yes&&Number.isFinite(Number(no.probability))) markets.push({...no,key:yesKey,market,label:yesLabel,probability:+(100-Number(no.probability)).toFixed(1),derivedComplement:true});
+  };
+  ensureComplement('over25','under25','GOL','2.5 Üst','2.5 Alt');
+  ensureComplement('bttsYes','bttsNo','KG','KG Var','KG Yok');
   const grid = document.getElementById('couponMarketGrid');
   selectedCouponMarkets.clear();
   document.getElementById('addCouponButton').disabled = true;
