@@ -958,11 +958,11 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
       ? `<div class="featured-health">xG ${Number(livePick.homeXg).toFixed(2)} - ${Number(livePick.awayXg).toFixed(2)}${livePick.source === 'estimate' ? ' · estimated' : ''}</div>`
       : (health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : '');
     signal = `<div class="featured-market"><div><div class="featured-signal-text">${homePickEnglish(livePick.market || 'Goal proximity')} · ${homePickEnglish(livePick.selection)}</div>${xgText}</div><div class="featured-probability">%${probability}</div></div>`;
-  } else if (pick && pick.market && pick.label && Number.isFinite(Number(pick.probability))) {
-    const health = Number.isFinite(Number(pick.dataHealth)) ? Number(pick.dataHealth) : null;
-    signal = `<div class="featured-market"><div><div class="featured-signal-text">${homePickEnglish(pick.market)} · ${homePickEnglish(pick.label)}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${Number(pick.probability)}</div></div>`;
+  } else if (!isLive) {
+    // Prematch cards intentionally stay clean: detailed pick/probability lives behind Analysis.
+    signal = `<span class="featured-analysis-button">${t('analysisButton')}</span>`;
   } else {
-    signal = isLive ? `<div><div class="featured-signal-text">Tap for Prediction</div><div class="featured-signal-sub">${t('goToSimulator')}</div></div>` : `<span class="featured-analysis-button">${t('analysisButton')}</span>`;
+    signal = `<div><div class="featured-signal-text">Tap for Prediction</div><div class="featured-signal-sub">${t('goToSimulator')}</div></div>`;
   }
 
   const isFav = favorites.has(String(m.fixtureId));
