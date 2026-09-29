@@ -170,6 +170,13 @@
 .se-bottom-nav a{min-width:0!important;padding:0 2px!important}.se-bottom-nav a span{display:block!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.se-bottom-nav a b{font-size:18px!important}@media(max-width:360px){.se-bottom-nav a{font-size:8px!important}.se-bottom-nav a b{font-size:17px!important}}
 /* six-nav-fit */
 .se-bottom-nav{padding-left:4px!important;padding-right:4px!important}.se-bottom-nav a{font-size:9px!important;gap:2px!important;padding:0 1px!important}.se-bottom-nav a b{font-size:17px!important}@media(max-width:390px){.se-bottom-nav a{font-size:7.5px!important}.se-bottom-nav a b{font-size:16px!important}}
+
+/* unified modern bottom navigation */
+.se-bottom-nav.se-modern-nav{position:fixed!important;left:10px!important;right:10px!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;width:auto!important;height:72px!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;align-items:center!important;padding:7px 5px!important;background:rgba(23,29,30,.97)!important;border:1px solid #364142!important;border-radius:22px!important;box-shadow:0 12px 30px rgba(0,0,0,.38)!important;backdrop-filter:blur(14px);z-index:2147483647}
+.se-modern-nav a{height:58px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#899794!important;text-decoration:none!important;font-size:9px!important;font-weight:700!important;padding:0!important}
+.se-modern-nav a.active{color:#39c7c1!important}.se-modern-nav .se-nav-icon{width:31px;height:31px;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:0!important}.se-modern-nav a.active .se-nav-icon{background:rgba(57,199,193,.13)}
+.se-modern-nav svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.se-modern-nav a.active:after{content:"";width:18px;height:2px;border-radius:2px;background:#39c7c1;position:absolute;margin-top:57px}
+@media(max-width:390px){.se-modern-nav a{font-size:7.8px!important}.se-modern-nav svg{width:19px;height:19px}}
 </style>
 
 
@@ -274,14 +281,7 @@ body{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
 
 </div>
 
-<nav class="se-bottom-nav" aria-label="Main menu">
-<a class="" href="ana-sayfa.html"><b>⌂</b><span class="nav-en">Home</span><span class="nav-tr">Ana Ekran</span></a>
-<a class="" href="maclar.html"><b>⚽</b><span class="nav-en">Fixtures</span><span class="nav-tr">Fikstür</span></a>
-<a class="" href="mac-sonuclari.html"><b>▣</b><span class="nav-en">Scores</span><span class="nav-tr">Skor</span></a>
-<a class="active" href="favoriler.html"><b>★</b><span class="nav-en">Favorites</span><span class="nav-tr">Favoriler</span></a>
-<a class="" href="edge-arena.html"><b>◆</b><span class="nav-en">Arena</span><span class="nav-tr">Arena</span></a>
-<a class="" href="kuponum.html"><b>▤</b><span class="nav-en">Coupon</span><span class="nav-tr">Kuponum</span></a>
-</nav>
+<nav class="se-bottom-nav se-modern-nav" aria-label="Main menu"><a class="" href="ana-sayfa.html"><b class="se-nav-icon"><svg viewBox="0 0 24 24"><path d="M3 10.8 12 3l9 7.8v9.7a.5.5 0 0 1-.5.5H15v-6H9v6H3.5a.5.5 0 0 1-.5-.5z"/></svg></b><span class="nav-en">Home</span><span class="nav-tr">Ana Ekran</span></a><a class="" href="maclar.html"><b class="se-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m12 7 3 2.2-1.1 3.5h-3.8L9 9.2zM6.5 9 4 11m13.5-2L20 11M8 17l-1 2m9-2 1 2"/></svg></b><span class="nav-en">Fixtures</span><span class="nav-tr">Fikstür</span></a><a class="" href="mac-sonuclari.html"><b class="se-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 9v6m8-6v6M11 12h2"/></svg></b><span class="nav-en">Scores</span><span class="nav-tr">Skor</span></a><a class="active" href="favoriler.html"><b class="se-nav-icon"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></b><span class="nav-en">Favorites</span><span class="nav-tr">Favoriler</span></a><a class="" href="edge-arena.html"><b class="se-nav-icon"><svg viewBox="0 0 24 24"><path d="M8 4h8v4a4 4 0 0 1-8 0zM8 6H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 12v5m-4 3h8m-6-3h4"/></svg></b><span class="nav-en">Arena</span><span class="nav-tr">Arena</span></a><a class="" href="kuponum.html"><b class="se-nav-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M12 7.5v2m0 5v2"/></svg></b><span class="nav-en">Coupon</span><span class="nav-tr">Kuponum</span></a></nav>
 <script src="football-names.js"></script>
 <script>
 (function() {
