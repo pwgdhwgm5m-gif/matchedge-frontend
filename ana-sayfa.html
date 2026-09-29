@@ -669,8 +669,20 @@ function homeRegionTier(m){
 const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 let followingPicks=[];let v4HomeDecisions=new Map();
 async function loadFollowingPicks(){try{const r=await fetch(API_BASE+'/api/community/feed/following',{headers:authHeaders()});if(r.ok){const d=await r.json();followingPicks=d.items||[];renderHomeForYou()}}catch(e){console.warn('For You feed unavailable:',e.message)}}
-function hasStrongMarketEvidence(p){return p?.strongPickEligible===true&&['SUFFICIENT','STRONG'].includes(String(p?.evidenceLevel||'').toUpperCase())&&Number(p?.effectiveSample||0)>=8}
-function strongestHomeItems(){return allMatches.filter(m=>!m.isLive&&isUpcomingMatch(m)).map(m=>{const a=matchAnalyses.get(String(m.fixtureId));if(!a)return null;const coreKeys=new Set(['home','away','bttsYes','bttsNo','over25','under25','homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35']);const candidates=[a?.marketBoard?.best,...(a?.marketBoard?.topPredictions||[])].filter(x=>x&&coreKeys.has(x.key)&&x.label&&Number.isFinite(Number(x.probability))&&hasStrongMarketEvidence(x));const p=candidates.sort((x,y)=>Number(y.topPickScore??y.score??y.probability)-Number(x.topPickScore??x.score??x.probability))[0];if(!p)return null;const health=Number(p?.dataHealth??a?.dataHealth?.score??0);const fav=favorites.has(String(m.fixtureId));const score=(fav?1000:0)+Number(p.probability||0)*0.7+Math.max(0,health)*0.3;return {m,p,health,fav,score}}).filter(Boolean).sort((a,b)=>b.score-a.score)}
+function hasStrongMarketEvidence(p,analysis){
+  if(!p||!Number.isFinite(Number(p.probability)))return false;
+  const explicit=p.strongPickEligible===true;
+  const level=String(p.evidenceLevel||'').toUpperCase();
+  const sample=Number(p.effectiveSample);
+  if(explicit&&['SUFFICIENT','STRONG'].includes(level)&&(!Number.isFinite(sample)||sample>=5))return true;
+  // Older/cached analyses do not always expose the newer eligibility metadata.
+  // Keep Top Predictions usable, but require solid model/data health instead of accepting weak rows.
+  const health=Number(p.dataHealth??analysis?.dataHealth?.score??analysis?.premium?.dataHealth?.score);
+  const prob=Number(p.probability);
+  const weak=['WEAK','LOW','INSUFFICIENT'].includes(level);
+  return !weak&&Number.isFinite(health)&&health>=60&&prob>=55;
+}
+function strongestHomeItems(){return allMatches.filter(m=>!m.isLive&&isUpcomingMatch(m)).map(m=>{const a=matchAnalyses.get(String(m.fixtureId));if(!a)return null;const coreKeys=new Set(['home','away','bttsYes','bttsNo','over25','under25','homeOver15','homeOver25','homeOver35','awayOver15','awayOver25','awayOver35']);const candidates=[a?.marketBoard?.best,...(a?.marketBoard?.topPredictions||[])].filter(x=>x&&coreKeys.has(x.key)&&x.label&&Number.isFinite(Number(x.probability))&&hasStrongMarketEvidence(x,a));const p=candidates.sort((x,y)=>Number(y.topPickScore??y.score??y.probability)-Number(x.topPickScore??x.score??x.probability))[0];if(!p)return null;const health=Number(p?.dataHealth??a?.dataHealth?.score??0);const fav=favorites.has(String(m.fixtureId));const score=(fav?1000:0)+Number(p.probability||0)*0.7+Math.max(0,health)*0.3;return {m,p,health,fav,score}}).filter(Boolean).sort((a,b)=>b.score-a.score)}
 async function loadV4HomeDecisions(){try{const ids=allMatches.filter(m=>!m.isLive).map(m=>String(m.fixtureId)).filter(Boolean).slice(0,60);if(!ids.length)return;const r=await fetch(API_BASE+'/api/analysis/v4-decisions',{method:'POST',headers:authHeaders(),body:JSON.stringify({fixtureIds:ids})});if(r.ok){const d=await r.json();v4HomeDecisions=new Map((d.items||[]).map(x=>[String(x.fixtureId),x]));renderHomeForYou()}}catch(e){console.warn('V4 home decisions unavailable:',e.message)}}
 function renderHomeForYou(){const el=document.getElementById('homeForYou');if(!el)return;const lang=currentLang==='tr',cards=[];
  followingPicks.filter(x=>x.result==='pending').slice(0,4).forEach(x=>cards.push({score:300+Number(x.user?.accuracy||0),html:'<a class="fy-card" href="match-room.html?fixtureId='+encodeURIComponent(x.fixtureId)+'&home='+encodeURIComponent(x.homeTeam||'')+'&away='+encodeURIComponent(x.awayTeam||'')+'&league='+encodeURIComponent(x.league||'')+'&kickoff='+encodeURIComponent(x.kickoff||'')+'"><div class="fy-source">👤 '+(lang?'TAKİP ETTİĞİN ANALİST':'FOLLOWING ANALYST')+'</div><div class="fy-match">'+escapeHtml(displayTeam(x.homeTeam))+' – '+escapeHtml(displayTeam(x.awayTeam))+'</div><div class="fy-sub">'+escapeHtml(displayLeague(x.league,x.canonicalCompetitionKey))+' · '+escapeHtml(x.market)+'</div><div class="fy-pick">✓ '+escapeHtml(x.label)+'</div><div class="fy-user">@'+escapeHtml(x.user?.username||'')+' · '+Number(x.user?.accuracy||0)+'%</div></a>'}));
@@ -1084,7 +1096,7 @@ function renderFeaturedContent() {
           ...(analysis?.marketBoard?.topPredictions || [])
         ];
         const candidates=published.filter(p=>p && coreTopKeys.has(p.key) && p.market && p.label &&
-          Number.isFinite(Number(p.probability)) && hasStrongMarketEvidence(p));
+          Number.isFinite(Number(p.probability)) && hasStrongMarketEvidence(p,analysis));
         const best=candidates.sort((a,b)=>{
           const as=Number(a.topPickScore ?? a.score), bs=Number(b.topPickScore ?? b.score);
           if(Number.isFinite(as)||Number.isFinite(bs)) return (Number.isFinite(bs)?bs:-Infinity)-(Number.isFinite(as)?as:-Infinity) || Number(b.probability)-Number(a.probability);
