@@ -455,17 +455,25 @@ const TRANSLATIONS = {
 };
 
 const savedLang=localStorage.getItem('matchedge_lang');
+const languageWasChosen=localStorage.getItem('matchedge_lang_manual')==='1';
 let currentLang = savedLang || 'en';
 async function applyCountryDefaultLanguage(){
-  if(savedLang) return;
+  // A user's explicit language choice always wins. Otherwise resolve the first
+  // registration/login language from the request IP country on our backend.
+  if(languageWasChosen) return;
   try{
     const r=await fetch(API_BASE+'/api/auth/locale',{cache:'no-store'});
+    if(!r.ok) throw new Error('locale');
     const d=await r.json();
-    currentLang=d?.countryCode==='TR'?'tr':'en';
+    currentLang=String(d?.language||'').toLowerCase()==='tr'||String(d?.countryCode||'').toUpperCase()==='TR'?'tr':'en';
     localStorage.setItem('matchedge_lang',currentLang);
+    localStorage.setItem('matchedge_lang_source','ip-country');
     applyStaticTranslations();
     if(document.getElementById('installSheet')?.classList.contains('open')) renderInstall();
-  }catch(_){}
+  }catch(_){
+    currentLang=savedLang||'en';
+    applyStaticTranslations();
+  }
 }
 let currentMode = 'login'; // login | register | forgot
 
@@ -496,6 +504,8 @@ function updateSubmitLabel() {
 document.getElementById('langToggle').addEventListener('click', () => {
   currentLang = currentLang === 'tr' ? 'en' : 'tr';
   localStorage.setItem('matchedge_lang', currentLang);
+  localStorage.setItem('matchedge_lang_manual','1');
+  localStorage.setItem('matchedge_lang_source','manual');
   applyStaticTranslations();
 });
 
