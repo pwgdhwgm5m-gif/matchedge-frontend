@@ -1549,10 +1549,13 @@ function renderStandings(standings) {
     const rowName = normalizeTeamName(row.teamName);
     const isHome = String(row.teamId) === homeId || (!!homeName && rowName === homeName);
     const isAway = String(row.teamId) === awayId || (!!awayName && rowName === awayName);
+    // Highlight both clubs from the analysed fixture so neither disappears
+    // inside a long league table. Home keeps SoccerEdge teal; away uses a warm
+    // gold/amber accent that remains readable on the dark theme.
     const rowStyle = isHome
-      ? 'background:rgba(45,212,191,0.1); color:var(--teal); font-weight:700;'
+      ? 'background:linear-gradient(90deg,rgba(45,212,191,.26),rgba(45,212,191,.12)); color:#43d7cf; font-weight:800; box-shadow:inset 3px 0 0 #2dd4bf;'
       : isAway
-        ? 'background:rgba(45,212,191,0.1); color:var(--teal); font-weight:700;'
+        ? 'background:linear-gradient(90deg,rgba(232,170,62,.26),rgba(232,170,62,.12)); color:#f0b84f; font-weight:800; box-shadow:inset 3px 0 0 #e8aa3e;'
         : '';
     return `
       <tr class="${isHome || isAway ? 'standings-match-team' : ''}" style="${rowStyle}">
