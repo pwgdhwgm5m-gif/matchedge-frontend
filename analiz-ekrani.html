@@ -1496,9 +1496,23 @@ function renderAnalysis(data) {
   renderRest('rest-away-value', data.fatigue?.away);
 
   const cm = data.cornerMetrics || {};
-  document.getElementById('corner-min-value').textContent = cm.minExpected ?? '–';
-  document.getElementById('corner-over85-value').textContent = Number.isFinite(Number(cm.over85Percent)) ? Number(cm.over85Percent) + '%' : '–';
-  document.getElementById('corner-over85-bar').style.width = (cm.over85Percent || 0) + '%';
+  const dm = cm.displayMarket || {};
+  const expectedHome = Number.isFinite(Number(dm.expectedHome)) ? Number(dm.expectedHome) : (Number.isFinite(Number(cm.expectedHome)) ? Number(cm.expectedHome) : null);
+  const expectedAway = Number.isFinite(Number(dm.expectedAway)) ? Number(dm.expectedAway) : (Number.isFinite(Number(cm.expectedAway)) ? Number(cm.expectedAway) : null);
+  const expectedTotal = Number.isFinite(Number(dm.expectedTotal)) ? Number(dm.expectedTotal) : (Number.isFinite(Number(cm.expectedTotal)) ? Number(cm.expectedTotal) : null);
+  const marketLine = Number.isFinite(Number(dm.line)) ? Number(dm.line) : 8.5;
+  const modelLineMap = {8.5:cm.over85Percent,9.5:cm.over95Percent,10.5:cm.over105Percent};
+  const overPct = Number.isFinite(Number(dm.modelOverPercent)) ? Number(dm.modelOverPercent) : (Number.isFinite(Number(modelLineMap[marketLine])) ? Number(modelLineMap[marketLine]) : (Number.isFinite(Number(dm.overPercent)) ? Number(dm.overPercent) : null));
+  const cornerMinEl=document.getElementById('corner-min-value');
+  if(cornerMinEl) cornerMinEl.innerHTML = expectedHome!=null && expectedAway!=null && expectedTotal!=null
+    ? '<span style="display:block">🏠 '+(currentLang==='tr'?'Ev Beklenen Korner':'Home Expected Corners')+': <b>'+expectedHome.toFixed(1)+'</b></span>'+
+      '<span style="display:block;margin-top:5px">✈️ '+(currentLang==='tr'?'Deplasman Beklenen Korner':'Away Expected Corners')+': <b>'+expectedAway.toFixed(1)+'</b></span>'+
+      '<span style="display:block;margin-top:5px">Σ '+(currentLang==='tr'?'Toplam Beklenen Korner':'Total Expected Corners')+': <b>'+expectedTotal.toFixed(1)+'</b></span>'
+    : (currentLang==='tr'?'Korner geçmişi yetersiz':'Insufficient corner history');
+  const cornerValue=document.getElementById('corner-over85-value');
+  if(cornerValue) cornerValue.textContent = overPct!=null ? marketLine.toFixed(1)+' '+(currentLang==='tr'?'ÜST':'OVER')+' · %'+overPct.toFixed(1) : '–';
+  const cornerBar=document.getElementById('corner-over85-bar');
+  if(cornerBar) cornerBar.style.width = (overPct || 0) + '%';
 
   renderStandings(data.standings);
 
