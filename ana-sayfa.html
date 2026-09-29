@@ -45,6 +45,12 @@
     cursor: pointer;
   }
   .icon-btn:active { transform: scale(0.92); background: var(--bg-card-inner); }.icon-btn.notification-on{border-color:#39c7c1!important;background:rgba(242,201,76,.12)!important;color:#39c7c1}
+  .strong-alert-control{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin:0 0 16px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius)}
+  .strong-alert-control strong{display:block;font-size:13px;color:var(--text-primary)}
+  .strong-alert-control small{display:block;margin-top:4px;font-size:11px;line-height:1.35;color:var(--text-muted)}
+  .strong-alert-toggle{flex:none;border:1px solid var(--border-subtle);border-radius:20px;background:var(--bg-card-inner);color:var(--text-secondary);font-size:11px;font-weight:700;padding:7px 11px;min-width:68px;cursor:pointer}
+  .strong-alert-toggle[aria-pressed="true"]{border-color:var(--teal);background:rgba(57,199,193,.16);color:var(--teal)}
+  .strong-alert-toggle:disabled{opacity:.55;cursor:wait}
   .lang-toggle {
     display: flex; align-items: center; gap: 4px;
     background: var(--bg-card);
@@ -392,6 +398,10 @@
   </div>
 
   <div style="font-size:11px; color:var(--text-muted); margin-bottom:16px;" id="welcomeLine"></div>
+  <div class="strong-alert-control" id="strongSignalControl">
+    <div><strong id="strongSignalTitle">STRONG Signal alerts</strong><small id="strongSignalHint">For your favorite live matches · match bell required</small></div>
+    <button class="strong-alert-toggle" type="button" id="strongSignalToggle" aria-pressed="false" disabled>…</button>
+  </div>
 <div class="coin-panel beta-panel" style="margin-bottom:16px;"><div><strong data-i18n="betaTitle">BETA</strong><small data-i18n="betaText">All features are free during beta. Predictions are recorded to measure model performance.</small></div></div>
 
   <div id="featuredSection"></div>
@@ -1362,6 +1372,46 @@ document.getElementById('claimDailyBtn').addEventListener('click', async () => {
 loadCommunityPanel();
 
 // Notification bell is managed by language-selector.js via the existing PWA Web Push subscription system.
+async function initStrongSignalToggle(){
+  const button=document.getElementById('strongSignalToggle');
+  const title=document.getElementById('strongSignalTitle');
+  const hint=document.getElementById('strongSignalHint');
+  const tr=(localStorage.getItem('matchedge_lang')||'en')==='tr';
+  title.textContent=tr?'STRONG sinyal bildirimleri':'STRONG Signal alerts';
+  let enabled=false, error='';
+  const paint=()=>{
+    button.textContent=tr?(enabled?'AÇIK':'KAPALI'):(enabled?'ON':'OFF');
+    button.setAttribute('aria-pressed',String(enabled));
+    button.setAttribute('aria-label',tr?'STRONG sinyal bildirimleri':'STRONG Signal alerts');
+    hint.textContent=error||(tr
+      ?'Favori canlı maçların için · üstteki bildirim zili de açık olmalı'
+      :'For favorite live matches · the match bell must also be on');
+  };
+  try{
+    const response=await fetch(`${API_BASE}/api/push/strong-signal`,{headers:authHeaders()});
+    if(!response.ok)throw new Error('Preference unavailable');
+    enabled=(await response.json()).enabled===true;
+    button.disabled=false;
+  }catch(_){error=tr?'Ayar yüklenemedi. Yeniden dene.':'Could not load setting. Retry.';}
+  paint();
+  button.addEventListener('click',async()=>{
+    button.disabled=true;error='';
+    try{
+      const next=!enabled;
+      if(next&&localStorage.getItem('socceredge_match_notifications')!=='on'){
+        if(!window.SoccerEdgePush||!await window.SoccerEdgePush.setEnabled(true))throw new Error('Push permission unavailable');
+        localStorage.setItem('socceredge_match_notifications','on');
+        const bell=document.getElementById('notificationBtn');
+        if(bell){bell.textContent='🔔';bell.classList.add('notification-on');bell.setAttribute('aria-pressed','true')}
+      }
+      const response=await fetch(`${API_BASE}/api/push/strong-signal`,{method:'PUT',headers:authHeaders(),body:JSON.stringify({enabled:next})});
+      if(!response.ok)throw new Error('Preference save failed');
+      enabled=(await response.json()).enabled===true;
+    }catch(_){error=tr?'Ayar kaydedilemedi. Yeniden dene.':'Could not save setting. Retry.'}
+    button.disabled=false;paint();
+  });
+}
+initStrongSignalToggle();
 
 (async () => {
   loadHome();
