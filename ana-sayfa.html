@@ -335,6 +335,10 @@
 .featured-signal.analysis-action{background:transparent!important;padding:0!important;margin-top:14px!important;border:0!important}
 .featured-analysis-button{display:flex;align-items:center;justify-content:center;width:100%;min-height:38px;border-radius:10px;background:transparent;color:#f4f7f6;border:1px solid #39c7c1;font-size:11px;font-weight:800;letter-spacing:.7px;transition:background .12s ease,border-color .12s ease,transform .12s ease}
 .featured-card:active .featured-analysis-button{background:rgba(57,199,193,.14);border-color:#239c98;transform:scale(.99)}
+
+.featured-signal.top-prediction-action{border-color:rgba(57,199,193,.34)!important;background:rgba(57,199,193,.055)!important}
+.top-prediction-market .featured-signal-text{color:#f4f7f6!important;font-size:12px!important;font-weight:800!important}
+.top-prediction-market .featured-probability{color:#39c7c1!important}
 </style>
 
 
@@ -970,8 +974,11 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
       ? `<div class="featured-health">xG ${Number(livePick.homeXg).toFixed(2)} - ${Number(livePick.awayXg).toFixed(2)}${livePick.source === 'estimate' ? ' · estimated' : ''}</div>`
       : (health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : '');
     signal = `<div class="featured-market"><div><div class="featured-signal-text">${homePickEnglish(livePick.market || 'Goal proximity')} · ${homePickEnglish(livePick.selection)}</div>${xgText}</div><div class="featured-probability">%${probability}</div></div>`;
+  } else if (!isLive && forcedPick && forcedPick.market && forcedPick.label && Number.isFinite(Number(forcedPick.probability))) {
+    // Top Predictions: one selected market + its calibrated probability.
+    signal = `<div class="featured-market top-prediction-market"><div class="featured-signal-text">${homePickEnglish(forcedPick.market)} · ${homePickEnglish(forcedPick.label)}</div><div class="featured-probability">%${Number(forcedPick.probability).toFixed(1).replace('.0','')}</div></div>`;
   } else if (!isLive) {
-    // Prematch cards intentionally stay clean: detailed pick/probability lives behind Analysis.
+    // Featured prematch card stays clean; details live behind Analysis.
     signal = `<span class="featured-analysis-button">${t('analysisButton')}</span>`;
   } else {
     signal = `<div><div class="featured-signal-text">Tap for Prediction</div><div class="featured-signal-sub">${t('goToSimulator')}</div></div>`;
@@ -986,7 +993,7 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
       ${cardFav}
       <div class="featured-teams">${escapeHtml(displayTeam(m.homeTeam))} - ${escapeHtml(displayTeam(m.awayTeam))}${isLive ? ` &nbsp; <span style="color:var(--teal)">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</span>` : ''}</div>
       <div class="featured-meta">${escapeHtml(displayLeague(m.displayName || m.league,m.canonicalCompetitionKey))} • ${timeLabel}</div>
-      <div class="featured-signal ${isLive ? '' : 'analysis-action'}">
+      <div class="featured-signal ${isLive ? '' : (forcedPick ? 'top-prediction-action' : 'analysis-action')}">
         ${isLive ? '<div class="featured-signal-icon">⚡</div>' : ''}
         <div style="flex:1">${signal}</div>
       </div>
