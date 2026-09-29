@@ -265,6 +265,10 @@
 
   .for-you-home{margin:14px 0 18px}.for-you-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.for-you-head b{font-size:12px}.for-you-head a{font-size:9px;color:var(--teal);text-decoration:none}.fy-scroll{display:flex;gap:9px;overflow-x:auto;padding:1px 1px 8px;scrollbar-width:none}.fy-scroll::-webkit-scrollbar{display:none}.fy-card{flex:0 0 82%;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:13px;padding:12px;text-decoration:none;color:var(--text-primary)}.fy-source{font-size:8px;font-weight:950;color:var(--teal)}.fy-match{font-size:12px;font-weight:900;margin-top:6px}.fy-sub{font-size:9px;color:var(--text-secondary);margin-top:3px}.fy-pick{font-size:10px;font-weight:950;color:var(--amber);margin-top:7px}.fy-user{font-size:9px;color:var(--text-secondary);margin-top:6px}.fy-empty{font-size:10px;color:var(--text-muted);padding:10px 2px}.community-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
   .community-card { display:block; text-decoration:none; color:var(--text-primary); background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:14px; padding:14px; }
+  .community-icon{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(57,199,193,.10);border:1px solid rgba(57,199,193,.20)}
+  .community-icon svg,.coin-icon svg,.rank-icon svg{width:20px;height:20px;fill:none;stroke:var(--teal);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .coin-main{display:flex;align-items:center;gap:10px}.coin-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(57,199,193,.10);border:1px solid rgba(57,199,193,.24);flex:0 0 auto}
+  .coin-panel strong{display:flex;align-items:center;color:var(--teal)!important}.rank-line{display:flex!important;align-items:center;gap:6px}.rank-icon{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center}
   .community-card strong { display:block; font-size:13px; margin:7px 0 3px; }
   .community-card span { display:block; color:var(--text-secondary); font-size:10px; line-height:1.4; }
   .coin-panel { display:flex; align-items:center; justify-content:space-between; gap:12px; background:#0f1415; border:1px solid rgba(245,185,66,.32); border-radius:14px; padding:13px 14px; margin-bottom:10px; }
@@ -402,15 +406,14 @@
     <div class="empty-state" data-i18n="loading">Loading...</div>
   </div>
 
-  <div class="section-label"><div class="section-label-left"><span class="nav-en">COMMUNITY & EDGE COIN</span><span class="nav-tr">TOPLULUK & EDGE COIN</span></div></div>
+  <div class="section-label"><div class="section-label-left" data-i18n="communityTitle">COMMUNITY & EDGE COIN</div></div>
   <div class="coin-panel" id="coinPanel">
-    <div><strong id="coinBalance">🪙 —</strong><small id="coinRank">Coin ve rank yükleniyor…</small></div>
-    <button class="claim-btn" id="claimDailyBtn" type="button">GÜNLÜK COIN</button>
+    <div class="coin-main"><span class="coin-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M9 8.5h4.2a2 2 0 0 1 0 4H10.8a2 2 0 0 0 0 4H15M12 6.5v11"/></svg></span><div><strong id="coinBalance">— Edge Coin</strong><small class="rank-line" id="coinRank">Loading rank…</small></div></div>
+    <button class="claim-btn" id="claimDailyBtn" type="button" data-i18n="dailyCoin">DAILY COIN</button>
   </div>
   <div class="community-grid">
-    <a class="community-card" href="edge-arena.html"><div>🏆</div><strong>Edge Arena</strong><span>Fixtures</span></a>
-    <a class="community-card" href="kuponum.html"><div>🎟️</div><strong>Kuponum</strong><span>Seçimlerini ve sonuçlarını takip et</span></a>
-    <a class="community-card" href="edge-arena.html"><div>📊</div><strong>Tribünden Analiz</strong><span>Topluluk seçimleri ve popüler tercihler</span></a>
+    <a class="community-card" href="edge-arena.html"><div class="community-icon"><svg viewBox="0 0 24 24"><path d="M8 4h8v4a4 4 0 0 1-8 0zM8 6H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 12v5m-4 3h8m-6-3h4"/></svg></div><strong>Edge Arena</strong><span data-i18n="arenaSub">Fixtures & Rankings</span></a>
+    <a class="community-card" href="kuponum.html"><div class="community-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"/><path d="M12 7.5v2m0 5v2"/></svg></div><strong data-i18n="couponTitle">Coupon</strong><span data-i18n="couponSub">Track your picks and results</span></a>
   </div>
 
   <div class="legal-footer" data-i18n="legalText">
@@ -546,6 +549,7 @@ const TRANSLATIONS = {
     todayFallback: 'Today',
     welcomeBack: 'Welcome back, ',
     featuredTab: 'Featured', liveTab: 'Live',
+    communityTitle:'COMMUNITY & EDGE COIN', dailyCoin:'DAILY COIN', dailyClaimed:'CLAIMED TODAY', arenaSub:'Fixtures & Rankings', couponTitle:'Coupon', couponSub:'Track your picks and results', rankLoading:'Loading rank…', profileLoadError:'Profile could not be loaded',
     topTab: 'Top Predictions', valueTab: 'Values', analysisButton: 'ANALYSIS', loadingAnalysis: 'Analysing matches...',
     noValue: 'No price-backed value pick found', noStrongPicks: 'No sufficiently supported prediction yet', dataHealth: 'Data health',
     noLiveNow: 'No matches are live right now',
@@ -573,6 +577,7 @@ const TRANSLATIONS = {
     todayFallback: 'Bugün',
     welcomeBack: 'Tekrar hoş geldin, ',
     featuredTab: 'Öne Çıkan', liveTab: 'Canlı',
+    communityTitle:'TOPLULUK & EDGE COIN', dailyCoin:'GÜNLÜK COIN', dailyClaimed:'BUGÜN ALINDI', arenaSub:'Fikstür & Sıralama', couponTitle:'Kuponum', couponSub:'Seçimlerini ve sonuçlarını takip et', rankLoading:'Rank yükleniyor…', profileLoadError:'Profil yüklenemedi',
     topTab: 'En Güçlü', valueTab: 'Değerli Seçimler', analysisButton: 'ANALİZ', loadingAnalysis: 'Maçlar analiz ediliyor...',
     noValue: 'Oranla doğrulanmış değerli seçim bulunamadı', noStrongPicks: 'Yeterli veriyle desteklenen güçlü analiz henüz yok', dataHealth: 'Veri sağlığı',
     noLiveNow: 'Şu anda canlı maç yok',
@@ -1323,13 +1328,13 @@ async function loadCommunityPanel() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Topluluk profili yüklenemedi');
     const profile = data.profile;
-    document.getElementById('coinBalance').textContent = '🪙 ' + profile.edgeCoins + ' Edge Coin';
-    document.getElementById('coinRank').textContent = profile.rank.icon + ' ' + profile.rank.name + ' · ' + profile.xp + ' XP';
+    document.getElementById('coinBalance').textContent = profile.edgeCoins + ' Edge Coin';
+    document.getElementById('coinRank').innerHTML = '<span class="rank-icon"><svg viewBox="0 0 24 24"><path d="m12 3 2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z"/></svg></span><span>' + profile.rank.name + ' · ' + profile.xp + ' XP</span>';
     const claimed = Boolean(profile.daily && profile.daily.claimedToday);
     button.disabled = claimed;
-    button.textContent = claimed ? 'BUGÜN ALINDI' : 'GÜNLÜK COIN';
+    button.textContent = claimed ? t('dailyClaimed') : t('dailyCoin');
   } catch (error) {
-    document.getElementById('coinRank').textContent = 'Profil yüklenemedi';
+    document.getElementById('coinRank').textContent = t('profileLoadError');
     button.disabled = true;
   }
 }
