@@ -330,6 +330,11 @@
 @media(max-width:390px){.se-modern-nav a{font-size:7.8px!important}.se-modern-nav svg{width:19px;height:19px}}
 
 .community-modern-icon{width:42px;height:42px;border-radius:12px;display:flex!important;align-items:center;justify-content:center;background:rgba(57,199,193,.12);color:#39c7c1}.community-modern-icon.coupon-icon{background:rgba(230,107,100,.12);color:#e66b64}.community-modern-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* compact prematch analysis CTA */
+.featured-signal.analysis-action{background:transparent!important;padding:0!important;margin-top:14px!important;border:0!important}
+.featured-analysis-button{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;border-radius:13px;background:#39c7c1;color:#062321;font-size:14px;font-weight:900;letter-spacing:.5px;transition:background .12s ease,transform .12s ease;box-shadow:0 6px 18px rgba(57,199,193,.12)}
+.featured-card:active .featured-analysis-button{background:#239c98;transform:scale(.985)}
 </style>
 
 
@@ -537,7 +542,7 @@ const TRANSLATIONS = {
     todayFallback: 'Today',
     welcomeBack: 'Welcome back, ',
     featuredTab: 'Featured', liveTab: 'Live',
-    topTab: 'Top Predictions', valueTab: 'Values', loadingAnalysis: 'Analysing matches...',
+    topTab: 'Top Predictions', valueTab: 'Values', analysisButton: 'ANALYSIS', loadingAnalysis: 'Analysing matches...',
     noValue: 'No price-backed value pick found', noStrongPicks: 'No sufficiently supported prediction yet', dataHealth: 'Data health',
     noLiveNow: 'No matches are live right now',
   },
@@ -564,7 +569,7 @@ const TRANSLATIONS = {
     todayFallback: 'Bugün',
     welcomeBack: 'Tekrar hoş geldin, ',
     featuredTab: 'Öne Çıkan', liveTab: 'Canlı',
-    topTab: 'En Güçlü', valueTab: 'Değerli Seçimler', loadingAnalysis: 'Maçlar analiz ediliyor...',
+    topTab: 'En Güçlü', valueTab: 'Değerli Seçimler', analysisButton: 'ANALİZ', loadingAnalysis: 'Maçlar analiz ediliyor...',
     noValue: 'Oranla doğrulanmış değerli seçim bulunamadı', noStrongPicks: 'Yeterli veriyle desteklenen güçlü analiz henüz yok', dataHealth: 'Veri sağlığı',
     noLiveNow: 'Şu anda canlı maç yok',
   },
@@ -957,7 +962,7 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
     const health = Number.isFinite(Number(pick.dataHealth)) ? Number(pick.dataHealth) : null;
     signal = `<div class="featured-market"><div><div class="featured-signal-text">${homePickEnglish(pick.market)} · ${homePickEnglish(pick.label)}</div>${health !== null ? `<div class="featured-health">${t('dataHealth')} ${health}/100</div>` : ''}</div><div class="featured-probability">%${Number(pick.probability)}</div></div>`;
   } else {
-    signal = `<div><div class="featured-signal-text">${isLive ? 'Tap for Prediction' : t('preMatchReady')}</div><div class="featured-signal-sub">${isLive ? t('goToSimulator') : t('loadingAnalysis')}</div></div>`;
+    signal = isLive ? `<div><div class="featured-signal-text">Tap for Prediction</div><div class="featured-signal-sub">${t('goToSimulator')}</div></div>` : `<span class="featured-analysis-button">${t('analysisButton')}</span>`;
   }
 
   const isFav = favorites.has(String(m.fixtureId));
@@ -969,8 +974,8 @@ function featuredCardHtml(m, analysis = matchAnalyses.get(String(m.fixtureId)), 
       ${cardFav}
       <div class="featured-teams">${escapeHtml(displayTeam(m.homeTeam))} - ${escapeHtml(displayTeam(m.awayTeam))}${isLive ? ` &nbsp; <span style="color:var(--teal)">${m.homeScore ?? 0} - ${m.awayScore ?? 0}</span>` : ''}</div>
       <div class="featured-meta">${escapeHtml(displayLeague(m.displayName || m.league,m.canonicalCompetitionKey))} • ${timeLabel}</div>
-      <div class="featured-signal">
-        <div class="featured-signal-icon">${isLive ? '⚡' : '📈'}</div>
+      <div class="featured-signal ${isLive ? '' : 'analysis-action'}">
+        ${isLive ? '<div class="featured-signal-icon">⚡</div>' : ''}
         <div style="flex:1">${signal}</div>
       </div>
     </a>
