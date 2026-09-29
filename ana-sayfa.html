@@ -925,7 +925,14 @@ function rankedMatches(valueOnly = false) {
 // Tek bir mac icin "featured-card" markup'i - hem tekil "Ozne Cikan" gorunumunde
 // hem de "Canli" sekmesindeki listede (birden fazla mac ust uste) kullanilir.
 function homePickEnglish(text) {
-  if (currentLang !== 'en' || text == null) return text ?? '';
+  if (text == null) return '';
+  if (currentLang === 'tr') {
+    let s=String(text).trim();
+    const exact={'BTTS':'KG','BTTS YES':'KG VAR','BTTS NO':'KG YOK','Yes':'Var','No':'Yok','Home':'Ev Sahibi','Away':'Deplasman','Draw':'Beraberlik','Over 2.5':'2,5 Üst','Under 2.5':'2,5 Alt','O/U 2.5':'2,5 Gol'};
+    if(exact[s]) return exact[s];
+    return s.replace(/\bBTTS\s*YES\b/gi,'KG VAR').replace(/\bBTTS\s*NO\b/gi,'KG YOK').replace(/^BTTS$/i,'KG').replace(/\bOver 2[.,]5\b/gi,'2,5 Üst').replace(/\bUnder 2[.,]5\b/gi,'2,5 Alt');
+  }
+  if (currentLang !== 'en') return text ?? '';
   let s = String(text).trim();
   const exact = {
     'KG VAR':'BTTS YES','KG YOK':'BTTS NO','Korner':'Corners','KORNER':'CORNERS',
