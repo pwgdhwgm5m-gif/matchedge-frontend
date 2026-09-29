@@ -1542,13 +1542,27 @@ function renderStandings(standings) {
   const normalizeTeamName = value => String(value || '')
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, '');
-  const homeName = normalizeTeamName(standings.homeTeamName || currentAnalysis?.homeTeam || CONTEXT.homeTeamName);
-  const awayName = normalizeTeamName(standings.awayTeamName || currentAnalysis?.awayTeam || CONTEXT.awayTeamName);
+  const rawHomeName = standings.homeTeamName || currentAnalysis?.homeTeam || CONTEXT.homeTeamName;
+  const rawAwayName = standings.awayTeamName || currentAnalysis?.awayTeam || CONTEXT.awayTeamName;
+  const teamCore = value => {
+    const parts=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+      .replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean);
+    const noise=new Set(['fc','afc','cf','sc','sv','fk','ac','calcio','football','club']);
+    while(parts.length>1&&noise.has(parts[0]))parts.shift();
+    while(parts.length>1&&noise.has(parts[parts.length-1]))parts.pop();
+    return parts.join('');
+  };
+  const namesMatch=(a,b)=>{
+    const x=normalizeTeamName(a),y=normalizeTeamName(b);
+    if(!x||!y)return false;
+    if(x===y)return true;
+    const cx=teamCore(a),cy=teamCore(b);
+    return cx.length>=4&&cy.length>=4&&cx===cy;
+  };
 
   tbody.innerHTML = table.map(row => {
-    const rowName = normalizeTeamName(row.teamName);
-    const isHome = String(row.teamId) === homeId || (!!homeName && rowName === homeName);
-    const isAway = String(row.teamId) === awayId || (!!awayName && rowName === awayName);
+    const isHome = (!!homeId && String(row.teamId) === homeId) || namesMatch(row.teamName,rawHomeName);
+    const isAway = (!!awayId && String(row.teamId) === awayId) || namesMatch(row.teamName,rawAwayName);
     // Highlight both clubs from the analysed fixture so neither disappears
     // inside a long league table. Home keeps SoccerEdge teal; away uses a warm
     // gold/amber accent that remains readable on the dark theme.
@@ -1704,7 +1718,7 @@ function renderCouponMarkets(data) {
       const available=item&&item.probability!=null&&item.probability!==''&&Number.isFinite(Number(item.probability));
       const odd=available?Number(item?.verifiedOdds):NaN;
       const oddsFresh=available&&item?.oddsFresh===true&&Number.isFinite(odd)&&odd>1;
-      return `<div><button type="button" class="coupon-market" data-key="${key}" ${available&&oddsFresh?'':'disabled aria-disabled="true"'}>
+      return `<div><button type="button" class="coupon-market" data-key="${key}" ${available?'':'disabled aria-disabled="true"'}>
         <strong>${row.labels[i]}</strong><em>${available?escape(item.probability)+'%':'—'}</em><span class="coupon-real-odds">${oddsFresh?odd.toFixed(2):'—'}</span></button></div>`;
     }).join('')}</div></div>`).join('');
 
