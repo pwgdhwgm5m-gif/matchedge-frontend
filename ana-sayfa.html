@@ -1401,12 +1401,8 @@ async function initStrongSignalToggle(){
     button.disabled=true;error='';
     try{
       const next=!enabled;
-      if(next&&localStorage.getItem('socceredge_match_notifications')!=='on'){
-        if(!window.SoccerEdgePush||!await window.SoccerEdgePush.setEnabled(true))throw new Error('Push permission unavailable');
-        localStorage.setItem('socceredge_match_notifications','on');
-        const bell=document.getElementById('notificationBtn');
-        if(bell){bell.textContent='🔔';bell.classList.add('notification-on');bell.setAttribute('aria-pressed','true')}
-      }
+      // Save the STRONG preference first. Push permission/subscription is a separate
+      // delivery channel and must not prevent the switch itself from working.
       const response=await fetch(`${API_BASE}/api/push/strong-signal`,{method:'PUT',headers:authHeaders(),body:JSON.stringify({enabled:next})});
       if(!response.ok)throw new Error('Preference save failed');
       enabled=(await response.json()).enabled===true;
