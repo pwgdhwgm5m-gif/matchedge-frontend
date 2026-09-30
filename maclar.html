@@ -549,6 +549,9 @@ function analysisLink(m) {
     away: m.awayId || '',
   });
   if(m.canonicalProvider)params.set('provider',m.canonicalProvider);
+  if(m.providerIds?.fiveDollar)params.set('fiveDollarFixtureId',String(m.providerIds.fiveDollar));
+  if(m.providerTeamIds?.fiveDollar?.home)params.set('fiveDollarHomeTeamId',String(m.providerTeamIds.fiveDollar.home));
+  if(m.providerTeamIds?.fiveDollar?.away)params.set('fiveDollarAwayTeamId',String(m.providerTeamIds.fiveDollar.away));
   if(m.isFinished===true || /^(FT|AET|PEN|AWARDED)$/.test(String(m.statusShort||m.status||'').toUpperCase())) {
     params.set('final','1');
     if(m.homeScore!=null && m.awayScore!=null && Number.isFinite(Number(m.homeScore)) && Number.isFinite(Number(m.awayScore))) {
